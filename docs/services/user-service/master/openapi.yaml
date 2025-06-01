@@ -1,587 +1,195 @@
 openapi: 3.0.3
 info:
-  title: User Service Master API
+  title: User Service Master – API Spec
+  version: 1.2.0
   description: |
-    Dịch vụ quản lý định danh người dùng toàn cục, tenant và RBAC templates trong hệ thống đa tenant của dx_vas.
-    Phục vụ Auth Services, Sub User Services và các ứng dụng quản trị Superadmin.
-  version: 1.0.0
+    API cho User Service Master, phục vụ quản lý người dùng toàn cục (Global Users), tenant (trường thành viên), và RBAC templates.
+    Tài liệu này tuân thủ [ADR-012 - Response Structure](https://dx-api.truongvietanh.edu.vn/ADR/adr-012-response-structure),
+    [ADR-011 - API Error Format](https://dx-api.truongvietanh.edu.vn/ADR/adr-011-api-error-format),
+    và tiêu chuẩn 5★ cho OpenAPI.
+    - 📄 Xem thêm: [design.md](../design.md), [interface-contract.md](../interface-contract.md), [data-model.md](../data-model.md)
+  contact:
+    name: DX Platform Team
+    email: dx@truongvietanh.edu.vn
+  
+  x-api-version: v1
+  x-maintainer: dx-team@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    - adr-026-hard-delete-policy
+    - adr-027-data-management-strategy
 
 servers:
-  - url: https://api.truongvietanh.edu.vn/user-service/master
-    description: Production
-  - url: https://staging.truongvietanh.edu.vn/user-service/master
+  - url: https://api.truongvietanh.edu.vn/user-service-master/
+    description: Production Server
+  - url: https://staging-api.truongvietanh.edu.vn/user-service-master/
     description: Staging
-  - url: http://localhost:8000
-    description: Local Development
 
 tags:
-  - name: Users Global
+  - name: users-global
     description: Quản lý người dùng toàn cục
-  - name: Tenants
-    description: Quản lý thông tin tenant
-  - name: User-Tenant Assignments
-    description: Gán người dùng vào tenant
-  - name: RBAC Templates
-    description: Quản lý role/permission template toàn cục
+  - name: tenants
+    description: Quản lý trường thành viên (tenant)
+  - name: rbac-templates
+    description: Quản lý template role và permission dùng cho RBAC động
 
-paths:
-  /users-global:
-    get:
-      summary: Danh sách người dùng toàn cục (Master)
-      tags:
-        - users-global
-      description: |
-        Trả về danh sách người dùng toàn hệ thống (không phụ thuộc tenant).
-        Hỗ trợ phân trang, tìm kiếm và sắp xếp.
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
-          description: Trang hiện tại
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 20
-            minimum: 1
-            maximum: 100
-          description: Số lượng bản ghi mỗi trang
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Tìm theo tên hoặc email
-        - in: query
-          name: auth_provider
-          schema:
-            $ref: '#/components/schemas/AuthProviderEnum'
-          description: Loại đăng nhập
-          example: "google"
-        - in: query
-          name: sort_by
-          schema:
-            $ref: '#/components/schemas/UserGlobalSortByEnum'
-            default: created_at
-          description: Trường dùng để sắp xếp
-        - in: query
-          name: sort_order
-          schema:
-            $ref: '#/components/schemas/SortOrderEnum'
-            default: desc
-          description: Thứ tự sắp xếp
-      x-required-permission: superadmin.view_all_users_global
-      x-audit-action: list_users_global
-      responses:
-        '200':
-          description: Lấy danh sách thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserGlobalListResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-
-    post:
-      summary: Tạo người dùng toàn cục (Master)
-      tags:
-        - users-global
-      description: |
-        Tạo mới người dùng toàn hệ thống và khởi tạo user_id duy nhất.
-        Có thể phát sinh sự kiện `user_global_created` để các Sub Service đồng bộ.
-      x-required-permission: superadmin.create_user_global
-      x-audit-action: create_user_global
-      x-emits-event: user_global_created
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserGlobalCreateRequest'
-      responses:
-        '201':
-          description: Tạo thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserGlobalResponse'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-        '409':
-          $ref: '#/components/responses/ConflictError'
-
-  /users-global/{user_id}:
-    parameters:
-      - name: user_id
-        in: path
-        required: true
-        schema:
-          type: string
-
-    get:
-      summary: Lấy thông tin người dùng toàn cục theo ID
-      operationId: getUserGlobalById
-      tags: [Users Global]
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Lấy thông tin thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserGlobalResponse'
-
-    patch:
-      summary: Cập nhật thông tin người dùng toàn cục
-      tags:
-        - users-global
-      x-required-permission: superadmin.update_user_global
-      x-audit-action: update_user_global
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GlobalUserUpdate'
-      responses:
-        '204':
-          description: Cập nhật thành công
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-  /tenants:
-    get:
-      summary: Danh sách tenant
-      tags:
-        - tenants
-      description: Trả về danh sách các tenant (trường thành viên)
-      parameters:
-        - in: query
-          name: page
-          schema: { type: integer, default: 1, minimum: 1 }
-        - in: query
-          name: limit
-          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
-        - in: query
-          name: search
-          schema: { type: string }
-          description: Tìm theo tên hoặc mã tenant
-        - in: query
-          name: sort_by
-          schema:
-            $ref: '#/components/schemas/TenantSortByEnum'
-          description: Trường sắp xếp
-        - in: query
-          name: sort_order
-          schema:
-            $ref: '#/components/schemas/SortOrderEnum'
-          description: Thứ tự sắp xếp
-      x-required-permission: superadmin.view_tenants
-      x-audit-action: list_tenants
-      responses:
-        '200':
-          description: Lấy danh sách các trường thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TenantListResponse'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-
-    post:
-      summary: Tạo tenant mới
-      operationId: createTenant
-      tags: [Tenants]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantCreateRequest'
-      responses:
-        '201':
-          description: Tạo thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TenantResponse'
-
-  /tenants/{tenant_id}:
-    parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
-          type: string
-
-    get:
-      summary: Lấy thông tin tenant theo ID
-      operationId: getTenantById
-      tags: [Tenants]
-      parameters:
-        - name: tenant_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Lấy thông tin trường thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TenantResponse'
-
-    patch:
-      summary: Cập nhật thông tin tenant
-      tags:
-        - tenants
-      x-required-permission: superadmin.update_tenant
-      x-audit-action: update_tenant
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantUpdateRequest'
-      responses:
-        '204':
-          description: Cập nhật thành công
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-
-  /user-tenant-assignments:
-    get:
-      summary: Danh sách gán người dùng vào tenant
-      tags:
-        - user-tenant-assignments
-      parameters:
-        - in: query
-          name: page
-          schema: { type: integer, default: 1, minimum: 1 }
-        - in: query
-          name: limit
-          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
-        - in: query
-          name: user_id
-          schema: { type: string }
-        - in: query
-          name: tenant_id
-          schema: { type: string }
-        - in: query
-          name: sort_by
-          schema:
-            $ref: '#/components/schemas/UserTenantAssignmentsSortByEnum'
-        - in: query
-          name: sort_order
-          schema:
-            $ref: '#/components/schemas/SortOrderEnum'
-      x-required-permission: superadmin.view_user_assignments
-      x-audit-action: list_user_tenant_assignments
-      responses:
-        '200':
-          description: Lấy danh sách thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserTenantAssignmentListResponse'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-
-    post:
-      summary: Gán user vào tenant
-      tags:
-        - user-tenant-assignments
-      x-required-permission: superadmin.assign_user_to_tenant
-      x-audit-action: assign_user_to_tenant
-      x-emits-event: user_assigned_to_tenant
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserTenantAssignmentCreateRequest'
-      responses:
-        '201':
-          description: Tạo thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserTenantAssignmentResponse'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-
-  /user-tenant-assignments/{id}:
-    patch:
-      summary: Cập nhật trạng thái gán người dùng vào tenant
-      operationId: updateUserTenantAssignment
-      tags: [User-Tenant Assignments]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserTenantAssignmentUpdateRequest'
-      responses:
-        '200':
-          description: Cập nhật thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserTenantAssignmentResponse'
-
-  /rbac/templates/roles:
-    get:
-      summary: Danh sách RBAC Template Role
-      tags:
-        - rbac-templates
-      parameters:
-        - in: query
-          name: page
-          schema: { type: integer, default: 1 }
-        - in: query
-          name: limit
-          schema: { type: integer, default: 20 }
-        - in: query
-          name: search
-          schema: { type: string }
-        - in: query
-          name: sort_by
-          schema:
-            $ref: '#/components/schemas/RoleTemplateSortByEnum'
-        - in: query
-          name: sort_order
-          schema:
-            $ref: '#/components/schemas/SortOrderEnum'
-      x-required-permission: superadmin.view_rbac_templates
-      x-audit-action: list_rbac_template_roles
-      responses:
-        '200':
-          description: Lấy danh sách thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RoleTemplateListResponse'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-      x-note: >
-        RBAC templates là metadata toàn cục (global metadata), không thuộc phạm vi áp dụng của ADR-026 (multi-tenant versioning) và ADR-027 (data management strategy).
-
-  /rbac/templates/roles/{template_id}:
-    patch:
-      summary: Cập nhật Role Template
-      operationId: updateGlobalRoleTemplate
-      tags: [RBAC Templates]
-      parameters:
-        - name: template_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GlobalRoleTemplateUpdate'
-      responses:
-        '200':
-          description: Cập nhật thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RoleTemplateResponse'
-
-    delete:
-      summary: Xoá Role Template
-      operationId: deleteGlobalRoleTemplate
-      tags: [RBAC Templates]
-      parameters:
-        - name: template_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Xoá thành công
-
-  /rbac/templates/permissions:
-    get:
-      summary: Danh sách RBAC Template Permission
-      tags:
-        - rbac-templates
-      parameters:
-        - in: query
-          name: page
-          schema: { type: integer, default: 1 }
-        - in: query
-          name: limit
-          schema: { type: integer, default: 20 }
-        - in: query
-          name: search
-          schema: { type: string }
-        - in: query
-          name: sort_by
-          schema:
-            $ref: '#/components/schemas/PermissionTemplateSortByEnum'
-        - in: query
-          name: sort_order
-          schema:
-            $ref: '#/components/schemas/SortOrderEnum'
-      x-required-permission: superadmin.view_rbac_templates
-      x-audit-action: list_rbac_template_permissions
-      responses:
-        '200':
-          description: Lấy danh sách thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PermissionTemplateListResponse'
-        '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ForbiddenError'
-      x-note: >
-        RBAC templates là metadata toàn cục (global metadata), không thuộc phạm vi áp dụng của ADR-026 (multi-tenant versioning) và ADR-027 (data management strategy).
-
-
-  /rbac/templates/permissions/{template_id}:
-    patch:
-      summary: Cập nhật Permission Template
-      operationId: updateGlobalPermissionTemplate
-      tags: [RBAC Templates]
-      parameters:
-        - name: template_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GlobalPermissionTemplateUpdate'
-      responses:
-        '200':
-          description: Cập nhật thành công
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PermissionTemplateResponse'
-
-    delete:
-      summary: Xoá Permission Template
-      operationId: deleteGlobalPermissionTemplate
-      tags: [RBAC Templates]
-      parameters:
-        - name: template_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Xoá thành công
+security:
+  - BearerAuth: []
 
 components:
-  responses:
-    BadRequestError:
-      description: Yêu cầu không hợp lệ
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
-    ForbiddenError:
-      description: Không có quyền truy cập
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+      description: "Bearer JWT token (format: 'Bearer <access_token>')"
 
-    NotFoundError:
-      description: Không tìm thấy tài nguyên
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Trang hiện tại (mặc định = 1)
 
-    UnauthorizedError:
-      description: Chưa xác thực
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Số lượng bản ghi mỗi trang (mặc định = 20)
 
-    ConflictError:
-      description: Xung đột
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+    SearchKeyword:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Tìm kiếm theo tên, email hoặc mã
+
+    SortOrder:
+      name: sort_order
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/SortOrderEnum'
+      description: Thứ tự sắp xếp (tăng hoặc giảm dần)
+
+    UserGlobalSortBy:
+      name: sort_by
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/UserGlobalSortByEnum'
+      description: Trường dùng để sắp xếp danh sách người dùng toàn cục
+
+    TenantSortBy:
+      name: sort_by
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/TenantSortByEnum'
+      description: Trường dùng để sắp xếp danh sách tenant
+
+    UserTenantAssignmentsSortBy:
+      name: sort_by
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/UserTenantAssignmentsSortByEnum'
+      description: Trường dùng để sắp xếp danh sách phân quyền người dùng vào tenant
+
+    RoleTemplateSortBy:
+      name: sort_by
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/RoleTemplateSortByEnum'
+      description: Trường dùng để sắp xếp danh sách role template
+
+    PermissionTemplateSortBy:
+      name: sort_by
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PermissionTemplateSortByEnum'
+      description: Trường dùng để sắp xếp danh sách permission template
+
+  headers:
+    X-Request-ID:
+      description: ID định danh duy nhất cho mỗi request – giúp trace log hiệu quả
+      required: false
+      schema:
+        type: string
+      example: req_01H8X4YJ4GVN3YX4MH6ZQ1M3Q0
 
   schemas:
+    # 🧩 Meta wrapper
+    ResponseMeta:
+      type: object
+      required: [request_id, timestamp]
+      properties:
+        request_id:
+          type: string
+          description: Mã định danh của request
+          example: req-xyz-789
+        timestamp:
+          type: string
+          format: date-time
+          description: Thời gian trả về response
+          example: "2024-05-20T10:15:00Z"
+        page:
+          type: integer
+          nullable: true
+          description: Số trang hiện tại (nếu có)
+          example: 1
+        per_page:
+          type: integer
+          nullable: true
+          description: Số bản ghi mỗi trang
+          example: 20
+        total:
+          type: integer
+          nullable: true
+          description: Tổng số bản ghi
+          example: 125
+
+    ErrorEnvelope:
+      type: object
+      required: [meta, error]
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+
+    ErrorResponse:
+      type: object
+      description: Cấu trúc thông báo lỗi
+      properties:
+        code:
+          type: string
+          example: "FORBIDDEN"
+        message:
+          type: string
+          example: "Bạn không có quyền truy cập tài nguyên này."
+
+    # --- ENUMS ---
     TenantStatusEnum:
       type: string
       enum: [active, inactive, suspended, archived]
@@ -607,9 +215,9 @@ components:
 
     AuthProviderEnum:
       type: string
-      enum: [local, google]
+      enum: [local, google, otp]
       description: Loại đăng nhập của người dùng
-      example: "google"
+      example: google
 
     UserGlobalSortByEnum:
       type: string
@@ -636,435 +244,1807 @@ components:
       enum: [permission_code, created_at]
       description: Trường dùng để sắp xếp danh sách permission template
 
-    UserGlobal:
+    # --- OBJECT SCHEMAS ---
+
+    UserGlobalResponse:
       type: object
+      description: Thông tin người dùng toàn cục (dùng trong response)
+      properties:
+        user_id:
+          type: string
+          description: ID duy nhất của người dùng
+          example: "user_abc123"
+        email:
+          type: string
+          format: email
+          description: Email đăng nhập
+          example: "alice@example.com"
+        full_name:
+          type: string
+          description: Họ và tên người dùng
+          example: "Alice Nguyen"
+        status:
+          $ref: '#/components/schemas/UserStatusEnum'
+        auth_provider:
+          $ref: '#/components/schemas/AuthProviderEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm tạo user
+          example: "2024-05-01T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm cập nhật user gần nhất
+          example: "2024-06-01T15:45:00Z"
+
+    TenantResponse:
+      type: object
+      description: Thông tin tenant (trường thành viên)
+      properties:
+        tenant_id:
+          type: string
+          description: Mã định danh duy nhất của tenant
+          example: "school_tva"
+        name:
+          type: string
+          description: Tên hiển thị của tenant
+          example: "Trường Việt Anh"
+        status:
+          $ref: '#/components/schemas/TenantStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Ngày tạo tenant
+          example: "2024-01-10T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Ngày cập nhật tenant gần nhất
+          example: "2024-06-01T00:00:00Z"
+
+    RoleTemplateResponse:
+      type: object
+      description: Thông tin role template
+      properties:
+        template_code:
+          type: string
+          description: Mã định danh duy nhất của role template
+          example: "student"
+        name:
+          type: string
+          description: Tên hiển thị của role
+          example: "Học sinh"
+        description:
+          type: string
+          description: Mô tả vai trò
+          example: "Quyền dành cho học sinh"
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Danh sách permission code đi kèm
+          example: ["user.view_profile", "homework.submit"]
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm tạo role template
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm cập nhật gần nhất
+
+    PermissionTemplateResponse:
+      type: object
+      description: Thông tin permission template
+      properties:
+        permission_code:
+          type: string
+          description: Mã định danh của permission
+          example: "user.view_profile"
+        name:
+          type: string
+          description: Tên hiển thị
+          example: "Xem thông tin người dùng"
+        description:
+          type: string
+          description: Mô tả quyền
+          example: "Cho phép người dùng xem thông tin hồ sơ"
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm tạo
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm cập nhật gần nhất
+
+    UserTenantAssignmentResponse:
+      type: object
+      description: Thông tin phân quyền user tới tenant
+      properties:
+        tenant_id:
+          type: string
+          description: Mã tenant gán cho user
+          example: "school_tva"
+        user_id:
+          type: string
+          description: ID người dùng
+          example: "user_abc123"
+        role_codes:
+          type: array
+          items:
+            type: string
+          description: Danh sách role_code được gán
+        status:
+          $ref: '#/components/schemas/AssignmentStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+
+    UserGlobalCreateRequest:
+      type: object
+      required: [full_name, email, auth_provider]
+      properties:
+        full_name:
+          type: string
+          description: Họ và tên đầy đủ của người dùng
+          example: Nguyễn Văn A
+        email:
+          type: string
+          format: email
+          description: Địa chỉ email
+          example: nguyenvana@example.com
+        auth_provider:
+          $ref: '#/components/schemas/AuthProviderEnum'
+
+    UserGlobalUpdateRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          description: Họ tên mới của người dùng
+          example: Nguyễn Văn B
+        email:
+          type: string
+          format: email
+          description: Địa chỉ email mới
+          example: nguyenvanb@example.com
+        auth_provider:
+          $ref: '#/components/schemas/AuthProviderEnum'
+
+    UserGlobalStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/UserStatusEnum'
+
+    TenantCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: Tên trường thành viên (tenant)
+          example: Trường Tiểu học Việt Anh Cà Mau
+
+    TenantUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Tên mới của trường thành viên
+          example: Trường Việt Anh Campus 2
+
+    UserTenantAssignmentCreateRequest:
+      type: object
+      required: [user_id, tenant_id, role_codes]
       properties:
         user_id:
           type: string
           format: uuid
-          description: Định danh người dùng toàn cục
-          example: "abc123"
-          readOnly: true
-        full_name:
-          type: string
-          description: Họ và tên người dùng
-          example: "Nguyễn Văn A"
-        email:
-          type: string
-          format: email
-          description: Địa chỉ email người dùng
-          example: "user@example.com"
-        auth_provider:
-          $ref: '#/components/schemas/AuthProviderEnum'
-          description: Loại đăng nhập
-          example: "google"
-        created_at:
-          type: string
-          format: date-time
-          description: Thời điểm người dùng được tạo
-          example: "2024-01-01T08:00:00Z"
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          description: Thời điểm người dùng được cập nhật lần cuối
-          example: "2024-01-10T12:00:00Z"
-          readOnly: true
-      required: [user_id, full_name, email, auth_provider]
-
-    UserGlobalCreateRequest:
-      type: object
-      properties:
-        full_name:
-          type: string
-          description: Họ và tên người dùng
-          example: "Nguyễn Văn A"
-        email:
-          type: string
-          format: email
-          description: Địa chỉ email người dùng
-          example: "user@example.com"
-        auth_provider:
-          $ref: '#/components/schemas/AuthProviderEnum'
-          description: Loại đăng nhập
-          example: "google"
-      required: [full_name, email, auth_provider]
-
-    UserGlobalResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              $ref: '#/components/schemas/UserGlobal'
-
-    Tenant:
-      type: object
-      properties:
+          description: ID của người dùng toàn cục
+          example: d79c9f7e-b4de-4a32-a20c-4c1f647d8c63
         tenant_id:
           type: string
-          description: Định danh tenant
-          example: "abc123"
-          readOnly: true
-        tenant_name:
-          type: string
-          description: Tên tenant
-          example: "Trường Tiểu Học Việt Anh"
-        status:
-          $ref: '#/components/schemas/TenantStatusEnum'
-        created_at:
-          type: string
-          format: date-time
-          description: Ngày tạo tenant
-          example: "2024-01-01T08:00:00Z"
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          description: Ngày cập nhật tenant gần nhất
-          example: "2024-01-10T12:00:00Z"
-          readOnly: true
-      required: [tenant_id, tenant_name, status]
-
-    TenantCreateRequest:
-      type: object
-      properties:
-        tenant_name:
-          type: string
-          description: Tên tenant
-          example: "Trường Tiểu Học Việt Anh"
-        status:
-          $ref: '#/components/schemas/TenantStatusEnum'
-          default: active
-      required: [tenant_name]
-
-    TenantResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              $ref: '#/components/schemas/Tenant'
-
-    TenantListResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              type: array
-              items:
-                $ref: '#/components/schemas/Tenant'
-            meta:
-              $ref: '#/components/schemas/ResponseMeta'
-
-    UserTenantAssignment:
-      type: object
-      properties:
-        id:
-          type: string
           format: uuid
-          description: Định danh quan hệ người dùng và tenant
-          example: "abc123"
-          readOnly: true
-        user_id_global:
-          type: string
-          format: uuid
-          description: Định danh người dùng toàn cục
-          example: "abc123"
-        tenant_id:
-          type: string
-          description: Định danh tenant
-          example: "abc123"
-        assignment_status:
-          $ref: '#/components/schemas/AssignmentStatusEnum'
-      required: [id, user_id_global, tenant_id, assignment_status]
-
-    UserTenantAssignmentCreateRequest:
-      type: object
-      properties:
-        user_id_global:
-          type: string
-          format: uuid
-          description: Định danh người dùng toàn cục
-          example: "abc123"
-        tenant_id:
-          type: string
-          description: Định danh tenant
-          example: "abc123"
-      required: [user_id_global, tenant_id]
+          description: ID của tenant
+          example: 0edb94d1-5d55-4fcf-97e9-b68c05e7a170
+        role_codes:
+          type: array
+          items:
+            type: string
+          description: Danh sách mã vai trò được gán
+          example: [teacher, homeroom]
 
     UserTenantAssignmentUpdateRequest:
       type: object
       properties:
-        assignment_status:
+        role_codes:
+          type: array
+          items:
+            type: string
+          description: Danh sách mã vai trò mới
+          example: [coordinator, supervisor]
+
+    UserTenantAssignmentStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
           $ref: '#/components/schemas/AssignmentStatusEnum'
-      required: [assignment_status]
 
-    UserTenantAssignmentResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              $ref: '#/components/schemas/UserTenantAssignment'
-
-    GlobalRoleTemplateUpdate:
+    RoleTemplateCreateRequest:
       type: object
+      required: [template_code, name, description, permissions]
       properties:
-        description:
-          type: string
-          nullable: true
-
-    GlobalPermissionTemplateUpdate:
-      type: object
-      properties:
-        action:
-          type: string
-        resource:
-          type: string
-        default_condition:
-          type: object
-          nullable: true
-        description:
-          type: string
-          nullable: true
-
-    RoleTemplateResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              $ref: '#/components/schemas/GlobalRoleTemplate'
-
-    PermissionTemplateResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              $ref: '#/components/schemas/GlobalPermissionTemplate'
-
-    GlobalRoleTemplate:
-      type: object
-      properties:
-        template_id:
-          type: string
-          format: uuid
-          description: Định danh vai trò toàn cục mẫu
-          example: "abc123"
         template_code:
           type: string
-          description: Mã mẫu
-          example: "abc123"
+          description: Mã định danh duy nhất của role template
+          example: teacher
+        name:
+          type: string
+          description: Tên vai trò (hiển thị cho người dùng)
+          example: Giáo viên
         description:
           type: string
-          nullable: true
-          description: Mô tả khái quát
-          example: "Mẫu vai trò tư vấn"
-        created_at:
-          type: string
-          format: date-time
-          description: Ngày tạo role template
-          example: "2024-01-05T10:30:00Z"
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          description: Ngày cập nhật role template gần nhất
-          example: "2024-01-20T14:00:00Z"
-          readOnly: true
-      required: [template_id, template_code]
+          description: Mô tả vai trò
+          example: Vai trò dành cho giáo viên bộ môn hoặc giáo viên chủ nhiệm
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Danh sách mã permission nằm trong vai trò này
+          example: [student.view_profile, student.update_grades]
 
-    GlobalPermissionTemplate:
+    RoleTemplateUpdateRequest:
       type: object
       properties:
-        template_id:
+        name:
           type: string
-          format: uuid
-          description: Định danh mẫu quyền toàn cục
-          example: "per_abc123"
-          readOnly: true
+          description: Tên mới của role
+        description:
+          type: string
+          description: Mô tả mới
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Danh sách permission mới
+
+    PermissionTemplateCreateRequest:
+      type: object
+      required: [permission_code, name, description]
+      properties:
         permission_code:
           type: string
-          description: mã quyền
-          example: "permission abc123"
-        action:
+          description: Mã permission duy nhất
+          example: student.view_profile
+        name:
           type: string
-        resource:
-          type: string
-        default_condition:
-          type: object
-          nullable: true
-          description: Điều kiện mặc định dưới dạng JSON (JSONB)
+          description: Tên permission
+          example: Xem thông tin học sinh
         description:
           type: string
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-          description: Ngày tạo permission template
-          example: "2024-01-03T09:15:00Z"
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          description: Ngày cập nhật permission template gần nhất
-          example: "2024-01-12T17:45:00Z"
-          readOnly: true
-      required: [template_id, permission_code, action, resource]
+          description: Mô tả chi tiết permission
+          example: Cho phép xem hồ sơ học sinh trong tenant
 
-    GlobalUserUpdate:
+    PermissionTemplateUpdateRequest:
       type: object
       properties:
-        full_name:
+        name:
           type: string
-          nullable: true
-          description: Họ và tên người dùng
-          example: "Nguyễn Văn A"
-        phone:
+          description: Tên permission mới
+        description:
           type: string
-          nullable: true
-          description: Số điện thoại người dùng
-          example: "0983123456"
-        status:
-          $ref: '#/components/schemas/UserStatusEnum'
-          nullable: true
-          description: Trạng thái vòng đời người dùng toàn cục.
-          example: "active"
+          description: Mô tả mới cho permission
 
-    UserGlobalListResponse:
-      allOf:
-        - $ref: '#/components/schemas/SuccessEnvelope'
-        - type: object
-          properties:
-            data:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserGlobalResponse'
-            meta:
-              $ref: '#/components/schemas/ResponseMeta'
-
-    UserTenantAssignmentListResponse:
+#___Paginated___
+    PaginatedUserGlobals:
       type: object
-      description: Kết quả danh sách user được gán vào tenant
+      description: Kết quả phân trang danh sách người dùng toàn cục
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGlobalResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+      example:
+        data:
+          - user_id: "abc123"
+            full_name: "Nguyễn Văn A"
+            email: "a@example.com"
+            status: "active"
+            created_at: "2024-01-01T00:00:00Z"
+            updated_at: "2024-01-02T00:00:00Z"
+        meta:
+          page: 1
+          per_page: 20
+          total: 120
+          request_id: "req-xyz"
+
+    PaginatedTenants:
+      type: object
+      description: Kết quả phân trang danh sách tenant
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    PaginatedUserTenantAssignments:
+      type: object
+      description: Kết quả phân trang danh sách user-tenant-assignment
       properties:
         data:
           type: array
           items:
             $ref: '#/components/schemas/UserTenantAssignmentResponse'
-        error:
-          type: object
-          nullable: true
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
-    RoleTemplateListResponse:
+    PaginatedRoleTemplates:
       type: object
-      description: Danh sách role templates toàn cục
+      description: Kết quả phân trang danh sách role template
       properties:
         data:
           type: array
           items:
             $ref: '#/components/schemas/RoleTemplateResponse'
-        error:
-          type: object
-          nullable: true
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
-    PermissionTemplateListResponse:
+    PaginatedPermissionTemplates:
       type: object
-      description: Danh sách permission templates toàn cục
+      description: Kết quả phân trang danh sách permission template
       properties:
         data:
           type: array
           items:
             $ref: '#/components/schemas/PermissionTemplateResponse'
-        error:
-          type: object
-          nullable: true
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
-    TenantUpdateRequest:
-      type: object
-      description: Payload cập nhật thông tin một tenant
-      properties:
-        tenant_name:
-          type: string
-          nullable: true
-          description: Tên mới của tenant (nếu cần cập nhật)
-        status:
-          $ref: '#/components/schemas/TenantStatusEnum'
-          nullable: true
-          description: Trạng thái mới của tenant
-      additionalProperties: false
+    #___Envelop___
 
-    ErrorResponse:
+    UserGlobalEnvelope:
       type: object
-      required: [code, message]
-      properties:
-        code:
-          type: string
-          description: Mã lỗi ứng dụng (application-level code)
-        message:
-          type: string
-          description: Mô tả lỗi dành cho frontend hoặc ghi log
-        field:
-          type: string
-          nullable: true
-          description: Nếu là lỗi validate trường cụ thể
-
-    ResponseMeta:
-      type: object
-      required: [request_id, timestamp]
-      properties:
-        request_id:
-          type: string
-          description: Định danh yêu cầu
-          example: "req_abc123"
-        timestamp:
-          type: string
-          format: date-time
-          description: thời gian
-          example: "2024-01-01T12:00:00Z"
-        page:
-          type: integer
-          nullable: true
-        per_page:
-          type: integer
-          nullable: true
-        total:
-          type: integer
-          nullable: true
-
-    ErrorEnvelope:
-      type: object
-      properties:
-        meta:
-          $ref: '#/components/schemas/ResponseMeta'
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponse'
-
-    SuccessEnvelope:
-      type: object
+      description: Kết quả trả về cho user global (đơn lẻ)
       properties:
         data:
-          type: object
-          description: Dữ liệu trả về (có thể là object hoặc array)
+          $ref: '#/components/schemas/UserGlobalResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
         error:
           type: object
           nullable: true
+
+    TenantEnvelope:
+      type: object
+      description: Kết quả trả về cho tenant (đơn lẻ)
+      properties:
+        data:
+          $ref: '#/components/schemas/TenantResponse'
         meta:
           $ref: '#/components/schemas/ResponseMeta'
-      required: [data, meta]
+        error:
+          type: object
+          nullable: true
 
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    UserTenantAssignmentEnvelope:
+      type: object
+      description: Kết quả trả về cho user-tenant-assignment (đơn lẻ)
+      properties:
+        data:
+          $ref: '#/components/schemas/UserTenantAssignmentResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          nullable: true
+
+    RoleTemplateEnvelope:
+      type: object
+      description: Kết quả trả về cho role template (đơn lẻ)
+      properties:
+        data:
+          $ref: '#/components/schemas/RoleTemplateResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          nullable: true
+
+    PermissionTemplateEnvelope:
+      type: object
+      description: Kết quả trả về cho permission template (đơn lẻ)
+      properties:
+        data:
+          $ref: '#/components/schemas/PermissionTemplateResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          nullable: true
+
+  responses:
+    BadRequestError:
+      description: Yêu cầu không hợp lệ (Bad Request)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    UnauthorizedError:
+      description: Người dùng chưa được xác thực (Missing hoặc invalid token)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    ForbiddenError:
+      description: Người dùng không có đủ quyền truy cập API này
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    NotFoundError:
+      description: Tài nguyên không tồn tại
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    ConflictError:
+      description: Dữ liệu xung đột (đã tồn tại hoặc vi phạm ràng buộc)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    InternalServerError:
+      description: Lỗi không xác định từ hệ thống
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+paths:
+  /users-global:
+    get:
+      summary: Danh sách người dùng toàn cục (Master)
+      description: |
+        Trả về danh sách người dùng toàn hệ thống (không phụ thuộc tenant).
+        Hỗ trợ tìm kiếm, phân trang và sắp xếp.
+      tags:
+        - users-global
+      operationId: listGlobalUsers
+      x-required-permission: superadmin.view_all_users_global
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchKeyword'
+        - $ref: '#/components/parameters/UserGlobalSortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Danh sách người dùng toàn cục
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserGlobals'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Tạo người dùng toàn cục (Master)
+      description: |
+        Tạo mới người dùng toàn hệ thống và khởi tạo `user_id` duy nhất.
+        Có thể phát sinh sự kiện `user_global_created` để các Sub Service đồng bộ.
+      tags:
+        - users-global
+      operationId: createGlobalUser
+      x-required-permission: superadmin.create_user_global
+      x-audit-action: create_user_global
+      x-emits-event: user_global_created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserGlobalCreateRequest'
+      responses:
+        '201':
+          description: Tạo người dùng toàn cục thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGlobalEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /users-global/by-email:
+    get:
+      summary: Tra cứu người dùng toàn cục theo email
+      description: |
+        Truy vấn thông tin người dùng toàn cục bằng địa chỉ email. 
+        Sử dụng cho các service hoặc admin xác minh người dùng đã tồn tại hay chưa.
+      operationId: getUserGlobalByEmail
+      tags:
+        - users-global
+      x-required-permission: superadmin.view_all_users_global
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+          description: Địa chỉ email của người dùng cần tra cứu
+      responses:
+        '200':
+          description: Người dùng được tìm thấy
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGlobalResponse'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users-global/{user_id}:
+    get:
+      summary: Tra cứu người dùng toàn cục theo user_id
+      description: |
+        Trả về thông tin chi tiết của người dùng toàn cục dựa trên `user_id`. 
+        Chỉ sử dụng bởi hệ thống hoặc quản trị viên với quyền phù hợp.
+      operationId: getUserGlobalById
+      tags:
+        - users-global
+      x-required-permission: superadmin.view_all_users_global
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID định danh người dùng toàn cục
+      responses:
+        '200':
+          description: Thông tin người dùng
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGlobalResponse'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      summary: Cập nhật thông tin người dùng toàn cục
+      description: |
+        Cập nhật các trường cho người dùng toàn cục (master). 
+        Chỉ áp dụng cho hệ thống hoặc quản trị viên có quyền. Không cập nhật password tại endpoint này.
+      operationId: updateUserGlobal
+      tags:
+        - users-global
+      x-required-permission: superadmin.update_user_global
+      x-audit-action: update_user_global
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID định danh người dùng toàn cục
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserGlobalUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGlobalEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /users-global/{user_id}/status:
+    patch:
+      summary: Cập nhật trạng thái hoạt động của người dùng toàn cục
+      description: |
+        Cập nhật `status` của một người dùng toàn cục (`UserGlobal`), 
+        ví dụ: chuyển sang `suspended`, `deleted`, hoặc `active` trở lại.
+        Trường hợp dùng để vô hiệu hóa hoặc kích hoạt lại tài khoản người dùng trong hệ thống.
+      operationId: updateUserGlobalStatus
+      tags:
+        - users-global
+      x-required-permission: superadmin.update_user_global_status
+      x-audit-action: update_user_global_status
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID người dùng cần cập nhật trạng thái
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserGlobalStatusUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGlobalEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /tenants:
+    get:
+      summary: Danh sách tenant
+      description: |
+        Trả về danh sách các tenant (trường thành viên) hiện có trong hệ thống.
+        Hỗ trợ tìm kiếm, phân trang và sắp xếp.
+      tags:
+        - tenants
+      operationId: listTenants
+      x-required-permission: superadmin.view_tenants
+      x-audit-action: list_tenants
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchKeyword'
+        - $ref: '#/components/parameters/TenantSortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Lấy danh sách tenant thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTenants'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Tạo mới tenant
+      description: |
+        API dùng để tạo mới một tenant (trường thành viên) trong hệ thống.
+        Chỉ superadmin mới được thực hiện thao tác này.
+      tags:
+        - tenants
+      operationId: createTenant
+      x-required-permission: superadmin.create_tenant
+      x-audit-action: create_tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreateRequest'
+            example:
+              name: "Trường Việt Anh Cần Thơ"
+              code: "tvact"
+              description: "Cơ sở Cần Thơ của hệ thống Trường Việt Anh"
+              status: active
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '201':
+          description: Tạo tenant thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /tenants/{tenant_id}:
+    get:
+      summary: Lấy thông tin chi tiết của một tenant
+      description: |
+        Trả về thông tin chi tiết của một tenant (trường thành viên) trong hệ thống.
+        Thường được sử dụng để hiển thị thông tin cấu hình tenant, ví dụ trong phần cài đặt hệ thống.
+      operationId: getTenantById
+      tags:
+        - tenants
+      x-required-permission: superadmin.view_tenants
+      x-audit-action: get_tenant_by_id
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID của tenant cần lấy thông tin
+      responses:
+        '200':
+          description: Lấy thông tin tenant thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantResponse'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      summary: Cập nhật thông tin tenant
+      description: |
+        Cập nhật thông tin cấu hình của một tenant (trường thành viên).
+        Chỉ cập nhật các trường cho phép (ví dụ: name, contact_email, status).
+      operationId: updateTenantById
+      tags:
+        - tenants
+      x-required-permission: superadmin.update_tenants
+      x-audit-action: update_tenant
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID của tenant cần cập nhật
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật thông tin tenant thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /tenants/{tenant_id}/status:
+    patch:
+      summary: Cập nhật trạng thái hoạt động của tenant
+      description: |
+        Thay đổi trạng thái hoạt động của một tenant (ví dụ: active → suspended).
+        Thao tác này được ghi log và có thể ảnh hưởng đến quyền truy cập của toàn bộ người dùng thuộc tenant đó.
+      operationId: updateTenantStatus
+      tags:
+        - tenants
+      x-required-permission: superadmin.update_tenants
+      x-audit-action: update_tenant_status
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID của tenant cần cập nhật trạng thái
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/TenantStatusEnum'
+              example:
+                status: suspended
+      responses:
+        '200':
+          description: Cập nhật trạng thái tenant thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /user-tenant-assignments:
+    get:
+      summary: Danh sách gán người dùng vào tenant
+      description: |
+        Trả về danh sách các người dùng được gán vào tenant hiện tại, bao gồm thông tin user_id, role đã gán, thời điểm gán và trạng thái.
+        Hỗ trợ lọc theo user_id, tenant_id, phân trang và sắp xếp theo thời gian tạo.
+      tags: [user-tenant-assignments]
+      operationId: listUserTenantAssignments
+      x-audit-action: list_user_tenant_assignments
+      x-required-permission: superadmin.view_user_assignments
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchKeyword'
+        - $ref: '#/components/parameters/UserTenantAssignmentsSortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Lấy danh sách gán người dùng thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserTenantAssignments'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Gán người dùng vào một tenant
+      description: |
+        Tạo một gán quyền người dùng vào tenant, đi kèm với role được chọn. Nếu người dùng đã có gán quyền trước đó với trạng thái `revoked`, có thể phục hồi bằng cách cập nhật trạng thái về `active`.
+      tags: [user-tenant-assignments]
+      operationId: assignUserToTenant
+      x-audit-action: assign_user_to_tenant
+      x-required-permission: superadmin.assign_user_to_tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserTenantAssignmentCreateRequest'
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '201':
+          description: Gán người dùng vào tenant thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTenantAssignmentEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /user-tenant-assignments/{assignment_id}:
+    get:
+      summary: Lấy thông tin chi tiết gán người dùng vào tenant
+      description: |
+        Trả về thông tin chi tiết của một gán quyền người dùng vào tenant, bao gồm role, trạng thái và thời gian tạo/cập nhật.
+      tags: [user-tenant-assignments]
+      operationId: getUserTenantAssignment
+      x-audit-action: view_user_tenant_assignment
+      x-required-permission: superadmin.view_user_assignments
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID của gán người dùng vào tenant
+      responses:
+        '200':
+          description: Lấy chi tiết gán người dùng thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTenantAssignmentResponse'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Không tìm thấy gán quyền người dùng
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      summary: Cập nhật thông tin phân quyền người dùng
+      description: |
+        Cập nhật thông tin phân quyền người dùng trong tenant, ví dụ thay đổi `role_code`.
+      tags: [user-tenant-assignments]
+      operationId: updateUserTenantAssignment
+      x-audit-action: update_user_tenant_assignment
+      x-required-permission: superadmin.update_user_tenant_assignment
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: assignment_id
+          in: path
+          required: true
+          description: ID của phân quyền người dùng cần cập nhật
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserTenantAssignmentUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật phân quyền người dùng thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTenantAssignmentEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /user-tenant-assignments/{assignment_id}/status:
+    patch:
+      summary: Cập nhật trạng thái phân quyền người dùng
+      description: |
+        Cập nhật trạng thái của bản ghi phân quyền người dùng trong tenant, ví dụ chuyển sang `revoked`, `suspended`, v.v.
+      tags: [user-tenant-assignments]
+      operationId: updateUserTenantAssignmentStatus
+      x-audit-action: update_user_tenant_assignment_status
+      x-required-permission: superadmin.update_user_tenant_assignment
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: assignment_id
+          in: path
+          required: true
+          description: ID của phân quyền người dùng cần cập nhật trạng thái
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserTenantAssignmentStatusUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTenantAssignmentEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /rbac/templates/roles:
+    get:
+      summary: Danh sách role templates toàn cục
+      description: Trả về danh sách các role template được đồng bộ từ User Service Master
+      tags: [rbac-templates]
+      operationId: listRoleTemplates
+      x-required-permission: superadmin.view_rbac_templates
+      x-audit-action: list_role_templates
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchKeyword'
+        - $ref: '#/components/parameters/RoleTemplateSortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Danh sách role template
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoleTemplates'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Tạo role template mới
+      description: Tạo một role template toàn cục để đồng bộ tới các tenant
+      tags: [rbac-templates]
+      operationId: createRoleTemplate
+      x-required-permission: superadmin.create_rbac_templates
+      x-audit-action: create_role_template
+      x-emits-event: rbac_template_created
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleTemplateCreateRequest'
+      responses:
+        '201':
+          description: Tạo thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleTemplateEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+
+  /rbac/templates/roles/{template_id}:
+    get:
+      summary: Lấy chi tiết một role template
+      description: Lấy thông tin chi tiết của một role template theo `template_id`
+      tags: [rbac-templates]
+      operationId: getRoleTemplate
+      x-required-permission: superadmin.view_rbac_templates
+      x-audit-action: view_role_template
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: template_id
+          in: path
+          required: true
+          description: ID định danh của role template
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thông tin role template
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleTemplateResponse'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      summary: Cập nhật thông tin role template
+      description: Cập nhật tên và mô tả của một role template
+      tags: [rbac-templates]
+      operationId: updateRoleTemplate
+      x-required-permission: superadmin.update_rbac_templates
+      x-audit-action: update_role_template
+      x-emits-event: rbac_template_updated
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: template_id
+          in: path
+          required: true
+          description: ID định danh của role template
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleTemplateUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleTemplateEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Xóa role template
+      description: Xóa vĩnh viễn một role template khỏi hệ thống master
+      tags: [rbac-templates]
+      operationId: deleteRoleTemplate
+      x-required-permission: superadmin.delete_rbac_templates
+      x-audit-action: delete_role_template
+      x-emits-event: rbac_template_deleted
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: template_id
+          in: path
+          required: true
+          description: ID định danh của role template
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Xóa thành công, không có nội dung trả về
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /rbac/templates/permissions:
+    get:
+      summary: Danh sách permission templates
+      description: Trả về danh sách permission templates toàn cục đã được định nghĩa, hỗ trợ phân trang và sắp xếp
+      tags: [rbac-templates]
+      operationId: listPermissionTemplates
+      x-required-permission: superadmin.view_rbac_templates
+      x-audit-action: list_permission_templates
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchKeyword'
+        - $ref: '#/components/parameters/PermissionTemplateSortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Danh sách permission templates
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPermissionTemplates'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Tạo permission template mới
+      description: Tạo một permission template toàn cục để đồng bộ tới các tenant
+      tags: [rbac-templates]
+      operationId: createPermissionTemplate
+      x-required-permission: superadmin.create_rbac_templates
+      x-audit-action: create_permission_template
+      x-emits-event: rbac_template_created
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionTemplateCreateRequest'
+      responses:
+        '201':
+          description: Tạo thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionTemplateEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /rbac/templates/permissions/{template_id}:
+    get:
+      summary: Chi tiết permission template
+      description: Trả về chi tiết permission template theo ID
+      tags: [rbac-templates]
+      operationId: getPermissionTemplate
+      x-required-permission: superadmin.view_rbac_templates
+      x-audit-action: view_permission_template
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: template_id
+          in: path
+          required: true
+          description: ID định danh của permission template
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thông tin permission template
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionTemplateResponse'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      summary: Cập nhật thông tin permission template
+      description: Cập nhật tên và mô tả của một permission template
+      tags: [rbac-templates]
+      operationId: updatePermissionTemplate
+      x-required-permission: superadmin.update_rbac_templates
+      x-audit-action: update_permission_template
+      x-emits-event: rbac_template_updated
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: template_id
+          in: path
+          required: true
+          description: ID định danh của permission template
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionTemplateUpdateRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionTemplateEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Xóa permission template
+      description: Xóa vĩnh viễn một permission template khỏi hệ thống master
+      tags: [rbac-templates]
+      operationId: deletePermissionTemplate
+      x-required-permission: superadmin.delete_rbac_templates
+      x-audit-action: delete_permission_template
+      x-emits-event: rbac_template_deleted
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+        - name: template_id
+          in: path
+          required: true
+          description: ID định danh của permission template
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Xóa thành công, không có nội dung trả về
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
