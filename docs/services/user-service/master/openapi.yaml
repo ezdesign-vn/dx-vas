@@ -635,6 +635,18 @@ components:
         error:
           type: object
           nullable: true
+      example:
+        data:
+          user_id: "usr_123"
+          full_name: "Jane Doe"
+          email: "jane@example.com"
+          status: "active"
+          auth_provider: "local"
+          created_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-06-01T12:00:00Z"
+        meta:
+          request_id: "req-abc-123"
+        error: null
 
     TenantEnvelope:
       type: object
@@ -647,6 +659,16 @@ components:
         error:
           type: object
           nullable: true
+      example:
+        data:
+          tenant_id: "tenant_001"
+          name: "VAS School"
+          status: "active"
+          created_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-06-01T12:00:00Z"
+        meta:
+          request_id: "req-xyz-456"
+        error: null
 
     UserTenantAssignmentEnvelope:
       type: object
@@ -659,6 +681,17 @@ components:
         error:
           type: object
           nullable: true
+      example:
+        data:
+          assignment_id: "uta_123"
+          user_id: "usr_123"
+          tenant_id: "tenant_001"
+          status: "active"
+          created_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-06-01T12:00:00Z"
+        meta:
+          request_id: "req-789"
+        error: null
 
     RoleTemplateEnvelope:
       type: object
@@ -671,6 +704,17 @@ components:
         error:
           type: object
           nullable: true
+      example:
+        data:
+          template_id: "role_tmpl_01"
+          template_code: "teacher"
+          display_name: "Teacher"
+          permissions: ["grade.read", "schedule.view"]
+          created_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-06-01T12:00:00Z"
+        meta:
+          request_id: "req-456"
+        error: null
 
     PermissionTemplateEnvelope:
       type: object
@@ -683,7 +727,17 @@ components:
         error:
           type: object
           nullable: true
-
+      example:
+        data:
+          template_id: "perm_tmpl_01"
+          permission_code: "student.view"
+          display_name: "View Student"
+          created_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-06-01T12:00:00Z"
+        meta:
+          request_id: "req-321"
+        error: null
+        
   responses:
     BadRequestError:
       description: Yêu cầu không hợp lệ (Bad Request)
