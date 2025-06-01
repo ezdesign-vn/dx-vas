@@ -1,0 +1,394 @@
+# ===================================================================
+# 📘 OpenAPI Specification Template (Dựa trên User Service Sub 5★)
+# ===================================================================
+# Hướng dẫn sử dụng template này:
+# 1. Sao chép file này và đổi tên thành openapi.yaml cho service mới của bạn.
+# 2. Tìm và thay thế các placeholder có dạng "[PLACEHOLDER]" hoặc các comment "TODO:"
+#    bằng thông tin cụ thể của service bạn.
+# 3. Xem xét và điều chỉnh các phần cho phù hợp với logic và yêu cầu của service.
+# 4. Luôn tham chiếu đến các ADRs liên quan của hệ thống dx-vas.
+# ===================================================================
+
+openapi: 3.0.3 # Phiên bản OpenAPI Specification đang sử dụng. Giữ ổn định để đảm bảo tương thích công cụ.
+info:
+  title: "[SERVICE_NAME] – API Spec" # TODO: Thay [SERVICE_NAME] bằng tên service cụ thể (ví dụ: Order Service, Notification Service Sub)
+  version: "1.0.0" # TODO: Phiên bản SEMANTIC VERSIONING của API service này (ví dụ: 1.0.0, 0.1.0-beta).
+  description: |
+    # TODO: Mô tả chi tiết về service và các API của nó.
+    # - Mục đích chính của service là gì?
+    # - Các nhóm chức năng chính mà API cung cấp.
+    # - Nhấn mạnh các nguyên tắc thiết kế chính (ví dụ: read-only, event-driven).
+    # - Luôn tham chiếu đến các ADRs quan trọng của hệ thống dx-vas mà service này tuân thủ, ví dụ:
+    OpenAPI specification cho `[service-name]`.
+    Tuân thủ [ADR-012 Response Structure](../../../ADR/adr-012-response-structure.md),
+    [ADR-011 Error Format](../../../ADR/adr-011-api-error-format.md),
+    và các nguyên tắc trong [ADR-027 Data Management Strategy](../../../ADR/adr-027-data-management-strategy.md) (nếu có liên quan).
+    Xem thêm tài liệu thiết kế chi tiết tại: [design.md](../design.md) và [interface-contract.md](../interface-contract.md) (nếu có).
+  contact:
+    name: "[YOUR_TEAM_NAME] Team" # TODO: Tên đội ngũ phát triển/chủ sở hữu API. Ví dụ: VAS DX Architecture Team
+    email: "[your_team_email@example.com]" # TODO: Email liên hệ của đội ngũ.
+
+  # --- Custom Extensions (x-prefixed) for API Governance & Metadata ---
+  # Các extension này giúp quản lý và theo dõi API tốt hơn.
+  x-api-version: "v1" # TODO: Phiên bản nghiệp vụ của API (khác với info.version là phiên bản của spec file này). Ví dụ: v1, v2.
+  x-last-updated: "YYYY-MM-DD" # TODO: Ngày cập nhật cuối cùng của file spec này.
+  x-author: "[Your Name/Team]" # TODO: Tác giả của file spec này.
+  x-reviewed-by: "[Reviewer Name/Team]" # TODO: Người hoặc đội ngũ đã review file spec này.
+  x-purpose: | # TODO: Mô tả mục đích chính của API này một cách ngắn gọn, có thể dùng cho các công cụ tự động hoặc catalogue API.
+    Cung cấp các API [mô tả mục đích, ví dụ: đọc dữ liệu người dùng cục bộ cho tenant].
+  x-adr-compliance: # TODO: Liệt kê các ADRs chính mà API này tuân thủ.
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    # - adr-013-path-naming-convention (nếu áp dụng chặt chẽ)
+    # - adr-xxx (các ADR khác liên quan)
+
+externalDocs: # TODO: Nếu có tài liệu bên ngoài (wiki, GitHub pages) mô tả chi tiết hơn về service hoặc API.
+  description: Design and Interface Documentation for [SERVICE_NAME]
+  url: https://github.com/ezdesign-vn/dx-vas/tree/main/docs/services/[service-name]/
+
+servers:
+  # TODO: Khai báo URL của các server cho từng môi trường.
+  # Nên có ít nhất cho Production. Các môi trường khác (Staging, Dev) tùy chọn.
+  - url: https://api.truongvietanh.edu.vn/[service-path-prod] # TODO: Thay [service-path-prod]
+    description: Production Environment ([scope, ví dụ: tenant-scoped hoặc global])
+  - url: https://staging-api.truongvietanh.edu.vn/[service-path-staging]
+    description: Staging Environment
+  # - url: http://localhost:[port]/[service-path-dev]
+  #   description: Local Development Environment
+
+tags:
+  # TODO: Định nghĩa các tags để nhóm các API một cách logic.
+  # Mỗi API operation nên được gán ít nhất một tag.
+  - name: resource-group-1 # TODO: Thay bằng tên nhóm tài nguyên/chức năng, ví dụ: users, orders, products
+    description: "Mô tả về nhóm API [resource-group-1]"
+  - name: resource-group-2 # TODO: Thêm các nhóm khác nếu cần
+    description: "Mô tả về nhóm API [resource-group-2]"
+
+# --- Global Security Requirement ---
+# TODO: Áp dụng cơ chế xác thực mặc định cho tất cả các API.
+# Có thể override ở mức operation nếu API đó không cần xác thực hoặc dùng cơ chế khác.
+security:
+  - BearerAuth: [] # Giả sử BearerAuth là security scheme mặc định.
+
+components:
+  securitySchemes:
+    # TODO: Định nghĩa các cơ chế xác thực mà API của bạn sử dụng.
+    BearerAuth: # Tên của security scheme, được tham chiếu ở 'security' global hoặc operation.
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # Cho biết token là JWT.
+      description: "Xác thực bằng JWT Bearer token. Client cần gửi header `Authorization: Bearer <your_jwt_token>`."
+
+  headers:
+    # TODO: Định nghĩa các response headers thường dùng để tái sử dụng.
+    X-Request-ID:
+      description: "Unique ID được gán cho mỗi request, hữu ích cho việc tracing và debugging."
+      schema:
+        type: string
+        format: uuid # Hoặc một format khác nếu bạn có quy ước riêng.
+      example: "7e8f7f34-b12a-4d8c-b32f-6db7d326f7d2"
+    # X-RateLimit-Limit:
+    #   description: "Số lượng request tối đa được phép trong một khoảng thời gian."
+    #   schema: { type: integer }
+    # X-RateLimit-Remaining:
+    #   description: "Số lượng request còn lại trong khoảng thời gian hiện tại."
+    #   schema: { type: integer }
+    # X-RateLimit-Reset:
+    #   description: "Thời gian (giây) còn lại cho đến khi giới hạn được reset."
+    #   schema: { type: integer }
+
+  parameters:
+    # TODO: Định nghĩa các request parameters (query, path, header) thường dùng để tái sử dụng.
+    AuthorizationHeader: # Tên này được tham chiếu trong các operation.
+      name: Authorization # Tên header thực tế.
+      in: header
+      required: true # Header này là bắt buộc.
+      schema:
+        type: string
+      description: "Bearer JWT token (format: 'Bearer <access_token>'). Token này nhận được sau khi người dùng đăng nhập thành công."
+      example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    # PageParam:
+    #   name: page
+    #   in: query
+    #   description: "Số trang hiện tại cho kết quả phân trang (bắt đầu từ 1)."
+    #   required: false
+    #   schema: { type: integer, default: 1, minimum: 1 }
+    # LimitParam:
+    #   name: limit
+    #   in: query
+    #   description: "Số lượng bản ghi tối đa trả về mỗi trang."
+    #   required: false
+    #   schema: { type: integer, default: 20, minimum: 1, maximum: 100 } # Giới hạn maximum để tránh quá tải.
+
+  schemas:
+    # === Generic Schemas - Nên được chuẩn hóa và tái sử dụng trên toàn hệ thống dx-vas ===
+    ResponseMeta:
+      type: object
+      required: [request_id, timestamp] # Các trường bắt buộc trong meta.
+      properties:
+        request_id:
+          type: string
+          description: "Mã định danh của request, giúp liên kết log và trace."
+          example: "req-xyz-789abc"
+        timestamp:
+          type: string
+          format: date-time # ISO 8601 format.
+          description: "Thời gian server trả về response."
+          example: "2025-06-02T10:15:30Z"
+        # --- Các trường sau dùng cho pagination, chỉ xuất hiện khi API trả về danh sách ---
+        page:
+          type: integer
+          nullable: true # Cho phép null nếu API không phân trang.
+          description: "Số trang hiện tại của kết quả (nếu có phân trang)."
+          example: 1
+        per_page:
+          type: integer
+          nullable: true
+          description: "Số lượng bản ghi trên mỗi trang (nếu có phân trang)."
+          example: 20
+        total_items: # Đổi từ 'total' để rõ nghĩa hơn.
+          type: integer
+          nullable: true
+          description: "Tổng số bản ghi khớp với truy vấn (nếu có phân trang)."
+          example: 125
+        total_pages: # Trường tính toán, hữu ích cho client.
+          type: integer
+          nullable: true
+          description: "Tổng số trang (nếu có phân trang)."
+          example: 7
+      description: "Metadata chung cho mọi API response, tuân thủ ADR-012."
+
+    ErrorEnvelope: # Cấu trúc bao ngoài cho lỗi, tuân thủ ADR-012.
+      type: object
+      required: [meta, error]
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+      description: "Cấu trúc chuẩn cho response lỗi, bao gồm metadata và chi tiết lỗi."
+
+    ErrorResponse: # Chi tiết lỗi, tuân thủ ADR-011.
+      type: object
+      required: [code, message] # 'code' và 'message' là bắt buộc.
+      properties:
+        code:
+          type: string
+          description: "Mã lỗi ứng dụng (application-specific error code), giúp client xử lý lỗi một cách lập trình."
+          example: "FORBIDDEN_ACCESS" # Nên dùng mã lỗi dạng ENUM string.
+        message:
+          type: string
+          description: "Mô tả lỗi thân thiện với người dùng hoặc developer, có thể hiển thị trên UI hoặc ghi log."
+          example: "Bạn không có quyền truy cập tài nguyên này."
+        details: # TODO: 'details' là tùy chọn, có thể chứa thông tin cụ thể hơn về lỗi (ví dụ: lỗi validation cho từng trường).
+          type: object # Hoặc array of objects
+          nullable: true
+          description: "Thông tin chi tiết bổ sung về lỗi (ví dụ: field nào bị lỗi validation)."
+          example: { "field": "email", "reason": "invalid_format" }
+      description: "Cấu trúc chi tiết của một lỗi ứng dụng."
+
+    # === ENUM Schemas - Định nghĩa các ENUM dùng chung ===
+    # TODO: Thêm các ENUM cụ thể cho service của bạn. Ví dụ:
+    # OrderStatus:
+    #   type: string
+    #   description: "Trạng thái của một đơn hàng."
+    #   enum: [pending, processing, shipped, delivered, cancelled]
+    #   example: "processing"
+    AuthProvider: # Ví dụ từ User Service Sub
+      type: string
+      description: "Phương thức xác thực người dùng."
+      enum: [local, google]
+      example: "google"
+    UserStatus: # Ví dụ từ User Service Sub
+      type: string
+      description: "Trạng thái hoạt động của người dùng."
+      enum: [active, invited, suspended, deleted] # Đảm bảo nhất quán với data model.
+      example: "active"
+
+    # === Entity Schemas - Định nghĩa các đối tượng dữ liệu chính của service ===
+    # TODO: Thay thế các schema dưới đây bằng các schema thực tế của service bạn.
+    # Ví dụ: UserOut, RoleOut, PermissionOut từ User Service Sub.
+    MyEntityOut: # TODO: Đặt tên schema theo quy ước [EntityName]Out cho response, [EntityName]In cho request tạo/sửa.
+      type: object
+      description: "Mô tả về [MyEntity]."
+      required: # Liệt kê các trường bắt buộc.
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid # Hoặc integer, tùy theo CSDL.
+          description: "ID duy nhất của [MyEntity]."
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          readOnly: true # Nếu ID được sinh bởi server và không cho phép client ghi.
+        name:
+          type: string
+          description: "Tên của [MyEntity]."
+          example: "Tên thực thể mẫu"
+        description:
+          type: string
+          nullable: true
+          description: "Mô tả chi tiết hơn về [MyEntity]."
+          example: "Đây là mô tả chi tiết."
+        created_at:
+          type: string
+          format: date-time
+          description: "Thời gian tạo thực thể."
+          readOnly: true
+          example: "2025-06-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: "Thời gian cập nhật cuối cùng của thực thể."
+          readOnly: true
+          example: "2025-06-02T09:30:00Z"
+
+    MyEntityListResponse: # Schema cho response trả về danh sách MyEntity (có pagination).
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MyEntityOut' # Tham chiếu đến schema của một item.
+          description: "Danh sách các [MyEntity]."
+        meta:
+          $ref: '#/components/schemas/ResponseMeta' # Tham chiếu đến schema metadata chuẩn.
+      description: "Cấu trúc response cho API trả về danh sách [MyEntity]."
+
+    # --- Ví dụ các schema cụ thể từ User Service Sub để tham khảo ---
+    UserOut: # (Giữ lại làm ví dụ nếu template này dùng chung)
+      type: object
+      description: Thông tin người dùng trong tenant
+      # ... (các properties như đã có trong file User Service Sub) ...
+
+    PermissionStringsResponse: # (Giữ lại làm ví dụ)
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            type: string # Danh sách các permission code.
+            example: "user.read"
+          description: "Danh sách các mã quyền (permission code) mà người dùng hiện tại có."
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+      description: "Response chứa danh sách các mã quyền của người dùng hiện tại."
+
+  responses: # TODO: Định nghĩa các global responses để tái sử dụng (ví dụ: các lỗi chung).
+    UnauthorizedError:
+      description: "Lỗi xác thực: Client chưa cung cấp thông tin xác thực hợp lệ (ví dụ: thiếu JWT, JWT sai hoặc hết hạn)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+            example: # Ví dụ cụ thể cho lỗi này.
+              meta:
+                request_id: "req-unauth-123"
+                timestamp: "2025-06-02T11:00:00Z"
+              error:
+                code: "UNAUTHORIZED"
+                message: "Yêu cầu xác thực."
+    ForbiddenError:
+      description: "Lỗi phân quyền: Client đã xác thực nhưng không có quyền truy cập tài nguyên hoặc thực hiện hành động này."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+            example:
+              meta:
+                request_id: "req-forbidden-456"
+                timestamp: "2025-06-02T11:05:00Z"
+              error:
+                code: "FORBIDDEN_ACCESS"
+                message: "Không có quyền truy cập."
+    NotFoundError: # Ví dụ thêm một lỗi chung.
+      description: "Lỗi không tìm thấy: Tài nguyên được yêu cầu không tồn tại."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+            example:
+              meta:
+                request_id: "req-notfound-789"
+                timestamp: "2025-06-02T11:10:00Z"
+              error:
+                code: "RESOURCE_NOT_FOUND"
+                message: "Tài nguyên không được tìm thấy."
+    InternalServerError:
+      description: "Lỗi hệ thống nội bộ: Một lỗi không mong muốn đã xảy ra ở phía server."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+            example:
+              meta:
+                request_id: "req-servererr-000"
+                timestamp: "2025-06-02T11:15:00Z"
+              error:
+                code: "INTERNAL_SERVER_ERROR"
+                message: "Lỗi hệ thống. Vui lòng thử lại sau."
+    # BadRequestError: # (Ví dụ)
+    #   description: "Lỗi yêu cầu không hợp lệ: Dữ liệu đầu vào từ client không đúng định dạng hoặc thiếu thông tin."
+    #   content:
+    #     application/json:
+    #       schema:
+    #         $ref: '#/components/schemas/ErrorEnvelope'
+
+paths:
+  # TODO: Định nghĩa các paths (endpoints) cho service của bạn.
+  # Dưới đây là ví dụ dựa trên User Service Sub.
+
+  /resource-group-1/items: # TODO: Thay thế bằng path thực tế, ví dụ: /users
+    get:
+      tags:
+        - resource-group-1 # TODO: Sử dụng tag đã định nghĩa ở trên.
+      summary: "Lấy danh sách các [items] của [resource-group-1]" # TODO: Mô tả ngắn gọn.
+      description: |
+        # TODO: Mô tả chi tiết hơn về API này.
+        # - Mục đích.
+        # - Các tham số query hỗ trợ (pagination, filtering, sorting).
+        # - Các trường hợp đặc biệt.
+      operationId: "listMyItems" # TODO: (Tùy chọn) ID duy nhất cho operation, hữu ích cho code generation.
+      x-required-permission: "resource.read" # TODO: Khai báo permission cần thiết (nếu có).
+      parameters: # Danh sách các tham số.
+        - $ref: '#/components/parameters/AuthorizationHeader' # Tham chiếu header Authorization.
+        # - $ref: '#/components/parameters/PageParam' # Tham chiếu tham số page (nếu có).
+        # - $ref: '#/components/parameters/LimitParam' # Tham chiếu tham số limit (nếu có).
+        - name: search # Ví dụ tham số tìm kiếm.
+          in: query
+          description: "Từ khóa tìm kiếm cho [items]."
+          required: false
+          schema:
+            type: string
+            example: "tên mẫu"
+        # TODO: Thêm các tham số filter và sort khác nếu cần.
+      responses:
+        '200': # HTTP Status Code
+          description: "Danh sách [items] được trả về thành công." # Mô tả response.
+          headers: # Khai báo response headers (nếu có).
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json: # Content type.
+              schema:
+                $ref: '#/components/schemas/MyEntityListResponse' # Tham chiếu đến schema của response.
+        '401': # Lỗi Unauthorized.
+          $ref: '#/components/responses/UnauthorizedError' # Tham chiếu đến global response lỗi.
+        '403': # Lỗi Forbidden.
+          $ref: '#/components/responses/ForbiddenError'
+        '500': # Lỗi Internal Server.
+          $ref: '#/components/responses/InternalServerError'
+  # TODO: Thêm các paths và operations khác cho service của bạn.
+  # Ví dụ các API từ User Service Sub:
+  # /users:
+  #   get: ...
+  # /users/me:
+  #   get: ...
+  # /users/me/permissions:
+  #   get: ...
+  # /roles:
+  #   get: ...
+  # /permissions:
+  #   get: ...

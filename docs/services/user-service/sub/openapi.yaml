@@ -7,12 +7,30 @@ info:
   title: User Service Sub – API Spec
   version: 1.0.0
   description: |
-    OpenAPI specification cho `user-service/sub` – phục vụ đọc dữ liệu người dùng trong 1 tenant cụ thể theo mô hình master/sub.
-    Các API chỉ cung cấp quyền truy vấn (read-only) và luôn trả về theo chuẩn [ADR-012](../../../ADR/adr-012-response-structure.md).
+    OpenAPI specification for user-service/sub.
+    Tuân thủ ADR-012, ADR-011 và các nguyên tắc RBAC động theo ADR-027.
+    Xem thêm tài liệu thiết kế tại: [design.md](../design.md) và [interface-contract.md](../interface-contract.md)
+  contact:
+    name: VAS DX Architecture Team
+    email: dx-vas@truongvietanh.edu.vn
+
+  x-api-version: v1
+  x-maintainer: dx-team@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    - adr-026-hard-delete-policy
+    - adr-027-data-management-strategy
+
+externalDocs:
+  description: Design and Interface Documentation
+  url: https://github.com/ezdesign-vn/dx-vas/tree/main/docs/services/user-service/sub/
 
 servers:
   - url: https://api.truongvietanh.edu.vn/user-sub
     description: Production (tenant-scoped)
+  - url: https://staging.api.truongvietanh.edu.vn/user-sub
+    description: Staging    
 
 tags:
   - name: users
@@ -20,12 +38,31 @@ tags:
   - name: rbac
     description: Thông tin RBAC template đã đồng bộ
 
+security:
+  - BearerAuth: []
+
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  headers:
+    X-Request-ID:
+      description: Unique ID assigned to each request for tracing/debugging
+      schema:
+        type: string
+      example: 7e8f7f34-b12a-4d8c-b32f-6db7d326f7d2
+
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+      description: "Bearer JWT token (format: 'Bearer <access_token>')"
 
   schemas:
     # 🧩 Meta wrapper
@@ -35,18 +72,28 @@ components:
       properties:
         request_id:
           type: string
+          description: Mã định danh của request
+          example: req-xyz-789
         timestamp:
           type: string
           format: date-time
+          description: Thời gian trả về response
+          example: "2024-05-20T10:15:00Z"
         page:
           type: integer
           nullable: true
+          description: Số trang hiện tại (nếu có)
+          example: 1
         per_page:
           type: integer
           nullable: true
+          description: Số bản ghi mỗi trang
+          example: 20
         total:
           type: integer
           nullable: true
+          description: Tổng số bản ghi
+          example: 125
 
     ErrorEnvelope:
       type: object
@@ -59,14 +106,14 @@ components:
 
     ErrorResponse:
       type: object
-      required: [code, message]
+      description: Cấu trúc thông báo lỗi
       properties:
         code:
           type: string
-          example: USER_NOT_FOUND
+          example: "FORBIDDEN"
         message:
           type: string
-          example: Người dùng không tồn tại
+          example: "Bạn không có quyền truy cập tài nguyên này."
 
     # ✅ Enums
     AuthProvider:
@@ -79,29 +126,28 @@ components:
     # ✅ User Schemas
     UserOut:
       type: object
+      description: Thông tin người dùng trong tenant
       properties:
         user_id:
           type: string
-          format: uuid
+          description: ID toàn cục của người dùng
+          example: "user-123"
         full_name:
           type: string
+          description: Họ tên đầy đủ
+          example: "Nguyễn Văn A"
         email:
           type: string
-          format: email
+          description: Email người dùng
+          example: "a.nguyen@example.com"
         status:
           $ref: '#/components/schemas/UserStatus'
-        is_active_in_tenant:
-          type: boolean
-        auth_provider:
-          $ref: '#/components/schemas/AuthProvider'
         created_at:
           type: string
           format: date-time
+          description: Thời gian tạo
           readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
+          example: "2024-05-01T12:00:00Z"
 
     UserListResponse:
       type: object
@@ -168,55 +214,107 @@ components:
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
+  responses:
+    UnauthorizedError:
+      description: Không xác thực
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    ForbiddenError:
+      description: Không đủ quyền
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+    InternalServerError:
+      description: Lỗi hệ thống nội bộ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
 paths:
   /users:
     get:
-      tags: [users]
       summary: Danh sách người dùng trong tenant
+      description: Trả về danh sách người dùng trong tenant hiện tại. Hỗ trợ tìm kiếm, phân trang và sắp xếp.
       x-required-permission: tenant.read_users
       parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
         - name: page
           in: query
           schema: { type: integer, default: 1, minimum: 1 }
+          description: Số trang
         - name: limit
           in: query
           schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+          description: Số bản ghi mỗi trang
         - name: search
           in: query
           schema: { type: string }
+          description: Tìm theo tên, email hoặc user_id
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [created_at, full_name]
+          description: Trường để sắp xếp
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Thứ tự sắp xếp
       responses:
         '200':
-          description: Thành công
+          description: Danh sách user
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserListResponse'
         '401':
-          description: Chưa xác thực
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Không đủ quyền
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
 
   /users/me:
     get:
       tags: [users]
       summary: Lấy thông tin user hiện tại
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserOut'
         '401':
           description: Chưa xác thực
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
@@ -226,15 +324,23 @@ paths:
     get:
       tags: [users]
       summary: Lấy quyền hiện tại của user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PermissionStringsResponse'
         '401':
           description: Chưa xác thực
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
@@ -245,21 +351,32 @@ paths:
       tags: [rbac]
       summary: Danh sách role templates
       x-required-permission: tenant.view_rbac_config
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RoleListResponse'
         '401':
           description: Chưa xác thực
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
         '403':
           description: Không đủ quyền
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
@@ -270,21 +387,32 @@ paths:
       tags: [rbac]
       summary: Danh sách permission templates
       x-required-permission: tenant.view_rbac_config
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PermissionListResponse'
         '401':
           description: Chưa xác thực
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
         '403':
           description: Không đủ quyền
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           content:
             application/json:
               schema:
