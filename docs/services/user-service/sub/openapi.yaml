@@ -118,7 +118,7 @@ components:
     # ✅ Enums
     AuthProvider:
       type: string
-      enum: [local, google]
+      enum: [local, google, otp]
     UserStatus:
       type: string
       enum: [active, invited, suspended, deleted]

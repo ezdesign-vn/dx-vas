@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: User Service Master – API Spec
+  title: User Service Master – OpenAPI Spec
   version: 1.2.0
   description: |
     API cho User Service Master, phục vụ quản lý người dùng toàn cục (Global Users), tenant (trường thành viên), và RBAC templates.
@@ -9,7 +9,7 @@ info:
     và tiêu chuẩn 5★ cho OpenAPI.
     - 📄 Xem thêm: [design.md](../design.md), [interface-contract.md](../interface-contract.md), [data-model.md](../data-model.md)
   contact:
-    name: DX Platform Team
+    name: DX VAS Team
     email: dx@truongvietanh.edu.vn
   
   x-api-version: v1

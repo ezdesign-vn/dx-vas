@@ -1,0 +1,556 @@
+openapi: 3.0.3
+info:
+  title: Auth Service Master – OpenAPI Spec
+  version: "1.0.0"
+  description: |
+    API specification for the Auth Service Master.
+    Tuân thủ ADR-011 (API Error Format), ADR-012 (API Response Envelope), và ADR-006 (Auth Strategy).
+
+    - Được sử dụng bởi các hệ thống frontend (admin portal, app), API Gateway, và các services nội bộ.
+    - Tài liệu liên quan:
+      - [Design Document](./design.md)
+      - [Interface Contract](./interface-contract.md)
+      - [Data Model](./data-model.md)
+
+  contact:
+    name: DX VAS Team
+    email: dx@truongvietanh.edu.vn
+
+  x-api-version: v1
+  x-maintainer: dx-team@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    - adr-026-hard-delete-policy
+    - adr-027-data-management-strategy
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/auth-master
+    description: Production
+  - url: https://staging-api.truongvietanh.edu.vn/auth-master
+    description: Staging
+
+tags:
+  - name: OAuth2
+    description: Đăng nhập với Google OAuth2
+  - name: Session
+    description: Làm mới hoặc thu hồi token
+  - name: Me
+    description: Lấy thông tin user đang đăng nhập
+  - name: Provider
+    description: Lấy danh sách provider đang được bật
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+      description:  "Bearer JWT token (format: 'Bearer <access_token>')"
+
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Số thứ tự trang (bắt đầu từ 1)
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Số bản ghi mỗi trang
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+    SortOrder:
+      name: sort_order
+      in: query
+      required: false
+      description: Thứ tự sắp xếp (tăng hoặc giảm dần)
+      schema:
+        $ref: '#/components/schemas/SortOrderEnum'
+
+    Provider:
+      name: provider
+      in: query
+      required: true
+      description: "Tên nhà cung cấp OAuth2 (ví dụ: google)"
+      schema:
+        type: string
+        enum: [google]
+        example: google
+
+  headers:
+    X-Request-ID:
+      description: ID định danh duy nhất cho mỗi request – giúp trace log hiệu quả
+      required: false
+      schema:
+        type: string
+      example: req_01H8X4YJ4GVN3YX4MH6ZQ1M3Q0
+
+  schemas:
+    # ✅ Enums
+    SortOrderEnum:
+      type: string
+      enum: [asc, desc]
+      description: Thứ tự sắp xếp (tăng/giảm)
+    
+    OAuth2AuthorizeRequest:
+      type: object
+      required: [provider, redirect_uri]
+      properties:
+        provider:
+          type: string
+          description: "Tên provider (ví dụ: google)"
+          example: "google"
+        redirect_uri:
+          type: string
+          format: uri
+          description: URI frontend sẽ xử lý sau khi đăng nhập thành công
+          example: "https://frontend.app.vn/auth/callback"
+
+    OAuth2CallbackResponse:
+      type: object
+      required: [access_token, refresh_token, expires_in]
+      properties:
+        access_token:
+          type: string
+          description: JWT dùng để truy cập hệ thống
+        refresh_token:
+          type: string
+          description: Token dùng để làm mới access_token
+        expires_in:
+          type: integer
+          description: Số giây access_token có hiệu lực
+          example: 3600
+
+    RefreshTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token hợp lệ
+
+    RevokeTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token cần thu hồi
+
+    MeResponse:
+      type: object
+      required: [user_id, full_name, email, permissions]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: ID người dùng toàn cục
+        full_name:
+          type: string
+          description: Tên đầy đủ
+        email:
+          type: string
+          format: email
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL ảnh đại diện
+        current_tenant_id:
+          type: string
+          format: uuid
+          description: ID tenant hiện tại (truy cập thông qua token)
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Danh sách permission đang có trong tenant hiện tại
+
+    ProviderOut:
+      type: object
+      required: [provider, is_enabled]
+      properties:
+        provider:
+          type: string
+          description: "Tên provider (ví dụ: 'google')"
+          example: "google"
+        is_enabled:
+          type: boolean
+          description: Provider này có đang được bật không
+
+    OAuth2CallbackEnvelope:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/OAuth2CallbackResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          nullable: true
+      required: [data, meta, error]
+      example:
+        data:
+          access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          refresh_token: d9f0cf1b-8120-4ff6-9210-ae45cf1f55f6
+          expires_in: 3600
+        meta:
+          request_id: 1a2b3c4d
+        error: null
+
+    MeEnvelope:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MeResponse'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          nullable: true
+      required: [data, meta, error]
+      example:
+        data:
+          user_id: 123e4567-e89b-12d3-a456-426614174000
+          full_name: Nguyễn Văn A
+          email: user@example.com
+          permissions: [tenant.view_dashboard, tenant.manage_users]
+        meta:
+          request_id: 7f8a9b0c
+        error: null
+
+    ProviderListEnvelope:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderOut'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          nullable: true
+      required: [data, meta, error]
+      example:
+        data:
+          - provider: google
+            auth_url: https://accounts.google.com/o/oauth2/auth
+            scopes: [openid, email, profile]
+        meta:
+          request_id: 9e0f1a2b
+        error: null
+
+    # 🧩 Meta wrapper
+    ResponseMeta:
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Mã định danh của request
+          example: "req_abc123"
+      required: [request_id]
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "auth.invalid_token"
+        message:
+          type: string
+          example: "Token không hợp lệ hoặc đã hết hạn"
+      required: [code, message]
+
+    ErrorEnvelope:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+      required: [data, meta, error]
+
+  responses:
+    UnauthorizedError:
+      description: Truy cập bị từ chối do không có hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: unauthorized
+              message: Yêu cầu không hợp lệ - cần xác thực bằng JWT token hợp lệ
+            data: null
+            meta: null
+
+    ForbiddenError:
+      description: Người dùng không có quyền truy cập vào tài nguyên này
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: forbidden
+              message: Bạn không có quyền thực hiện hành động này
+            data: null
+            meta: null
+
+    BadRequestError:
+      description: Dữ liệu đầu vào không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: bad_request
+              message: Trường `refresh_token` là bắt buộc
+            data: null
+            meta: null
+
+    InternalServerError:
+      description: Lỗi hệ thống không xác định
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: internal_server_error
+              message: Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.
+            data: null
+            meta: null
+
+
+paths:
+  /auth/oauth2/authorize:
+    post:
+      summary: Khởi tạo luồng OAuth2 Login
+      description: Khởi tạo luồng đăng nhập bằng OAuth2 với provider cụ thể. Trả về URL redirect để frontend điều hướng người dùng.
+      tags: [OAuth2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuth2AuthorizeRequest'
+      responses:
+        '200':
+          description: Redirect URL trả về cho frontend
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirect_url:
+                    type: string
+                    format: uri
+                    example: "https://accounts.google.com/o/oauth2/auth?..."
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+      x-public: true
+
+  /auth/oauth2/callback:
+    get:
+      summary: OAuth2 Callback
+      description: Endpoint frontend gọi sau khi user đăng nhập thành công với provider. Trả về access_token và refresh_token.
+      tags: [OAuth2]
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Authorization code từ OAuth2 provider
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional state để xác minh CSRF
+      responses:
+        '200':
+          description: Token response
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2CallbackEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+      x-public: true
+
+  /auth/refresh-token:
+    post:
+      summary: Làm mới access token
+      description: Nhận refresh_token và trả về access_token mới.
+      tags: [Session]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token mới được cấp
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2CallbackEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+      x-public: true
+
+  /auth/revoke-token:
+    post:
+      summary: Thu hồi refresh token
+      description: Hủy hiệu lực refresh token hiện tại.
+      tags: [Session]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+      responses:
+        '204':
+          description: Token đã bị thu hồi
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+      x-public: true
+
+  /auth/me:
+    get:
+      summary: Thông tin người dùng hiện tại
+      description: Trả về thông tin user đang đăng nhập và permission hiện tại.
+      tags: [Me]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Thông tin người dùng
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeEnvelope'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/providers:
+    get:
+      summary: Danh sách các OAuth2 provider đang được bật
+      description: Trả về danh sách các OAuth2 provider được cấu hình cho hệ thống.
+      tags: [Provider]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Danh sách provider
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderListEnvelope'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/InternalServerError'
