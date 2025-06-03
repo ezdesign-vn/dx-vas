@@ -31,6 +31,9 @@
 | [ADR-025: Multi-Tenant Versioning](./adr-025-multi-tenant-versioning.md) | Core & tenant stack | ✅ Cho phép mỗi tenant chọn version riêng; hỗ trợ rollout lệch phiên bản |
 | [ADR-026: Hard Delete Policy](./adr-026-hard-delete-policy.md) | Tất cả service có dữ liệu nhạy cảm | ✅ Xác định tiêu chí không được xoá vật lý; sử dụng soft delete và audit |
 | [ADR-027: Data Management Strategy](./adr-027-data-management-strategy.md) | Toàn hệ thống | ✅ Chuẩn hoá phân loại dữ liệu, retention, purge, schema, access, bảo mật |
+| [ADR-028: Reporting Service Design](./adr-028-reporting-architecture.md) | Reporting Service | ✅ Tách backend chuyên biệt cho báo cáo; sử dụng Data Warehouse và RBAC theo template |
+| [ADR-029: Report Template Schema](./adr-029-report-template-schema.md) | Reporting Service + Superadmin Webapp | ✅ Chuẩn hóa cấu trúc report_template; hỗ trợ input validation, versioning, metadata RBAC |
+| [ADR-030: Event Schema Governance](./adr-030-event-schema-governance.md) | Tất cả services phát sự kiện (User, Auth, Notification, Adapters) | ✅ Chuẩn hóa schema sự kiện, versioned, lưu tại event registry; hỗ trợ backward compatibility |
 
 ---
 
