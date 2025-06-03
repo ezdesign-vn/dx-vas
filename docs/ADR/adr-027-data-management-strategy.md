@@ -85,6 +85,26 @@ Theo [ADR-020 - Cost Observability](./adr-020-cost-observability.md):
 
 ---
 
+Dưới đây là MARKDOWN BLOCK cập nhật cho `adr-027-data-management-strategy.md` theo các change request mới:
+
+---
+
+### 7. Tích hợp với Data Warehouse / Reporting Service
+
+* Dữ liệu phân tích từ các service nguồn sẽ được trích xuất định kỳ hoặc realtime vào **Data Warehouse (BigQuery)** để phục vụ báo cáo, phân tích, và AI.
+* Các bảng/fact table trong Data Warehouse phải:
+
+  * Được tách riêng khỏi OLTP schema.
+  * Có quy ước version/schema rõ ràng (tuân theo `ADR-030 - Event Schema Governance` nếu sinh từ Pub/Sub).
+  * Có retention phù hợp: tối thiểu 1 năm, ưu tiên lưu lâu dài dạng đã ẩn danh.
+* Mọi ETL pipeline phải:
+
+  * Ghi log đầy đủ và có cơ chế kiểm tra chất lượng dữ liệu (data quality checks).
+  * Mask thông tin nhạy cảm trước khi ghi dữ liệu vào bảng phân tích, trừ khi đã được ủy quyền.
+  * Tuân thủ chiến lược ẩn danh hóa của `ADR-024`.
+
+---
+
 ## ✅ Lợi ích
 
 - Dễ truy vết, khôi phục và phân tích dữ liệu lịch sử
@@ -111,6 +131,10 @@ Theo [ADR-020 - Cost Observability](./adr-020-cost-observability.md):
 - [ADR-023 - Schema Migration](./adr-023-schema-migration-strategy.md)
 - [ADR-024 - Data Anonymization & Retention](./adr-024-data-anonymization-retention.md)
 - [ADR-026 - Hard Delete Policy](./adr-026-hard-delete-policy.md)
+- [ADR-020 - Cost Observability](./adr-020-cost-observability.md)
+- [ADR-028 - Reporting Architecture](./adr-028-reporting-architecture.md)
+- [ADR-029 - Report Template Schema](./adr-029-report-template-schema.md)
+- [ADR-030 - Event Schema Governance](./adr-030-event-schema-governance.md)
 
 ---
 

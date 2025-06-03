@@ -55,6 +55,28 @@ Mỗi service Cloud Run nên có ít nhất:
 - `cloud.googleapis.com/run/request_count`
 - `billing/cost` metric qua Cloud Monitoring + BigQuery export
 
+### 📈 Chi phí Reporting Service & BigQuery
+
+#### 💰 Bổ sung bảng chi phí:
+
+| Nguồn             | Công cụ         | Đơn vị     | Cảnh báo đề xuất |
+| ----------------- | --------------- | ---------- | ---------------- |
+| Reporting Service | Cloud Run       | VND/hour   | > 150K/ngày      |
+| BigQuery          | Query & Storage | GB scanned | > 5GB/ngày       |
+
+#### 📊 Dashboard & Attribution (bổ sung):
+
+* Label gợi ý cho Reporting Service:
+
+  * `dx-vas_service=reporting-service`
+  * `module=reporting`
+  * `critical=true`
+
+* Với BigQuery:
+
+  * Gắn label `report_query_type=dashboard|ad-hoc|scheduled`
+  * Theo dõi cụ thể các query chạy bởi Reporting Service (qua `user_email`, `labels` trong `INFORMATION_SCHEMA.JOBS`)
+
 ---
 
 ## 🚨 Alerting & Noti
@@ -66,6 +88,9 @@ Mỗi service Cloud Run nên có ít nhất:
   - Redis memory > 80%
   - Logging usage > 1GB/day/service
   - Cloud Run instance spike > 3x bình thường trong 15 phút
+  - Query nào vượt >1GB scanned → gắn vào log cảnh báo
+  - Tần suất báo cáo tự động > 100 lần/ngày → cảnh báo spam
+  - Tổng chi phí BigQuery > 2M VND/tháng → Slack alert
 
 ---
 

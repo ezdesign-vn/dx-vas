@@ -297,16 +297,37 @@ Superadmin Webapp là ứng dụng quản trị tập trung dành riêng cho đ�
 - Tổng hợp và theo dõi thống kê toàn hệ thống:
   - Số lượng học sinh/nhân sự theo từng tenant
   - Log hoạt động toàn hệ thống
-  - Báo cáo phân quyền, truy cập, đăng nhập, chi phí (nếu cần)
+  - **Truy cập module Báo cáo & Phân tích động** (Xem chi tiết bên dưới)
+- Quản lý và cấu hình **Mẫu Báo Cáo (Report Templates)**:
+  - Tạo/cập nhật template cho các loại báo cáo hệ thống (xem `ADR-029`)
+  - Gán quyền `required_permission` cho từng loại báo cáo
+  - Phân loại template theo scope: `global` hoặc `per-tenant`
+
+### 📊 Module Báo cáo & Phân tích
+
+- Giao diện linh hoạt cho phép chọn:
+  - Loại báo cáo (từ danh sách `report_templates`)
+  - Tham số lọc: khoảng thời gian, tenant, trạng thái, nhóm dữ liệu
+  - Cấu hình biểu đồ (dạng cột, đường, bảng, tròn…)
+- Hỗ trợ:
+  - Truy vấn dữ liệu qua Reporting Service (theo `ADR-028`)
+  - Lưu cấu hình báo cáo yêu thích (Dashboard cá nhân)
+  - Export báo cáo ra CSV/PDF
+- Truy cập theo quyền `report.view_{template_id}` được kiểm tra tại API Gateway
 
 ### 🛠 Công nghệ & tích hợp
 
 - SPA chạy trên domain riêng (`superadmin.truongvietanh.edu.vn`)
 - Đăng nhập qua Google OAuth2 (yêu cầu quyền `superadmin`)
-- Gọi API trực tiếp đến **User Service Master**, **Auth Master**, và các Tenant Registry Services
+- Superadmin Webapp gọi API (thông qua API Gateway) đến các Core Services như:
+  - **User Service Master**: quản lý user toàn cục, thông tin tenant, cấu hình RBAC templates.
+  - **Auth Service Master**: xác thực đăng nhập, định danh Superadmin.
+  - **Reporting Service**: truy vấn dữ liệu báo cáo, thống kê toàn hệ thống, quản lý Report Templates.
 - Kết nối đến các service quản lý chi phí, logging, audit tập trung
 
-📘 Các API được mô tả trong: [`ic-superadmin-webapp.md`](./interfaces/ic-superadmin-webapp.md)
+📘 Các API được mô tả trong: [Superadmin Webapp Service](./service/superadmin-webapp/interface-contract.md)
+📘 Các Report Templates được định nghĩa chuẩn theo: [`ADR-029`](./ADR/adr-029-report-template-schema.md)  
+📘 Luồng báo cáo & Data Warehouse mô tả tại: [`ADR-028`](./ADR/adr-028-reporting-architecture.md)
 
 ## 8. Chiến lược Quản lý Dữ liệu
 
@@ -315,16 +336,101 @@ Hệ thống dx-vas áp dụng chiến lược quản lý dữ liệu tập trun
 - Hỗ trợ audit, phân tích, khôi phục, và truy vết sự kiện
 - Tối ưu hoá chi phí lưu trữ và hiệu suất hệ thống
 
+Dữ liệu của hệ thống DX-VAS được chia thành hai nhóm chính:
+- **Dữ liệu vận hành (OLTP)**: sử dụng MySQL trên mỗi tenant để lưu trữ dữ liệu người dùng, học sinh, lớp học, v.v.
+- **Dữ liệu phân tích (OLAP)**: được lưu trữ trong **Data Warehouse** (dự kiến là BigQuery), phục vụ báo cáo, thống kê và các dịch vụ AI sau này.
+
 **Nguyên tắc chính:**
 - ❌ Không hard delete các object có liên kết lịch sử, audit, hoặc cần giữ lâu dài (xem [ADR-026](./ADR/adr-026-hard-delete-policy.md))
 - ✅ Luôn sử dụng soft delete (`status`, `is_deleted`, `is_archived`) cho dữ liệu quan trọng
 - 🔒 Dữ liệu PII phải được ẩn danh trước khi dùng ở dev/staging (xem [ADR-024](./ADR/adr-024-data-anonymization-retention.md))
 - ⏳ Logs, audit, token, OTP có retention rõ ràng và purge định kỳ
 - 🔁 Schema migration phải rollback được, theo 3 bước chuẩn (xem [ADR-023](./ADR/adr-023-schema-migration-strategy.md))
+- Mọi pipeline nạp dữ liệu vào Data Warehouse đều cần:
+  - **Kiểm tra chất lượng dữ liệu (Data Quality)**
+  - **Ẩn danh hóa thông tin nhạy cảm** theo [ADR-024](./ADR/adr-024-data-anonymization-retention.md)
+- **Schema evolution** được kiểm soát qua version hóa schema và áp dụng [`ADR-030`](./ADR/adr-030-event-schema-governance.md) cho các event phát qua Pub/Sub
+- Chính sách lưu trữ (retention) cho dữ liệu phân tích tối thiểu là 1 năm
 
 📎 Xem chi tiết: [ADR-027 - Data Management Strategy](./ADR/adr-027-data-management-strategy.md)
 
-## 9. Hạ tầng triển khai
+## 9. Reporting Service & Data Warehouse
+
+Hệ thống báo cáo mới được thiết kế để đáp ứng nhu cầu phân tích linh hoạt, phục vụ BoD và chuẩn bị tích hợp AI.
+
+### 🏗 Thành phần chính
+
+- **Data Warehouse (BigQuery)**:
+  - Lưu dữ liệu phân tích dạng bảng `fact_*`, `dim_*`
+  - Hỗ trợ truy vấn lớn mà không ảnh hưởng đến hệ thống vận hành
+  - Quản lý schema theo version (xem [`ADR-030`](./ADR/adr-030-event-schema-governance.md))
+
+- **Data Pipeline (ETL/ELT)**:
+  - Dữ liệu được nạp từ các source (User, Auth, LMS, CRM) thông qua:
+    - Batch jobs hoặc streaming (Pub/Sub)
+  - Đảm bảo:
+    - Chất lượng dữ liệu (null checks, reference integrity)
+    - Mask dữ liệu nhạy cảm
+    - Metadata đầy đủ để hỗ trợ AI
+
+- **Reporting Service**:
+  - Trả kết quả báo cáo theo template (xem [`ADR-029`](./ADR/adr-029-report-template-schema.md))
+  - Cung cấp các API chính:
+    - `GET /report-templates`
+    - `POST /reports/{template_id}`
+    - `GET /saved-reports`
+  - Kiểm soát truy cập qua RBAC ([`ADR-007`](./ADR/adr-007-rbac.md))
+
+- **Report Template**:
+  - Xác định truy vấn, tham số đầu vào, quyền truy cập
+  - Superadmin có thể tạo/cập nhật các template này
+  - Tham chiếu: `ADR-029`
+
+### 🔁 Luồng dữ liệu báo cáo
+
+1. Dữ liệu nguồn phát event hoặc cập nhật DB
+2. Data Pipeline nạp vào Data Warehouse
+3. Reporting Service sinh truy vấn SQL động dựa trên template
+4. Kết quả được hiển thị qua Superadmin Webapp
+
+📎 Tham chiếu: [`ADR-028`](./ADR/adr-028-reporting-architecture.md), [`ADR-029`](./ADR/adr-029-report-template-schema.md), [`ADR-030`](./ADR/adr-030-event-schema-governance.md)
+
+## 10. Định hướng Tích hợp AI (AI Integration Strategy)
+
+### 🎯 Tầm nhìn
+
+Nền tảng dữ liệu đang xây dựng sẽ trở thành bước đệm cho AI Agent có khả năng tự động phân tích, đưa ra gợi ý hoặc hành động hỗ trợ vận hành giáo dục.
+
+### 🔍 Lợi ích của AI
+
+- Dự đoán tình trạng học sinh/giáo viên (vắng học, quá tải,…)
+- Tối ưu hóa lịch dạy, lớp học, tài nguyên
+- Tư vấn tuyển sinh cá nhân hóa
+- Phân tích hiệu suất từng tenant
+
+### 📊 Yêu cầu về dữ liệu cho AI
+
+- Chất lượng cao, đồng nhất giữa tenants
+- Đã qua bước ẩn danh (compliant)
+- Có metadata đầy đủ: thời gian, người tạo, context domain
+
+### 🤖 Các loại AI Agent tiềm năng
+
+- AI sắp lịch giảng dạy
+- AI tư vấn học vụ
+- AI tuyển sinh
+- AI phân tích rủi ro vận hành
+- AI hỗ trợ Superadmin tra cứu nhanh
+
+### 🔧 Các bước chuẩn bị (gợi ý)
+
+- Đảm bảo Data Warehouse "AI-ready"
+- Xây dựng Data Prep pipelines
+- Thiết kế Data Access Layer riêng (hoặc mở rộng từ Reporting Service)
+
+📎 Ghi chú: Việc phát triển AI Agent cụ thể **nằm ngoài phạm vi CR hiện tại**
+
+## 11. Hạ tầng triển khai
 
 Hệ thống dx-vas được triển khai trên Google Cloud theo mô hình **multi-tenant tách biệt theo stack**, kết hợp với các thành phần dùng chung để tối ưu hoá bảo mật, khả năng mở rộng và quản trị tập trung.
 
@@ -371,10 +477,20 @@ Mỗi tenant (trường) được triển khai dưới dạng **một stack riê
 - **Cloud Pub/Sub:** Đồng bộ định danh giữa master ↔ tenant
 - **Cloud Monitoring & Logging:** SLO/SLA tracking
 - **Terraform:** Mô hình hoá hạ tầng theo module (`core`, `tenant`, `shared`)
+- **Data Warehouse**
+- **Data Pipeline**
+
+### ☁️ Hạ tầng Dữ liệu & Phân tích (mới)
+
+- **BigQuery** – Data Warehouse chính
+- **ETL/ELT Tools** – Airbyte, dbt, hoặc Cloud Function
+- **Monitoring chi phí & hiệu năng** – theo `ADR-020`
+
+📎 Tham chiếu: [`ADR-027`](./ADR/adr-027-data-management-strategy.md)
 
 📘 Sơ đồ triển khai xem tại: 👉 [Deployment Overview Diagram](./architecture/system-diagrams.md#9-deployment-overview-diagram--sơ-đồ-triển-khai-tổng-quan)
 
-## 10. Admin Webapp - SPA (cấp độ tenant)
+## 12. Admin Webapp - SPA (cấp độ tenant)
 
 Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng trường thành viên (tenant). Đây là giao diện chính để giáo viên, nhân viên và ban giám hiệu quản lý hoạt động học tập, vận hành và phối hợp giữa các bộ phận trong trường.
 
@@ -414,42 +530,42 @@ Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng tr
 
 📘 Các API backend sử dụng được định nghĩa tại: [`user-service/interface-contract.md`](./services/user-service/interface-contract.md)
 
-## 11. Customer Portal - PWA (cấp độ tenant)
+## 13. Customer Portal - PWA (cấp độ tenant)
 
 * Giao diện cho phụ huynh và học sinh.
 * Hỗ trợ OTP/Zalo login, cài đặt trên mobile, offline với cache gần nhất.
 * Chế độ offline chỉ cho phép đọc dữ liệu đã được cache trước đó.
 * Đồng bộ lại dữ liệu tự động khi có kết nối mạng.
 
-## 12. CRM – SuiteCRM (cấp độ tenant)
+## 14. CRM – SuiteCRM (cấp độ tenant)
 
 * Quản lý pipeline tuyển sinh.
 * Khi phụ huynh đăng ký nhập học thành công → tự chuyển sang SIS.
 * Giao tiếp qua API Gateway, kiểm soát RBAC.
 * Kế hoạch chuyển đổi cơ chế đồng bộ sang event-driven, dùng Pub/Sub hoặc Redis stream.
 
-## 13. SIS – Gibbon (cấp độ tenant)
+## 15. SIS – Gibbon (cấp độ tenant)
 
 * Quản lý học sinh, lớp, điểm danh, học phí.
 * Có export API cho LMS, Portal, Admin Webapp.
 * Lưu vết lịch sử: học lực, lớp học, học bạ.
 * Liên kết phụ huynh – học sinh lưu trong bảng tham chiếu.
 
-## 14. LMS – Moodle (cấp độ tenant)
+## 16. LMS – Moodle (cấp độ tenant)
 
 * Học tập online, giao bài, chấm điểm.
 * SSO với OAuth2.
 * Tự động đồng bộ học sinh từ SIS.
 * Điểm có thể đẩy ngược về SIS.
 
-## 15. Zalo OA & Google Chat
+## 17. Zalo OA & Google Chat
 
 * Gửi thông báo học phí, sự kiện qua Zalo ZNS.
 * Gửi nội bộ (giáo viên, nhân viên) qua Google Chat.
 * Có xử lý lỗi API, quota, timeout.
 * Dự kiến bổ sung cơ chế retry và dashboard kiểm tra trạng thái gửi.
 
-## 16. CI/CD & DevOps
+## 18. CI/CD & DevOps
 
 * GitHub Actions / Cloud Build → Cloud Run.
 * Staging + production, rollback.
@@ -457,7 +573,7 @@ Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng tr
 * Đã áp dụng ADR-003 – secrets được quản lý và rotate định kỳ qua Secret Manager.
 * Dự kiến triển khai Chaos Testing cho các dịch vụ quan trọng.
 
-## 17. Bảo mật & Giám sát
+## 19. Bảo mật & Giám sát
 
 * Mã hóa dữ liệu nhạy cảm.
 * Chống OWASP Top 10, bao gồm CSRF, XSS, SQL Injection.
@@ -465,7 +581,7 @@ Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng tr
 * Giám sát xác thực phụ huynh (login rate, reset mật khẩu).
 * Ghi log chi tiết theo người dùng, endpoint, trạng thái.
 
-## 18. Data Migration Plan
+## 20. Data Migration Plan
 
 * Nếu có hệ thống cũ, dữ liệu sẽ được di chuyển theo lộ trình Blueprint rõ ràng:
 
@@ -475,7 +591,7 @@ Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng tr
   * Rollback plan nếu phát hiện lỗi
   * Hỗ trợ chế độ song song (parallel run)
 
-## 19. Đào tạo & Chuyển giao
+## 21. Đào tạo & Chuyển giao
 
 * Mỗi nhóm người dùng sẽ có gói đào tạo riêng (nhân viên, giáo viên, học sinh, phụ huynh).
 * Tài liệu bao gồm:
@@ -484,7 +600,7 @@ Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng tr
   * Handout dạng PDF
   * Demo trực tiếp (live/recorded)
 
-## 20. Tổng kết
+## 22. Tổng kết
 
 Hệ thống chuyển đổi số VAS được thiết kế mở rộng linh hoạt đến 5260 người dùng, hỗ trợ xác thực phân tách giữa người dùng có Workspace (OAuth2) và phụ huynh (Local/OTP), đảm bảo bảo mật, giám sát, phục hồi thảm họa, đào tạo và khả năng phát triển dài hạn.
 
@@ -554,63 +670,106 @@ Tài liệu này bao gồm:
 
 ```mermaid
 flowchart TD
-  subgraph Tenant_A["Tenant A Stack"]
-    A_PWA[PWA A]
-    A_Admin[Admin SPA A]
-    A_Auth[Sub Auth A]
-    A_User[Sub User A]
-    A_CRM[CRM Adapter A]
-    A_SIS[SIS Adapter A]
-    A_LMS[LMS Adapter A]
+  %% SUPERADMIN
+  subgraph SuperadminZone [Superadmin Zone]
+    SuperadminWebapp(Superadmin Webapp)
   end
 
-  subgraph Tenant_B["Tenant B Stack"]
-    B_PWA[PWA B]
-    B_Admin[Admin SPA B]
-    B_Auth[Sub Auth B]
-    B_User[Sub User B]
-    B_CRM[CRM Adapter B]
-    B_SIS[SIS Adapter B]
-    B_LMS[LMS Adapter B]
+  %% TENANT ZONE
+  subgraph Tenant [Per Tenant]
+    subgraph Frontend
+      AdminWebapp(Admin Webapp)
+      CustomerPortal(Customer Portal)
+    end
+
+    subgraph TenantInfra [Services]
+      UserSub(User Service Sub)
+      AuthSub(Auth Service Sub)
+      NotificationSub(Notification Service Sub)
+    end
+
+    subgraph ExternalAdapters [Adapters]
+      CRM
+      SIS
+      LMS
+    end
   end
 
-  subgraph Master["Shared Core Services"]
-    Gateway[API Gateway]
-    AuthMaster[Auth Service Master]
-    UserMaster[User Service Master]
-    Superadmin[Superadmin Webapp]
-    Redis[Redis Cache]
-    PubSub[Pub/Sub]
-    Logging[Monitoring & Audit]
+  %% CORE SERVICES
+  subgraph CoreServices [Core Services]
+    subgraph Entry
+      %% API GATEWAY
+      APIGateway(API Gateway)
+    end
+    UserMaster(User Service Master)
+    AuthMaster(Auth Service Master)
+    NotificationMaster(Notification Service Master)
+    ReportingService(Reporting Service)
+    RedisCache(Redis Cache)
+    MonitoringStack(Monitoring & Audit Stack)
   end
 
-  A_PWA --> Gateway
-  A_Admin --> Gateway
-  B_PWA --> Gateway
-  B_Admin --> Gateway
+  %% DATA PLATFORM
+  subgraph DataInfra [Data Platform]
+    PubSub(Pub/Sub)
+    ETL(ETL / ELT)
+    DataWarehouse(Data Warehouse - BigQuery)
+  end
 
-  Gateway --> AuthMaster
-  Gateway --> UserMaster
-  Gateway --> Redis
-  Gateway --> Logging
+  %% FLOW: SUPERADMIN & GATEWAY
+  SuperadminWebapp -->|API| APIGateway
+  AdminWebapp -->|API| APIGateway
+  CustomerPortal -->|API| APIGateway
 
-  Gateway --> A_Auth
-  Gateway --> A_User
-  Gateway --> A_CRM
-  Gateway --> A_SIS
-  Gateway --> A_LMS
+  %% FLOW: API TO CORE
+  APIGateway --> UserMaster
+  APIGateway --> AuthMaster
+  APIGateway --> NotificationMaster
+  APIGateway --> ReportingService
 
-  Gateway --> B_Auth
-  Gateway --> B_User
-  Gateway --> B_CRM
-  Gateway --> B_SIS
-  Gateway --> B_LMS
+  %% FLOW: API TO TENANT SUB SERVICES
+  APIGateway --> UserSub
+  APIGateway --> AuthSub
+  APIGateway --> NotificationSub
 
-  AuthMaster --> UserMaster
-  A_Auth --> UserMaster
-  B_Auth --> UserMaster
+  %% FLOW: SYNC MASTER -> SUB
+  UserMaster -->|Provision user| UserSub
+  AuthMaster -->|Provision account| AuthSub
+  NotificationMaster -->|Sync rule| NotificationSub
 
-  Superadmin --> UserMaster
+  %% FLOW: TENANT SERVICE TO ADAPTERS (Operational APIs)
+  UserSub --> CRM
+  UserSub --> SIS
+  UserSub --> LMS
+
+  %% FLOW: ANALYTICS PIPELINES (into DW)
+  CRM -->|data sync| ETL
+  SIS -->|data sync| ETL
+  LMS -->|data sync| ETL
+
+  UserSub -->|events| PubSub
+  AuthSub -->|events| PubSub
+  NotificationSub -->|events| PubSub
+
+  UserMaster -->|events| PubSub
+  AuthMaster -->|events| PubSub
+  NotificationMaster -->|events| PubSub
+
+  PubSub --> ETL
+  ETL --> DataWarehouse
+  ReportingService -->|query/report| DataWarehouse
+
+  %% Redis Cache Flow
+  AuthMaster -->|cache session/token| RedisCache
+  UserMaster -->|cache RBAC/profile| RedisCache
+  ReportingService -->|cache aggregated result| RedisCache
+
+  %% Monitoring & Audit Flow
+  AuthMaster -->|audit log| MonitoringStack
+  UserMaster -->|audit log| MonitoringStack
+  NotificationMaster -->|audit log| MonitoringStack
+  ReportingService -->|access log| MonitoringStack
+  APIGateway -->|request log| MonitoringStack
 ```
 
 📌 **Ý nghĩa sơ đồ**:

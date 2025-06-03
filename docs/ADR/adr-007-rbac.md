@@ -110,6 +110,22 @@ Gateway sẽ đánh giá điều kiện này dựa trên context user và reques
   * Clone để tuỳ chỉnh (độc lập về sau)
 * Sự kiện `rbac_template_updated` được phát từ Master → Sub nhận và xử lý
 
+### 7. Báo cáo và quyền truy cập báo cáo
+
+* Mỗi Report Template sẽ có một trường `required_permission`, ví dụ `"report.view_login_by_tenant"`.
+* Người dùng chỉ có thể truy cập template hoặc sinh báo cáo khi **có đủ quyền tương ứng trong RBAC**, được đánh giá tại API Gateway.
+* `required_permission` được tra cứu từ Redis cache tương tự như các API business khác.
+* Nếu template có `scope: global`, thì permission phải là của tenant "superadmin"; nếu là `scope: tenant`, thì permission được kiểm tra trong context `tenant_id` hiện tại.
+
+### 8. Liên kết với hệ thống quản lý báo cáo
+
+* Bảng `permissions_in_tenant` có thể lưu các quyền đặc thù cho từng loại báo cáo, bao gồm:
+
+  * `"report.view_*"` – quyền xem từng nhóm báo cáo
+  * `"report.manage_templates"` – quyền quản lý định nghĩa báo cáo
+  * `"report.export"` – quyền export kết quả
+* Các quyền này cũng có thể được đồng bộ từ `global_permissions_templates` nếu báo cáo là toàn cục.
+
 ## Hệ quả
 
 ✅ Ưu điểm:
@@ -127,6 +143,10 @@ Gateway sẽ đánh giá điều kiện này dựa trên context user và reques
 
 ## Liên kết liên quan
 
-* [`adr-006-auth-strategy.md`](./adr-006-auth-strategy.md)
-* [`rbac-deep-dive.md`](../architecture/rbac-deep-dive.md)
-* [`README.md#2-đăng-nhập--phân-quyền-động-rbac`](../README.md#2-đăng-nhập--phân-quyền-động-rbac)
+- [ADR-006 - Auth Strategy](./adr-006-auth-strategy.md)
+- [ADR-012 - Response Structure](./adr-012-response-structure.md)
+- [ADR-028 - Reporting Architecture](./adr-028-reporting-architecture.md)
+- [ADR-029 - Report Template Schema](./adr-029-report-template-schema.md)
+- [ADR-030 - Event Schema Governance](./adr-030-event-schema-governance.md)
+- [RBAC Deep Dive](../architecture/rbac-deep-dive.md#10-giám-sát--gỡ-lỗi)
+- [README - 2. Đăng nhập & Phân quyền động RBAC](../README.md#2-đăng-nhập--phân-quyền-động-rbac)

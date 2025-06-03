@@ -125,6 +125,14 @@ CREATE TABLE global_permissions_templates (
 );
 ```
 
+Bảng `global_permissions_templates` định nghĩa các mẫu quyền toàn cục, có thể bao gồm:
+
+| permission_code               | description                                              |
+|------------------------------|----------------------------------------------------------|
+| `report.view_login_by_tenant` | Xem báo cáo đăng nhập theo từng tenant                  |
+| `report.view_financial_summary` | Xem báo cáo tài chính tổng hợp                        |
+| `report.manage_report_templates` | Tạo / cập nhật template báo cáo                     |
+
 ---
 
 ### 📦 Tại Sub User Service (mỗi tenant)
@@ -167,6 +175,13 @@ CREATE TABLE role_permission_in_tenant (
 );
 ```
 
+Bảng `permissions_in_tenant` có thể bao gồm các quyền báo cáo được ánh xạ từ master:
+
+| permission_code                 | scope   | is_custom | note                                |
+|--------------------------------|---------|-----------|-------------------------------------|
+| `report.view_login_by_tenant`  | tenant  | false     | Kế thừa từ Master                   |
+| `report.view_financial_summary`| global  | false     | Chỉ cấp cho một số vai trò quản lý |
+
 📘 Mô hình dữ liệu này giúp tách biệt rõ ràng giữa định danh toàn cục và RBAC cục bộ theo từng tenant. Tài liệu chi tiết hơn được trình bày tại:
 
 * [`user-service/master/data-model.md`](../services/user-service/master/data-model.md)
@@ -201,6 +216,9 @@ Hệ thống dx-vas hỗ trợ **permission có điều kiện** – cho phép k
 * Nếu một permission có `condition = null` → luôn đúng
 
 📘 Các tenant có thể tự định nghĩa điều kiện riêng theo logic đặc thù.
+
+📘 Các permission liên quan đến truy cập báo cáo (ví dụ: `report.view_login_by_tenant`) có thể đi kèm `condition` như giới hạn theo `tenant_id`, `data_scope`, v.v.  
+Các template quyền này được định nghĩa và quản lý tập trung thông qua `User Service Master` và sử dụng trong cấu trúc `report_templates` (xem ADR-029).
 
 ---
 
@@ -240,6 +258,9 @@ rbac:{user_id}:{tenant_id}
   * Phát sự kiện `user_status_changed` (từ Master hoặc Sub) → Gateway huỷ JWT và cache
 
 📘 Định nghĩa event schema trong [`rbac-events.md`](./rbac-events.md)
+
+📘 Các permission dạng `report.*` thường được đánh giá tại Gateway khi Superadmin Webapp gọi đến Reporting Service.  
+Nếu có `condition`, engine sẽ thực hiện đối chiếu `input_parameters` trong request báo cáo với context người dùng hiện tại.
 
 ---
 
@@ -326,6 +347,8 @@ RBAC là lớp kiểm soát truy cập trọng yếu, nên các nguyên tắc b�
   - Cập nhật condition
 - Được log kèm:
   - `user_id`, `actor_id`, `tenant_id`, `timestamp`, `payload_before`, `payload_after`
+- Các hành vi truy cập báo cáo (truy vấn, export, xem cấu hình) được log vào **Audit Logging Stack** để hỗ trợ bảo mật và phân tích hành vi.
+- Việc log này tuân thủ định dạng `ADR-008` và có thể được dùng để sinh các báo cáo phân quyền và audit sử dụng hệ thống báo cáo.
 
 ### 🧪 Debug Flow tại Gateway
 - Gắn `X-RBAC-Trace-ID` vào mỗi request nếu bật debug
@@ -350,6 +373,7 @@ Một số khuyến nghị được áp dụng và kiểm soát qua Superadmin W
 - ✅ Dùng template nếu tenant không có nhu cầu tuỳ chỉnh
 - ❌ Không cho phép sửa `role_code` sau khi gán cho user
 - ❌ Không cấp quyền `manage_rbac` đại trà – nên gán cho 1–2 người có trách nhiệm
+- 🔒 **Phân quyền truy cập báo cáo kỹ lưỡng:** Các permission dạng `report.view_*` nên được gán rõ ràng theo vai trò, giới hạn theo scope (`tenant` hoặc `global`). Những quyền như `report.manage_report_templates` nên **chỉ cấp cho Superadmin hoặc roles đặc biệt**, để tránh nguy cơ rò rỉ thông tin hoặc truy vấn nhạy cảm.
 
 ---
 

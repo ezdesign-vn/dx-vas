@@ -83,6 +83,43 @@ Bao gồm (nhưng không giới hạn):
 - Tất cả log đều có cấu trúc JSON chuẩn → dễ phân tích bằng BigQuery
 - Cho phép filter theo `tenant_id`, `action_type`, `trace_id`
 
+### 6. Ghi log truy cập báo cáo (từ Reporting Service)
+
+- Mọi truy cập các API `/reports/*`, `/report-templates/*`, `/saved-reports/*` sẽ được ghi audit log.
+- Thông tin cần log:
+  - `actor_user_id`: người thực hiện truy cập
+  - `action_type`: `view_report`, `list_templates`, `generate_report`, `download_report`, ...
+  - `target_resource_type`: `"report_template"` hoặc `"report_result"`
+  - `target_resource_id`: id của template hoặc report (nếu có)
+  - `input_parameters`: (nếu có) – được mask nếu chứa thông tin nhạy cảm
+  - `duration_ms`: thời gian thực thi truy vấn
+  - `tenant_id`, `trace_id`, `timestamp`
+- Các trường nhạy cảm trong `input_parameters` như email, số điện thoại cần được mask hoặc loại trừ ra khỏi log.
+  - Việc masking phải **tuân thủ `ADR-024 - Data Anonymization & Retention`**.
+  - Cần xây dựng một danh sách whitelist hoặc pattern-based detection cho các tham số cần được ẩn/mask, và áp dụng nhất quán bằng middleware hoặc utility trước khi log.
+- `target_resource_id`:
+  - Với `generate_report`, đây thường là ID của `report_template`.
+  - Nếu hệ thống sinh ra một `report_result_id` riêng (ví dụ khi export hoặc lưu báo cáo), thì có thể sử dụng `report_result_id` làm `target_resource_id`.
+
+Ví dụ:
+```json
+{
+  "actor_user_id": "admin-001",
+  "action_type": "generate_report",
+  "target_resource_type": "report_template",
+  "target_resource_id": "login-by-tenant",
+  "input_parameters": {
+    "start_date": "2024-01-01",
+    "end_date": "2024-01-31",
+    "tenant_id": "vas-hn"
+  },
+  "duration_ms": 142,
+  "trace_id": "abc-xyz-123",
+  "tenant_id": "vas-superadmin",
+  "timestamp": "2025-06-03T08:00:00Z"
+}
+```
+
 ## Hệ quả
 
 ✅ Ưu điểm:
@@ -99,10 +136,14 @@ Bao gồm (nhưng không giới hạn):
 
 ## Liên kết liên quan
 
-- [`adr-007-rbac.md`](./adr-007-rbac.md)
-- [`adr-006-auth-strategy.md`](./adr-006-auth-strategy.md)
-- [`rbac-deep-dive.md`](../architecture/rbac-deep-dive.md#10-giám-sát--gỡ-lỗi)
-- [`README.md#17-bảo-mật--giám-sát`](../README.md#17-bảo-mật--giám-sát)
+- [ADR-006 - Auth Strategy](./adr-006-auth-strategy.md)
+- [ADR-007 - RBAC và phân quyền động](./adr-007-rbac.md)
+- [ADR-012 - Response Structure](./adr-012-response-structure.md)
+- [ADR-028 - Reporting Architecture](./adr-028-reporting-architecture.md)
+- [ADR-029 - Report Template Schema](./adr-029-report-template-schema.md)
+- [ADR-030 - Event Schema Governance](./adr-030-event-schema-governance.md)
+- [RBAC Deep Dive](../architecture/rbac-deep-dive.md#10-giám-sát--gỡ-lỗi)
+- [README - 17. Bảo mật & giám sát](../README.md#17-bảo-mật--giám-sát)
 
 ---
 > “Nếu bạn không ghi lại hành vi của hệ thống – bạn sẽ không bao giờ biết điều gì đã xảy ra khi nó xảy ra.”
