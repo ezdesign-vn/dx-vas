@@ -33,5 +33,4 @@ jobs:
 
       - name: 🚀 Build & Deploy to GitHub Pages
         run: |
-          cat site/CNAME
           mkdocs gh-deploy --force
