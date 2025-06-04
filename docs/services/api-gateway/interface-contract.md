@@ -77,7 +77,7 @@ Danh sách các API giúp định tuyến request thông qua Gateway đến back
   "data": {
     "user_id": "u001",
     "name": "Alice",
-    "email": "alice@vas.edu.vn"
+    "email": "alice@truongvietanh.edu.vn"
   }
 }
 ```

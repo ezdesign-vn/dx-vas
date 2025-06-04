@@ -7,6 +7,14 @@
 > 4. Đảm bảo tài liệu của bạn rõ ràng, chi tiết và tuân thủ "Checklist Tiêu Chuẩn 5★ cho File interface-contract.md".
 > 5. Luôn tham chiếu đến các tài liệu liên quan như `design.md`, `data-model.md`, `openapi.yaml` và các ADRs.
 
+```
+title: API Gateway – Interface Contract
+version: "1.0"
+last_updated: "yyyy-mm-dd"
+author: "DX VAS Team"
+reviewed_by: "Stephen Le"
+```
+
 * Tài liệu này mô tả các API chính mà **[TÊN_SERVICE]** cung cấp, theo phong cách dễ đọc cho developer (backend/frontend) và các bên liên quan. Đặc tả kỹ thuật chi tiết (chuẩn máy đọc) xem thêm tại [`openapi.yaml`](./openapi.yaml).
 * _Phạm vi (Scope):_
 [TODO: Mô tả ngắn gọn phạm vi của service này. Nó quản lý những gì? Nó phục vụ mục đích gì trong hệ thống tổng thể? Nó KHÔNG quản lý những gì để tránh nhầm lẫn với các service khác?]

@@ -1,0 +1,15 @@
+# Ignore Python-related cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Ignore mkdocs build output
+site/
+
+# Ignore editor configs
+.vscode/
+.idea/
+*.swp
+
+# Ignore temporary documentation
+docs/tmp/

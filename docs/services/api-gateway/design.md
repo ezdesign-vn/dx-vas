@@ -88,6 +88,7 @@ Cache bao gồm:
 Chiến lược invalidation:
 - TTL cho mỗi cache key (default 5 phút)
 - Cho phép trigger manual flush qua Admin CLI/API nếu cần
+- (Khuyến nghị mở rộng) Có thể thiết lập **subscription tới sự kiện thay đổi** trong config center (ví dụ: Firestore listener, GCS Pub/Sub) để **tự động xóa cache** khi cấu hình route được cập nhật.
 
 ## 4. 🔄 Luồng xử lý nghiệp vụ chính (Business Logic Flows)
 

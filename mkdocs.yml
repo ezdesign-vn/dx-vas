@@ -67,11 +67,26 @@ nav:
     - Backend Dev Guide: dev/backend-dev-guide.md #
     - Vận hành & DevOps (Ops Guide): dev/ops-guide.md #
   - Thiết kế Services: # Đổi tên
-    - User Service:
-      - Tổng quan Thiết kế: services/user-service/design.md #
-      - Hợp đồng Giao diện: services/user-service/interface-contract.md #
-      - Mô hình Dữ liệu: services/user-service/data-model.md #
-      - Đặc tả OpenAPI: services/user-service/openapi.yaml #
+    - User Service Master:
+      - Tổng quan Thiết kế: services/user-service/master/design.md #
+      - Hợp đồng Giao diện: services/user-service/master/interface-contract.md #
+      - Mô hình Dữ liệu: services/user-service/master/data-model.md #
+      - Đặc tả OpenAPI: services/user-service/master/openapi.yaml #
+    - User Service Sub:
+      - Tổng quan Thiết kế: services/user-service/sub/design.md #
+      - Hợp đồng Giao diện: services/user-service/sub/interface-contract.md #
+      - Mô hình Dữ liệu: services/user-service/sub/data-model.md #
+      - Đặc tả OpenAPI: services/user-service/sub/openapi.yaml #
+    - Auth Service Master:
+      - Tổng quan Thiết kế: services/auth-service/master/design.md #
+      - Hợp đồng Giao diện: services/auth-service/master/interface-contract.md #
+      - Mô hình Dữ liệu: services/auth-service/master/data-model.md #
+      - Đặc tả OpenAPI: services/auth-service/master/openapi.yaml #
+    - Auth Service Sub:
+      - Tổng quan Thiết kế: services/auth-service/sub/design.md #
+      - Hợp đồng Giao diện: services/auth-service/sub/interface-contract.md #
+      - Mô hình Dữ liệu: services/auth-service/sub/data-model.md #
+      - Đặc tả OpenAPI: services/auth-service/sub/openapi.yaml #
     # (Thêm các service khác ở đây khi có)
   - Quyết định Kiến trúc (ADRs): # Đổi tên
     - Chỉ mục ADRs: ADR/index.md #
