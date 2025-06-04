@@ -32,74 +32,106 @@ Sơ đồ dưới đây mô tả kiến trúc tổng thể của hệ thống dx
 
 ```mermaid
 flowchart TD
-
-  subgraph Tenant_A["Tenant A Stack"]
-    A_PWA[PWA A]
-    A_Admin[Admin SPA A]
-    A_Auth[Sub Auth A]
-    A_User[Sub User A]
-    A_CRM[CRM Adapter A]
-    A_SIS[SIS Adapter A]
-    A_LMS[LMS Adapter A]
-    A_Notify[Sub Notification A]
+  %% SUPERADMIN
+  subgraph SuperadminZone [Superadmin Zone]
+    SuperadminWebapp(Superadmin Webapp)
   end
 
-  subgraph Tenant_B["Tenant B Stack"]
-    B_PWA[PWA B]
-    B_Admin[Admin SPA B]
-    B_Auth[Sub Auth B]
-    B_User[Sub User B]
-    B_CRM[CRM Adapter B]
-    B_SIS[SIS Adapter B]
-    B_LMS[LMS Adapter B]
-    B_Notify[Sub Notification B]
+  %% TENANT ZONE
+  subgraph Tenant [Per Tenant]
+    subgraph Frontend
+      AdminWebapp(Admin Webapp)
+      CustomerPortal(Customer Portal)
+    end
+
+    subgraph TenantInfra [Services]
+      UserSub(User Service Sub)
+      AuthSub(Auth Service Sub)
+      NotificationSub(Notification Service Sub)
+    end
+
+    subgraph ExternalAdapters [Adapters]
+      CRM
+      SIS
+      LMS
+    end
   end
 
-  subgraph SharedCore["Shared Core Services"]
-    Gateway[🛡️ API Gateway]
-    AuthMaster[🔐 Auth Master]
-    UserMaster[🧠 User Master]
-    Superadmin[🧑‍💼 Superadmin Webapp]
-    NotifyMaster[📣 Notification Master]
-    PubSub[📨 Pub/Sub Bus]
-    Redis[⚡ Redis Cache]
-    LogSys[📊 Monitoring & Audit]
+  %% CORE SERVICES
+  subgraph CoreServices [Core Services]
+    subgraph Entry
+      %% API GATEWAY
+      APIGateway(API Gateway)
+    end
+    UserMaster(User Service Master)
+    AuthMaster(Auth Service Master)
+    NotificationMaster(Notification Service Master)
+    ReportingService(Reporting Service)
+    RedisCache(Redis Cache)
+    MonitoringStack(Monitoring & Audit Stack)
   end
 
-  A_PWA --> Gateway
-  A_Admin --> Gateway
-  B_PWA --> Gateway
-  B_Admin --> Gateway
+  %% DATA PLATFORM
+  subgraph DataInfra [Data Platform]
+    PubSub(Pub/Sub)
+    ETL(ETL / ELT)
+    DataWarehouse(Data Warehouse - BigQuery)
+  end
 
-  Gateway --> AuthMaster
-  Gateway --> UserMaster
-  Gateway --> Redis
-  Gateway --> LogSys
+  %% FLOW: SUPERADMIN & GATEWAY
+  SuperadminWebapp -->|API| APIGateway
+  AdminWebapp -->|API| APIGateway
+  CustomerPortal -->|API| APIGateway
 
-  Gateway --> A_Auth
-  Gateway --> A_User
-  Gateway --> A_CRM
-  Gateway --> A_SIS
-  Gateway --> A_LMS
-  Gateway --> A_Notify
+  %% FLOW: API TO CORE
+  APIGateway --> UserMaster
+  APIGateway --> AuthMaster
+  APIGateway --> NotificationMaster
+  APIGateway --> ReportingService
 
-  Gateway --> B_Auth
-  Gateway --> B_User
-  Gateway --> B_CRM
-  Gateway --> B_SIS
-  Gateway --> B_LMS
-  Gateway --> B_Notify
+  %% FLOW: API TO TENANT SUB SERVICES
+  APIGateway --> UserSub
+  APIGateway --> AuthSub
+  APIGateway --> NotificationSub
 
-  Superadmin --> UserMaster
-  Superadmin --> NotifyMaster
+  %% FLOW: SYNC MASTER -> SUB
+  UserMaster -->|Provision user| UserSub
+  AuthMaster -->|Provision account| AuthSub
+  NotificationMaster -->|Sync rule| NotificationSub
 
-  NotifyMaster --> PubSub
-  PubSub --> A_Notify
-  PubSub --> B_Notify
+  %% FLOW: TENANT SERVICE TO ADAPTERS (Operational APIs)
+  UserSub --> CRM
+  UserSub --> SIS
+  UserSub --> LMS
 
-  AuthMaster --> UserMaster
-  A_Auth --> UserMaster
-  B_Auth --> UserMaster
+  %% FLOW: ANALYTICS PIPELINES (into DW)
+  CRM -->|data sync| ETL
+  SIS -->|data sync| ETL
+  LMS -->|data sync| ETL
+
+  UserSub -->|events| PubSub
+  AuthSub -->|events| PubSub
+  NotificationSub -->|events| PubSub
+
+  UserMaster -->|events| PubSub
+  AuthMaster -->|events| PubSub
+  NotificationMaster -->|events| PubSub
+
+  PubSub --> ETL
+  ETL --> DataWarehouse
+  ReportingService -->|query/report| DataWarehouse
+
+  %% Redis Cache Flow
+  AuthMaster -->|cache session/token| RedisCache
+  UserMaster -->|cache RBAC/profile| RedisCache
+  ReportingService -->|cache aggregated result| RedisCache
+
+  %% Monitoring & Audit Flow
+  AuthMaster -->|audit log| MonitoringStack
+  UserMaster -->|audit log| MonitoringStack
+  NotificationMaster -->|audit log| MonitoringStack
+  ReportingService -->|access log| MonitoringStack
+  APIGateway -->|request log| MonitoringStack
 ```
 
 📘 **Ghi chú:**
@@ -107,6 +139,9 @@ flowchart TD
 * Các khối `Tenant A`, `Tenant B` có thể mở rộng tùy theo số lượng trường.
 * Sub Notification Service lắng nghe từ `Notification Master` thông qua Pub/Sub (`Option B`).
 * RBAC, Auth, Notification đều hoạt động theo `tenant_id`, đảm bảo isolation.
+* Bổ sung `Reporting Service`, `ETL`, `Data Warehouse`
+* Hiển thị quan hệ `Superadmin Webapp → Reporting Service → BigQuery`
+* Bao gồm Redis, Pub/Sub, Audit Stack
 
 ---
 
@@ -227,36 +262,62 @@ Sơ đồ dưới đây thể hiện luồng gửi thông báo toàn hệ thốn
 - Mỗi Sub Service phản hồi lại trạng thái gửi qua một topic riêng để Master theo dõi và tổng hợp.
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant Superadmin as 🧑‍💼 Superadmin Webapp
-    participant NotifyMaster as 📣 Notification Master
-    participant PubSub as 📨 Pub/Sub: vas-global-notifications-topic
-    participant NotifyA as 🔔 Sub Notification – Tenant A
-    participant NotifyB as 🔔 Sub Notification – Tenant B
-    participant PubSubAck as 📩 Pub/Sub: vas-tenant-notification-ack-topic
+flowchart TD
+  subgraph TriggerSources [Nguồn Kích Hoạt Thông báo]
+    CRM
+    SIS
+    LMS
+    UserSub(User Service Sub)
+    SuperadminAction(Superadmin Webapp)
+  end
 
-    Superadmin->>NotifyMaster: Gửi yêu cầu gửi thông báo toàn hệ thống
-    NotifyMaster->>PubSub: Publish `global_notification_requested`
+  subgraph RuleEngines [Notification Rule Engines]
+    NotificationRuleSub(Tenant Rule Engine)
+    NotificationRuleMaster(Master Rule Engine)
+  end
 
-    Note over PubSub: Fan-out message đến tất cả subscriber
+  subgraph NotificationServicesAndPubSub [Notification Services & Pub/Sub]
+    NotificationMaster(Notification Service Master)
+    NotificationSub(Notification Service Sub)
+    GlobalNotifyTopic(Pub/Sub: vas-global-notifications-topic) 
+    AckCollector(ACK Collector)
+  end
 
-    PubSub-->>NotifyA: Sự kiện gửi thông báo
-    PubSub-->>NotifyB: Sự kiện gửi thông báo
+  subgraph Channels [Các Kênh Gửi Thông báo]
+    SMS
+    Email
+    Zalo
+    Internal(App Notification)
+  end
 
-    alt tenant_id khớp
-        NotifyA->>NotifyA: Áp dụng template + lọc người nhận
-        NotifyA->>Channels: Gửi thông báo đa kênh
-        NotifyA->>PubSubAck: Phản hồi `tenant_notification_batch_status`
-    end
+  %% Trigger sources to rule engines
+  CRM --> NotificationRuleSub
+  SIS --> NotificationRuleSub
+  LMS --> NotificationRuleSub
+  UserSub --> NotificationRuleSub
+  SuperadminAction --> NotificationRuleMaster
 
-    alt tenant_id khớp
-        NotifyB->>NotifyB: Áp dụng template + lọc người nhận
-        NotifyB->>Channels: Gửi thông báo đa kênh
-        NotifyB->>PubSubAck: Phản hồi `tenant_notification_batch_status`
-    end
+  %% Rule engines trigger services
+  NotificationRuleSub --> NotificationSub
+  NotificationRuleMaster --> NotificationMaster
 
-    Note over NotifyMaster: (tùy chọn) Lắng nghe `tenant_notification_batch_status` để tổng hợp kết quả
+  %% Master notification fan-out via Pub/Sub
+  NotificationMaster --> GlobalNotifyTopic
+  GlobalNotifyTopic ---> NotificationSub
+  %% Tenant notification direct send
+  NotificationSub --> SMS
+  NotificationSub --> Email
+  NotificationSub --> Zalo
+  NotificationSub --> Internal
+
+  %% Acknowledgement feedback loop
+  SMS ---> AckCollector
+  Email ---> AckCollector
+  Zalo ---> AckCollector
+  Internal ---> AckCollector
+
+  AckCollector --> NotificationSub
+  AckCollector --> NotificationMaster
 ```
 
 📘 **Ghi chú:**
@@ -277,76 +338,61 @@ sequenceDiagram
 Sơ đồ này mô tả kiến trúc triển khai hạ tầng của hệ thống dx-vas trên Google Cloud, theo mô hình chia project rõ ràng giữa core services và các tenant. Mỗi tenant có stack riêng, độc lập về tài nguyên, giúp đảm bảo cách ly và dễ scale.
 
 ```mermaid
-graph TD
-
-  subgraph GCP["Google Cloud Platform"]
-    
-    subgraph core["Project: dx-vas-core"]
-      APIGW[🛡️ API Gateway]
-      AuthMaster[🔐 Auth Service Master]
-      UserMaster[🧠 User Service Master]
-      NotifyMaster[📣 Notification Master]
-      Redis[⚡ Redis Cache]
-      PubSub[📨 Pub/Sub Topics]
-    end
-
-    subgraph tenantA["Project: dx-vas-tenant-a"]
-      AuthA[🔐 Sub Auth A]
-      UserA[🧩 Sub User A]
-      NotifyA[🔔 Sub Notification A]
-      CRM_A[CRM Adapter A]
-      SIS_A[SIS Adapter A]
-      LMS_A[LMS Adapter A]
-    end
-
-    subgraph tenantB["Project: dx-vas-tenant-b"]
-      AuthB[🔐 Sub Auth B]
-      UserB[🧩 Sub User B]
-      NotifyB[🔔 Sub Notification B]
-      CRM_B[CRM Adapter B]
-      SIS_B[SIS Adapter B]
-      LMS_B[LMS Adapter B]
-    end
-
-    subgraph monitoring["Project: dx-vas-monitoring"]
-      Logs[📊 Cloud Logging]
-      Metrics[📈 Cloud Monitoring]
-      Alerts[🚨 Alerting Rules]
-    end
-
-    subgraph data["Project: dx-vas-data"]
-      DB["🗄️ Cloud SQL (PostgreSQL, MySQL)"]
-      BQ[📦 BigQuery]
-      GCS[📁 GCS Buckets]
-    end
+flowchart TD
+  subgraph dx-vas-core [VPC: dx-vas-core]
+    APIGateway(API Gateway)
+    AuthService(Auth Service)
+    UserService(User Service)
+    NotificationService(Notification Service)
+    ReportingService(Reporting Service)
+    RedisCache(Redis Cache)
+    AuditStack(Monitoring & Audit Stack)
   end
 
-  APIGW --> AuthMaster
-  APIGW --> UserMaster
-  APIGW --> Redis
-  APIGW --> tenantA
-  APIGW --> tenantB
+  subgraph dx-vas-data [VPC: dx-vas-data]
+    PubSub
+    ETL(ETL Worker / Dataflow)
+    BigQuery(Data Warehouse)
+    GCS(Google Cloud Storage)
+  end
 
-  NotifyMaster --> PubSub
-  PubSub --> NotifyA
-  PubSub --> NotifyB
+  subgraph SharedInfra [Hạ tầng dùng chung]
+    SecretManager(Secret Manager)
+    ConfigCenter(Config Center)
+    GitHub(GitHub Actions)
+    Terraform(IaC via Terraform)
+  end
 
-  AuthA --> UserMaster
-  AuthB --> UserMaster
-  NotifyA --> Logs
-  NotifyB --> Logs
-  UserMaster --> DB
-  tenantA --> DB
-  tenantB --> DB
-  APIGW --> Logs
+  %% Core Services access data infra
+  ReportingService --> BigQuery
+  ReportingService --> RedisCache
+  APIGateway --> RedisCache
+  NotificationService --> PubSub
+
+  %% ETL ingest
+  PubSub --> ETL
+  GCS --> ETL
+  ETL --> BigQuery
+
+  %% DevOps & Config
+  GitHub --> Terraform
+  Terraform --> dx-vas-core
+  Terraform --> dx-vas-data
+  AuthService --> SecretManager
+  UserService --> ConfigCenter
+  NotificationService --> ConfigCenter
+  ReportingService --> ConfigCenter
 ```
 
 📘 **Giải thích:**
 
 * Mỗi tenant được tách thành 1 project riêng (theo chuẩn đa tổ chức và quản trị billing).
+* Tách `dx-vas-core` và `dx-vas-data` theo mô hình micro-VPC
 * `dx-vas-core` chứa các dịch vụ dùng chung: Gateway, Auth/User Master, Redis, Pub/Sub.
 * `dx-vas-monitoring` tập trung log/metrics toàn hệ thống.
 * `dx-vas-data` lưu trữ Cloud SQL, BigQuery, GCS phục vụ phân tích, lưu trữ tập trung.
+* Thể hiện đúng hướng tương tác: Service → Redis, Service → Config/Secrets
+* Dễ mở rộng thêm AI stack hoặc Worker nếu cần sau này
 
 📎 Tham khảo chi tiết:
 
@@ -483,6 +529,154 @@ flowchart TD
   JWT --> ParentUI
 ```
 
+---
+
+## 9. Hệ thống Báo cáo & Phân tích (Reporting & Analytics Architecture)
+
+- phản ánh đầy đủ luồng dữ liệu và các thành phần chính như:
+* Superadmin Webapp
+* Reporting Service
+* Data Warehouse
+* ETL pipelines từ Pub/Sub và Adapters
+* RBAC + Template
+
+```mermaid
+flowchart TD
+  subgraph UI [Giao diện Người dùng]
+    SuperadminWebapp(Superadmin Webapp)
+  end
+
+  subgraph Gateway [Cổng Giao Tiếp]
+    APIGateway(API Gateway)
+  end
+
+  subgraph API [Lớp API & Báo cáo]
+    ReportingService(Reporting Service)
+  end
+
+  subgraph ConfigStorage [Lưu trữ Cấu hình & Templates]
+    ReportTemplateDB(Report Templates Store) 
+    SavedDashboardConfigDB(Saved Dashboard Configs)
+  end
+
+  subgraph DataInfra [Hạ tầng Dữ liệu]
+    PubSubEvents(Pub/Sub Events)
+    ETLWorker(ETL Pipeline)
+    DataWarehouse(BigQuery / Data Lake)
+  end
+
+  subgraph DataSources [Nguồn Dữ liệu Gốc]
+    direction LR
+    UserServiceMaster(User Service Master)
+    AuthServiceMaster(Auth Service Master)
+    TenantAdapters["Tenant Specific: <br/>UserSub, AuthSub, <br/>CRM, SIS, LMS Adapters"]
+  end
+
+  %% User flow
+  SuperadminWebapp -->|API Request - chọn report, params| APIGateway
+  APIGateway -- "Forward Request + Enforce RBAC<br/>(dựa trên JWT & ReportTemplate.required_permission)" --> ReportingService
+  ReportingService -->|1. Get Template Definition| ReportTemplateDB
+  ReportingService -->|2. Optional - Get Saved Config| SavedDashboardConfigDB 
+  ReportingService -->|3. Generate & Execute Query| DataWarehouse
+
+  %% Data ingestion
+  UserServiceMaster -->|events| PubSubEvents
+  AuthServiceMaster -->|events| PubSubEvents
+  TenantAdapters -->|events/data sync| PubSubEvents
+  TenantAdapters -->|batch data| ETLWorker
+  
+  PubSubEvents --> ETLWorker
+  ETLWorker --> DataWarehouse
+```
+
+📌 **Ghi chú cho sơ đồ:**
+
+* `ReportingService` truy xuất template + kiểm tra RBAC trước khi truy vấn `DataWarehouse`
+* `ETLWorker` nạp dữ liệu từ cả `PubSub` (sự kiện từ các Sub Services) và từ CRM/SIS/LMS qua batch hoặc streaming
+* Phân quyền báo cáo được thực thi bởi `RBACEnforcer` theo cấu hình trong template
+
+---
+
+## 10. AI Integration Strategy 
+
+– phản ánh Mục 10 trong `README.md`, kết nối hệ thống hiện tại với khả năng tích hợp các AI Agent trong tương lai. Sơ đồ nhấn mạnh:
+* Nền tảng dữ liệu (Data Warehouse) là trung tâm
+* AI Agent có thể tương tác qua API hoặc Data Access Layer
+* Yêu cầu chuẩn hóa schema, metadata và quản trị data quality
+
+```mermaid
+flowchart TD
+  subgraph SuperadminZone [Superadmin Zone]
+    SuperadminWebapp(Superadmin Webapp)
+  end
+
+  subgraph BackendAPI [Backend APIs]
+    APIGateway(API Gateway<br/><sub>check RBAC first</sub>)
+    ReportingService(Reporting Service)
+    RBAC(RBAC Enforcer<br/><sub>enforce permission from Report Template</sub>)
+    ReportTemplateDB(Report Templates Store)
+  end
+
+  subgraph DataPlatform [Nền tảng Dữ liệu]
+    BigQuery(Data Warehouse)
+    ETL(ETL Pipeline)
+    MetadataRegistry(Schema & Metadata Registry)
+  end
+
+  subgraph DataSources [Nguồn Dữ liệu]
+    MasterServicesEvents
+    SubServicesEvents
+    SystemEvents(System Events - Pub/Sub<br/><sub>Central Event Bus</sub>)
+    CRM
+    SIS
+    LMS
+  end
+
+  subgraph AIIntegration [Tầng AI Tương Tác]
+    AIAdminAgent(AI Agent - Trợ lý Superadmin)
+    AIDashboardBuilder(AI Agent - Dashboard Builder)
+    AIPredictor(AI Agent - Dự đoán xu hướng)
+    DataAccessAPI(Data Access Layer / Feature Store)
+  end
+
+  %% Luồng người dùng
+  SuperadminWebapp --> APIGateway
+  APIGateway --> ReportingService
+  ReportingService --> ReportTemplateDB
+  ReportingService --> RBAC
+  ReportingService --> BigQuery
+  
+  MasterServicesEvents --> SystemEvents
+  SubServicesEvents --> SystemEvents
+  %% Dữ liệu vào
+  CRM --> ETL
+  SIS --> ETL
+  LMS --> ETL
+  SystemEvents --> ETL
+  ETL --> BigQuery
+  ETL --> MetadataRegistry
+
+  %% AI dùng data platform
+  DataAccessAPI --> BigQuery
+  DataAccessAPI --> MetadataRegistry
+
+  %% AI dùng lại báo cáo sẵn có
+  AIAdminAgent --> DataAccessAPI
+  AIDashboardBuilder --> DataAccessAPI
+  AIDashboardBuilder -.-> ReportTemplateDB
+  AIPredictor --> DataAccessAPI
+```
+
+---
+
+📌 **Ghi chú:**
+
+* `DataAccessAPI` là lớp trừu tượng (có thể dùng để chuẩn bị dữ liệu cho training hoặc inference)
+* `MetadataRegistry` tương ứng với quản trị schema theo `ADR-030`
+* Mỗi AI Agent có mục tiêu riêng (hỗ trợ, tổng hợp, dự đoán) và có thể tái sử dụng query/template từ Reporting Service
+
+---
+
 📘 **Ghi chú:**
 
 * UI không nên hard-code role, mà nên kiểm tra theo permission cụ thể (VD: `can_assign_role`, `can_view_tuition`)
@@ -491,5 +685,5 @@ flowchart TD
 
 📎 Liên quan:
 
-* [`rbac-deep-dive.md`](../architecture/rbac-deep-dive.md#11-best-practices-cho-quản-trị-rbac)
-* [`README.md`](../README.md#3-admin-webapp-cấp-độ-tenant)
+* [RBAC Deep Dive](../architecture/rbac-deep-dive.md#11-best-practices-cho-quản-trị-rbac)
+* [README](../README.md#3-admin-webapp-cấp-độ-tenant)
