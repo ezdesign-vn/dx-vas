@@ -2,17 +2,17 @@
 site_name: DX VAS - Docs #
 
 # URL chính thức của website tài liệu sau khi deploy
-site_url: https://dx.truongvietanh.edu.vn #
+site_url: https://ezdesign-vn.github.io/dx-vas/ #
 
 # (Tùy chọn) Mô tả ngắn về website, hữu ích cho SEO
-site_description: Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh (dx_vas).
+site_description: Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh.
 
 # (Tùy chọn) Tên tác giả
 site_author: DX VAS Team
 
 # Đường dẫn đến repository của dự án (để hiển thị link trên trang docs)
 repo_url: https://github.com/ezdesign-vn/dx-vas.git #
-repo_name: ezdesign-vn/dx-vas # Tên hiển thị cho repo link
+repo_name: ezdesign.vn/dx-vas # Tên hiển thị cho repo link
 
 # --- Theme Configuration ---
 theme:
@@ -62,31 +62,11 @@ nav:
     - Tổng quan Kiến trúc: README.md #
     - Sơ đồ Hệ thống: architecture/system-diagrams.md #
     - RBAC Chi tiết: architecture/rbac-deep-dive.md #
-  - Hướng dẫn Phát triển: # Đổi tên
-    - Tổng quan Phát triển (Dev Guide): dev/dev-guide.md #
-    - Backend Dev Guide: dev/backend-dev-guide.md #
-    - Vận hành & DevOps (Ops Guide): dev/ops-guide.md #
+  #- Hướng dẫn Phát triển: # Đổi tên
+    #- Tổng quan Phát triển (Dev Guide): dev/dev-guide.md #
+    #- Backend Dev Guide: dev/backend-dev-guide.md #
+    #- Vận hành & DevOps (Ops Guide): dev/ops-guide.md #
   - Thiết kế Services: # Đổi tên
-    - User Service Master:
-      - Tổng quan Thiết kế: services/user-service/master/design.md #
-      - Hợp đồng Giao diện: services/user-service/master/interface-contract.md #
-      - Mô hình Dữ liệu: services/user-service/master/data-model.md #
-      - Đặc tả OpenAPI: services/user-service/master/openapi.yaml #
-    - User Service Sub:
-      - Tổng quan Thiết kế: services/user-service/sub/design.md #
-      - Hợp đồng Giao diện: services/user-service/sub/interface-contract.md #
-      - Mô hình Dữ liệu: services/user-service/sub/data-model.md #
-      - Đặc tả OpenAPI: services/user-service/sub/openapi.yaml #
-    - Auth Service Master:
-      - Tổng quan Thiết kế: services/auth-service/master/design.md #
-      - Hợp đồng Giao diện: services/auth-service/master/interface-contract.md #
-      - Mô hình Dữ liệu: services/auth-service/master/data-model.md #
-      - Đặc tả OpenAPI: services/auth-service/master/openapi.yaml #
-    - Auth Service Sub:
-      - Tổng quan Thiết kế: services/auth-service/sub/design.md #
-      - Hợp đồng Giao diện: services/auth-service/sub/interface-contract.md #
-      - Mô hình Dữ liệu: services/auth-service/sub/data-model.md #
-      - Đặc tả OpenAPI: services/auth-service/sub/openapi.yaml #
     # (Thêm các service khác ở đây khi có)
   - Quyết định Kiến trúc (ADRs): # Đổi tên
     - Chỉ mục ADRs: ADR/index.md #
