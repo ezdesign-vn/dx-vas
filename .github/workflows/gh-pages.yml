@@ -33,14 +33,4 @@ jobs:
 
       - name: 🚀 Build & Deploy to GitHub Pages
         run: |
-          echo "--- Ensuring CNAME file exists in site directory ---"
-          # Tạo CNAME thủ công vì mkdocs build 1.6.1 không tự tạo ra nó trong trường hợp này
-          echo "dx.truongvietanh.edu.vn" > site/CNAME
-          echo "Content of site/CNAME:"
-          cat site/CNAME
-          
-          echo "--- Deploying to GitHub Pages using ghp-import directly ---"
-          # ghp-import sẽ tự động tìm CNAME trong thư mục site/
-          ghp-import --no-jekyll -m "Deploy documentation to GitHub Pages" -p site/ -f -b gh-pages
-
           mkdocs gh-deploy --force
