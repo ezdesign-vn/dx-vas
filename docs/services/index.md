@@ -1,6 +1,6 @@
 # 📚 Service Catalog – Thiết kế Kiến trúc theo Service
 
-Tài liệu này liệt kê các Service chính trong hệ thống `dx_vas`, được tổ chức theo định hướng microservices. Mỗi service có một thư mục riêng chứa các tài liệu thiết kế chi tiết.
+Tài liệu này liệt kê các Service chính trong hệ thống `dx-vas`, được tổ chức theo định hướng microservices. Mỗi service có một thư mục riêng chứa các tài liệu thiết kế chi tiết.
 
 ## 🧱 Cấu trúc Tài liệu cho Mỗi Service
 
@@ -34,25 +34,28 @@ docs/services/<service-name>/
 
 ---
 
-## 🔝 Danh sách Services
-
-| Thứ tự | Tên Service | Vai trò chính | Thư mục |
-|--------|-------------|----------------|---------|
-| 1️⃣ | User Service Master | Quản lý người dùng toàn cục, danh sách tenant, template RBAC | [`user-service/master/`](./user-service/master/) |
-| 2️⃣ | Sub User Service (per tenant) | Quản lý user trong tenant, RBAC cục bộ, đồng bộ template | [`user-service/sub/`](./user-service/sub/) |
-| 3️⃣ | Auth Service Master | Xác thực Google OAuth2, phát hành JWT toàn cục | [`auth-service/master/`](./auth-service/master/) |
-| 4️⃣ | Sub Auth Service (per tenant) | Xác thực OTP/Local, phát hành JWT cục bộ | [`auth-service/sub/`](./auth-service/sub/) |
-| 5️⃣ | API Gateway | Điểm vào duy nhất, định tuyến theo tenant, xác thực + RBAC | [`api-gateway/`](./api-gateway/) |
-| 6️⃣ | Notification Service Master | Gửi thông báo toàn cục, publish Pub/Sub event | [`notification-service/master/`](./notification-service/master/) |
-| 7️⃣ | Sub Notification Service (per tenant) | Gửi thông báo trong tenant, xử lý Pub/Sub + external channel | [`notification-service/sub/`](./notification-service/sub/) |
-| 8️⃣ | CRM / SIS / LMS Adapter | Đồng bộ dữ liệu từ hệ thống ngoài (per tenant) | [`adapters/`](./adapters/) |
-| 9️⃣ | Audit Logging Service (nếu tách riêng) | Ghi nhận và lưu trữ log hành vi toàn hệ thống | [`audit-log-service/`](./audit-log-service/) |
+## Dưới đây là danh sách các **service trong hệ thống dx-vas**, được sắp xếp theo **thứ tự ưu tiên từ cao đến thấp**, phản ánh đúng lộ trình triển khai hiện tại và tính phụ thuộc giữa các thành phần:
 
 ---
 
-## 📂 Danh sách Service và Tài liệu Liên quan
+### 🔝 **Danh sách Service theo Ưu tiên**
 
-> *Đang cập nhật theo tiến độ viết SDD từng service.*
+| Ưu tiên | Tên Service                     | Vai trò chính                                           |
+| ------- | ------------------------------- | ------------------------------------------------------- |
+| 1️⃣     | [**User Service Master**](./user-service/master/design.md)         | Quản lý người dùng toàn cục, tenant, RBAC templates     |
+| 2️⃣     | [**User Service Sub**](./user-service/sub/design.md)            | Quản lý user trong từng tenant                          |
+| 3️⃣     | [**Auth Service Master**](./auth-service/master/design.md)         | Đăng nhập & phân quyền động (RBAC) cho Superadmin       |
+| 4️⃣     | [**API Gateway**](./api-gateway/design.md)                 | Cổng vào duy nhất cho toàn hệ thống; enforce RBAC       |
+| 5️⃣     | [**Reporting Service**](./reporting-service/design.md)           | Truy vấn báo cáo từ Data Warehouse, quản lý template    |
+| 6️⃣     | [**Superadmin Webapp**](./superadmin-webapp/design.md)     | Giao diện quản trị cấp hệ thống, bao gồm module báo cáo |
+| 7️⃣     | [**Notification Service Master**](./notification-service/master/design.md) | Gửi thông báo toàn cục, quản lý rule gửi                |
+| 8️⃣     | [**Auth Service Sub**](./auth-service/sub/design.md)            | Xác thực và phân quyền cho user per tenant              |
+| 9️⃣     | [**Notification Service Sub**](./notification-service/sub/design.md)    | Gửi thông báo cá nhân hóa theo tenant                   |
+| 🔟      | [**Admin Webapp**](./admin-webapp/design.md)                | Giao diện quản trị cho từng tenant                      |
+| 1️⃣1️⃣  | [**Customer Portal**](./customer-portal/design.md)             | Giao diện người dùng cuối (phụ huynh/học sinh)          |
+| 1️⃣2️⃣  | [**CRM Adapter**](./crm/design.md)                 | Kết nối hệ thống CRM (ví dụ: Hubspot, Zoho...)          |
+| 1️⃣3️⃣  | [**SIS Adapter**](./sis/design.md)                 | Đồng bộ dữ liệu học sinh từ hệ thống SIS                |
+| 1️⃣4️⃣  | [**LMS Adapter**](./lms/design.md)                 | Tích hợp dữ liệu học tập từ LMS                         |
 
 Ví dụ:
 

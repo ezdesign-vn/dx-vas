@@ -66,7 +66,7 @@ nav:
     #- Tổng quan Phát triển (Dev Guide): dev/dev-guide.md #
     #- Backend Dev Guide: dev/backend-dev-guide.md #
     #- Vận hành & DevOps (Ops Guide): dev/ops-guide.md #
-  #- Thiết kế Services: # Đổi tên
+  - Thiết kế Services: services/index.md # Đổi tên
     # (Thêm các service khác ở đây khi có)
   - Quyết định Kiến trúc (ADRs): # Đổi tên
     - Chỉ mục ADRs: ADR/index.md #
