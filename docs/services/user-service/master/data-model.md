@@ -1,4 +1,12 @@
-# Mô hình Dữ liệu – User Service Master
+---
+title: User Service Master - Data Model
+description: Service Design Document cho SPA quản trị hệ thống VAS DX
+version: 1.0
+author: DX VAS Team
+last_updated: 2025-05-23
+reviewed_by: Stephen Le
+---
+# User Service Master - Data Model
 
 ## 1. Giới thiệu
 

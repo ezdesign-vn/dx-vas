@@ -1,12 +1,11 @@
-# 📘 Thiết kế chi tiết API Gateway
-
-```
+---
 title: Thiết kế chi tiết API Gateway
 version: "1.1"
 last_updated: "2025-06-03"
-author: "VAS Core DX Team"
+author: "DX VAS Team"
 reviewed_by: "Stephen Le"
-```
+---
+# 📘 Thiết kế chi tiết API Gateway
 
 ## 1. 🧭 Phạm vi và Trách nhiệm (Scope & Responsibilities)
 

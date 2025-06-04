@@ -1,3 +1,10 @@
+---
+title: Auth Service Master – Interface Contract
+version: 1.2
+last_updated: 2025-06-01
+author: DX VAS Team
+reviewed_by: Stephen Le
+---
 # 📘 Auth Service Master – Interface Contract
 
 > Tài liệu này mô tả các API chính mà **Auth Service Master** cung cấp, dùng cho developer backend/frontend và các bên liên quan. Chi tiết kỹ thuật (chuẩn máy đọc) xem thêm: [`openapi.yaml`](./openapi.yaml)

@@ -1,12 +1,11 @@
-# 📘 API Gateway – Interface Contract
-
-```
+---
 title: API Gateway – Interface Contract
 version: "1.1"
 last_updated: "2025-06-03"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
-```
+---
+# 📘 API Gateway – Interface Contract
 
 Tài liệu này mô tả các API điều phối của **API Gateway**, giúp định tuyến và kiểm soát truy cập đến các backend service trong hệ thống dx-vas. Gateway không cung cấp logic nghiệp vụ nhưng chịu trách nhiệm enforce RBAC, xác thực JWT và trả lỗi thống nhất theo ADR-011.
 

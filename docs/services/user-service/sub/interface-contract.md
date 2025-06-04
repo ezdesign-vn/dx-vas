@@ -1,12 +1,11 @@
-# 📘 User Service Sub – Interface Contract
-
-```
-title: Interface Contract – User Service Sub
+---
+title: User Service Sub – Interface Contract
 version: 1.1
 last_updated: 2025-06-01
 author: DX VAS Team
 reviewed_by: Stephen Le
-```
+---
+# 📘 User Service Sub – Interface Contract
 
 ## 1. 🎯 Tổng quan
 
@@ -19,8 +18,8 @@ Cung cấp đặc tả chi tiết cho các API được exposed bởi `user-serv
 
 ### Nguyên tắc chung
 - Sub không xử lý xác thực/ủy quyền trực tiếp, chỉ nhận JWT header từ Gateway
-- Các API luôn trả về theo chuẩn [ADR-012 Response Structure](../../../ADR/adr-012-response-structure.md)
-- Các lỗi sử dụng theo [ADR-011 Error Format](../../../ADR/adr-011-api-error-format.md)
+- Các API luôn trả về theo chuẩn [ADR-012 Response Structure](../../ADR/adr-012-response-structure.md)
+- Các lỗi sử dụng theo [ADR-011 Error Format](../../ADR/adr-011-api-error-format.md)
 
 ---
 
@@ -205,6 +204,6 @@ Trả về danh sách permission template đã được đồng bộ.
 * [Design Document](./design.md)
 * [Data Model](./data-model.md)
 * [OpenAPI Spec](./openapi.yaml)
-* [ADR-012 Response Structure](../../../ADR/adr-012-response-structure.md)
-* [ADR-011 Error Format](../../../ADR/adr-011-api-error-format.md)
-* [ADR-027 Data Management Strategy](../../../ADR/adr-027-data-management-strategy.md)
+* [ADR-012 Response Structure](../../ADR/adr-012-response-structure.md)
+* [ADR-011 Error Format](../../ADR/adr-011-api-error-format.md)
+* [ADR-027 Data Management Strategy](../../ADR/adr-027-data-management-strategy.md)

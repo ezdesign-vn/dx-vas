@@ -1,12 +1,11 @@
-# 📘 Thiết kế chi tiết auth-service/master
-
-```
+---
 title: Thiết kế chi tiết auth-service/master
-version: 1.2
-last_updated: 2025-06-01
-author: DX VAS Team
-reviewed_by: Stephen Le
-```
+version: "1.2"
+last_updated: "2025-06-01"
+author: "DX VAS Team"
+reviewed_by: "Stephen Le"
+---
+# 📘 Thiết kế chi tiết auth-service/master
 
 ## 1. 🧭 Phạm vi và Trách nhiệm (Scope & Responsibilities)
 

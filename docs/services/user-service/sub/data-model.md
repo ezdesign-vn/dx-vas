@@ -1,12 +1,11 @@
-# 🗃️ User Service Sub - Data Model
-
-```
+---
 title: Data Model – User Service Sub
 version: 1.1
 last_updated: 2025-06-01
 author: DX VAS Team
 reviewed_by: Stephen Le
-```
+---
+# 🗃️ User Service Sub - Data Model
 
 ## 📘 Giới thiệu
 

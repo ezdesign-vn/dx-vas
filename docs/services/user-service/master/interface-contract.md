@@ -1,3 +1,11 @@
+---
+title: User Service Master – Interface Contract
+description: Service Design Document cho SPA quản trị hệ thống VAS DX
+version: 1.0
+author: DX VAS Team
+last_updated: 2025-05-23
+reviewed_by: Stephen Le
+---
 # 📘 User Service Master – Interface Contract
 
 * Tài liệu này mô tả các API chính mà User Service Master cung cấp, theo phong cách dễ đọc cho developer/backend/frontend. Đặc tả kỹ thuật chi tiết xem thêm tại [`openapi.yaml`](./openapi.yaml).

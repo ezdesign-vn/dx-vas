@@ -1,12 +1,11 @@
-# 📘 User Service Sub – Service Design Document
-
-```
-title: Thiết kế chi tiết User Service Sub
+---
+title: User Service Sub – Service Design Document
 version: 1.1
-last_updated: 2025-05-31
+last_updated: 2025-06-01
 author: DX VAS Team
 reviewed_by: Stephen Le
-```
+---
+# 📘 User Service Sub – Service Design Document
 
 ## 1. 🧭 Phạm vi và Trách nhiệm (Scope & Responsibilities)
 

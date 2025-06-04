@@ -1,12 +1,11 @@
-# 🔐 Auth Service Master - Data Model
-
-```
+---
 title: Auth Service Master - Data Model
 version: 1.1
 last_updated: 2025-06-01
 author: DX VAS Team
 reviewed_by: Stephen Le
-```
+---
+# 🔐 Auth Service Master - Data Model
 
 ## 1. Giới thiệu
 

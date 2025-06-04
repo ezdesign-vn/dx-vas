@@ -1,12 +1,11 @@
-# 📃 API Gateway - Data Model
-
-```
+---
 title: API Gateway - Data Model
 version: "1.2"
 last_updated: "2025-06-04"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
-```
+---
+# 📃 API Gateway - Data Model
 
 ## 1. Giới thiệu
 

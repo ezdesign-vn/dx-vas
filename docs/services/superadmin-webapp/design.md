@@ -1,13 +1,12 @@
-# 📘 Thiết kế chi tiết Superadmin Webapp
-
-```
+---
 title: Thiết kế chi tiết superadmin-webapp
 description: Service Design Document cho SPA quản trị hệ thống VAS DX
 version: 1.0
 author: DX VAS Team
 last_updated: 2025-06-03
 reviewed_by: Stephen Le
-```
+---
+# 📘 Thiết kế chi tiết Superadmin Webapp
 
 ## 1. 🧭 Phạm vi và Trách nhiệm (Scope & Responsibilities)
 

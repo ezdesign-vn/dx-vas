@@ -1,12 +1,12 @@
-# 📘 User Service Master – Service Design Document
-
-```
-title: Thiết kế chi tiết User Service Master
-version: 1.2
-last_updated: 2025-05-25
+---
+title: User Service Master – Service Design Document
+description: Service Design Document cho SPA quản trị hệ thống VAS DX
+version: 1.0
 author: DX VAS Team
+last_updated: 2025-05-23
 reviewed_by: Stephen Le
-```
+---
+# 📘 User Service Master – Service Design Document
 
 ## 1. Mục đích (Scope)
 
