@@ -1,14 +1,11 @@
-# 🗃️ Reporting Service - Data Model
-
-```
-
+---
 title: Reporting Service - Data Model
 version: "1.2"
 last\_updated: "2025-06-04"
 author: "DX VAS Team"
 reviewed\_by: "Stephen Le"
-
-```
+---
+# 🗃️ Reporting Service - Data Model
 
 ## 1. Giới thiệu
 

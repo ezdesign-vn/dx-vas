@@ -1,12 +1,11 @@
-# 📘 Reporting Service – Interface Contract
-
-```
+---
 title: Reporting Service – Interface Contract
 version: "1.1"
 last_updated: "2025-06-04"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
-```
+---
+# 📘 Reporting Service – Interface Contract
 
 * Tài liệu này mô tả các API chính mà **Reporting Service** cung cấp, phục vụ nhu cầu báo cáo phân tích toàn hệ thống.
 * _Phạm vi (Scope):_

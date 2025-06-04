@@ -1,14 +1,11 @@
-# 📘 Thiết kế chi tiết Reporting Service
-
-```
-
+---
 title: Thiết kế chi tiết Reporting Service
 version: "1.0"
-last\_updated: "2025-06-04"
-author: "dx-vas core team"
-reviewed\_by: "Stephen Le"
-
-````
+last_updated: "2025-06-04"
+author: "DX VAS Team"
+reviewed_by: "Stephen Le"
+---
+# 📘 Thiết kế chi tiết Reporting Service
 
 ---
 
@@ -73,7 +70,7 @@ Service này **không** thực hiện các tác vụ sau:
     "timestamp": "2025-06-04T10:30:00Z"
   }
 }
-````
+```
 
 ---
 
