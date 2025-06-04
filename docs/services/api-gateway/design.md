@@ -2,7 +2,7 @@
 
 ```
 title: Thiết kế chi tiết API Gateway
-version: "1.0"
+version: "1.1"
 last_updated: "2025-06-03"
 author: "VAS Core DX Team"
 reviewed_by: "Stephen Le"
@@ -24,6 +24,19 @@ reviewed_by: "Stephen Le"
 | Access Control Rule | Danh sách permission yêu cầu cho từng API route |
 | Service Registry (cache) | Cache cấu hình routing đồng bộ từ config center |
 
+> 🔎 File cấu hình route (`ROUTE_CONFIG_PATH`) thường ở dạng JSON có format như sau:
+```json
+{
+  "/users/**": {
+    "method": ["GET", "POST"],
+    "backend": "user-service.master",
+    "x-required-permission": "user.view",
+    "timeout": 3000,
+    "retry": 2
+  }
+}
+```
+
 ### 🔒 Ngoài Phạm Vi (Out of Scope)
 
 - ❌ Thực hiện logic nghiệp vụ backend.
@@ -39,11 +52,42 @@ reviewed_by: "Stephen Le"
 | ALL    | `/auth/**`            | Proxy Auth Service Master/Sub       | Theo cấu hình route rule     |
 | ALL    | `/report/**`          | Proxy Reporting Service             | Theo template yêu cầu         |
 
+📌 Ví dụ chuyển lỗi không chuẩn từ backend:
+```json
+// Backend trả lỗi không chuẩn
+{
+  "message": "Internal failure",
+  "code": 5001
+}
+
+// Gateway transform thành:
+{
+  "meta": {
+    "code": 500,
+    "message": "INTERNAL_SERVER_ERROR",
+    "error_type": "upstream.gateway_proxy",
+    "trace_id": "abc-123"
+  },
+  "error": {
+    "reason": "Internal failure",
+    "details": null
+  }
+}
+```
+
 > ✨ Gateway không cần define schema OpenAPI như backend, nhưng cần mapping error theo ADR-011.
 
 ## 3. 📃 Mô hình dữ liệu chi tiết (Data Model)
 
 Gateway không duy trì database mà dùng Redis Cache + Config từ config center (VD: Firestore hoặc GCS).
+
+Cache bao gồm:
+- Danh sách permission theo route
+- Cấu hình định tuyến (service name, timeout, retry)
+
+Chiến lược invalidation:
+- TTL cho mỗi cache key (default 5 phút)
+- Cho phép trigger manual flush qua Admin CLI/API nếu cần
 
 ## 4. 🔄 Luồng xử lý nghiệp vụ chính (Business Logic Flows)
 
@@ -79,6 +123,17 @@ sequenceDiagram
 | `JWT_PUBLIC_KEY` | Dùng để verify JWT |
 | `REDIS_URL` | Cache route config & permission rule |
 | `ROUTE_CONFIG_PATH` | Tập tin cấu hình routes (VD: GCS json) |
+
+### 7.1 🧩 Thành phần nội bộ
+
+| Module | Chức năng |
+|--------|-----------|
+| `JWT Validation Engine` | Xác thực token client gửi lên |
+| `RBAC Policy Enforcement` | Kiểm tra permission dựa theo route config |
+| `Routing Engine` | Mapping endpoint -> service tương ứng |
+| `Request/Response Filter` | Biến đổi header hoặc chuẩn hóa lỗi |
+| `Rate Limiting Module` | (Tùy chọn) kiểm soát tốc độ truy cập |
+| `Cache Client` | Lưu trữ route rule & permission trong Redis |
 
 ## 8. 🧪 Testing
 

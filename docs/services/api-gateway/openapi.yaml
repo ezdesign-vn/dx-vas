@@ -1,0 +1,248 @@
+openapi: 3.0.3
+info:
+  title: API Gateway - dx-vas
+  version: 1.0.0
+  description: |
+    API Gateway trung gian định tuyến tất cả request đến các backend service của hệ thống dx-vas.
+    Tài liệu này đặc tả endpoint `/proxy/**`, là điểm duy nhất client giao tiếp.
+    Gateway chịu trách nhiệm:
+    - Xác thực JWT, kiểm tra RBAC bằng x-required-permission
+    - Mapping route -> backend service
+    - Forward response, chuẩn hóa theo ADR-012
+    - Trả lỗi chuẩn hóa theo ADR-011 nếu backend không tuân chuẩn
+  contact:
+    name: DX VAS Team
+
+  x-api-version: v1.1
+  x-maintainer: dx-team@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+
+servers:
+  - url: https://dx-api.truongvietanh.edu.vn
+    description: Production
+  - url: https://dx-api-staging.truongvietanh.edu.vn
+    description: Staging
+
+tags:
+  - name: proxy
+    description: Proxy endpoint duy nhất trong Gateway
+
+security:
+  - bearerAuth: []
+
+components:
+  headers:
+    x-tenant-id:
+      description: Mã định danh tenant mà người dùng đang truy cập
+      required: true
+      schema:
+        type: string
+      example: vas-demo
+
+    x-trace-id:
+      description: ID để theo dõi request xuyên suốt hệ thống (nếu không có, Gateway sẽ tự sinh)
+      required: false
+      schema:
+        type: string
+      example: trace-abc-xyz-123
+
+    x-user-id:
+      description: Mã người dùng xác định từ token JWT (được Gateway thêm vào trước khi forward)
+      required: false
+      schema:
+        type: string
+      example: u001
+
+    x-required-permission:
+      description: Permission cần có để thực hiện request này (được xác định từ cấu hình route)
+      required: false
+      schema:
+        type: string
+      example: user.view_all
+
+    x-request-id:
+      description: ID định danh duy nhất cho mỗi request (được Gateway sinh ra nếu client không cung cấp)
+      required: false
+      schema:
+        type: string
+      example: req-456xyz
+
+  schemas:
+    SuccessEnvelope:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: object
+      required:
+        - meta
+        - data
+
+    ErrorEnvelope:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+      required:
+        - meta
+        - error
+
+    ResponseMeta:
+      type: object
+      description: Metadata đi kèm mỗi response để phục vụ việc theo dõi và debug
+      properties:
+        trace_id:
+          type: string
+          description: ID truy vết request (tương đương x-trace-id hoặc x-request-id)
+          example: abc123-xyz
+        timestamp:
+          type: string
+          format: date-time
+          description: Thời điểm hệ thống trả response (ISO 8601)
+          example: "2024-06-04T15:01:23Z"
+      required:
+        - trace_id
+        - timestamp
+
+    ErrorResponse:
+      type: object
+      description: Cấu trúc mô tả lỗi chi tiết cho client khi xảy ra lỗi
+      properties:
+        code:
+          type: string
+          description: Mã lỗi định danh (machine-readable)
+          example: RBAC_DENIED
+        message:
+          type: string
+          description: Mô tả lỗi dành cho người dùng hoặc developer
+          example: Permission 'user.view_all' is required
+        details:
+          type: object
+          description: Thông tin bổ sung cho việc debug lỗi (tuỳ loại lỗi)
+          example:
+            required_permission: user.view_all
+            current_user_roles:
+              - student
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /proxy/{wildcard}:
+    any:
+      tags:
+        - proxy
+      summary: Proxy all requests to backend services
+      description: >
+        Endpoint trung gian, nhận mọi HTTP method và forward tới backend service dựa trên cấu hình route động.
+
+        Gateway sẽ sử dụng file cấu hình route (`route_config`) để xác định:
+        - backend_service tương ứng với path/method được gọi.
+        - permission yêu cầu thông qua thuộc tính `x-required-permission`.
+
+        ✅ Nếu người dùng có đủ permission (theo token đã xác thực), Gateway sẽ forward request.
+        ❌ Nếu không đủ permission, Gateway trả lỗi 403 FORBIDDEN (theo chuẩn ADR-011).
+      parameters:
+        - name: wildcard
+          in: path
+          required: true
+          description: Phần path còn lại sau `/proxy/`
+          schema:
+            type: string
+        - name: x-tenant-id
+          in: header
+          required: true
+          description: Mã tenant được xác định từ token hoặc chỉ định bởi client
+          schema:
+            type: string
+        - name: x-trace-id
+          in: header
+          required: false
+          description: Dùng để theo dõi request xuyên suốt hệ thống
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              foo: "bar"
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+              example:
+                meta:
+                  code: 200
+                  message: SUCCESS
+                  trace_id: abc-xyz
+                data:
+                  foo: bar
+              examples:
+                successExample:
+                  summary: Ví dụ thành công
+                  value:
+                    meta:
+                      code: 200
+                      message: SUCCESS
+                      trace_id: abc-xyz
+                    data:
+                      id: u001
+                      name: Alice
+                      email: alice@vas.edu.vn
+        default:
+          description: Lỗi xảy ra
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              examples:
+                validationError:
+                  summary: Lỗi xác thực
+                  value:
+                    meta:
+                      code: 400
+                      message: VALIDATION_FAILED
+                      trace_id: xyz-789
+                    error:
+                      code: "INVALID_EMAIL"
+                      message: "Email không hợp lệ"
+                      details:
+                        field: email
+                        reason: must be a valid email address
+                authError:
+                  summary: Lỗi xác thực JWT
+                  value:
+                    meta:
+                      code: 401
+                      message: UNAUTHORIZED
+                      trace_id: xyz-unauth
+                    error:
+                      code: "AUTH_FAILED"
+                      message: "Missing or invalid token"
+                      details: {}
+                forbiddenError:
+                  summary: Không đủ quyền truy cập
+                  value:
+                    meta:
+                      code: 403
+                      message: FORBIDDEN
+                      trace_id: trace-forbidden
+                    error:
+                      code: "RBAC_DENIED"
+                      message: "Permission 'user.view_all' is required"
+                      details:
+                        required_permission: "user.view_all"
