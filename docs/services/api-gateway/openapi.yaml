@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API Gateway - dx-vas
-  version: 1.0.0
+  version: "1.1"
   description: |
     API Gateway trung gian định tuyến tất cả request đến các backend service của hệ thống dx-vas.
     Tài liệu này đặc tả endpoint `/proxy/**`, là điểm duy nhất client giao tiếp.
@@ -13,7 +13,7 @@ info:
   contact:
     name: DX VAS Team
 
-  x-api-version: v1.1
+  x-api-version: v1.2
   x-maintainer: dx-team@truongvietanh.edu.vn
   x-adr-compliance:
     - adr-011-api-error-format
@@ -137,7 +137,14 @@ components:
 
 paths:
   /proxy/{wildcard}:
-    any:
+    parameters:
+      - name: wildcard
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Phần còn lại của URL sẽ được route tới backend service tương ứng    
+    get:
       tags:
         - proxy
       summary: Proxy all requests to backend services
@@ -169,14 +176,6 @@ paths:
           description: Dùng để theo dõi request xuyên suốt hệ thống
           schema:
             type: string
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-            example:
-              foo: "bar"
       responses:
         '200':
           description: Thành công
@@ -191,18 +190,6 @@ paths:
                   trace_id: abc-xyz
                 data:
                   foo: bar
-              examples:
-                successExample:
-                  summary: Ví dụ thành công
-                  value:
-                    meta:
-                      code: 200
-                      message: SUCCESS
-                      trace_id: abc-xyz
-                    data:
-                      id: u001
-                      name: Alice
-                      email: alice@vas.edu.vn
         default:
           description: Lỗi xảy ra
           content:
