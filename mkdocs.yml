@@ -59,7 +59,7 @@ theme:
 nav:
   - Home: README.md #
   - Kiến trúc Hệ thống: # Đổi tên cho thân thiện hơn với tiếng Việt
-    - Tổng quan Kiến trúc: README.md #
+    #- Tổng quan Kiến trúc: README.md #
     - Sơ đồ Hệ thống: architecture/system-diagrams.md #
     - RBAC Chi tiết: architecture/rbac-deep-dive.md #
   #- Hướng dẫn Phát triển: # Đổi tên
