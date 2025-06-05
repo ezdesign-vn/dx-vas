@@ -161,6 +161,9 @@ sequenceDiagram
 
 ## 12. 📚 Tài liệu liên quan
 
+* [Interface Contract](./interface-contract.md)
+* [Data Model](./data-model.md)
+* [OpenAPI Spec](./openapi.yaml)
 - [ADR-011: API Error Format](../../ADR/adr-011-api-error-format.md)
 - [ADR-012: Response Structure](../../ADR/adr-012-response-structure.md)
 - [RBAC Deep Dive](../../architecture/rbac-deep-dive.md)

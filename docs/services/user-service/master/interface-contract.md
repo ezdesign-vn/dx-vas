@@ -509,7 +509,8 @@ Mọi API đều áp dụng chuẩn phản hồi thống nhất và cơ chế ph
 > 🔒 **Ghi chú:** Các permission này được định nghĩa tại User Service Master và có thể được ánh xạ xuống từng tenant thông qua Sub User Service nếu cần thiết. Các `default_condition` có thể được bổ sung nếu áp dụng điều kiện như "chỉ xem tenant mình quản lý", v.v.
 
 ---
+**Tài liệu liên quan**
 
-📎 Để biết chi tiết luồng nghiệp vụ: xem [`design.md`](./design.md)
-
-📦 Để tra cứu schema chi tiết: xem [`data-model.md`](./data-model.md)
+* [Data Model](./data-model.md)
+* [OpenAPI Spec](./openapi.yaml)
+* [Design](./design.md)

@@ -308,8 +308,8 @@ Không cần token.
 
 ## 🔖 Tài liệu tham chiếu:
 
-* [`design.md`](./design.md)
-* [`data-model.md`](./data-model.md)
-* [`openapi.yaml`](./openapi.yaml)
+* [Data Model](./data-model.md)
+* [OpenAPI Spec](./openapi.yaml)
+* [Design](./design.md)
 * [`ADR-012`](../../../ADR/adr-012-response-structure.md)
 * [`ADR-011`](../../../ADR/adr-011-api-error-format.md)

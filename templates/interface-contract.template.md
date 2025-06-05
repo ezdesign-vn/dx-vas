@@ -1,3 +1,10 @@
+---
+title: [TÊN_SERVICE_CỦA_BẠN] - Interface Contract
+version: "1.0"
+last_updated: ["YYYY-MM-DD"]
+author: "DX VAS Team"
+reviewed_by: "Stephen Le"
+---
 # 📘 [TÊN_SERVICE] – Interface Contract
 
 > **[HƯỚNG DẪN SỬ DỤNG TEMPLATE NÀY:]**
@@ -6,14 +13,6 @@
 > 3. Xóa các khối hướng dẫn (như khối này) hoặc các comment không cần thiết sau khi đã điền thông tin.
 > 4. Đảm bảo tài liệu của bạn rõ ràng, chi tiết và tuân thủ "Checklist Tiêu Chuẩn 5★ cho File interface-contract.md".
 > 5. Luôn tham chiếu đến các tài liệu liên quan như `design.md`, `data-model.md`, `openapi.yaml` và các ADRs.
-
-```
-title: API Gateway – Interface Contract
-version: "1.0"
-last_updated: "yyyy-mm-dd"
-author: "DX VAS Team"
-reviewed_by: "Stephen Le"
-```
 
 * Tài liệu này mô tả các API chính mà **[TÊN_SERVICE]** cung cấp, theo phong cách dễ đọc cho developer (backend/frontend) và các bên liên quan. Đặc tả kỹ thuật chi tiết (chuẩn máy đọc) xem thêm tại [`openapi.yaml`](./openapi.yaml).
 * _Phạm vi (Scope):_

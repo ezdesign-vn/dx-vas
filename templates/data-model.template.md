@@ -1,12 +1,11 @@
-# 🗃️ [TÊN_SERVICE_CỦA_BẠN] - Data Model
-
-```
+---
 title: [TÊN_SERVICE_CỦA_BẠN] - Data Model
-version: "1.1"
+version: "1.0"
 last_updated: ["YYYY-MM-DD"]
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
-```
+---
+# 🗃️ [TÊN_SERVICE_CỦA_BẠN] - Data Model
 
 > **[HƯỚNG DẪN SỬ DỤNG TEMPLATE NÀY:]**
 > 1. Sao chép toàn bộ nội dung file này vào một file `data-model.md` mới trong thư mục service của bạn.

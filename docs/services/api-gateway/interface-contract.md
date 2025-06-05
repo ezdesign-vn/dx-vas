@@ -137,10 +137,11 @@ Danh sách các API giúp định tuyến request thông qua Gateway đến back
 
 ---
 
-📚 **Xem thêm:**
+## 📚 Tài liệu liên kết
 
-* [`design.md`](./design.md)
-* [`data-model.md`](./data-model.md)
+* [Data Model](./data-model.md)
+* [OpenAPI Spec](./openapi.yaml)
+* [Design](./design.md)
 * [`adr-011-api-error-format.md`](../../../ADR/adr-011-api-error-format.md)
 * [`adr-012-response-structure.md`](../../../ADR/adr-012-response-structure.md)
 * [`adr-007-rbac.md`](../../../ADR/adr-007-rbac.md)

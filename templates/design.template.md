@@ -1,12 +1,11 @@
-# 📘 Thiết kế chi tiết [TÊN_SERVICE_CỦA_BẠN]
-
-```
+---
 title: Thiết kế chi tiết [TÊN_SERVICE_CỦA_BẠN]
 version: "1.0" # TODO: Bắt đầu với 1.0 cho bản nháp đầu tiên, tăng dần khi có thay đổi lớn.
 last_updated: "YYYY-MM-DD" # TODO: Ngày cập nhật cuối cùng.
-author: "[TÊN_ĐỘI_NGŨ_CỦA_BẠN]" # TODO: Tên đội ngũ hoặc cá nhân chịu trách nhiệm.
-reviewed_by: "[TÊN_NGƯỜI_REVIEW]" # TODO: Tên người hoặc đội ngũ đã review.
-```
+author: "DX VAS Team"
+reviewed_by: "Stephen Le"
+---
+# 📘 Thiết kế chi tiết [TÊN_SERVICE_CỦA_BẠN]
 
 > **[HƯỚNG DẪN SỬ DỤNG TEMPLATE NÀY:]**
 > 1. Sao chép toàn bộ nội dung file này vào một file `design.md` mới trong thư mục service của bạn.

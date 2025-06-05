@@ -740,3 +740,9 @@ FOREIGN KEY (layout_type) REFERENCES dashboard_layout_types(layout_type)
 * Hỗ trợ hiển thị UI phong phú (label, color, v.v.).
 * Dễ thay đổi, mở rộng mà không cần ALTER TABLE.
 * Có thể đồng bộ và quản lý qua giao diện admin.
+
+## 14. 📚 Tài liệu liên kết
+
+* [Interface Contract](./interface-contract.md)
+* [OpenAPI Spec](./openapi.yaml)
+* [Design](./design.md)

@@ -470,7 +470,7 @@ CREATE TABLE processed_events (
 
 ### 📘 Phụ lục F – Liên kết tài liệu
 
-- [Thiết kế tổng quan (`design.md`)](./design.md)
-- [Hợp đồng giao diện (`interface-contract.md`)](./interface-contract.md)
-- [OpenAPI (`openapi.yaml`)](./openapi.yaml)
+* [Interface Contract](./interface-contract.md)
+* [OpenAPI Spec](./openapi.yaml)
+* [Design](./design.md)
 - [RBAC Deep Dive](../../../rbac-deep-dive.md)
