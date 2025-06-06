@@ -17,9 +17,9 @@ Tài liệu này hướng dẫn quy trình chuẩn để gửi code, đề xuấ
 
 ### Yêu cầu:
 - Đọc qua các tài liệu sau:
-  - [`dev-guide/README.md`](./dev-guide/README.md)
-  - [`core-principles.md`](./dev-guide/02-core-principles.md)
-  - [`workflow-and-process.md`](./dev-guide/03-workflow-and-process.md)
+  - [Dev Guide - Tổng quan](./docs/dev-guide/README.md)
+  - [Dev Guide - Nguyên tắc lập trình](./docs/dev-guide/02-core-principles.md)
+  - [Dev Guide - Quy trình Git & CI/CD](./docs/dev-guide/03-workflow-and-process.md)
 - Đảm bảo máy local đã setup thành công:
   - `make run`, `make test` chạy OK
   - `.env` đúng, Docker hoạt động
@@ -31,7 +31,7 @@ Tài liệu này hướng dẫn quy trình chuẩn để gửi code, đề xuấ
 ### Nhánh làm việc:
 - Dùng nhánh dạng:
   - `feature/DX-123-mota-ngan`
-  - `bugfix/DX-456-fix-lỗi-thống-kê`
+  - `bugfix/DX-456-fix-loi-thong-ke`
 
 ### Quy trình:
 1. Tạo PR từ nhánh `feature/*` → `dev`
@@ -64,11 +64,12 @@ Tài liệu này hướng dẫn quy trình chuẩn để gửi code, đề xuấ
 
 Nếu bạn đề xuất thay đổi kiến trúc, hoặc ảnh hưởng đến nhiều service:
 
-1. Tạo file mới trong `ADR/` theo format `adr-0xx-your-topic.md`
-2. Liên kết đến các ADR liên quan (nếu có)
-3. Mở PR với label `adr-proposal` + ping nhóm kỹ thuật
+1. Tạo file mới trong thư mục [ADR](./docs/ADR/)
+2. Đặt tên theo format `adr-0xx-topic.md`
+3. Liên kết đến các ADR liên quan (nếu có)
+4. Mở PR với label `adr-proposal` + ping nhóm kỹ thuật
 
-> Tham khảo: [`adr-001-ci-cd.md`](../ADR/adr-001-ci-cd.md)
+> Tham khảo: [ADR - 001 Ci CD](./docs/ADR/adr-001-ci-cd.md)
 
 ---
 
@@ -85,10 +86,10 @@ Nếu bạn đề xuất thay đổi kiến trúc, hoặc ảnh hưởng đến 
 
 | Mục                       | Bắt buộc? | Tài liệu liên quan |
 |--------------------------|-----------|---------------------|
-| Validate toàn bộ input   | ✅         | `05-error-handling.md`, `security-checklist.md` |
-| RBAC rõ ràng (permission) | ✅         | `rbac-deep-dive.md`, `openapi.yaml` |
-| Không hard-code secret   | ✅         | `06-configuration-and-secrets.md` |
-| Versioning schema/event  | ✅         | `12-release-versioning.md` |
+| Validate toàn bộ input   | ✅         | [Security Checklist](./docs/dev-guide/quality-and-operations/12-security-checklist.md) |
+| RBAC rõ ràng (permission)| ✅         | [RBAC Deep Dive](./docs/architecture/rbac-deep-dive.md), `x-required-permission` trong OpenAPI |
+| Không hard-code secret   | ✅         | [Config & Secrets Guide](./docs/dev-guide/technical-guides/09-configuration-and-secrets.md) |
+| Versioning schema/event  | ✅         | [Release Versioning](./docs/dev-guide/quality-and-operations/17-release-versioning.md) |
 
 ---
 
@@ -96,7 +97,7 @@ Nếu bạn đề xuất thay đổi kiến trúc, hoặc ảnh hưởng đến 
 
 - Slack channel: `#dx-vas-dev`
 - Ping `@john_dx` hoặc `@core-arch`
-- Nếu là vendor mới, hãy bắt đầu từ: [`onboarding.md`](./dev-guide/internal/onboarding.md)
+- Nếu là vendor mới, hãy bắt đầu từ: [ONBOARDING.md](./docs/process/ONBOARDING.md)
 
 ---
 
