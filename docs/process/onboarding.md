@@ -17,13 +17,13 @@ Tài liệu này giúp bạn nhanh chóng hoà nhập, hiểu hệ thống, setu
 | [ ] Đọc sơ đồ hệ thống tổng thể      | Hiểu kiến trúc & cách các service giao tiếp |       |
 | [ ] Đọc core guide (`dev-guide/`)    | Nắm nguyên tắc phát triển của team     |            |
 | [ ] Làm một task nhỏ đầu tiên        | Làm quen với workflow & codebase        |            |
-| [ ] Join Slack, Google Group          | Giao tiếp nội bộ                       |            |
+| [ ] Join Slack, Google Group         | Giao tiếp nội bộ                       |            |
 
 ---
 
 ## 2. ⚙️ Cài đặt Môi trường Phát Triển
 
-Xem chi tiết tại: [`01-getting-started.md`](../01-getting-started.md)
+Xem chi tiết tại: [Getting Started](../dev-guide/01-getting-started.md)
 
 ### Tool yêu cầu:
 - Python 3.11+, Poetry
@@ -36,7 +36,7 @@ Xem chi tiết tại: [`01-getting-started.md`](../01-getting-started.md)
 
 ## 3. 🧠 Kiến trúc Tổng Quan
 
-- Sơ đồ hệ thống: [`system-diagrams.md`](../../architecture/system-diagrams.md)
+- Sơ đồ hệ thống: [System Diagrams](../architecture/system-diagrams.md)
 - Gồm 5 nhóm thành phần:
   - Frontend apps
   - Core Services (Auth, User, Notification, etc.)
@@ -48,15 +48,15 @@ Xem chi tiết tại: [`01-getting-started.md`](../01-getting-started.md)
 
 ## 4. 📚 Những File Bạn Nên Bắt đầu Đọc
 
-| File                                | Mục đích |
-|-------------------------------------|----------|
-| `README.md`                         | Tổng quan hệ thống DX-VAS |
-| `dev-guide/02-core-principles.md`  | Nguyên tắc kiến trúc & code |
-| `dev-guide/03-workflow-and-process.md` | Git, CI/CD, pull request |
-| `ADR/index.md` + các `adr-xxx.md`   | Quyết định kiến trúc chính |
-| `dev-guide/05-frontend-guide.md` (nếu frontend) | Quy tắc dành cho team FE |
-| `dev-guide/06-testing-guide.md`    | Cách viết test chuẩn |
-| `dev-guide/10-security-checklist.md` | Checklist bảo mật bắt buộc |
+| Tên tài liệu                            | Mục đích |
+|----------------------------------------|----------|
+| [DX-VAS - Tổng quan](../README.md)     | Toàn cảnh hệ thống |
+| [Nguyên tắc phát triển](../dev-guide/02-core-principles.md) | Triết lý kỹ thuật & coding |
+| [Quy trình Git, PR, CI/CD](../dev-guide/03-workflow-and-process.md) | Làm việc nhóm, chuẩn hóa |
+| [Checklist bảo mật](../dev-guide/quality-and-operations/12-security-checklist.md) | Checklist an toàn bảo mật |
+| [Hướng dẫn viết test](../dev-guide/quality-and-operations/11-testing-guide.md) | Đảm bảo chất lượng code |
+| [Guide cho Frontend](../dev-guide/specialized-guides/10-frontend-guide.md) | Nếu bạn là frontend dev |
+| [Debug & Gỡ lỗi](../dev-guide/quality-and-operations/14-debugging-guide.md) | Phân tích & xử lý lỗi |
 
 ---
 
@@ -73,12 +73,12 @@ Xem chi tiết tại: [`01-getting-started.md`](../01-getting-started.md)
    curl -H "Authorization: Bearer <token>" http://localhost:8001/users/me
    ```
 
-   > Xem hướng dẫn lấy token tại `getting-started.md`
+   > Xem hướng dẫn lấy token tại [Getting Started](../dev-guide/01-getting-started.md)
 
 3. Tạo PR đầu tiên:
 
    * Có thể là cập nhật tài liệu, fix typo, hoặc thêm test
-   * Tuân thủ quy trình PR: `feature/DX-xxx-description` + mô tả rõ ràng
+   * Tuân thủ quy trình PR tại [Workflow & Process](../dev-guide/03-workflow-and-process.md)
 
 ---
 
@@ -99,7 +99,7 @@ Xem chi tiết tại: [`01-getting-started.md`](../01-getting-started.md)
 * **Không bao giờ merge code chưa review**
 * **Không push vào nhánh `main` hoặc `dev` trực tiếp**
 * **Luôn test kỹ trước khi tạo PR**
-* **Đọc và tuân thủ các ADR (Architecture Decision Record)**
+* **Đọc và tuân thủ các ADR tại [ADR Index](../ADR/index.md)**
 
 ---
 
