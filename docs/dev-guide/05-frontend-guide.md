@@ -15,6 +15,7 @@ Tài liệu này quy định các tiêu chuẩn và thực hành tốt cho việ
 
 - Tổ chức thư mục theo domain (feature-based) để dễ mở rộng:
 
+```
 src/
 ├── features/
 │   ├── users/
@@ -23,6 +24,7 @@ src/
 ├── hooks/
 ├── services/
 └── utils/
+```
 
 ---
 
