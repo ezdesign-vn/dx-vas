@@ -1,4 +1,4 @@
-# 🐞 07. Hướng dẫn Gỡ lỗi & Truy vết (Debugging & Tracing Guide)
+# 🐞 14. Hướng dẫn Gỡ lỗi & Truy vết (Debugging & Tracing Guide)
 
 Tài liệu này cung cấp các phương pháp, công cụ và kịch bản thường gặp để gỡ lỗi và truy vết các vấn đề trong hệ thống DX-VAS.
 

@@ -1,4 +1,4 @@
-# 🧪 06. Testing Guide – Hướng dẫn Viết và Quản lý Kiểm thử
+# 🧪 11. Testing Guide – Hướng dẫn Viết và Quản lý Kiểm thử
 
 Tài liệu này hướng dẫn cách viết, tổ chức và chạy các bài kiểm thử (test) trong hệ thống DX-VAS theo chuẩn 5⭐, đảm bảo độ tin cậy cao và phòng ngừa lỗi khi phát triển.
 

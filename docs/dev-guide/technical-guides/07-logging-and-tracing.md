@@ -1,4 +1,4 @@
-# 📊 04. Logging & Tracing – Hướng dẫn Ghi Log và Truy vết
+# 📊 07. Logging & Tracing – Hướng dẫn Ghi Log và Truy vết
 
 Tài liệu này cung cấp chuẩn và best practices cho việc ghi log và truy vết (trace) trong hệ thống DX-VAS, nhằm hỗ trợ debugging, monitoring và bảo mật ở quy mô lớn.
 

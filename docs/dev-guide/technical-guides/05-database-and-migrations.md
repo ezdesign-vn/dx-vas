@@ -1,4 +1,4 @@
-# 🛢️ 02. Database & Migrations – Hướng dẫn Làm việc với CSDL
+# 🛢️ 05. Database & Migrations – Hướng dẫn Làm việc với CSDL
 
 Tài liệu này hướng dẫn cách thiết kế, quản lý và triển khai schema CSDL trong hệ thống DX-VAS, tuân thủ chuẩn 5⭐ và các ADR liên quan đến dữ liệu.
 

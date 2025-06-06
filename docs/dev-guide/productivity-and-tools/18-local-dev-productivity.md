@@ -1,4 +1,4 @@
-# ⚙️ 11. Local Development Productivity – Tăng Tốc Phát Triển Cục Bộ
+# ⚙️ 18. Local Development Productivity – Tăng Tốc Phát Triển Cục Bộ
 
 Tài liệu này cung cấp các kỹ thuật và công cụ giúp lập trình viên tăng tốc khi phát triển local, giảm thời gian feedback và cải thiện trải nghiệm viết code trên dự án DX-VAS.
 

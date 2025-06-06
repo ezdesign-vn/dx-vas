@@ -1,4 +1,4 @@
-# 🚀 07. CI/CD Pipeline & Environment Operations
+# 🚀 13. CI/CD Pipeline & Environment Operations
 
 Tài liệu này hướng dẫn lập trình viên cách tương tác hiệu quả với quy trình CI/CD và các môi trường vận hành (Staging, Production) trong hệ thống DX-VAS. Mục tiêu là giúp team chủ động theo dõi, kiểm soát và phản ứng nhanh với sự cố.
 

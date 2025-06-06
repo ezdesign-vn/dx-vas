@@ -1,4 +1,4 @@
-# 📬 03. Event-Driven Development – Hướng dẫn Phát triển theo Kiến trúc Sự kiện
+# 📬 06. Event-Driven Development – Hướng dẫn Phát triển theo Kiến trúc Sự kiện
 
 Tài liệu này hướng dẫn cách thiết kế, phát hành và xử lý sự kiện (event) trong hệ thống DX-VAS. Mục tiêu là đảm bảo các service giao tiếp thông qua Pub/Sub theo chuẩn hóa, dễ kiểm soát và mở rộng.
 

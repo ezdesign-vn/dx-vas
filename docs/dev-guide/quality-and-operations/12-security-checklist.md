@@ -1,4 +1,4 @@
-# 🔒 08. Security Checklist – Danh sách Kiểm tra Bảo mật cho Lập trình viên
+# 🔒 12. Security Checklist – Danh sách Kiểm tra Bảo mật cho Lập trình viên
 
 Tài liệu này cụ thể hóa [ADR-004 - Security Policy](../ADR/adr-004-security.md) thành một danh sách kiểm tra hành động cho lập trình viên. Mục tiêu là đảm bảo mọi commit và Pull Request (PR) đều tuân thủ các nguyên tắc bảo mật cốt lõi.
 

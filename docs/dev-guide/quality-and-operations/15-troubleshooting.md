@@ -1,4 +1,4 @@
-# 🧯 09. Troubleshooting Guide – Xử lý Sự cố Nhanh
+# 🧯 15. Troubleshooting Guide – Xử lý Sự cố Nhanh
 
 Tài liệu này tổng hợp các sự cố thường gặp trong quá trình phát triển và vận hành hệ thống DX-VAS, kèm hướng dẫn xử lý nhanh. Mục tiêu là giúp dev không hoảng loạn khi gặp lỗi, và biết tra ở đâu, làm gì trước tiên.
 

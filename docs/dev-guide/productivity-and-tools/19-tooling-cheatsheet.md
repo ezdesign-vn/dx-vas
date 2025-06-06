@@ -1,4 +1,4 @@
-# ⚡ 08. Tooling Cheatsheet – Tổng hợp Lệnh và Công cụ Thường Dùng
+# ⚡ 19. Tooling Cheatsheet – Tổng hợp Lệnh và Công cụ Thường Dùng
 
 Tài liệu này tổng hợp các lệnh CLI, script và công cụ hữu ích phục vụ quá trình phát triển, kiểm thử và vận hành hệ thống DX-VAS. Đây là “sổ tay bỏ túi” của mọi lập trình viên.
 

@@ -1,4 +1,4 @@
-# 🧾 10. Release Versioning – Quy ước Đánh số Phiên bản & Quản lý Release
+# 🧾 17. Release Versioning – Quy ước Đánh số Phiên bản & Quản lý Release
 
 Tài liệu này hướng dẫn cách đánh version, ghi chú release và quản lý sự đồng bộ giữa các thành phần (API, Event, Container) trong hệ thống DX-VAS, nhằm đảm bảo mọi thay đổi đều rõ ràng, có thể truy vết và không phá vỡ backward compatibility một cách vô ý.
 

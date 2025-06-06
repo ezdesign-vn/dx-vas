@@ -1,4 +1,4 @@
-# 🎨 05. Frontend Development Guide – Hướng dẫn Phát triển Frontend
+# 🎨 10. Frontend Development Guide – Hướng dẫn Phát triển Frontend
 
 Tài liệu này quy định các tiêu chuẩn và thực hành tốt cho việc phát triển frontend (web app) trong hệ thống DX-VAS. Mục tiêu là đảm bảo mọi frontend thống nhất về UI/UX, bảo mật, hiệu suất và dễ bảo trì.
 

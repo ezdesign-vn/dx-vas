@@ -1,4 +1,4 @@
-# 🔐 06. Configuration & Secrets – Hướng dẫn Quản lý Cấu hình và Thông tin Nhạy cảm
+# 🔐 09. Configuration & Secrets – Hướng dẫn Quản lý Cấu hình và Thông tin Nhạy cảm
 
 Tài liệu này mô tả cách quản lý biến môi trường, cấu hình hệ thống, và thông tin nhạy cảm (secrets) một cách an toàn và nhất quán trong hệ thống DX-VAS, tuân thủ chuẩn 5⭐ và các ADR bảo mật.
 

@@ -1,4 +1,4 @@
-# 🚨 14. Incident Response – Quy trình Phản ứng Sự cố
+# 🚨 16. Incident Response – Quy trình Phản ứng Sự cố
 
 Tài liệu này cung cấp quy trình tiêu chuẩn để phản ứng nhanh chóng, có tổ chức và hiệu quả khi xảy ra sự cố trong hệ thống DX-VAS, đặc biệt ở môi trường Staging và Production.
 

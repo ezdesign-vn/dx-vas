@@ -1,4 +1,4 @@
-# 🚨 05. Error Handling – Hướng dẫn Xử lý và Trả lỗi Chuẩn hóa
+# 🚨 08. Error Handling – Hướng dẫn Xử lý và Trả lỗi Chuẩn hóa
 
 Tài liệu này hướng dẫn cách xử lý lỗi trong hệ thống DX-VAS theo chuẩn 5⭐, đảm bảo mọi API trả lỗi một cách nhất quán, rõ ràng và có thể truy vết được.  
 
