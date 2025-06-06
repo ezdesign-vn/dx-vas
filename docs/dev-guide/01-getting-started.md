@@ -23,7 +23,6 @@
    ```
 
 2. **Cài đặt `pre-commit` để đảm bảo format/lint code trước khi commit:**
-
    ```bash
       pip install pre-commit
       pre-commit install
@@ -34,19 +33,16 @@
    Tham khảo: [ADR-005 - Environment Configuration](../ADR/adr-005-env-config.md)
 
 4. **Khởi chạy các service phụ thuộc bằng Docker Compose:**
-
    ```bash
       docker-compose up -d postgres redis
    ```
 
 5. **Chạy migration cho CSDL** của service bạn đang làm việc (ví dụ với Alembic hoặc custom migration tool):
-
    ```bash
       make migrate
    ```
 
 6. **Chạy service ở local** bằng Poetry:
-
    ```bash
       cd services/user-service/master
       poetry install
@@ -60,26 +56,22 @@
 > Ví dụ chạy `user-service/master` tại `http://localhost:8001`
 
 1. Đảm bảo Postgres đang chạy trong Docker:
-
    ```bash
       docker-compose ps
    ```
 
 2. Tạo DB nếu chưa có:
-
    ```bash
       make db-init
    ```
 
 3. Truy cập Swagger UI của service:
-
    ```
       http://localhost:8001/docs
    ```
 
 
 4. Gọi thử API bằng `curl`:
-
    ```bash
       curl -H "Authorization: Bearer <token>" http://localhost:8001/users/me
    ```
