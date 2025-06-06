@@ -97,7 +97,7 @@ Nếu bạn đề xuất thay đổi kiến trúc, hoặc ảnh hưởng đến 
 
 - Slack channel: `#dx-vas-dev`
 - Ping `@john_dx` hoặc `@core-arch`
-- Nếu là vendor mới, hãy bắt đầu từ: [ONBOARDING.md](./docs/process/ONBOARDING.md)
+- Nếu là vendor mới, hãy bắt đầu từ: [ONBOARDING](./docs/process/onboarding.md)
 
 ---
 
