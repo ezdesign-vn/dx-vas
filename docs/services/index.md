@@ -67,3 +67,19 @@ Ví dụ:
 - [OpenAPI Spec (openapi.yaml)](./user-service/master/openapi.yaml)
 
 ---
+**On Process**
+
+| Ưu tiên | Service                    | Mô tả                                                                 | Trạng thái     |
+|--------:|:---------------------------|------------------------------------------------------------------------|----------------|
+| 1️⃣     | `auth-service/master/`     | Quản lý xác thực toàn hệ thống, cấp & verify JWT, quản lý session      | ✅ Hoàn thành |
+| 2️⃣     | `user-service/master/`     | Quản lý người dùng toàn cục, RBAC động, ánh xạ user ↔ tenant           | ✅ Hoàn thành |
+| 3️⃣     | `api-gateway/`             | Entry point duy nhất, định tuyến theo tenant, enforce bảo mật & quota | ✅ Hoàn thành |
+| 4️⃣     | `notification-service/master/` | Gửi email/SMS/notification đa kênh, cấu hình template, support tenant | ⬜ Chưa bắt đầu |
+| 5️⃣     | `audit-logging-service/`   | Ghi nhận hành vi người dùng, hỗ trợ kiểm toán, bảo mật                  | ⬜ Chưa bắt đầu |
+| 6️⃣     | `reporting-service/`       | Sinh báo cáo từ BigQuery, quản lý template, trả dữ liệu phân tích      | ✅ Hoàn thành |
+| 7️⃣     | `auth-service/sub/`        | Phiên bản riêng theo tenant, xác thực nội bộ, login UI tùy chỉnh       | ⬜ Chưa bắt đầu |
+| 8️⃣     | `user-service/sub/`        | Quản lý người dùng từng tenant, ánh xạ với dữ liệu đặc thù              | ✅ Hoàn thành |
+| 9️⃣     | `notification-service/sub/`| Bản tenant-specific để override cấu hình thông báo nội bộ              | ⬜ Chưa bắt đầu |
+| 🔟     | `adapter/crm/`              | Đồng bộ dữ liệu tuyển sinh từ hệ thống CRM ngoài                        | ⬜ Chưa bắt đầu |
+| 11️⃣    | `adapter/sis/`             | Đồng bộ dữ liệu học sinh, lớp học, điểm từ hệ thống SIS                | ⬜ Chưa bắt đầu |
+| 12️⃣    | `adapter/lms/`             | Đồng bộ dữ liệu học tập, bài tập, điểm số từ hệ thống LMS              | ⬜ Chưa bắt đầu |

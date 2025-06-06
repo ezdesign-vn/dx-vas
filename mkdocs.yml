@@ -62,7 +62,7 @@ nav:
     #- Tổng quan Kiến trúc: README.md #
     - Sơ đồ Hệ thống: architecture/system-diagrams.md #
     - RBAC Chi tiết: architecture/rbac-deep-dive.md #
-  #- Hướng dẫn Phát triển: # Đổi tên
+  - Hướng dẫn Phát triển: dev-guide/README.md # Đổi tên
     #- Tổng quan Phát triển (Dev Guide): dev/dev-guide.md #
     #- Backend Dev Guide: dev/backend-dev-guide.md #
     #- Vận hành & DevOps (Ops Guide): dev/ops-guide.md #
