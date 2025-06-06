@@ -35,7 +35,6 @@ Chúng ta sẽ cấu trúc bộ `dev-guide` dưới dạng một thư mục ch�
 
 #### 1\. `dev-guide/README.md` (File chính, mục lục)
 
-```markdown
 # 🛠️ Hướng dẫn Phát triển (Developer Guide) - Dự án DX-VAS
 
 Chào mừng đến với dự án DX-VAS!
@@ -72,13 +71,11 @@ Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng 
 
 ### Phần 5: Tham khảo nhanh
 7.  [**Tooling Cheatsheet**](./07-tooling-cheatsheet.md): Tổng hợp các lệnh thường dùng cho linters, formatters, testing.
-```
 
 -----
 
 #### 2\. `01-getting-started.md`
 
-```markdown
 ## Hướng dẫn Cài đặt Môi trường Phát triển
 
 ### Yêu cầu Công cụ
@@ -102,7 +99,7 @@ Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng 
    ```bash
    pip install pre-commit
    pre-commit install
-```
+  ```
 
 3.  Cấu hình file `.env` cho từng service dựa trên file `.env.example` đã có. Tham khảo [ADR-005 - Environment Configuration](https://www.google.com/search?q=./ADR/adr-005-env-config.md).
 4.  Sử dụng Docker Compose để khởi chạy các service phụ thuộc (PostgreSQL, Redis) cho môi trường local.
@@ -118,13 +115,10 @@ Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng 
 
 <!-- end list -->
 
-```
-
 ---
 
 #### 3. `02-core-principles.md`
 
-```markdown
 ## Các Nguyên tắc Vàng khi Lập trình
 
 1.  **Design First:** Không bao giờ viết code trước khi có tài liệu thiết kế (`design.md`, `data-model.md`, `interface-contract.md`) được review và đồng thuận. Tài liệu là kim chỉ nam.
@@ -133,13 +127,11 @@ Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng 
 4.  **Stateless Services:** Các service backend phải được thiết kế stateless để dễ dàng scale theo chiều ngang. Mọi trạng thái phải được lưu trữ ở một hệ thống bên ngoài (CSDL, Redis Cache).
 5.  **Test Everything:** Mọi dòng code logic nghiệp vụ đều phải có unit test đi kèm. Mọi API endpoint đều phải có integration test.
 6.  **Tuân thủ Hợp đồng (Contract First):** `openapi.yaml` là hợp đồng không thể phá vỡ. Mọi thay đổi trên API phải được cập nhật vào OpenAPI trước, sau đó mới đến code.
-```
 
 -----
 
 #### 4\. `03-workflow-and-process.md`
 
-```markdown
 ## Quy trình Làm việc với Git, Pull Request và CI/CD
 
 ### Git Branching Strategy
@@ -165,7 +157,6 @@ Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng 
 3.  Đảm bảo CI pipeline (lint, test, build) chạy thành công.
 4.  Yêu cầu ít nhất **1-2 approver** từ các thành viên khác trong team hoặc từ team kiến trúc (nếu có thay đổi lớn).
 5.  Sau khi được approve, thực hiện **Squash and Merge** để giữ lịch sử Git gọn gàng.
-```
 
 -----
 
