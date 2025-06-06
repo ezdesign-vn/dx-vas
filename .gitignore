@@ -12,4 +12,9 @@ site/
 *.swp
 
 # Ignore temporary documentation
+templates
 docs/tmp/
+docs/templates/
+docs/standards/
+docs/requests/
+docs/dev-guide.plan.md
