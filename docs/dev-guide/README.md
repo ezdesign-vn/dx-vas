@@ -32,5 +32,8 @@ Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng 
 5.  [**Frontend Development Guide**](./05-frontend-guide.md): Các quy ước riêng cho việc phát triển Frontend.
 6.  [**Testing Guide**](./06-testing-guide.md): Chiến lược và hướng dẫn viết các loại test.
 
-### Phần 5: Tham khảo nhanh
-7.  [**Tooling Cheatsheet**](./07-tooling-cheatsheet.md): Tổng hợp các lệnh thường dùng cho linters, formatters, testing.
+### Phần 5: Vận hành & Gỡ lỗi
+7.  [**Debugging & Tracing Guide**](./07-debugging-guide.md): Hướng dẫn truy vết và xử lý các lỗi thường gặp.
+
+### Phần 6: Tham khảo nhanh
+8.  [**Tooling Cheatsheet**](./08-tooling-cheatsheet.md): Tổng hợp các lệnh thường dùng cho linters, formatters, testing.
