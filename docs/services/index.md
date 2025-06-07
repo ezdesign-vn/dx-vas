@@ -40,22 +40,19 @@ docs/services/<service-name>/
 
 ### 🔝 **Danh sách Service theo Ưu tiên**
 
-| Ưu tiên | Tên Service                     | Vai trò chính                                           |
-| ------- | ------------------------------- | ------------------------------------------------------- |
-| 1️⃣     | [**User Service Master**](./user-service/master/design.md)         | Quản lý người dùng toàn cục, tenant, RBAC templates     |
-| 2️⃣     | [**User Service Sub**](./user-service/sub/design.md)            | Quản lý user trong từng tenant                          |
-| 3️⃣     | [**Auth Service Master**](./auth-service/master/design.md)         | Đăng nhập & phân quyền động (RBAC) cho Superadmin       |
-| 4️⃣     | [**API Gateway**](./api-gateway/design.md)                 | Cổng vào duy nhất cho toàn hệ thống; enforce RBAC       |
-| 5️⃣     | [**Reporting Service**](./reporting-service/design.md)           | Truy vấn báo cáo từ Data Warehouse, quản lý template    |
-| 6️⃣     | [**Superadmin Webapp**](./superadmin-webapp/design.md)     | Giao diện quản trị cấp hệ thống, bao gồm module báo cáo |
-| 7️⃣     | [**Notification Service Master**](./notification-service/master/design.md) | Gửi thông báo toàn cục, quản lý rule gửi                |
-| 8️⃣     | [**Auth Service Sub**](./auth-service/sub/design.md)            | Xác thực và phân quyền cho user per tenant              |
-| 9️⃣     | [**Notification Service Sub**](./notification-service/sub/design.md)    | Gửi thông báo cá nhân hóa theo tenant                   |
-| 🔟      | [**Admin Webapp**](./admin-webapp/design.md)                | Giao diện quản trị cho từng tenant                      |
-| 1️⃣1️⃣  | [**Customer Portal**](./customer-portal/design.md)             | Giao diện người dùng cuối (phụ huynh/học sinh)          |
-| 1️⃣2️⃣  | [**CRM Adapter**](./crm/design.md)                 | Kết nối hệ thống CRM (ví dụ: Hubspot, Zoho...)          |
-| 1️⃣3️⃣  | [**SIS Adapter**](./sis/design.md)                 | Đồng bộ dữ liệu học sinh từ hệ thống SIS                |
-| 1️⃣4️⃣  | [**LMS Adapter**](./lms/design.md)                 | Tích hợp dữ liệu học tập từ LMS                         |
+**On Process**
+
+| Ưu tiên | Service                    | Mô tả                                                                 | Trạng thái     |
+|--------:|:---------------------------|------------------------------------------------------------------------|----------------|
+| 1️⃣     | [`auth-service/master/`](./auth-service/master/design.md)     | Quản lý xác thực toàn hệ thống, cấp & verify JWT, quản lý session      | ✅ Hoàn thành |
+| 2️⃣     | [`user-service/master/`](./user-service/master/design.md)     | Quản lý người dùng toàn cục, RBAC động, ánh xạ user ↔ tenant           | ✅ Hoàn thành |
+| 3️⃣     | [`api-gateway/`](./api-gateway/design.md)             | Entry point duy nhất, định tuyến theo tenant, enforce bảo mật & quota | ✅ Hoàn thành |
+| 4️⃣     | [`notification-service/master/`](./notification-service/master/design.md) | Gửi email/SMS/notification đa kênh, cấu hình template, support tenant | ✅ Hoàn thành |
+| 5️⃣     | [`audit-logging-service/`](./audit-logging-service/design.md)   | Ghi nhận hành vi người dùng, hỗ trợ kiểm toán, bảo mật                  | ✅ Hoàn thành |
+| 6️⃣     | [`reporting-service/`](./reporting-service/design.md)       | Sinh báo cáo từ BigQuery, quản lý template, trả dữ liệu phân tích      | ✅ Hoàn thành |
+| 7️⃣     | [`auth-service/sub/`](./auth-service/sub/design.md)        | Phiên bản riêng theo tenant, xác thực nội bộ, login UI tùy chỉnh       | ⬜ Chưa bắt đầu |
+| 8️⃣     | [`user-service/sub/`](./user-service/sub/design.md)        | Quản lý người dùng từng tenant, ánh xạ với dữ liệu đặc thù              | ✅ Hoàn thành |
+| 9️⃣     | [`notification-service/sub/`](./notification-service/sub/design.md)| Bản tenant-specific để override cấu hình thông báo nội bộ              | ⬜ Chưa bắt đầu |
 
 Ví dụ:
 
@@ -65,21 +62,3 @@ Ví dụ:
 - [Giao diện API (interface-contract.md)](./user-service/master/interface-contract.md)
 - [Mô hình dữ liệu (data-model.md)](./user-service/master/data-model.md)
 - [OpenAPI Spec (openapi.yaml)](./user-service/master/openapi.yaml)
-
----
-**On Process**
-
-| Ưu tiên | Service                    | Mô tả                                                                 | Trạng thái     |
-|--------:|:---------------------------|------------------------------------------------------------------------|----------------|
-| 1️⃣     | `auth-service/master/`     | Quản lý xác thực toàn hệ thống, cấp & verify JWT, quản lý session      | ✅ Hoàn thành |
-| 2️⃣     | `user-service/master/`     | Quản lý người dùng toàn cục, RBAC động, ánh xạ user ↔ tenant           | ✅ Hoàn thành |
-| 3️⃣     | `api-gateway/`             | Entry point duy nhất, định tuyến theo tenant, enforce bảo mật & quota | ✅ Hoàn thành |
-| 4️⃣     | `notification-service/master/` | Gửi email/SMS/notification đa kênh, cấu hình template, support tenant | ⬜ Chưa bắt đầu |
-| 5️⃣     | `audit-logging-service/`   | Ghi nhận hành vi người dùng, hỗ trợ kiểm toán, bảo mật                  | ⬜ Chưa bắt đầu |
-| 6️⃣     | `reporting-service/`       | Sinh báo cáo từ BigQuery, quản lý template, trả dữ liệu phân tích      | ✅ Hoàn thành |
-| 7️⃣     | `auth-service/sub/`        | Phiên bản riêng theo tenant, xác thực nội bộ, login UI tùy chỉnh       | ⬜ Chưa bắt đầu |
-| 8️⃣     | `user-service/sub/`        | Quản lý người dùng từng tenant, ánh xạ với dữ liệu đặc thù              | ✅ Hoàn thành |
-| 9️⃣     | `notification-service/sub/`| Bản tenant-specific để override cấu hình thông báo nội bộ              | ⬜ Chưa bắt đầu |
-| 🔟     | `adapter/crm/`              | Đồng bộ dữ liệu tuyển sinh từ hệ thống CRM ngoài                        | ⬜ Chưa bắt đầu |
-| 11️⃣    | `adapter/sis/`             | Đồng bộ dữ liệu học sinh, lớp học, điểm từ hệ thống SIS                | ⬜ Chưa bắt đầu |
-| 12️⃣    | `adapter/lms/`             | Đồng bộ dữ liệu học tập, bài tập, điểm số từ hệ thống LMS              | ⬜ Chưa bắt đầu |
