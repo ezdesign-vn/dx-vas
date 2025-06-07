@@ -1,0 +1,438 @@
+openapi: 3.0.3
+info:
+  title: Audit Logging Service API
+  version: "1.1.0"
+  description: |
+    API của Audit Logging Service phục vụ việc ghi nhận và truy vấn các hành vi hệ thống.
+    Dữ liệu log có tính phân tầng theo tenant và hỗ trợ chuẩn hóa theo ADR-004 (Security), ADR-007 (RBAC), ADR-011 (API Error Format), ADR-012 (Response Structure), ADR-013 (Path Naming), ADR-024 (Data Retention), ADR-026 (Hard Delete Policy).
+
+    📎 Tài liệu liên quan:
+    - [Design](./design.md)
+    - [Interface Contract](./interface-contract.md)
+    - [Data Model](./data-model.md)
+    - [ADR-007](../../../ADR/adr-007-rbac.md), [ADR-011](../../../ADR/adr-011-api-error-format.md)
+
+  x-api-version: "v1"
+  x-last-updated: "2025-06-07"
+  x-author: "DX VAS Team"
+  x-reviewed-by: "Stephen Le"
+  x-maintainer: "dx@truongvietanh.edu.vn"
+  x-purpose: | # TODO: Mô tả mục đích chính của API này một cách ngắn gọn (1-2 dòng).
+    API của Audit Logging Service phục vụ việc ghi nhận và truy vấn các hành vi hệ thống.
+  x-adr-compliance:
+    - adr-007-rbac.md
+    - adr-011-api-error-format.md
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/audit
+    description: Production
+  - url: https://staging.truongvietanh.edu.vn/audit
+    description: Staging
+
+tags:
+  - name: audit-logs
+    description: Ghi nhận và truy vấn audit logs
+
+components:
+  parameters:
+    X-Request-ID:
+      name: X-Request-ID
+      in: header
+      required: true
+      schema: { type: string }
+      description: Mã định danh truy vết request
+    X-Tenant-ID:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      schema: { type: string }
+      description: Mã tenant tương ứng với bản ghi log
+
+    Page:
+      name: page
+      in: query
+      description: Trang dữ liệu muốn truy xuất (bắt đầu từ 1)
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    Limit:
+      name: limit
+      in: query
+      description: Số bản ghi mỗi trang
+      required: false
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    CreatedResponse:
+      description: Tạo mới thành công
+      headers:
+        X-Request-ID:
+          $ref: '#/components/parameters/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/AuditLog'
+              meta:
+                $ref: '#/components/schemas/ResponseMeta'
+            required: [data, meta]
+          example:
+            data:
+              id: "log-123"
+              module: "auth"
+              action: "LOGIN"
+              actor_id: "user-123"
+              actor_type: "user"
+              created_at: "2025-06-07T10:00:00Z"
+            meta:
+              request_id: "abc-req-id"
+              timestamp: "2025-06-07T10:00:00Z"
+
+    ListResponse:
+      description: Danh sách bản ghi log
+      headers:
+        X-Request-ID:
+          $ref: '#/components/parameters/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLog'
+              meta:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseMeta'
+                  - type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total_items:
+                        type: integer
+                        example: 132
+            required: [data, meta]
+          example:
+            data:
+              - id: "log-001"
+                module: "report"
+                action: "EXPORT"
+                actor_id: "teacher-999"
+                actor_type: "user"
+                created_at: "2025-06-07T09:00:00Z"
+            meta:
+              request_id: "xyz-001"
+              timestamp: "2025-06-07T09:00:01Z"
+              page: 1
+              limit: 20
+              total_items: 1
+
+    BadRequest:
+      description: Dữ liệu gửi lên không hợp lệ (400 Bad Request)
+      headers:
+        X-Request-ID:
+          $ref: '#/components/parameters/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: "Trường 'actor_id' là bắt buộc"
+            meta:
+              request_id: "req-bad-001"
+              timestamp: "2025-06-07T10:12:00Z"
+
+    NotFound:
+      description: Không tìm thấy tài nguyên
+      headers:
+        X-Request-ID:
+          $ref: '#/components/parameters/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Không tìm thấy bản ghi
+            meta:
+              request_id: "req-not-found"
+              timestamp: "2025-06-07T08:00:00Z"
+
+    ErrorResponse:
+      description: Phản hồi lỗi chuẩn hoá (ADR-011)
+      headers:
+        X-Request-ID:
+          $ref: '#/components/parameters/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            Unauthorized:
+              summary: Thiếu token
+              value:
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn
+                meta:
+                  request_id: "unauth-001"
+                  timestamp: "2025-06-07T07:59:00Z"
+            Forbidden:
+              summary: Không đủ quyền truy cập
+              value:
+                error:
+                  code: FORBIDDEN
+                  message: Bạn không có quyền thực hiện hành động này
+                meta:
+                  request_id: "forbid-123"
+                  timestamp: "2025-06-07T08:01:00Z"
+            ValidationError:
+              summary: Dữ liệu gửi lên không hợp lệ
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: Trường `actor_id` là bắt buộc
+                meta:
+                  request_id: "valid-err"
+                  timestamp: "2025-06-07T08:02:00Z"
+
+  schemas:
+    ResponseMeta:
+      type: object
+      description: Thông tin metadata trả về theo chuẩn ADR-012
+      properties:
+        request_id:
+          type: string
+          example: "f1893210-a24d-4f88-9085-1d2dba336f59"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-06-08T12:30:00Z"
+
+    AuditLogCreate:
+      type: object
+      required: [module, action, actor_id, actor_type, created_at]
+      properties:
+        module: { type: string, description: "Tên module khởi phát hành vi", example: "auth" }
+        action: { $ref: "#/components/schemas/ActionEnum" }
+        actor_id: { type: string, description: "ID của actor thực hiện" }
+        actor_type: { $ref: "#/components/schemas/ActorTypeEnum" }
+        target_id: { type: string }
+        target_type: { $ref: "#/components/schemas/TargetTypeEnum" }
+        source: { $ref: "#/components/schemas/SourceEnum" }
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Dữ liệu bổ sung cho log
+
+    AuditLogResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/AuditLog"
+
+    AuditLog:
+      type: object
+      readOnly: true
+      properties:
+        id: { type: string, format: uuid, readOnly: true }
+        module: { type: string }
+        action: { $ref: "#/components/schemas/ActionEnum" }
+        actor_id: { type: string, }
+        actor_type: { $ref: "#/components/schemas/ActorTypeEnum" }
+        target_id: { type: string }
+        target_type: { $ref: "#/components/schemas/TargetTypeEnum" }
+        source: { $ref: "#/components/schemas/SourceEnum" }
+        metadata: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time, readOnly: true }
+
+    AuditLogListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditLog"
+        meta:
+          type: object
+          properties:
+            page: { type: integer }
+            limit: { type: integer }
+            total_items: { type: integer }
+
+    ActionEnum:
+      type: string
+      enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT, APPROVE, REJECT, IMPORT, EXPORT, ASSIGN_ROLE]
+
+    ActorTypeEnum:
+      type: string
+      enum: [user, parent, system, service_account, superadmin]
+
+    TargetTypeEnum:
+      type: string
+      enum: [USER, STUDENT, ROLE, TEMPLATE, CONFIG, REPORT]
+
+    SourceEnum:
+      type: string
+      enum: [WebApp, MobileApp, API Gateway, InternalJob, Script]
+
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: string }
+        meta:
+          type: object
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /audit-logs:
+    post:
+      summary: Ghi một bản ghi log đơn lẻ
+      operationId: createAuditLog
+      description: Dùng để ghi một bản ghi audit log từ một hành vi cụ thể trong hệ thống.
+      tags: [audit-logs]
+      x-required-permission: audit.create.logs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLogCreate'
+            example:
+              module: "auth"
+              action: "LOGIN"
+              actor_id: "user-123"
+              actor_type: "user"
+              target_id: "user-123"
+              target_type: "USER"
+              source: "WebApp"
+              metadata:
+                ip: "192.168.0.1"
+                user_agent: "Mozilla/5.0"
+      responses:
+        "201":
+          $ref: '#/components/responses/CreatedResponse'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+      parameters:
+        - $ref: "#/components/parameters/X-Request-ID"
+        - $ref: "#/components/parameters/X-Tenant-ID"
+
+    get:
+      summary: Truy vấn danh sách log theo bộ lọc
+      operationId: listAuditLogs
+      description: Trả về danh sách bản ghi log theo các tiêu chí truy vấn như module, actor, target, thời gian...
+      tags: [audit-logs]
+      x-required-permission: audit.read.logs
+      parameters:
+        - $ref: "#/components/parameters/X-Request-ID"
+        - $ref: "#/components/parameters/X-Tenant-ID"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ListResponse"    
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /audit-logs/{id}:
+    get:
+      summary: Lấy chi tiết một bản ghi log
+      operationId: getAuditLogById
+      description: Trả về thông tin chi tiết của một bản ghi audit log theo ID
+      tags: [audit-logs]
+      x-required-permission: audit.read.logs
+      parameters:
+        - $ref: "#/components/parameters/X-Request-ID"
+        - $ref: "#/components/parameters/X-Tenant-ID"
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          $ref: "#/components/responses/CreatedResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"   
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /audit-logs/bulk:
+    post:
+      summary: Ghi nhiều bản ghi log cùng lúc
+      operationId: createAuditLogsBulk
+      description: |
+        Endpoint dùng để ghi nhiều bản ghi `audit log` cùng lúc trong các tình huống như batch job hoặc multi-event.
+        Yêu cầu dữ liệu đầu vào là danh sách các bản ghi hợp lệ theo schema `AuditLogCreate`.
+      tags: [audit-logs]
+      x-required-permission: audit.create.logs
+      parameters:
+        - $ref: "#/components/parameters/X-Request-ID"
+        - $ref: "#/components/parameters/X-Tenant-ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [logs]
+              properties:
+                logs:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AuditLogCreate'
+            example:
+              logs:
+                - module: "auth"
+                  action: "LOGIN"
+                  actor_id: "user-123"
+                  actor_type: "user"
+                  source: "WebApp"
+                  metadata:
+                    ip: "192.168.0.1"
+                - module: "report"
+                  action: "EXPORT"
+                  actor_id: "staff-456"
+                  actor_type: "user"
+                  source: "WebApp"
+                  metadata:
+                    report_id: "rpt-88"
+      responses:
+        "201":
+          $ref: "#/components/responses/CreatedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"          
+        default:
+          $ref: "#/components/responses/ErrorResponse"
