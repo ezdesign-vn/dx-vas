@@ -1,6 +1,6 @@
 ---
 title: "Thiết kế chi tiết Auth Service - Sub"
-version: "1.0"
+version: "1.1"
 last_updated: "2025-06-07"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -80,20 +80,28 @@ reviewed_by: "Stephen Le"
 
 ## 3. 🗃️ Mô hình dữ liệu chi tiết
 
-Service này có mô hình dữ liệu đơn giản, tập trung vào quản lý thông tin xác thực người dùng và phiên đăng nhập (session) tại cấp tenant. Các bảng chính bao gồm:
+Service này sử dụng kiến trúc đơn giản nhưng đủ mạnh để phục vụ xác thực người dùng và quản lý phiên đăng nhập cho từng tenant. Tất cả dữ liệu đều được phân vùng (partitioned) theo `tenant_id`. Các bảng chính bao gồm:
+
+---
 
 ### 1. `user_credentials`
+
+Lưu thông tin đăng nhập của học sinh theo email/số điện thoại.
 
 | Cột             | Kiểu DL     | Ràng buộc         | Mô tả                                      |
 |-----------------|-------------|-------------------|---------------------------------------------|
 | `id`            | UUID        | PK, unique        | Mã định danh credentials                   |
 | `tenant_id`     | UUID        | NOT NULL, index   | Mã tenant                                  |
-| `user_id`       | UUID        | NOT NULL, unique  | ID người dùng trong hệ thống chính (User Service) |
-| `login_id`      | TEXT        | NOT NULL, unique  | Tên đăng nhập (email hoặc số điện thoại)  |
+| `user_id`       | UUID        | NOT NULL, unique  | ID người dùng trong hệ thống chính         |
+| `login_id`      | TEXT        | NOT NULL, unique  | Tên đăng nhập (email hoặc phone)           |
 | `password_hash` | TEXT        | NOT NULL          | Mật khẩu đã mã hóa                         |
 | `created_at`    | TIMESTAMP   | DEFAULT now()     | Thời điểm tạo                              |
 
+---
+
 ### 2. `parent_credentials`
+
+Dùng cho phụ huynh đăng nhập qua OTP.
 
 | Cột             | Kiểu DL     | Ràng buộc         | Mô tả                                      |
 |-----------------|-------------|-------------------|---------------------------------------------|
@@ -103,24 +111,50 @@ Service này có mô hình dữ liệu đơn giản, tập trung vào quản lý
 | `otp_salt`      | TEXT        | Optional          | Salt dùng khi tạo mã OTP                   |
 | `last_otp_sent` | TIMESTAMP   | Optional          | Thời điểm gửi OTP gần nhất                 |
 
-### 3. `sessions`
+---
 
-| Cột             | Kiểu DL     | Ràng buộc         | Mô tả                                      |
-|-----------------|-------------|-------------------|---------------------------------------------|
-| `id`            | UUID        | PK                | Mã định danh session                       |
-| `tenant_id`     | UUID        | NOT NULL, index   | Mã tenant                                  |
-| `user_id`       | UUID        | NOT NULL          | ID người dùng đăng nhập                    |
-| `refresh_token` | TEXT        | NOT NULL          | Token để làm mới JWT                       |
-| `user_agent`    | TEXT        | Optional          | Thông tin trình duyệt của client           |
-| `ip_address`    | TEXT        | Optional          | Địa chỉ IP client                          |
-| `created_at`    | TIMESTAMP   | DEFAULT now()     | Thời điểm tạo                              |
-| `expires_at`    | TIMESTAMP   | NOT NULL          | Thời điểm session hết hạn                  |
+### 3. `auth_sessions`
 
-> 👉 Xem chi tiết bảng, kiểu dữ liệu, chỉ số, ràng buộc tại: [data-model.md](./data-model.md)
+Quản lý phiên đăng nhập, refresh token và metadata.
+
+| Cột               | Kiểu DL   | Ràng buộc              | Mô tả                                       |
+|-------------------|-----------|-------------------------|----------------------------------------------|
+| `id`              | UUID      | PK                      | Mã định danh session                        |
+| `tenant_id`       | UUID      | NOT NULL, index         | Mã tenant                                   |
+| `user_id`         | UUID      | NOT NULL                | ID người dùng đăng nhập                     |
+| `refresh_token`   | TEXT      | NOT NULL, unique        | Token để làm mới JWT                        |
+| `expires_at`      | TIMESTAMP | NOT NULL                | Thời điểm session hết hạn                   |
+| `created_at`      | TIMESTAMP | DEFAULT now()           | Thời điểm tạo                               |
+| `last_active_at`  | TIMESTAMP | Optional                | Lần cuối hoạt động của session              |
+| `ip_address`      | TEXT      | Optional                | IP của thiết bị                              |
+| `user_agent`      | TEXT      | Optional                | Thông tin trình duyệt / ứng dụng            |
+| `device_type`     | ENUM      | Optional (`web`, `ios`, `android`) | Loại thiết bị               |
+| `device_model`    | TEXT      | Optional                | Model thiết bị (ví dụ: iPhone 13, Chrome)   |
+| `os_version`      | TEXT      | Optional                | Phiên bản hệ điều hành                      |
+| `app_version`     | TEXT      | Optional                | Phiên bản ứng dụng (nếu có)                 |
+| `location`        | TEXT      | Optional                | Vị trí địa lý (IP-based hoặc do client gửi) |
+
+> 📌 Một session gắn với 1 user, 1 tenant và có thể đại diện cho một thiết bị duy nhất (để quản lý đa thiết bị).
 
 ---
 
-Dưới đây là nội dung chi tiết cho mục `## 4. 🔄 Luồng xử lý nghiệp vụ chính` của `auth-service/sub/`, trình bày theo tiêu chuẩn 5★ Service Design Standard và bổ sung thêm 3 luồng chính:
+### 4. `revoked_tokens`
+
+Ghi nhận các access token đã bị revoke, phục vụ logout chủ động.
+
+| Cột             | Kiểu DL   | Ràng buộc      | Mô tả                                  |
+|-----------------|-----------|----------------|-----------------------------------------|
+| `jti`           | UUID      | PK             | JWT ID (unique)                         |
+| `tenant_id`     | UUID      | NOT NULL       | Gắn với tenant                         |
+| `user_id`       | UUID      | Optional       | Nếu có                                 |
+| `revoked_at`    | TIMESTAMP | DEFAULT now()  | Thời điểm bị thu hồi                   |
+| `expires_at`    | TIMESTAMP | NOT NULL       | Thời điểm JWT này hết hạn tự nhiên     |
+
+📌 Tất cả JWT có `jti` nằm trong bảng này sẽ bị từ chối ở middleware của API Gateway.
+
+---
+
+> Xem thêm các chi tiết kỹ thuật như **indexing**, **constraints**, **ENUMs**, **retention policy** và **chiến lược kiểm thử dữ liệu** tại [Data Model](./data-model.md)
 
 ---
 
@@ -201,6 +235,61 @@ sequenceDiagram
 * Lấy danh sách session hiện tại (`GET /auth/sessions/me`)
 * Xóa thủ công một session (`DELETE /auth/sessions/{id}`)
 * Auto xóa session hết hạn (qua batch hoặc TTL index)
+
+---
+
+### 5. Quản lý phiên đăng nhập nâng cao
+
+```mermaid
+sequenceDiagram
+  participant FE as Frontend
+  participant GW as API Gateway
+  participant AS as Auth Service Sub
+  participant DB as Database
+
+  FE->>GW: GET /auth/sessions/me
+  GW->>AS: Forward request (Authorization header)
+  AS->>DB: Truy vấn bảng `auth_sessions` theo user_id & tenant_id
+  AS-->>GW: Trả về danh sách session + metadata
+  GW-->>FE: Trả response
+```
+
+```mermaid
+sequenceDiagram
+  participant FE as Frontend
+  participant GW as API Gateway
+  participant AS as Auth Service Sub
+  participant DB as Database
+
+  FE->>GW: DELETE /auth/sessions/{session_id}
+  GW->>AS: Forward request
+  AS->>DB: Xác thực quyền user có sở hữu session
+  AS->>DB: Xóa session khỏi DB
+  AS->>Redis: Xoá refresh token khỏi Redis
+  AS->>PubSub: Phát event `session.revoked.v1`
+  AS-->>GW: Trả kết quả thành công
+  GW-->>FE: Trả response
+```
+---
+
+### 6. Đăng xuất (Logout) nâng cao
+
+```mermaid
+sequenceDiagram
+  participant FE as Frontend
+  participant GW as API Gateway
+  participant AS as Auth Service Sub
+  participant DB as Database
+  participant Redis as Redis
+  participant Audit as Audit Logging Service
+
+  FE->>GW: POST /auth/logout
+  GW->>AS: Forward Authorization header
+  AS->>DB: Lưu `jti` của Access Token vào bảng `revoked_tokens`
+  AS->>Redis: Xoá refresh token liên quan
+  AS->>Audit: Gửi audit log `user.logged_out`
+  AS-->>GW: Trả kết quả thành công
+```
 
 ---
 
@@ -561,6 +650,69 @@ Thiết lập cảnh báo qua GCP Monitoring hoặc Prometheus AlertManager:
 
 ---
 
+### Ví dụ Dashboards & Alerting (Google Cloud Monitoring + Prometheus)
+
+#### 📊 Grafana Dashboard (Prometheus)
+
+| Biểu đồ                        | Mục tiêu giám sát                                    |
+|-------------------------------|------------------------------------------------------|
+| `Login Attempts (200 vs 4xx)` | Theo dõi số lượng đăng nhập thành công/thất bại     |
+| `Token Refresh Success Rate`  | Phát hiện bất thường trong quá trình refresh token  |
+| `Session Created/Revoked`     | Thống kê số phiên được tạo, hủy trong 24h           |
+| `JWT Revoked Lookup Time`     | Độ trễ truy xuất `jti` từ Redis (cache hit/miss)     |
+
+```promql
+rate(auth_login_total{status=~"200|401|403"}[5m])
+rate(auth_refresh_errors_total[5m])
+rate(auth_session_created_total[1m])
+rate(redis_lookup_latency_seconds_sum[1m]) / rate(redis_lookup_latency_seconds_count[1m])
+```
+
+---
+
+#### 🔔 Alert Rule (Prometheus + Alertmanager)
+
+1. **Too Many Failed Logins**
+
+```yaml
+alert: TooManyLoginFailures
+expr: increase(auth_login_total{status="401"}[10m]) > 30
+for: 2m
+labels:
+  severity: warning
+annotations:
+  summary: "Số lần đăng nhập thất bại tăng bất thường"
+  description: "Có trên 30 lượt login thất bại trong 10 phút qua tại tenant {{ $labels.tenant_id }}"
+```
+
+2. **Token Refresh Failure Spike**
+
+```yaml
+alert: HighTokenRefreshFailures
+expr: rate(auth_refresh_errors_total[5m]) > 5
+for: 1m
+labels:
+  severity: critical
+annotations:
+  summary: "Tăng đột biến lỗi refresh token"
+  description: "Số lỗi refresh token vượt quá 5 lần/phút"
+```
+
+---
+
+#### 🔍 GCP Cloud Monitoring Alert (nếu không dùng Prometheus)
+
+- **Log-based Alert**:
+  - Filter: `"POST /auth/login" AND severity=ERROR`
+  - Trigger: > 50 lần trong vòng 5 phút
+  - Action: Gửi email + webhook về Slack/Alertmanager
+
+- **Uptime Check + Alert**:
+  - Endpoint: `/auth/refresh`
+  - Điều kiện: HTTP 5xx > 10% trong vòng 3 phút
+
+---
+
 ## 10. 🚀 Độ tin cậy & Phục hồi
 
 ---
@@ -809,110 +961,54 @@ Thiết lập cảnh báo qua GCP Monitoring hoặc Prometheus AlertManager:
 
 ## 13. 🧩 Kiến trúc Service
 
----
-
-### 13.1. Thành phần chính
-
-Dưới đây là sơ đồ high-level mô tả các module chính:
-
-```
-
-+------------------+
-\|  Request Handler |
-+------------------+
-|
-v
-+------------------+       +---------------------+
-\|  AuthController  |<----->|   JWT Token Engine  |
-+------------------+       +---------------------+
-|
-v
-+------------------+       +---------------------+
-\|  SessionManager  |<----->|   RedisConnector     |
-+------------------+       +---------------------+
-|
-v
-+------------------+
-\|   AuditEmitter   |-----> Pub/Sub (Audit Topic)
-+------------------+
-
-```
-
----
-
-### 13.2. Mô tả các module
-
-| Module              | Chức năng |
-|---------------------|-----------|
-| **AuthController**  | Điều phối các luồng logic như login, refresh, logout |
-| **JWT Token Engine**| Sinh và xác minh token (HS256/RS256), tích hợp claim từ user |
-| **SessionManager**  | Quản lý session (tạo, xoá, validate), TTL, revoke |
-| **RedisConnector**  | Giao tiếp với Redis (session + rate limit), dùng namespace theo `tenant_id` |
-| **AuditEmitter**    | Gửi sự kiện hành vi người dùng lên Pub/Sub → audit-logging-service |
-| **OTPValidator**    | Kiểm tra mã OTP nếu phương thức xác thực là bằng số điện thoại |
-
----
-
-### 13.3. Luồng dữ liệu cơ bản
-
-Ví dụ luồng `POST /auth/login`:
-
-1. **Request Handler** nhận request login từ frontend (gồm email/password hoặc OTP).
-2. **AuthController** xác định loại đăng nhập:
-   - Với password → gọi `JWT Token Engine` → `SessionManager`.
-   - Với OTP → gọi `OTPValidator` → validate OTP qua Redis.
-3. Session được ghi vào Redis với TTL.
-4. Token được trả về client, đồng thời gọi `AuditEmitter` phát event `"user.logged_in"`.
-
----
-
-### 13.4. Isolation theo tenant
-
-- Mỗi service được triển khai dưới namespace riêng (VD: `auth-sub-tenant01`).
-- Redis key có dạng: `auth:{tenant_id}:session:{user_id}`.
-- PostgreSQL có thể dùng schema per tenant nếu cần, hoặc share table nhưng filter theo `tenant_id`.
-
----
-
-### 13.5. Phối hợp với các service khác
-
-| Service                 | Giao tiếp        | Mục đích |
-|-------------------------|------------------|----------|
-| `user-service/sub/`     | HTTP (internal)  | Kiểm tra user có tồn tại, lấy thông tin user |
-| `notification-service`  | Pub/Sub hoặc HTTP| Gửi OTP tới phụ huynh học sinh |
-| `audit-logging-service` | Pub/Sub          | Gửi hành vi audit như login, logout, OTP failed |
-
----
-
-### 13.6. Phối hợp với API Gateway
-
-- API Gateway chịu trách nhiệm:
-  - Gắn `X-Tenant-ID`, `X-Request-ID` nếu thiếu
-  - Forward header JWT vào backend
-  - Phân tuyến `/auth/login → auth-service/sub/` của đúng tenant
-
----
-
-### 13.7. Hạn chế & chú ý kiến trúc
-
-| Mối quan tâm             | Giải pháp |
-|--------------------------|-----------|
-| Xử lý đồng thời quá tải  | Scale service replica per tenant |
-| Xử lý Redis fail         | Circuit breaker + log lỗi, retry có giới hạn |
-| JWT bị giả mạo hoặc ký sai | Sử dụng RS256 với keypair mạnh, validate kỹ thuật số |
-| Tốc độ lookup user       | Caching từ `user-service`, hoặc preload 1 phần vào Redis |
-
----
+### 13.1. Sơ đồ thành phần
 
 ```mermaid
 flowchart TD
-    A[Client] -->|POST /auth/login| B[API Gateway]
-    B -->|Header + JWT| C[auth-service/sub]
-    C --> D[SessionManager]
-    C --> E[AuditEmitter]
-    C --> F[UserService/sub]
-    C --> G[Redis + DB]
+  A[API Controller] --> B1[SessionService]
+  A --> B2[TokenService]
+  A --> B3[LogoutService]
+  B1 --> C1[Postgres: auth_sessions]
+  B2 --> C2[JWT Utilities]
+  B3 --> C3[Postgres: revoked_tokens]
+  B1 --> D1[Redis: session index/cache]
+  B2 --> D2[Redis: jti revocation set]
+  B3 --> E1[Audit Logging Service]
 ```
+
+---
+
+### 13.2. Các Module Chính
+
+| Module                | Mô tả chức năng chính |
+|------------------------|------------------------|
+| `SessionService`       | Tạo, cập nhật, xóa phiên login và lưu `session metadata`. |
+| `TokenService`         | Sinh JWT, Refresh Token, tính toán TTL, parse JWT. |
+| `LogoutService`        | Ghi `jti` vào `revoked_tokens`, xóa session Redis, phát audit log. |
+| `RevokedTokenStore`    | Truy vấn và đồng bộ blacklist token từ Postgres → Redis. |
+| `SessionMetadataTracker` | Thu thập metadata từ request header (IP, User-Agent...) và gắn vào session. |
+| `SessionQueryHandler`  | Phục vụ cho các API `/sessions`, `/sessions/{id}`. |
+| `AuthValidator`        | Kiểm tra token hợp lệ (hết hạn, revoked, chưa đúng `jti`). |
+
+---
+
+### 13.3. Cơ chế Đồng bộ Redis - PostgreSQL
+
+- **Redis Key `auth:<tenant>:revoked`** chứa `jti` bị thu hồi → phục vụ middleware Gateway kiểm tra nhanh.
+- **Cron job `sync_revoked_tokens`** đồng bộ dữ liệu mới từ Postgres vào Redis mỗi 1–5 phút, hoặc phát ngay khi logout.
+- Session cache (nếu bật) có thể dùng Hash `auth:<tenant>:session:<session_id>` chứa các metadata phổ biến.
+
+---
+
+### 13.4. Quan hệ với Các Service Khác
+
+| Service                | Vai trò tương tác |
+|------------------------|--------------------|
+| **User Service (Sub)** | Cần xác thực `user_id` thuộc tenant này |
+| **Audit Logging**      | Nhận log từ `LogoutService` và các action liên quan |
+| **API Gateway**        | Middleware xác thực Access Token và kiểm tra `jti` trong Redis |
+
+📌 Kiến trúc được tối ưu hóa cho multi-tenant, có thể mở rộng với minimal overhead khi tăng số user/device.
 
 ---
 

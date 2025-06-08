@@ -60,258 +60,403 @@ Mô hình RBAC này hoạt động trong bối cảnh **multi-tenant**, nơi m�
    - Google OAuth2 → Auth Master
    - OTP/Local → Sub Auth Service
 2. Sau khi xác thực:
-   - `tenant_id` được chọn (nếu người dùng thuộc nhiều tenant)
-   - Auth Service gọi User Service Master → kiểm tra `user_id_global` + quyền truy cập tenant
-   - Gọi Sub User Service → lấy `roles`, `permissions`
+   - `tenant_id` được chọn (nếu người dùng thuộc nhiều tenant).
+   - Auth Service gọi **User Service Master** → kiểm tra `user_id_global` & quyền truy cập tenant.
+   - Gọi **Sub User Service** → lấy `roles`, `permissions`.
+   - **Gọi Token Service** `POST /token/issue` → nhận JWT ký **RS256**.
 3. JWT được phát hành với:
-   - `user_id`, `tenant_id`, `roles`, `permissions`, `auth_provider`
+   - `user_id`, `tenant_id`, `roles`, `permissions`, `auth_provider`,
+   - **`jti`, `sid`, `exp`** (phục vụ thu hồi token & quản lý phiên).
 
 ### 🛡️ API Gateway đánh giá RBAC
-- Trích xuất `tenant_id` từ JWT
-- Kiểm tra `is_active` + `is_active_in_tenant`
-- Truy vấn Redis cache: `rbac:{user_id}:{tenant_id}`
-- Nếu không có cache, gọi Sub User Service để load lại RBAC
-- Đánh giá `condition` nếu permission có ràng buộc động
+- Xác thực chữ ký JWT **offline** qua **JWKS** cache 10′.
+- Kiểm tra `tenant_id`, `exp` và trạng thái người dùng (`is_active`, `is_active_in_tenant`).
+- Tra **Redis**: `revoked:{jti}` → nếu *hit* ⇒ trả `403` (`token.revoked`), huỷ cache RBAC.
+- Truy vấn Redis cache RBAC: `rbac:{user_id}:{tenant_id}` → nếu *miss* gọi Sub User Service để nạp lại.
+- Đánh giá `condition` nếu permission có ràng buộc động.
 
 ---
 
 ## 4. Mô hình Dữ liệu RBAC (Master vs Sub)
 
-### 📦 Tại User Service Master
+> **Nguyên tắc chung**  
+> * **User Service Master** (Core — PostgreSQL) lưu danh tính _toàn cục_ & template RBAC chuẩn.  
+> * **Sub User Service** (per-tenant — MariaDB) chỉ lưu RBAC _cục bộ_, đồng bộ bất đồng bộ qua Pub/Sub.  
+> * Mọi bảng phải có khoá chính rõ ràng, theo chuẩn ⭐2 Data Model Standard.
+
+---
+
+### 📦 Tại User Service Master (PostgreSQL)
 
 ```sql
--- Danh sách người dùng toàn hệ thống
+-- +flyway
+-- 4.1  Người dùng toàn hệ thống
 CREATE TABLE users_global (
-  user_id UUID PRIMARY KEY,
-  full_name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  phone TEXT,
-  auth_provider TEXT NOT NULL CHECK (auth_provider IN ('google', 'local')),
-  local_auth_tenant_id UUID NULL,
-  is_active BOOLEAN DEFAULT TRUE,
-  UNIQUE (email, auth_provider) -- đảm bảo không trùng email giữa các loại đăng nhập
+  user_id           UUID PRIMARY KEY,
+  full_name         TEXT NOT NULL,
+  email             TEXT NOT NULL,
+  phone             TEXT,
+  auth_provider     TEXT NOT NULL CHECK (auth_provider IN ('google', 'local')),
+  local_auth_tenant_id UUID,
+  is_active         BOOLEAN DEFAULT TRUE,
+  UNIQUE (email, auth_provider)
 );
 
--- Danh sách tenant
+-- 4.2  Danh sách tenant
 CREATE TABLE tenants (
-  tenant_id UUID PRIMARY KEY,
+  tenant_id   UUID PRIMARY KEY,
   tenant_name TEXT NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('active', 'inactive'))
+  status      TEXT NOT NULL CHECK (status IN ('active', 'inactive'))
 );
 
--- Gán user vào tenant
+-- 4.3  Ánh xạ user ↔ tenant
 CREATE TABLE user_tenant_assignments (
-  user_id UUID REFERENCES users_global(user_id),
-  tenant_id UUID REFERENCES tenants(tenant_id),
+  user_id    UUID REFERENCES users_global(user_id),
+  tenant_id  UUID REFERENCES tenants(tenant_id),
   assigned_by UUID,
   assigned_at TIMESTAMP,
   PRIMARY KEY (user_id, tenant_id)
 );
 
--- Template vai trò toàn hệ thống
+-- 4.4  Template vai trò & quyền toàn cục
 CREATE TABLE global_roles_templates (
-  template_id UUID PRIMARY KEY,
+  template_id  UUID PRIMARY KEY,
   template_code TEXT UNIQUE NOT NULL,
-  description TEXT
+  description  TEXT
 );
 
--- Template quyền toàn hệ thống
 CREATE TABLE global_permissions_templates (
-  template_id UUID PRIMARY KEY,
+  template_id     UUID PRIMARY KEY,
   permission_code TEXT UNIQUE NOT NULL,
-  action TEXT NOT NULL,
-  resource TEXT NOT NULL,
-  default_condition JSONB
+  action          TEXT NOT NULL,
+  resource        TEXT NOT NULL,
+  default_condition JSONB   -- PostgreSQL JSONB
 );
 ```
 
-Bảng `global_permissions_templates` định nghĩa các mẫu quyền toàn cục, có thể bao gồm:
+**Ví dụ quyền toàn cục**
 
-| permission_code               | description                                              |
-|------------------------------|----------------------------------------------------------|
-| `report.view_login_by_tenant` | Xem báo cáo đăng nhập theo từng tenant                  |
-| `report.view_financial_summary` | Xem báo cáo tài chính tổng hợp                        |
-| `report.manage_report_templates` | Tạo / cập nhật template báo cáo                     |
+| permission_code                 | description                       |
+| -------------------------------- | --------------------------------- |
+| `report.view_login_by_tenant`    | Xem báo cáo đăng nhập theo tenant |
+| `report.view_financial_summary`  | Xem báo cáo tài chính tổng hợp    |
+| `report.manage_report_templates` | Tạo/ cập nhật template báo cáo    |
 
 ---
 
-### 📦 Tại Sub User Service (mỗi tenant)
+### 📦 Tại Sub User Service (mỗi tenant — MariaDB)
 
 ```sql
--- Người dùng nội bộ tenant (dùng user_id toàn cục làm PK)
+-- +flyway
+-- 4.5  Người dùng cục bộ (tham chiếu user_id toàn cục)
 CREATE TABLE users_in_tenant (
-  user_id UUID PRIMARY KEY REFERENCES users_global(user_id),
+  user_id UUID PRIMARY KEY,
   is_active_in_tenant BOOLEAN DEFAULT TRUE
 );
 
--- Vai trò trong tenant
+-- 4.6  Vai trò & quyền trong tenant
 CREATE TABLE roles_in_tenant (
-  role_id UUID PRIMARY KEY,
+  role_id   UUID PRIMARY KEY,
   role_code TEXT UNIQUE NOT NULL,
   role_name TEXT NOT NULL
 );
 
--- Quyền trong tenant
 CREATE TABLE permissions_in_tenant (
-  permission_id UUID PRIMARY KEY,
-  permission_code TEXT UNIQUE NOT NULL,
-  action TEXT NOT NULL,
-  resource TEXT NOT NULL,
-  condition JSONB -- ví dụ: { "class_id": "$user.class_id" }
+  permission_id    UUID PRIMARY KEY,
+  permission_code  TEXT UNIQUE NOT NULL,
+  action           TEXT NOT NULL,
+  resource         TEXT NOT NULL,
+  condition        JSON        -- MariaDB JSON
+, schema_version   INT  NOT NULL DEFAULT 1 COMMENT 'Event-schema version'
 );
 
--- Mapping vai trò ↔ người dùng
+-- 4.7  Mapping user ↔ role
 CREATE TABLE user_role_in_tenant (
   user_id UUID REFERENCES users_in_tenant(user_id),
   role_id UUID REFERENCES roles_in_tenant(role_id),
   PRIMARY KEY (user_id, role_id)
 );
 
--- Mapping quyền ↔ vai trò
+-- 4.8  Mapping role ↔ permission
 CREATE TABLE role_permission_in_tenant (
-  role_id UUID REFERENCES roles_in_tenant(role_id),
+  role_id       UUID REFERENCES roles_in_tenant(role_id),
   permission_id UUID REFERENCES permissions_in_tenant(permission_id),
   PRIMARY KEY (role_id, permission_id)
 );
 ```
 
-Bảng `permissions_in_tenant` có thể bao gồm các quyền báo cáo được ánh xạ từ master:
+**Ví dụ quyền trong tenant**
 
-| permission_code                 | scope   | is_custom | note                                |
-|--------------------------------|---------|-----------|-------------------------------------|
-| `report.view_login_by_tenant`  | tenant  | false     | Kế thừa từ Master                   |
-| `report.view_financial_summary`| global  | false     | Chỉ cấp cho một số vai trò quản lý |
-
-📘 Mô hình dữ liệu này giúp tách biệt rõ ràng giữa định danh toàn cục và RBAC cục bộ theo từng tenant. Tài liệu chi tiết hơn được trình bày tại:
-
-* [`user-service/master/data-model.md`](../services/user-service/master/data-model.md)
-* [`user-service/tenant/data-model.md`](../services/user-service/tenant/data-model.md)
+| permission_code                | scope  | is_custom | note                                |
+| ------------------------------- | ------ | ---------- | ----------------------------------- |
+| `report.view_login_by_tenant`   | tenant | false      | Kế thừa từ Master                   |
+| `report.view_financial_summary` | global | false      | Chỉ cấp cho vai trò quản lý         |
+| `grade.edit_assignment`         | class  | true       | Quyền tuỳ chỉnh do Admin tenant tạo |
 
 ---
 
-## 5. Permission có điều kiện (Condition JSONB)
+### 📘 Tài liệu chi tiết
 
-Hệ thống dx-vas hỗ trợ **permission có điều kiện** – cho phép kiểm soát truy cập động dựa trên ngữ cảnh request và đặc tính của người dùng. Mỗi permission có thể khai báo một `condition` dưới dạng JSONB.
+* [`user-service/master/data-model.md`](../services/user-service/master/data-model.md) – Mô hình & migration PostgreSQL.
+* [`user-service/tenant/data-model.md`](../services/user-service/tenant/data-model.md) – Mô hình MariaDB & chiến lược sync Pub/Sub.
 
-### 📌 Ví dụ về permission có điều kiện:
+> Mô hình này **tách biệt rõ ràng** danh tính toàn cục với RBAC cục bộ, đồng thời hỗ trợ **version schema** (cột `schema_version`) cho hệ thống **Event Schema Governance** (ADR-030).
 
-```json
-{
-  "class_id": "$user.class_id"
-}
+---
+
+## 5. Permission Có Điều Kiện (Conditional Permission)
+
+> **Mục tiêu** – Cho phép **RBAC linh hoạt** dựa trên *ngữ cảnh* (context-aware).  
+> Thay vì gán quyền “cứng”, mỗi **permission** có thể đính kèm trường `condition` dưới dạng **JSON** (`JSONB` trên PostgreSQL Core, `JSON` trên MariaDB Tenant).
+
+### 5.1 Cú pháp & Context
+
+| Placeholder | Nguồn dữ liệu | Ví dụ |
+|-------------|--------------|-------|
+| `$user.<field>`    | Bản ghi `users_in_tenant` (Sub DB) | `$user.class_id` |
+| `$request.<field>` | Body / query-param / header HTTP | `$request.class_id` |
+| `$tenant.<field>`  | Metadata của tenant (bảng `tenants`) | `$tenant.tier` |
+
+**Toán tử mặc định**: _so sánh bằng_ (`==`).  
+**Toán tử mở rộng** (v2): `$in`, `$contains`, `$gte`, `$lte`.
+
+### 5.2 Ví dụ điều kiện
+
+| Mô tả | JSON điều kiện | Diễn giải |
+|-------|---------------|-----------|
+| Chỉ xem lớp của chính mình | `{ "class_id": "$user.class_id" }` | `class_id (request)` `==` `class_id (user)` |
+| Hạn chế báo cáo theo khối trường | `{ "grade": "$user.grade" }` | So sánh `grade` |
+| Quyền admin tenant cao cấp | `{ "$tenant.tier": "premium" }` | Tenant phải ở gói “premium” |
+
+### 5.3 Luồng đánh giá (Evaluation Flow)
+
+```mermaid
+flowchart LR
+  APIGW(API Gateway) --> CondEval(Condition Engine)
+  CondEval -->|read| RedisRBAC[(RBAC cache)]
+  CondEval -->|read| RequestCtx[/HTTP Request/]
+  CondEval -->|read| JWTClaim[/JWT/]
+  CondEval -->|read| TenantMeta[(Tenant metadata)]
 ```
 
-Ý nghĩa: Chỉ cho phép truy cập khi `class_id` trong request **trùng khớp với** `class_id` của user hiện tại (do Sub User Service cung cấp trong JWT).
+1. **API Gateway** đã xác thực JWT & tải RBAC cache.
+2. **Condition Engine** lặp qua list permission:
 
-### 🛠 Context hỗ trợ khi evaluate:
+   * Nếu `condition == null` ⇒ pass.
+   * Nếu có `condition` ⇒ render placeholder → so sánh.
+3. Nếu **bất kỳ** permission pass ⇒ request **được phép**.
+4. Kết quả cache `rbac:{user_id}:{tenant_id}` theo TTL.
 
-* **User context**: `$user.{field}` – đến từ `users_in_tenant`
-* **Request context**: `$request.{field}` – từ body/query/header
-* **Tenant context**: `$tenant.{field}` – nếu có metadata
+### 5.4 Kịch bản quan trọng
 
-### 🧠 Đánh giá điều kiện:
+| Kịch bản              | Handling                                                                |
+| --------------------- | ----------------------------------------------------------------------- |
+| **Token bị thu hồi**  | Gateway trả `403` `token.revoked` trước khi evaluate.                   |
+| **Placeholder thiếu** | Trả `400` `common.validation_failed`.                                   |
+| **Type mismatch**     | Trả `400`; log detail vào Audit-Logging.                                |
+| **Condition nặng**    | Flag “slow condition” khi eval > 5 ms – metric `rbac_cond_latency_p95`. |
 
-* Được thực hiện tại **API Gateway**
-* Engine so sánh giá trị thực tế trong request với điều kiện JSONB
-* Nếu một permission có `condition = null` → luôn đúng
+### 5.5 Quản trị & Template
 
-📘 Các tenant có thể tự định nghĩa điều kiện riêng theo logic đặc thù.
+* **Template quyền** (level Master) lưu ở `global_permissions_templates.default_condition`.
+* Tenant **override** bằng cách viết `condition` mới trong `permissions_in_tenant`.
+* Report-related permission (`report.*`) đi kèm `data_scope` (ADR-029).
 
-📘 Các permission liên quan đến truy cập báo cáo (ví dụ: `report.view_login_by_tenant`) có thể đi kèm `condition` như giới hạn theo `tenant_id`, `data_scope`, v.v.  
-Các template quyền này được định nghĩa và quản lý tập trung thông qua `User Service Master` và sử dụng trong cấu trúc `report_templates` (xem ADR-029).
+> **Lưu ý bảo mật**
+>
+> * Không cho phép placeholder **tự do**; chỉ whitelist `$user`, `$request`, `$tenant`.
+> * Đối với dữ liệu nhạy cảm (PII), placeholder phải **ẩn danh** (hash) trước khi so sánh.
 
 ---
 
 ## 6. Chiến lược Cache RBAC tại API Gateway
 
-Để giảm tải truy vấn RBAC thường xuyên, hệ thống sử dụng cache RBAC tại API Gateway với chiến lược sau:
+> **Mục tiêu** – Giảm độ trễ uỷ quyền và tải truy vấn RBAC, nhưng vẫn bảo đảm cập nhật tức thời khi quyền thay đổi hoặc token bị thu hồi.
 
-### 🔑 Key cache:
+### 6.1 Cơ chế tổng quan  
+1. **Gateway** xác thực chữ ký JWT **offline** bằng **JWKS** (cache 10 ′).  
+2. Trước khi đánh giá RBAC, Gateway:  
+   1. Kiểm tra khoá **`revoked:{jti}`** trong Redis (TTL 15 ′).  
+   2. Nếu *miss* cache RBAC (`rbac:{user_id}:{tenant_id}`) → gọi **Sub User Service** nạp lại.  
+3. Quyền mới / thu hồi token được **đẩy sự kiện** qua Pub/Sub để Gateway tự xoá cache.
+
+### 6.2 Cấu trúc cache
+
+#### 🔑 **Key**
 
 ```text
 rbac:{user_id}:{tenant_id}
 ```
 
-### 📦 Value cache:
+#### 📦 **Value**
 
 ```json
 {
-  "roles": [...],
-  "permissions": [...],
+  "roles": ["teacher"],
+  "permissions": ["grade.edit_assignment", "report.view_login_by_tenant"],
   "issued_at": "2025-07-01T12:00:00Z"
 }
 ```
 
-### ⏱ TTL & Làm mới:
+#### ⏱ **TTL & Làm mới**
 
-* TTL mặc định: 5–15 phút tùy dịch vụ
-* Có thể làm mới thủ công khi gán quyền mới
-* Cache sẽ tự động làm mới nếu JWT mới chứa RBAC mới
+| TTL            | Mức áp dụng                                         | Ghi chú                    |
+| -------------- | --------------------------------------------------- | -------------------------- |
+| **10 phút**    | Core services (Gateway → Master)                    | Giá trị mặc định           |
+| **5–15 phút**  | Tenant stack (Gateway → Sub)                        | Điều chỉnh theo tải tenant |
+| **Invalidate** | Khi JWT mới có RBAC mới *hoặc* event `rbac_updated` | Tức thời xoá cache         |
 
-### 🔁 Invalidation qua Pub/Sub:
+### 6.3 Kiểm tra token bị thu hồi (revoked)
 
-* Khi Sub User Service cập nhật RBAC:
+* **Redis key** `revoked:{jti}` (TTL 15 ′) – **Token Service** đồng bộ ngay sau `/token/revoke`.
 
-  * Phát sự kiện `rbac_updated` → Gateway subscribe → xoá cache
-* Khi user bị vô hiệu hóa:
+* Gateway tra key trước khi đánh giá RBAC:
 
-  * Phát sự kiện `user_status_changed` (từ Master hoặc Sub) → Gateway huỷ JWT và cache
+  ```json
+  403
+  {
+    "error": { "code": "token.revoked", "message": "Token đã bị thu hồi" },
+    "meta": { "trace_id": "…", "service": "api_gateway", "timestamp": "…" }
+  }
+  ```
 
-📘 Định nghĩa event schema trong [`rbac-events.md`](./rbac-events.md)
+* Nếu **cache-miss**, Gateway gọi `POST /token/introspect` để xác minh.
 
-📘 Các permission dạng `report.*` thường được đánh giá tại Gateway khi Superadmin Webapp gọi đến Reporting Service.  
-Nếu có `condition`, engine sẽ thực hiện đối chiếu `input_parameters` trong request báo cáo với context người dùng hiện tại.
+* **Metric giám sát**
+
+  * `revoked_token_cache_hit_ratio` ≥ 98 % – alert < 90 % 10′.
+  * `rbac_cache_latency_p95` < 5 ms.
+
+### 6.4 Invalidation qua Pub/Sub
+
+| Sự kiện               | Nơi phát          | Hành động Gateway                          |
+| --------------------- | ----------------- | ------------------------------------------ |
+| `rbac_updated`        | Sub User Service  | Xoá `rbac:{user_id}:{tenant_id}`           |
+| `token.revoked`       | Token Service     | Xoá `revoked:{jti}` & cache RBAC liên quan |
+| `user_status_changed` | User Master / Sub | Vô hiệu hoá JWT & cache RBAC               |
+
+### 6.5 Quy tắc đặc biệt cho báo cáo
+
+* Các permission `report.*` thường được đánh giá tại Gateway khi **Superadmin Webapp** gọi **Reporting Service**.
+* Nếu permission có `condition`, **Condition Engine** so khớp `input_parameters` với context người dùng. (Xem mục 5).
+
+📘 *Định nghĩa schema sự kiện*: [`rbac-events.md`](./rbac-events.md)
 
 ---
 
 ## 7. Chiến lược Đồng bộ RBAC
 
-Hệ thống hỗ trợ khả năng **kế thừa template từ Master**, **tuỳ chỉnh**, và **giao diện quản lý phân quyền riêng cho từng tenant**.
+> **Mục tiêu** – Cho phép tenant **kế thừa** RBAC chuẩn, **tuỳ chỉnh** khi cần, nhưng vẫn giữ **tính nhất quán & dễ quan sát**. Cơ chế đồng bộ dựa trên **Pub/Sub** và **schema versioning** (ADR-030).
 
-### 📚 Kế thừa & tùy chỉnh:
+### 7.1 Kế thừa & Tùy chỉnh
 
-* Mỗi tenant có thể:
+| Hành động | API / Sự kiện | Kết quả |
+|-----------|---------------|---------|
+| **Import template** | `POST /rbac/templates/import` | Tenant lấy bản *snapshot* Role/Permission từ Master (version hiện tại). |
+| **Clone template** | `POST /rbac/templates/clone` | Tạo bản sao (`schema_version` kế thừa) → sửa `role_name`, `condition`. |
+| **Tạo mới** | `POST /rbac/templates` | Bản trắng hoàn toàn, version mặc định **1**. |
+| **Sync định kỳ** | Cron-option (`weekly`, `monthly`) | Chỉ áp dụng **template chưa clone**; diff → update tự động. |
 
-  * Dùng `global_roles_templates` & `global_permissions_templates` từ Master
-  * Clone về làm bản riêng → đổi tên/logic/condition
-  * Hoặc tự tạo từ đầu hoàn toàn
+> *Tenant clone = mất đường sync; phải cập nhật thủ công nếu Master đổi.*
 
-### 🧩 Gán role cho người dùng:
+### 7.2 Gán Role cho Người dùng
 
-* Sub User Service cung cấp API cho Admin Webapp tenant:
+* API **Sub User Service** (được Admin Portal sử dụng):  
+  * `PUT /users/{id}/roles` – gán hoặc gỡ `role_id`.  
+  * `PATCH /users/{id}` – cập nhật `is_active_in_tenant`.  
+  * `POST /roles` – tạo role tuỳ chỉnh (yêu cầu permission `rbac.manage_role`).  
+* Mỗi thao tác xuất sự kiện **`rbac_updated`** (payload có `schema_version`).
 
-  * Gán `role_id` cho `user_id`
-  * Cập nhật `is_active_in_tenant`
-  * Tạo vai trò tùy chỉnh (nếu được cấp quyền)
+### 7.3 Đồng bộ & Invalidate (Pub/Sub)
 
-### 🔁 Đồng bộ định kỳ (tùy chọn):
+```mermaid
+flowchart LR
+  RBT(📥 rbac_updated) -- publish --> Bus((Pub/Sub))
+  Bus -- fan-out --> GW(API Gateway)
+  Bus -- fan-out --> Audit(Audit-Logging)
+  GW -- purge --> RedisRBAC[("rbac:{user_id}:{tid}")]
+```
 
-* Nếu tenant cho phép, có thể đồng bộ lại template mỗi tuần/tháng từ Master
+| Sự kiện                   | Phát từ           | Hành động Gateway             |
+| ------------------------- | ----------------- | ----------------------------- |
+| `rbac_updated.v1`         | Sub User Service  | Xoá cache RBAC liên quan      |
+| `rbac_template_cloned.v1` | Tenant Admin      | Chỉ ghi log, không tự sync    |
+| `rbac_template_synced.v1` | Job Master→Tenant | Cập nhật `schema_version` mới |
+
+### 7.4 Versioning & Conflict
+
+* Mỗi bản ghi **role / permission** có `schema_version`.
+* Khi Master nâng version, pipeline `template_sync` gửi diff; nếu bản tenant đã clone → cảnh báo “*forked template*”.
+* Điều kiện **conflict**: `permission_code` trùng nhưng version khác → job flag `status=conflict`, yêu cầu Admin tenant rà soát.
+
+### 7.5 Đồng bộ định kỳ (tùy chọn)
+
+* Tenant chọn trong **Settings → RBAC Sync**: `off` / `weekly` / `monthly`.
+* Job **Cloud Scheduler + Cloud Run** gọi `POST /templates/sync` → Master tính diff → phát `rbac_template_synced.v1`.
+
+### 7.6 KPI & Monitoring
+
+| Metric                   | Mục tiêu                | Alert               |
+| ------------------------ | ----------------------- | ------------------- |
+| `rbac_sync_success_rate` | = 100 %                 | bất kỳ failure      |
+| `rbac_conflict_count`    | = 0                     | > 0 tạo Jira ticket |
+| `rbac_template_age_days` | < 30 ngày (sync weekly) | > 45 ngày           |
+
+📘 **Schema sự kiện chi tiết** xem [`rbac-events.md`](./rbac-events.md).
 
 ---
 
 ## 8. Hiệu năng & Khả năng mở rộng
 
-Hệ thống RBAC của dx-vas được thiết kế để hỗ trợ **số lượng lớn tenant**, mỗi tenant có thể có hàng trăm vai trò và người dùng.
+Hệ thống RBAC của **dx-vas** phải phục vụ **200+ tenant** với hàng ngàn người dùng/tenant, đồng thời giữ **p95 latency < 5 ms** cho bước uỷ quyền tại API Gateway.
 
-### 🔧 Kỹ thuật tối ưu:
+### 8.1 Kỹ thuật tối ưu
 
-* **Cache tại Gateway** → tránh truy vấn Sub Service mỗi request
-* **Fan-out pub/sub invalidate** → tối thiểu hoá latency cập nhật RBAC
-* **Permission condition JSONB** cho phép RBAC mềm dẻo mà không cần phân mảnh bảng
+| Kỹ thuật | Mô tả | Lợi ích |
+|----------|-------|---------|
+| **Gateway RBAC cache** | Lưu `rbac:{user_id}:{tenant_id}` 5–15 phút | Tránh round-trip Sub Service → giảm ~2 ms / request |
+| **Redis revoked-token cache** | Key `revoked:{jti}` TTL 15′ | Kiểm tra thu hồi token cục bộ, không gọi `/token/introspect` |
+| **Pub/Sub Fan-out invalidate** | Sự kiện `rbac_updated`, `token.revoked` → Gateway xoá cache | Cập nhật gần-real-time (< 1 s) |
+| **Condition Engine JSON(B)** | So sánh `$user`, `$request`, `$tenant` tại Gateway | RBAC linh hoạt, không bùng nổ bảng Permission |
+| **Batch API** | `POST /users/roles:batchAssign` | Giảm số kết nối DB / network |
 
-### ☁️ Cloud Scale:
+### 8.2 Quy mô Cloud (Cloud-Scale)
 
-* Redis RBAC cache được chia namespace theo `tenant_id`
-* Sub User Service được autoscale độc lập → phân tải dễ dàng
-* RBAC API có thể batch (gán nhiều role/user cùng lúc)
+* **Redis Cluster** 3-node, **namespace theo `tenant_id`** → hạn chế khoá nóng, bảo vệ tenant khác.  
+* **Sub User Service** autoscale HPA (CPU + RPS) → tenant bận không ảnh hưởng tenant rảnh.  
+* **Message Bus** Pub/Sub topic `tenant.*` chia *partition* = tenant → bảo đảm thứ tự trong tenant.  
+* **Data Model** `roles_in_tenant` & `permissions_in_tenant` shard theo `tenant_id` → chỉ quét phạm vi nhỏ.
 
-### 🔍 Monitoring:
+### 8.3 Monitoring & Alerting
 
-* Mỗi lần cache hit/miss được log kèm `tenant_id`
-* Có cảnh báo nếu role mapping bất thường (VD: user có 100+ role)
+| Metric | Mục tiêu | Alert |
+|--------|----------|-------|
+| `rbac_cache_hit_ratio` | ≥ 98 % | < 95 % trong 10′ |
+| `revoked_token_cache_hit_ratio` | ≥ 95 % | < 90 % trong 10′ |
+| `rbac_cond_latency_p95` | < 5 ms | > 10 ms trong 5′ |
+| `rbac_conflict_count` | = 0 | bất kỳ > 0 |
+| `user_roles_count_p99` | < 50 | user > 100 role → Jira ticket |
 
-📘 Để tối ưu hơn nữa, có thể tích hợp JWT RBAC claims ký cứng với TTL ngắn + checksum (đang được nghiên cứu)
+_Log sample _:
+
+```json
+{
+  "tenant_id": "tenant-abc",
+  "user_id": "u-123",
+  "cache_hit": true,
+  "cache_type": "rbac",
+  "latency_ms": 1.8,
+  "trace_id": "trace-xyz"
+}
+```
+
+### 8.4 Định hướng tối ưu tiếp theo
+
+* **JWT-signed RBAC claims** (“embedded RBAC”) → TTL 2 ′ + checksum, giảm truy vấn Redis ở mức cực lớn.
+* **Edge-Cache (CDN) JWKS** giảm thời gian tải key ở vùng xa.
+* **Adaptive TTL** – Gateway kéo dài TTL cho user ít thay đổi, rút ngắn cho admin thao tác nhiều quyền.
+
+> **Kết quả mong đợi:** Với các kỹ thuật trên, dx-vas giữ được hiệu năng ổn định khi mở rộng tenant mới, đồng thời bảo đảm việc thu hồi quyền/token diễn ra trong vài giây – không ảnh hưởng trải nghiệm người dùng.
 
 ---
 
@@ -328,8 +473,8 @@ RBAC là lớp kiểm soát truy cập trọng yếu, nên các nguyên tắc b�
 - Không cho phép “shadow” vai trò từ tenant khác
 
 ### 🔐 Chống giả mạo JWT
-- RBAC trong JWT phải được ký và xác thực bởi Gateway
-- Không tin tưởng RBAC trong request từ client frontend
+- JWT được ký RS256 bởi **Token Service**; Gateway xác thực *offline* qua **JWKS** cache 10′.  
+- Gateway thêm bước “check revoked” (Redis) trước khi đánh giá RBAC.
 
 ### 🔐 API RBAC luôn bảo vệ bởi Auth + Role
 - Mọi thao tác gán quyền, gán vai trò, cập nhật phải có quyền cụ thể (`manage_rbac`, `assign_role`, v.v.)
@@ -359,6 +504,7 @@ RBAC là lớp kiểm soát truy cập trọng yếu, nên các nguyên tắc b�
 - Số lượng permission theo tenant
 - Tỷ lệ cache hit/miss RBAC
 - Cảnh báo nếu user có số role vượt ngưỡng
+- `revoked_token_cache_hit_ratio`
 
 ---
 
@@ -383,7 +529,7 @@ Một số khuyến nghị được áp dụng và kiểm soát qua Superadmin W
 
 | Mục | File |
 |-----|------|
-| Kiến trúc tổng quan RBAC | [`README.md`](../README.md#2-đăng-nhập--phân-quyền-động-rbac) |
+| Kiến trúc tổng quan RBAC | [`README.md`](../README.md) |
 | Mô hình dữ liệu User Master | [`user-service/master/data-model.md`](../services/user-service/master/data-model.md) |
 | Mô hình dữ liệu Sub User Service | [`user-service/tenant/data-model.md`](../services/user-service/tenant/data-model.md) |
 | Giao diện quản trị RBAC | [`ic-02-admin-webapp.md`](../interfaces/ic-02-admin-webapp.md) |
@@ -506,48 +652,30 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant User as "👤 Người dùng"
-    participant Frontend as "🌐 Frontend App"
-    participant AuthM as "🔐 Auth Service Master"
-    participant AuthT as "🔐 Sub Auth Service (per tenant)"
-    participant UserMaster as "🧠 User Service Master"
-    participant UserSub as "🧩 Sub User Service (per tenant)"
-    participant Google as "🌐 Google OAuth"
+    participant FE as 🌐 Frontend
+    participant AuthM as 🔐 Auth Master
+    participant AuthT as 🔐 Auth Sub
+    participant Captcha as 🛡️ reCAPTCHA
+    participant TokenSvc as 🗝️ Token Service
+    participant UserSub as 🧩 User Sub (tenant)
+    participant JWT as 📦 JWT
 
-    rect rgba(220,220,220,0.1)
-        Note over User, AuthM: Đăng nhập Google OAuth2
-        User->>Frontend: Mở ứng dụng
-        Frontend->>AuthM: Login via Google
-        AuthM->>Google: OAuth2 Authorization
-        Google-->>AuthM: Access Token
-        AuthM->>UserMaster: Xác minh user + lấy user_id_global
-        UserMaster-->>AuthM: user_id_global + danh sách tenant
-
-        alt User thuộc nhiều tenant
-            AuthM->>Frontend: Yêu cầu chọn tenant
-            Frontend->>AuthM: tenant_id đã chọn
-        else Chỉ một tenant
-            Note over AuthM: Bỏ qua bước chọn, sử dụng tenant duy nhất
-        end
-
-        AuthM->>UserSub: Lấy roles & permissions trong tenant đã chọn
-        UserSub-->>AuthM: Trả danh sách role/permission
-        
-        Note over AuthM: Ký & phát JWT chứa:<br>user_id, tenant_id, roles, permissions
-        AuthM-->>Frontend: Trả JWT
+    rect rgba(220,220,220,0.05)
+        FE->>AuthM: Login Google
+        AuthM->>UserSub: GET roles/permissions
+        AuthM->>TokenSvc: POST /token/issue
+        TokenSvc-->>AuthM: JWT (RS256)
+        AuthM-->>FE: Return JWT
     end
 
-    rect rgba(220,220,220,0.1)
-        Note over User, AuthT: Đăng nhập Local/OTP
-        User->>Frontend: Mở ứng dụng (trường không dùng Google)
-        Frontend->>AuthT: Login OTP
-        AuthT->>UserMaster: Kiểm tra user / đăng ký mới
-        UserMaster-->>AuthT: user_id_global
-        AuthT->>UserSub: Lấy roles & permissions trong tenant
-        UserSub-->>AuthT: Trả roles, permissions
-
-        Note over AuthT: Phát JWT đầy đủ (chứa user_id, tenant_id, roles, permissions)
-        AuthT-->>Frontend: Trả JWT
+    rect rgba(220,220,220,0.05)
+        FE->>AuthT: Login OTP
+        AuthT-->>Captcha: verify CAPTCHA
+        Captcha-->>AuthT: OK / Fail
+        AuthT->>UserSub: GET RBAC
+        AuthT->>TokenSvc: POST /token/issue
+        TokenSvc-->>AuthT: JWT (RS256)
+        AuthT-->>FE: Return JWT
     end
 ```
 
@@ -555,6 +683,6 @@ sequenceDiagram
 
 * Auth Master xử lý Google OAuth2 + lựa chọn tenant.
 * Sub Auth xử lý xác thực Local/OTP tại tenant.
-* Mọi JWT phát ra đều chứa `user_id_global`, `tenant_id`, `roles`, `permissions`.
+* Mọi JWT phát ra đều chứa `user_id_global`, `tenant_id`, `roles`, `permissions`, `jti`, `sid` – phục vụ thu hồi token & quản lý phiên (See CR-03).
 
 📘 Tham khảo chi tiết cấu trúc JWT trong [`adr-006-auth-strategy.md`](../ADR/adr-006-auth-strategy.md)

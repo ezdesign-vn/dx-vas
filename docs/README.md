@@ -1,821 +1,808 @@
-# TÀI LIỆU KIẾN TRÚC CHI TIẾT – HỆ THỐNG CHUYỂN ĐỔI SỐ VAS
-
-## 📚 Mục lục Tài liệu Kiến trúc Chi tiết – Hệ thống dx-vas
-
-| STT    | Mục chính                              | Mô tả                                                     | Liên kết                                                      |
-| ------ | -------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
-| 1️⃣    | **Yêu cầu dự án**                      | Mô hình tổ chức, số lượng người dùng, yêu cầu mở rộng     | [Xem mục](#1-yêu-cầu-dự-án)                                   |
-| 2️⃣    | **Đăng nhập & Phân quyền động (RBAC)** | Thiết kế RBAC động, template, phân tầng Master/Sub        | [Xem mục](#2-đăng-nhập--phân-quyền-động-rbac)                 |
-| 3️⃣    | **Auth Service**                       | Xác thực người dùng, JWT, xác thực đa kênh                | [Xem mục](#3-auth-service)                                    |
-| 4️⃣    | **User Service**                       | Cấu trúc user master/sub, RBAC binding và API quản lý     | [Xem mục](#4-user-service)                                    |
-| 5️⃣    | **API Gateway**                        | Quản lý route, kiểm tra phân quyền, cấu trúc response     | [Xem mục](#5-api-gateway)                                     |
-| 6️⃣    | **Notification Service**               | Hệ thống gửi thông báo đa kênh: Zalo, Gmail, WebPush      | [Xem mục](#6-notification-service)                            |
-| 7️⃣    | **Superadmin Webapp (SPA)**            | Quản lý toàn hệ thống, tenants, templates, global log     | [Xem mục](#7-superadmin-webapp-spa)                           |
-| 8️⃣    | **Chiến lược Quản lý Dữ liệu**         | Soft delete, anonymization, retention, audit logging      | [Xem mục](#8-chiến-lược-quản-lý-dữ-liệu)                      |
-| 9️⃣    | **Reporting Service & Data Warehouse** | Hệ thống báo cáo động và nền tảng dữ liệu AI              | [Xem mục](#9-reporting-service--data-warehouse)               |
-| 🔟     | **Định hướng Tích hợp AI**             | Chiến lược tích hợp AI, yêu cầu dữ liệu & agent tiềm năng | [Xem mục](#10-định-hướng-tích-hợp-ai-ai-integration-strategy) |
-| 1️⃣1️⃣ | **Hạ tầng triển khai**                 | GCP Cloud Run, PubSub, Redis, Terraform                   | [Xem mục](#11-hạ-tầng-triển-khai)                             |
-| 1️⃣2️⃣ | **Admin Webapp (per tenant)**          | Giao diện nội bộ giáo viên, BGH                           | [Xem mục](#12-admin-webapp---spa-cấp-độ-tenant)               |
-| 1️⃣3️⃣ | **Customer Portal (PWA)**              | Cổng thông tin phụ huynh, học sinh                        | [Xem mục](#13-customer-portal---pwa-cấp-độ-tenant)            |
-| 1️⃣4️⃣ | **CRM – SuiteCRM**                     | Tuyển sinh, pipeline ứng viên, đồng bộ SIS                | [Xem mục](#14-crm--suitecrm-cấp-độ-tenant)                    |
-| 1️⃣5️⃣ | **SIS – Gibbon**                       | Học sinh, lớp học, điểm danh, học phí                     | [Xem mục](#15-sis--gibbon-cấp-độ-tenant)                      |
-| 1️⃣6️⃣ | **LMS – Moodle**                       | Học tập online, giao bài, đồng bộ điểm                    | [Xem mục](#16-lms--moodle-cấp-độ-tenant)                      |
-| 1️⃣7️⃣ | **Zalo OA & Google Chat**              | Thông báo phụ huynh & nội bộ                              | [Xem mục](#17-zalo-oa--google-chat)                           |
-| 1️⃣8️⃣ | **CI/CD & DevOps**                     | Pipeline release, rollback, Chaos Test                    | [Xem mục](#18-cicd--devops)                                   |
-| 1️⃣9️⃣ | **Bảo mật & Giám sát**                 | IAM, secrets, monitoring, audit logs                      | [Xem mục](#19-bảo-mật--giám-sát)                              |
-| 2️⃣0️⃣ | **Data Migration Plan**                | Chiến lược chuyển đổi dữ liệu                             | [Xem mục](#20-data-migration-plan)                            |
-| 2️⃣1️⃣ | **Đào tạo & Chuyển giao**              | Tài liệu training, video, handout PDF                     | [Xem mục](#21-đào-tạo--chuyển-giao)                           |
-| 2️⃣2️⃣ | **Tổng kết**                           | Khuyến nghị chiến lược & kế hoạch mở rộng                 | [Xem mục](#22-tổng-kết)                                       |
-
-### 📎 Phụ lục
-
-| STT | Phụ lục | Mô tả | Liên kết |
-|-----|--------|-------|----------|
-| 🅰️ | **Phụ lục A – ADRs** | Danh sách quyết định kiến trúc chính thức | [Xem mục](#phụ-lục-a–danh-sách-quyết-định-kiến-trúc--adrs) |
-| 🅱️ | **Phụ lục B – Nguyên tắc Kiến trúc Cốt lõi** | Nguyên lý nền tảng trong thiết kế dx-vas | [Xem mục](#phụ-lục-b--nguyên-tắc-kiến-trúc-cốt-lõi) |
-| 🆑 | **Phụ lục C – Sơ đồ Kiến trúc** | Mermaid diagrams chi tiết các thành phần | [Xem mục](#phụ-lục-c--sơ-đồ-kiến-trúc) |
-| 🆘 | **Phụ lục D – Interface Contracts (ICs)** | Định nghĩa ràng buộc giữa các service | [Xem mục](#phụ-lục-d--interface-contracts) |
-| 🛠️ | **Phụ lục E – Hướng dẫn đóng góp & phát triển** | Hướng dẫn PR, branch, format tài liệu | [Xem mục](#phụ-lục-e--hướng-dẫn-đóng-góp--phát-triển) |
-
-## 1. Yêu cầu dự án
-
-* **Mục tiêu chính:** Triển khai một hệ thống chuyển đổi số toàn diện cho một công ty giáo dục quản lý nhiều trường thành viên, tích hợp quản lý học sinh, giáo viên, phụ huynh, lớp học, học phí, thông báo, học tập online và quy trình tuyển sinh.
-
-* **Mô hình vận hành:** 
-  * Công ty sở hữu và quản lý **3 trường thành viên** (mỗi trường là một tenant riêng biệt).
-  * Hệ thống vận hành theo kiến trúc **multi-tenant**, mỗi tenant có stack riêng (frontend, adapters, auth/user sub-service), và dùng chung API Gateway & Tenant Master Services.
-
-* **Thiết kế ban đầu (cho toàn hệ thống):**
-  * 1 công ty quản lý 3 tenant (trường thành viên).
-  * Tổng số người dùng dự kiến:
-    * **100 nhân viên, giáo viên** (toàn hệ thống)
-    * **Từ 100 đến 600 học sinh mỗi trường** → tổng cộng **khoảng 1000 học sinh**
-    * **Khoảng 1000 phụ huynh**, tương ứng 1:1 với học sinh
-
-* **Khả năng mở rộng tối đa (gấp 2.5 lần):**
-  * **250 nhân viên, giáo viên**
-  * **Tối đa 2500 học sinh**
-  * **Tối đa 2500 phụ huynh**
-
-## 2. Đăng nhập & Phân quyền động (RBAC)
-
-Hệ thống dx-vas sử dụng kiến trúc RBAC động với khả năng multi-tenant. Quyền truy cập được kiểm soát chính xác theo từng tenant (trường thành viên), kết hợp quản trị tập trung từ Master với khả năng tùy biến cục bộ tại từng tenant.
-
-### 🔑 Mô hình phân tầng định danh và RBAC
-
-- **User Service Master**:
-  - Quản lý toàn bộ định danh người dùng (`users_global`)
-  - Duy trì thông tin `tenants`, `user_tenant_assignments`
-  - Cung cấp bộ `global_roles_templates` và `global_permissions_templates`
-  - Trạng thái `is_active` toàn cục
-
-- **Sub User Service (per tenant)**:
-  - Quản lý RBAC riêng biệt của tenant
-  - Tham chiếu `user_id_global`, có `is_active_in_tenant`
-  - Cho phép kế thừa hoặc tuỳ chỉnh role/permission riêng
-  - Thực hiện gán vai trò, phân quyền, và kiểm tra RBAC trong nội bộ tenant
-
-📘 Mọi chi tiết về schema, bảng, quan hệ được định nghĩa rõ trong:
-- [`user-service/master/data-model.md`](./services/user-service/master/data-model.md)
-- [`user-service/tenant/data-model.md`](./services/user-service/tenant/data-model.md)
-
-### 🔐 Đánh giá phân quyền tại API Gateway
-
-- JWT do Auth Master/Sub cấp, chứa `user_id`, `tenant_id`, `roles`, `permissions`
-- Gateway thực hiện:
-  - Xác thực JWT
-  - Kiểm tra `is_active` và `is_active_in_tenant`
-  - Truy vấn cache RBAC (theo `user_id + tenant_id`)
-  - Đánh giá điều kiện JSONB nếu có (VD: xem điểm học sinh nếu cùng lớp)
-
-### 🧭 Tính linh hoạt
-
-- Một user có thể thuộc nhiều tenant với vai trò khác nhau
-- Tenant có thể chỉnh sửa RBAC riêng mà không ảnh hưởng các tenant khác
-- RBAC cache tại Gateway được đồng bộ qua Pub/Sub hoặc TTL tự động
-
-📘 Đọc thêm mô hình phân quyền chi tiết tại: [`rbac-deep-dive.md`](./architecture/rbac-deep-dive.md)
-
-## 3. Auth Service
-
-Hệ thống dx-vas sử dụng mô hình xác thực đa tầng để hỗ trợ multi-tenant, đồng thời đảm bảo tính linh hoạt trong xác thực Google OAuth2 và Local/OTP.
-
-### 🔐 Auth Service Master
-- Chịu trách nhiệm xử lý xác thực thông qua Google OAuth2 cho toàn bộ hệ thống.
-- Sau khi người dùng xác thực thành công qua Google, hệ thống sẽ:
-  - Xác định danh sách các tenant mà người dùng thuộc về.
-  - Nếu người dùng thuộc nhiều tenant, hiển thị giao diện chọn tenant.
-  - Gọi User Service Master để kiểm tra `user_id_global`, và xác thực xem người dùng có quyền truy cập tenant đã chọn không.
-  - Gọi Sub User Service (của tenant đó) để lấy danh sách roles/permissions trong tenant.
-  - Phát hành JWT "đầy đủ" chứa:
-    - `user_id`
-    - `tenant_id`
-    - `roles`, `permissions`
-    - `auth_provider`, `exp`, `trace_id`…
-
-### 🔐 Sub Auth Service (per tenant)
-- Triển khai riêng biệt trong từng tenant stack.
-- Xử lý xác thực cho các user sử dụng:
-  - Tài khoản Local (tên đăng nhập/mật khẩu)
-  - OTP (SMS/email)
-- Sau khi xác thực local thành công:
-  - Gọi User Service Master để đăng ký người dùng (nếu lần đầu) và nhận `user_id_global`.
-  - Gọi Sub User Service của chính tenant để lấy RBAC tương ứng.
-  - Phát hành JWT đầy đủ như Auth Master.
-
-### 🔐 Tính năng bảo mật nâng cao
-- Cơ chế CAPTCHA và giới hạn số lần gửi OTP theo IP/user.
-- JWT ký bằng key được luân phiên định kỳ (theo chính sách [`ADR-006`](./ADR/adr-006-auth-strategy.md)).
-- Hỗ trợ đăng xuất, làm mới token (refresh), kiểm tra trace log đăng nhập.
-
-### 🎯 Lưu ý về triển khai:
-- Mỗi tenant có thể dùng Sub Auth Service tùy chọn (bắt buộc nếu có học sinh/phụ huynh không dùng Workspace).
-- Tất cả JWT (kể cả từ Sub Auth) đều phải tuân thủ format chuẩn và có thể được xác minh bởi API Gateway.
-
-📘 Xem thêm: [ADR-006 – Auth Strategy](./ADR/adr-006-auth-strategy.md)
-
-## 4. User Service
-
-User Service trong hệ thống dx-vas được chia thành hai cấp độ để hỗ trợ kiến trúc multi-tenant:
-
-### 🧠 User Service Master (Tập trung toàn hệ thống)
-- Là nơi **quản lý định danh người dùng toàn cục**:
-  - Bảng `users_global`: mỗi user có một `user_id` duy nhất toàn hệ thống, kèm `auth_provider`, `email`, `phone`, `local_auth_tenant_id` (nếu là user local).
-  - Bảng `tenants`: danh sách tenant (trường thành viên) đang hoạt động.
-  - Bảng `user_tenant_assignments`: ánh xạ user ↔ tenant (người dùng có thể thuộc nhiều tenant).
-  - Trạng thái `is_active` toàn cục.
-- Quản lý bộ **template role/permission** dùng chung toàn hệ thống (`global_roles_templates`, `global_permissions_templates`).
-- Phát sự kiện Pub/Sub (`user_assigned_to_tenant`, `user_info_updated`) để đồng bộ xuống Sub User Service.
-- Cung cấp API quản trị cho Superadmin:
-  - Tạo tenant, gán user vào tenant, cập nhật thông tin định danh chung.
-
-### 🧩 Sub User Service (Cấp tenant – được triển khai trong từng stack tenant)
-- Quản lý RBAC riêng biệt cho từng tenant:
-  - Bảng `users_in_tenant`: tham chiếu `user_id_global`, có `is_active_in_tenant`.
-  - `roles_in_tenant`, `permissions_in_tenant`: kế thừa từ Master hoặc tự định nghĩa.
-  - Mapping RBAC: `user_role_in_tenant`, `role_permission_in_tenant`.
-- Truy vấn RBAC tại API Gateway dựa trên `user_id + tenant_id`.
-- Đồng bộ hóa dữ liệu từ Master thông qua Pub/Sub.
-- Cung cấp API cho Admin tenant để:
-  - Gán role cho user trong tenant
-  - Cập nhật trạng thái user trong tenant
-  - Xem nhật ký phân quyền (nếu bật audit)
-
-### 🔄 Cơ chế hoạt động điển hình:
-- Khi Superadmin gán một user vào tenant:
-  - User Service Master ghi nhận và phát sự kiện `user_assigned_to_tenant`
-  - Sub User Service của tenant nhận sự kiện và tạo bản ghi "shadow user" nếu chưa có
-- Khi user login thành công và chọn tenant:
-  - Auth Service gọi Master → kiểm tra quyền truy cập tenant
-  - Gọi Sub User Service → truy vấn RBAC → trả lại để phát hành JWT
-
-📘 Xem chi tiết cấu trúc bảng và luồng tại: [`rbac-deep-dive.md`](./architecture/rbac-deep-dive.md), [`user-service/data-model.md`](./services/user-service/data-model.md)
-
-## 5. API Gateway
-
-API Gateway đóng vai trò trung tâm điều phối trong kiến trúc dx-vas, đặc biệt trong mô hình multi-tenant. Nó xử lý xác thực, phân quyền động (RBAC), định tuyến đến đúng tenant stack, và bảo vệ các backend nội bộ.
-
-### 🧭 Định tuyến theo Tenant
-
-- Gateway phục vụ nhiều tenant (trường thành viên) trên cùng một entrypoint.
-- **Tenant được xác định qua một trong ba cách:**
-  1. `tenant_id` trong JWT (ưu tiên)
-  2. Domain/subdomain của Frontend App (VD: `abc.truongvietanh.edu.vn`)
-  3. Tham số `tenant` trong URL (fallback, dùng trong môi trường phát triển)
-
-- Dựa vào `tenant_id`, Gateway sẽ:
-  - Forward request đến **Sub Adapter / Sub Service** đúng tenant.
-  - Hoặc đến **Tenant Master Service** nếu request thuộc về Superadmin Webapp.
-
-### 🔐 Kiểm tra RBAC động theo tenant
-
-- Gateway thực hiện xác thực JWT:
-  - Do Auth Master hoặc Sub Auth Service phát hành.
-  - Phải chứa: `user_id`, `tenant_id`, `roles`, `permissions`, `auth_provider`.
-
-- Kiểm tra trạng thái người dùng:
-  - `is_active` toàn cục (từ User Service Master)
-  - `is_active_in_tenant` (từ Sub User Service)
-
-- Truy vấn Redis cache để lấy `permissions` gắn theo `tenant_id`.
-- Evaluate `condition` (nếu có) theo context request (VD: `student_id`, `class_id`...)
-
-### 📦 Forward request
-
-- Nếu pass: Gateway forward request đến backend service đúng tenant:
-  - Gắn các header: `X-User-ID`, `X-Tenant-ID`, `X-Permissions`, `X-Role`, `X-Trace-ID`, `X-Auth-Method`
-- Nếu fail: Trả lỗi 403 hoặc 401 tùy trường hợp.
-
-### 🔐 Bảo vệ nội dung & định danh
-
-- Các header định danh được ký (`X-Signature`) hoặc chỉ forward trong nội bộ (mTLS).
-- Backend service KHÔNG được chấp nhận header định danh nếu request từ bên ngoài Gateway.
-
-📘 Sơ đồ đánh giá RBAC xem chi tiết tại: 👉 [RBAC Evaluation Flow – System Diagrams](./architecture/system-diagrams.md#4-rbac-evaluation-flow--luồng-đánh-giá-phân-quyền-động)
-
-## 6. Notification Service (Multi-Tenant)
-
-Notification Service trong kiến trúc dx-vas được triển khai theo mô hình phân tầng, hỗ trợ gửi thông báo cách ly theo tenant và broadcast toàn hệ thống bằng kiến trúc bất đồng bộ qua Pub/Sub.
-
-### 🧭 Phân tầng dịch vụ
-
-#### 🔹 Sub Notification Service (per Tenant)
-- Mỗi tenant có một instance Notification Service riêng trong stack của mình.
-- **Chức năng:**
-  - Gửi thông báo nội bộ của tenant (học phí, điểm danh, v.v.)
-  - Quản lý template riêng (`notification_templates_in_tenant`)
-  - Sử dụng cấu hình kênh riêng: Zalo OA, Gmail API, Google Chat webhook
-  - Ghi log theo dõi gửi thông báo (`notification_logs_in_tenant`)
-- **Lắng nghe Pub/Sub:** Subscribe vào topic `vas-global-notifications-topic`, lọc và xử lý các thông báo toàn hệ thống nếu phù hợp `tenant_id`.
-
-#### 🔹 Notification Service Master (Shared Core)
-- Phục vụ Superadmin Webapp.
-- **Chức năng:**
-  - Gửi thông báo toàn hệ thống hoặc đến một nhóm trường.
-  - Phát sự kiện `global_notification_requested` lên Pub/Sub với:
-    - `target_tenant_ids` hoặc tiêu chí lọc (VD: `target_user_roles`)
-    - `message_id`, nội dung gốc, `correlation_id`
-  - Không can thiệp chi tiết xử lý tại các tenant.
-  - Thu thập trạng thái gửi từ các Sub Service thông qua sự kiện phản hồi `tenant_notification_batch_status`.
+<!-- docs/README.v2.md -->
+# DX-VAS Platform – Documentation (v2)
 
 ---
 
-### 🔄 Luồng gửi thông báo toàn hệ thống (Option B – Event-based)
-
-1. Superadmin gửi yêu cầu thông báo → Notification Service Master nhận.
-2. Master publish sự kiện lên topic `vas-global-notifications-topic`.
-3. Các Sub Notification Service subscribe topic:
-   - Lọc theo `tenant_id`, xử lý nếu phù hợp.
-   - Gửi thông báo bằng kênh riêng.
-   - Gửi sự kiện phản hồi `tenant_notification_batch_status` lên topic `vas-tenant-notification-ack-topic`.
-
----
-
-### ✅ Cơ chế phòng ngừa rủi ro
-
-| Rủi ro | Phòng ngừa |
-|--------|------------|
-| Không theo dõi được trạng thái gửi | Sub gửi sự kiện phản hồi, Master hoặc một Monitor Service thu thập & log |
-| Gửi trùng thông báo (non-idempotent) | Dùng `message_id` duy nhất + kiểm tra `processed_global_notifications` |
-| Sub xử lý nhầm sự kiện không dành cho mình | Payload chứa rõ `target_tenant_ids`, Sub lọc kỹ |
-| Sub quá tải khi nhận nhiều sự kiện | Giới hạn Pub/Sub `flow control` + xử lý bất đồng bộ nội bộ |
-| Lỗi cấu hình kênh gửi | Sub log lỗi rõ, phát sự kiện phản hồi với trạng thái lỗi cụ thể |
-| Dead Letter Topic bị đầy do lỗi lặp lại | Giám sát DLT, có quy trình re-publish sau fix logic |
-
----
-
-📦 Các thành phần dữ liệu liên quan:
-
-- `notification_templates_in_tenant`
-- `channel_configs_in_tenant`
-- `notification_logs_in_tenant`
-- `global_notification_requested` (Pub/Sub)
-- `tenant_notification_batch_status` (Pub/Sub ACK)
-- `processed_global_notifications` (DB Sub)
-
-## 7. Superadmin Webapp (SPA)
-
-Superadmin Webapp là ứng dụng quản trị tập trung dành riêng cho đội ngũ quản lý cấp công ty – nơi điều hành toàn bộ hệ thống dx-vas đa tenant.
-
-### 🏛️ Chức năng chính
-
-- Quản lý danh sách tenant (trường thành viên):
-  - Tạo/sửa tenant mới, kích hoạt/khóa tenant
-  - Cấu hình kết nối CRM/SIS/LMS cho từng tenant
-- Gán người dùng vào tenant:
-  - Chọn user từ danh sách toàn cục
-  - Chọn tenant và gán vai trò ban đầu
-  - Gửi lời mời/OTP tới người dùng nếu cần
-- Quản lý role/permission toàn hệ thống:
-  - Xây dựng **Global Role/Permission Templates**
-  - Xem các tenant đang dùng template nào
-  - Clone/cập nhật/cảnh báo nếu tenant chỉnh sửa vượt chuẩn
-- Quản lý thông tin định danh người dùng:
-  - Tìm kiếm user toàn hệ thống
-  - Kiểm tra họ thuộc tenant nào, vai trò gì, trạng thái
-  - Vô hiệu hóa tài khoản toàn cục hoặc theo từng tenant
-- Tổng hợp và theo dõi thống kê toàn hệ thống:
-  - Số lượng học sinh/nhân sự theo từng tenant
-  - Log hoạt động toàn hệ thống
-  - **Truy cập module Báo cáo & Phân tích động** (Xem chi tiết bên dưới)
-- Quản lý và cấu hình **Mẫu Báo Cáo (Report Templates)**:
-  - Tạo/cập nhật template cho các loại báo cáo hệ thống (xem `ADR-029`)
-  - Gán quyền `required_permission` cho từng loại báo cáo
-  - Phân loại template theo scope: `global` hoặc `per-tenant`
-
-### 📊 Module Báo cáo & Phân tích
-
-- Giao diện linh hoạt cho phép chọn:
-  - Loại báo cáo (từ danh sách `report_templates`)
-  - Tham số lọc: khoảng thời gian, tenant, trạng thái, nhóm dữ liệu
-  - Cấu hình biểu đồ (dạng cột, đường, bảng, tròn…)
-- Hỗ trợ:
-  - Truy vấn dữ liệu qua Reporting Service (theo `ADR-028`)
-  - Lưu cấu hình báo cáo yêu thích (Dashboard cá nhân)
-  - Export báo cáo ra CSV/PDF
-- Truy cập theo quyền `report.view_{template_id}` được kiểm tra tại API Gateway
-
-### 🛠 Công nghệ & tích hợp
-
-- SPA chạy trên domain riêng (`superadmin.truongvietanh.edu.vn`)
-- Đăng nhập qua Google OAuth2 (yêu cầu quyền `superadmin`)
-- Superadmin Webapp gọi API (thông qua API Gateway) đến các Core Services như:
-  - **User Service Master**: quản lý user toàn cục, thông tin tenant, cấu hình RBAC templates.
-  - **Auth Service Master**: xác thực đăng nhập, định danh Superadmin.
-  - **Reporting Service**: truy vấn dữ liệu báo cáo, thống kê toàn hệ thống, quản lý Report Templates.
-- Kết nối đến các service quản lý chi phí, logging, audit tập trung
-
-📘 Các API được mô tả trong: [Superadmin Webapp Service](./service/superadmin-webapp/interface-contract.md)
-📘 Các Report Templates được định nghĩa chuẩn theo: [`ADR-029`](./ADR/adr-029-report-template-schema.md)  
-📘 Luồng báo cáo & Data Warehouse mô tả tại: [`ADR-028`](./ADR/adr-028-reporting-architecture.md)
-
-## 8. Chiến lược Quản lý Dữ liệu
-
-Hệ thống dx-vas áp dụng chiến lược quản lý dữ liệu tập trung để:
-- Đảm bảo dữ liệu luôn tuân thủ các quy định pháp lý (FERPA, GDPR...)
-- Hỗ trợ audit, phân tích, khôi phục, và truy vết sự kiện
-- Tối ưu hoá chi phí lưu trữ và hiệu suất hệ thống
-
-Dữ liệu của hệ thống DX-VAS được chia thành hai nhóm chính:
-- **Dữ liệu vận hành (OLTP)**: sử dụng MySQL trên mỗi tenant để lưu trữ dữ liệu người dùng, học sinh, lớp học, v.v.
-- **Dữ liệu phân tích (OLAP)**: được lưu trữ trong **Data Warehouse** (dự kiến là BigQuery), phục vụ báo cáo, thống kê và các dịch vụ AI sau này.
-
-**Nguyên tắc chính:**
-- ❌ Không hard delete các object có liên kết lịch sử, audit, hoặc cần giữ lâu dài (xem [ADR-026](./ADR/adr-026-hard-delete-policy.md))
-- ✅ Luôn sử dụng soft delete (`status`, `is_deleted`, `is_archived`) cho dữ liệu quan trọng
-- 🔒 Dữ liệu PII phải được ẩn danh trước khi dùng ở dev/staging (xem [ADR-024](./ADR/adr-024-data-anonymization-retention.md))
-- ⏳ Logs, audit, token, OTP có retention rõ ràng và purge định kỳ
-- 🔁 Schema migration phải rollback được, theo 3 bước chuẩn (xem [ADR-023](./ADR/adr-023-schema-migration-strategy.md))
-- Mọi pipeline nạp dữ liệu vào Data Warehouse đều cần:
-  - **Kiểm tra chất lượng dữ liệu (Data Quality)**
-  - **Ẩn danh hóa thông tin nhạy cảm** theo [ADR-024](./ADR/adr-024-data-anonymization-retention.md)
-- **Schema evolution** được kiểm soát qua version hóa schema và áp dụng [`ADR-030`](./ADR/adr-030-event-schema-governance.md) cho các event phát qua Pub/Sub
-- Chính sách lưu trữ (retention) cho dữ liệu phân tích tối thiểu là 1 năm
-
-📎 Xem chi tiết: [ADR-027 - Data Management Strategy](./ADR/adr-027-data-management-strategy.md)
-
-## 9. Reporting Service & Data Warehouse
-
-Hệ thống báo cáo mới được thiết kế để đáp ứng nhu cầu phân tích linh hoạt, phục vụ BoD và chuẩn bị tích hợp AI.
-
-### 🏗 Thành phần chính
-
-- **Data Warehouse (BigQuery)**:
-  - Lưu dữ liệu phân tích dạng bảng `fact_*`, `dim_*`
-  - Hỗ trợ truy vấn lớn mà không ảnh hưởng đến hệ thống vận hành
-  - Quản lý schema theo version (xem [`ADR-030`](./ADR/adr-030-event-schema-governance.md))
-
-- **Data Pipeline (ETL/ELT)**:
-  - Dữ liệu được nạp từ các source (User, Auth, LMS, CRM) thông qua:
-    - Batch jobs hoặc streaming (Pub/Sub)
-  - Đảm bảo:
-    - Chất lượng dữ liệu (null checks, reference integrity)
-    - Mask dữ liệu nhạy cảm
-    - Metadata đầy đủ để hỗ trợ AI
-
-- **Reporting Service**:
-  - Trả kết quả báo cáo theo template (xem [`ADR-029`](./ADR/adr-029-report-template-schema.md))
-  - Cung cấp các API chính:
-    - `GET /report-templates`
-    - `POST /reports/{template_id}`
-    - `GET /saved-reports`
-  - Kiểm soát truy cập qua RBAC ([`ADR-007`](./ADR/adr-007-rbac.md))
-
-- **Report Template**:
-  - Xác định truy vấn, tham số đầu vào, quyền truy cập
-  - Superadmin có thể tạo/cập nhật các template này
-  - Tham chiếu: `ADR-029`
-
-### 🔁 Luồng dữ liệu báo cáo
-
-1. Dữ liệu nguồn phát event hoặc cập nhật DB
-2. Data Pipeline nạp vào Data Warehouse
-3. Reporting Service sinh truy vấn SQL động dựa trên template
-4. Kết quả được hiển thị qua Superadmin Webapp
-
-📎 Tham chiếu: [`ADR-028`](./ADR/adr-028-reporting-architecture.md), [`ADR-029`](./ADR/adr-029-report-template-schema.md), [`ADR-030`](./ADR/adr-030-event-schema-governance.md)
-
-## 10. Định hướng Tích hợp AI (AI Integration Strategy)
+## 1. Vision & Scope
 
 ### 🎯 Tầm nhìn
+Xây dựng **DX-VAS Platform** thành một nền tảng **chuyển đổi số “tất-cả-trong-một”** cho hệ sinh thái Trường Việt Anh, đáp ứng ba mục tiêu cốt lõi:
 
-Nền tảng dữ liệu đang xây dựng sẽ trở thành bước đệm cho AI Agent có khả năng tự động phân tích, đưa ra gợi ý hoặc hành động hỗ trợ vận hành giáo dục.
+1. **Kết nối liền mạch** – Hợp nhất quy trình giáo dục, vận hành trường học và tương tác phụ huynh-học sinh trên một nền tảng duy nhất.  
+2. **Mở rộng linh hoạt** – Kiến trúc **multi-tenant** cho phép triển khai nhanh nhiều cơ sở/trường, mỗi tenant tự chủ nhưng kế thừa dịch vụ chung.  
+3. **Bền vững & bảo mật** – Áp dụng chuẩn 5★ (Service, Data, Interface, OpenAPI, Security) và tuân thủ các ADR để đảm bảo bảo mật, khả năng quan sát, và tiết kiệm chi phí dài hạn.
 
-### 🔍 Lợi ích của AI
+### 📦 Phạm vi tài liệu
+Tài liệu này mô tả **toàn bộ kiến trúc và tiêu chuẩn kỹ thuật** của DX-VAS:
 
-- Dự đoán tình trạng học sinh/giáo viên (vắng học, quá tải,…)
-- Tối ưu hóa lịch dạy, lớp học, tài nguyên
-- Tư vấn tuyển sinh cá nhân hóa
-- Phân tích hiệu suất từng tenant
+| Mảng | Nội dung chính |
+|------|----------------|
+| **Kiến trúc tổng quan** | Sơ đồ hệ thống, thành phần, luồng dữ liệu |
+| **Authentication & Token** | Auth Master/Sub, Token Service, JWT lifecycle |
+| **Tenant Stack & SMS** | Mô hình School Management System cho từng tenant |
+| **Core/Business Services** | API Gateway, User, Notification, SMS,… |
+| **Observability & Security** | Log-tracing, JWKS, key rotation, error codes |
+| **CI/CD & Deployment** | Pipeline, auto-scaling, zero-downtime, on-boarding tenant |
+| **Data & Reporting** | ELT, event schema governance, báo cáo phân tích |
+| **Standards & ADR/CR** | 5★ standards, 30 ADR, các Change Request hiện hành |
 
-### 📊 Yêu cầu về dữ liệu cho AI
+### 👥 Đối tượng độc giả
+* **Kỹ sư phát triển** (backend/frontend, ML, mobile)  
+* **DevOps & SRE** – triển khai, vận hành, giám sát  
+* **Kiến trúc sư hệ thống** – thẩm định, mở rộng kiến trúc  
+* **Quản lý sản phẩm & ban lãnh đạo** – nắm bức tranh tổng quan và roadmap kỹ thuật
 
-- Chất lượng cao, đồng nhất giữa tenants
-- Đã qua bước ẩn danh (compliant)
-- Có metadata đầy đủ: thời gian, người tạo, context domain
+### 🚫 Ngoài phạm vi
+* Chiến lược sư phạm, nội dung giảng dạy.  
+* Hướng dẫn chi tiết UI/UX cho từng portal (được tài liệu riêng).  
+* Báo cáo tài chính và dữ liệu PII cụ thể (chỉ nêu nguyên tắc xử lý).
 
-### 🤖 Các loại AI Agent tiềm năng
+> **Kết quả mong đợi:** Sau khi đọc xong phần Vision & Scope, độc giả hiểu _“tại sao”_ và _“tài liệu này bao trùm những gì”_ trước khi đi sâu vào chi tiết kỹ thuật.
 
-- AI sắp lịch giảng dạy
-- AI tư vấn học vụ
-- AI tuyển sinh
-- AI phân tích rủi ro vận hành
-- AI hỗ trợ Superadmin tra cứu nhanh
-
-### 🔧 Các bước chuẩn bị (gợi ý)
-
-- Đảm bảo Data Warehouse "AI-ready"
-- Xây dựng Data Prep pipelines
-- Thiết kế Data Access Layer riêng (hoặc mở rộng từ Reporting Service)
-
-📎 Ghi chú: Việc phát triển AI Agent cụ thể **nằm ngoài phạm vi CR hiện tại**
-
-## 11. Hạ tầng triển khai
-
-Hệ thống dx-vas được triển khai trên Google Cloud theo mô hình **multi-tenant tách biệt theo stack**, kết hợp với các thành phần dùng chung để tối ưu hoá bảo mật, khả năng mở rộng và quản trị tập trung.
-
-### 🧱 Mô hình triển khai
-
-#### 📌 Shared Core (dùng chung toàn hệ thống)
-- **API Gateway:** Trung tâm điều phối request, xác thực, phân quyền động RBAC.
-- **Auth Service Master:** Xử lý Google OAuth2, phát hành JWT đa tenant.
-- **User Service Master:** Quản lý định danh người dùng toàn cục, tenant registry, RBAC templates.
-- **Superadmin Webapp:** Quản trị toàn bộ hệ thống (tenant, người dùng, RBAC templates, báo cáo).
-- **Shared Redis Cluster:** Cache RBAC theo `user_id + tenant_id` (theo namespace).
-- **Monitoring & Audit Stack:** Logging, tracing, SLO cho toàn bộ hệ thống.
-- **Pub/Sub Bus:** Truyền sự kiện từ Master xuống các tenant stack.
-
-#### 🏫 Tenant Stack (triển khai riêng biệt cho từng trường thành viên)
-Mỗi tenant (trường) được triển khai dưới dạng **một stack riêng biệt** trên Google Cloud Run, bao gồm:
-
-- **Frontend Apps riêng (PWA + Admin SPA)**:
-  - Chạy theo domain của từng trường: `abc.truongvietanh.edu.vn`, `xyz.truongvietanh.edu.vn`
-- **Sub Auth Service**:
-  - Xác thực Local/OTP (phụ huynh, học sinh) độc lập theo tenant
-- **Sub User Service**:
-  - Quản lý RBAC riêng, mapping đến `user_id_global`, kiểm soát `is_active_in_tenant`
-- **CRM/SIS/LMS Adapter riêng**:
-  - Kết nối đến hệ thống legacy của từng trường (SuiteCRM, Gibbon, Moodle)
-- **Database riêng hoặc schema phân vùng (nếu dùng chung Cloud SQL)**
-- **Logging riêng, giám sát riêng theo `tenant_id` và `env`**
-
-### ⚙️ Cấu trúc Project GCP đề xuất
-
-| Project | Mục đích |
-|--------|---------|
-| `dx-vas-core` | Shared Core Services (API Gateway, Auth/User Master, PubSub, Redis...) |
-| `dx-vas-network` | Shared VPC, NAT, DNS nội bộ |
-| `dx-vas-tenant-abc` | Stack riêng cho tenant ABC |
-| `dx-vas-tenant-xyz` | Stack riêng cho tenant XYZ |
-| `dx-vas-monitoring` | Stack tập trung cho logging, metrics, alerting |
-| `dx-vas-data` | Cloud SQL, GCS, BigQuery dùng chung hoặc phân vùng |
-
-### ☁️ Các công nghệ hạ tầng sử dụng
-- **Cloud Run:** Triển khai serverless cho tất cả services
-- **Cloud SQL:** PostgreSQL (core), MySQL (adapter)
-- **Redis (MemoryStore):** RBAC caching
-- **Cloud Pub/Sub:** Đồng bộ định danh giữa master ↔ tenant
-- **Cloud Monitoring & Logging:** SLO/SLA tracking
-- **Terraform:** Mô hình hoá hạ tầng theo module (`core`, `tenant`, `shared`)
-- **Data Warehouse**
-- **Data Pipeline**
-
-### ☁️ Hạ tầng Dữ liệu & Phân tích (mới)
-
-- **BigQuery** – Data Warehouse chính
-- **ETL/ELT Tools** – Airbyte, dbt, hoặc Cloud Function
-- **Monitoring chi phí & hiệu năng** – theo `ADR-020`
-
-📎 Tham chiếu: [`ADR-027`](./ADR/adr-027-data-management-strategy.md)
-
-📘 Sơ đồ triển khai xem tại: 👉 [Deployment Overview Diagram](./architecture/system-diagrams.md#9-deployment-overview-diagram--sơ-đồ-triển-khai-tổng-quan)
-
-## 12. Admin Webapp - SPA (cấp độ tenant)
-
-Admin Webapp là ứng dụng quản trị nội bộ dành riêng cho từng trường thành viên (tenant). Đây là giao diện chính để giáo viên, nhân viên và ban giám hiệu quản lý hoạt động học tập, vận hành và phối hợp giữa các bộ phận trong trường.
-
-### 🧩 Đặc điểm
-
-- **Triển khai độc lập cho từng tenant:**
-  - Có domain riêng, ví dụ: `admin.abcschool.edu.vn`, `admin.xyzschool.edu.vn`
-  - Kết nối với các service backend riêng: CRM/SIS/LMS Adapter, Sub User Service, Sub Auth Service
-
-- **Đăng nhập:**
-  - Nhân viên, giáo viên sử dụng Google OAuth2 (qua Auth Master)
-  - Một số tenant có thể cho phép Local login (tùy cấu hình Sub Auth Service)
-
-### 🛠 Chức năng chính theo vai trò
-
-- **Giáo viên:**
-  - Quản lý lớp giảng dạy, điểm danh, nhập điểm
-  - Xem thời khóa biểu, nhận thông báo
-  - Gửi phản hồi tới phụ huynh/học sinh
-
-- **Nhân viên học vụ / kế toán:**
-  - Quản lý hồ sơ học sinh
-  - Cập nhật học phí, tình trạng đóng tiền
-  - Thống kê sĩ số, điểm số, báo cáo định kỳ
-
-- **Admin trường (BGH):**
-  - Gán vai trò cho nhân sự trong tenant
-  - Quản lý phân quyền nội bộ (RBAC tenant)
-  - Kết nối CRM/SIS/LMS nếu được phép
-  - Theo dõi nhật ký hoạt động của user trong trường
-
-### 🔒 Phân quyền & bảo mật nội bộ
-
-- Dựa trên RBAC từ **Sub User Service**, quyền được cấp theo vai trò trong từng tenant
-- Backend chỉ xử lý request có `X-Tenant-ID`, `X-User-ID` và `X-Permissions` do API Gateway cấp phát
-- Mọi thao tác quản trị được ghi log và trace theo `tenant_id` để phục vụ audit
-
-📘 Các API backend sử dụng được định nghĩa tại: [`user-service/interface-contract.md`](./services/user-service/interface-contract.md)
-
-## 13. Customer Portal - PWA (cấp độ tenant)
-
-* Giao diện cho phụ huynh và học sinh.
-* Hỗ trợ OTP/Zalo login, cài đặt trên mobile, offline với cache gần nhất.
-* Chế độ offline chỉ cho phép đọc dữ liệu đã được cache trước đó.
-* Đồng bộ lại dữ liệu tự động khi có kết nối mạng.
-
-## 14. CRM – SuiteCRM (cấp độ tenant)
-
-* Quản lý pipeline tuyển sinh.
-* Khi phụ huynh đăng ký nhập học thành công → tự chuyển sang SIS.
-* Giao tiếp qua API Gateway, kiểm soát RBAC.
-* Kế hoạch chuyển đổi cơ chế đồng bộ sang event-driven, dùng Pub/Sub hoặc Redis stream.
-
-## 15. SIS – Gibbon (cấp độ tenant)
-
-* Quản lý học sinh, lớp, điểm danh, học phí.
-* Có export API cho LMS, Portal, Admin Webapp.
-* Lưu vết lịch sử: học lực, lớp học, học bạ.
-* Liên kết phụ huynh – học sinh lưu trong bảng tham chiếu.
-
-## 16. LMS – Moodle (cấp độ tenant)
-
-* Học tập online, giao bài, chấm điểm.
-* SSO với OAuth2.
-* Tự động đồng bộ học sinh từ SIS.
-* Điểm có thể đẩy ngược về SIS.
-
-## 17. Zalo OA & Google Chat
-
-* Gửi thông báo học phí, sự kiện qua Zalo ZNS.
-* Gửi nội bộ (giáo viên, nhân viên) qua Google Chat.
-* Có xử lý lỗi API, quota, timeout.
-* Dự kiến bổ sung cơ chế retry và dashboard kiểm tra trạng thái gửi.
-
-## 18. CI/CD & DevOps
-
-* GitHub Actions / Cloud Build → Cloud Run.
-* Staging + production, rollback.
-* Test tự động: unit, integration, End-to-End (E2E), và contract testing (Pact).
-* Đã áp dụng ADR-003 – secrets được quản lý và rotate định kỳ qua Secret Manager.
-* Dự kiến triển khai Chaos Testing cho các dịch vụ quan trọng.
-
-## 19. Bảo mật & Giám sát
-
-* Mã hóa dữ liệu nhạy cảm.
-* Chống OWASP Top 10, bao gồm CSRF, XSS, SQL Injection.
-* Triển khai xác thực đa yếu tố (MFA) cho các tài khoản quản trị và nhân viên quyền cao.
-* Giám sát xác thực phụ huynh (login rate, reset mật khẩu).
-* Ghi log chi tiết theo người dùng, endpoint, trạng thái.
-
-## 20. Data Migration Plan
-
-* Nếu có hệ thống cũ, dữ liệu sẽ được di chuyển theo lộ trình Blueprint rõ ràng:
-
-  * Mapping bảng dữ liệu
-  * Kiểm tra chất lượng dữ liệu (data quality)
-  * Kiểm thử trước và sau khi migrate
-  * Rollback plan nếu phát hiện lỗi
-  * Hỗ trợ chế độ song song (parallel run)
-
-## 21. Đào tạo & Chuyển giao
-
-* Mỗi nhóm người dùng sẽ có gói đào tạo riêng (nhân viên, giáo viên, học sinh, phụ huynh).
-* Tài liệu bao gồm:
-
-  * Video ngắn
-  * Handout dạng PDF
-  * Demo trực tiếp (live/recorded)
-
-## 22. Tổng kết
-
-Hệ thống chuyển đổi số VAS được thiết kế mở rộng linh hoạt đến 5260 người dùng, hỗ trợ xác thực phân tách giữa người dùng có Workspace (OAuth2) và phụ huynh (Local/OTP), đảm bảo bảo mật, giám sát, phục hồi thảm họa, đào tạo và khả năng phát triển dài hạn.
-
-Toàn bộ các phản hồi chiến lược từ anh Bill đã được đưa vào kế hoạch hành động và roadmap triển khai – đặc biệt các khía cạnh RBAC UI, Data Sync, OTP Security, Offline PWA, DR Planning và Data Migration đã được chuẩn bị cụ thể và ghi nhận trong README.md này như một tài liệu trung tâm sống của dự án.
 
 ---
 
-## Phụ lục A – Danh sách Quyết định Kiến trúc - ADR
+## 2. High-Level Architecture  
 
-Dự án dx-vas sử dụng các Quyết định Kiến trúc (Architecture Decision Records - ADRs) để ghi lại những lựa chọn thiết kế quan trọng về mặt kiến trúc, bao gồm lý do, bối cảnh và các phương án đã được cân nhắc.
-
-📘 Để xem danh sách đầy đủ và chi tiết các ADRs đã được phê duyệt, vui lòng truy cập: 👉 [Danh sách ADRs của dự án](./ADR/index.md)
-
----
-
-## Phụ lục B – Nguyên tắc Kiến trúc Cốt lõi
-
-Hệ thống dx-vas được thiết kế theo các nguyên tắc nền tảng để đảm bảo mở rộng linh hoạt, bảo mật, tối ưu trải nghiệm người dùng và vận hành bền vững:
-
-* **UX-first:** Ưu tiên trải nghiệm người dùng (đặc biệt phụ huynh không rành công nghệ)
-* **Modular-first:** Thiết kế hệ thống dạng microservice – dễ thay thế, triển khai riêng rẽ
-* **Security-by-Design:** Tích hợp bảo mật từ đầu vào thiết kế (CSRF, RBAC, MFA, ký định danh)
-* **Data Consistency > Availability:** Trong môi trường giáo dục, dữ liệu đúng quan trọng hơn phản hồi nhanh
-* **Infra-as-Code:** Hạ tầng và CI/CD đều được mô hình hóa, kiểm soát bằng mã nguồn
-
-### ✨ Bổ sung nguyên tắc cho Multi-Tenant
-
-* **Multi-Tenant by Isolation:**
-  - Mỗi tenant có frontend, adapters, auth và user service riêng
-  - Không chia sẻ database nếu không có cơ chế phân vùng/tenant ID rõ ràng
-  - Cho phép mô hình tách stack theo tenant, đồng thời tận dụng tài nguyên shared core
-
-* **Centralized Identity & Governance:**
-  - Một User Service Master duy nhất là nơi kiểm soát định danh người dùng
-  - Superadmin có toàn quyền điều phối, gán người dùng vào các tenant, quản lý templates RBAC
-  - Mọi stack tenant phải tuân theo chuẩn JWT, RBAC schema và audit định danh
-
-* **Pluggable Tenant Stack:**
-  - Mỗi tenant là một khối độc lập có thể được bật/tắt/destroy mà không ảnh hưởng hệ thống còn lại
-  - Dễ dàng onboarding tenant mới bằng quy trình tự động hóa Terraform + CI/CD
-
-* **Auditability & Traceability Across Tenants:**
-  - Mọi action phân quyền, truy cập, login phải được log theo `tenant_id` + `user_id`
-  - Các thay đổi RBAC, kích hoạt/deactivate người dùng được trace toàn hệ thống
-
-📘 Các quyết định kiến trúc liên quan được mô tả trong:  
-- [ADR-007: RBAC Strategy](./ADR/adr-007-rbac.md)  
-- [ADR-006: Auth Strategy](./ADR/adr-006-auth-strategy.md)  
-- [ADR-019: GCP Project Layout](./ADR/adr-019-project-layout.md)  
-- [ADR-015: Deployment Strategy](./ADR/adr-015-deployment-strategy.md)
-
----
-
-## Phụ lục C – Sơ đồ Kiến trúc
-
-📁 Các sơ đồ kiến trúc hệ thống được lưu trữ và cập nhật chi tiết tại: 👉 [System Diagrams](./architecture/system-diagrams.md)
-
-Tài liệu này bao gồm:
-- Sơ đồ tổng quan hệ thống
-- Sơ đồ kiến trúc multi-tenant
-- Các luồng nghiệp vụ chính (tuyển sinh, thông báo, phân quyền, xác thực…)
-- Sơ đồ vòng đời tài khoản
-- Sơ đồ triển khai hạ tầng trên Google Cloud
-- Chú giải và hướng dẫn đọc sơ đồ
-
-### 🧭 Sơ đồ tổng quan kiến trúc multi-tenant
+## 2.1 Sơ đồ tổng quan (Mermaid) <sup><sub>*Khối màu nhạt = dịch&nbsp;vụ “per tenant”.*</sub></sup>
 
 ```mermaid
+%% =====================  GROUPS  =====================
 flowchart TD
-  %% SUPERADMIN
-  subgraph SuperadminZone [Superadmin Zone]
-    SuperadminWebapp(Superadmin Webapp)
+  %% External channels
+  subgraph ext ["🌐 External IdP & Channels"]
+    GoogleOAuth(Google OAuth2)
+    OTPProv(OTP Provider)
+    EmailSvc(Email Gateway)
+    SMSSvc(SMS Gateway)
   end
 
-  %% TENANT ZONE
-  subgraph Tenant [Per Tenant]
-    subgraph Frontend
-      AdminWebapp(Admin Webapp)
-      CustomerPortal(Customer Portal)
-    end
-
-    subgraph TenantInfra [Services]
-      UserSub(User Service Sub)
-      AuthSub(Auth Service Sub)
-      NotificationSub(Notification Service Sub)
-    end
-
-    subgraph ExternalAdapters [Adapters]
-      CRM
-      SIS
-      LMS
-    end
+  %% Front-end apps
+  subgraph fe ["💻 Frontend Apps"]
+    AdminPortal(Admin Portal)
+    TeacherPortal(Teacher Portal)
+    StudentPortal(Student Portal)
+    ParentPortal(Parent Portal)
   end
 
-  %% CORE SERVICES
-  subgraph CoreServices [Core Services]
-    subgraph Entry
-      %% API GATEWAY
-      APIGateway(API Gateway)
+  %% Core services (shared)
+  subgraph core ["🔧 Core Services (Shared)"]
+    APIGW(API Gateway)
+    TokenSvc(Token Service)
+    AuthM(Auth Master)
+    UserM(User Master)
+    NotifM(Notification Master)
+    ReportSvc(Reporting Service)
+    R[Redis - Revoked<br/>Token Cache]
+    PubSub((Pub / Sub))
+    DataWH[(Data Warehouse)]
+  end
+
+  %% Tenant stack – ví dụ
+  subgraph tenant1 ["🏫 Tenant Stack • ABC School"]
+    subgraph smsgrp ["School Management System (SMS)"]
+      SMS(SMS Backend)
     end
-    UserMaster(User Service Master)
-    AuthMaster(Auth Service Master)
-    NotificationMaster(Notification Service Master)
-    ReportingService(Reporting Service)
-    RedisCache(Redis Cache)
-    MonitoringStack(Monitoring & Audit Stack)
+    AuthSub(Auth Sub ABC)
+    UserSub(User Sub ABC)
+    NotifSub(Notif Sub ABC)
   end
 
-  %% DATA PLATFORM
-  subgraph DataInfra [Data Platform]
-    PubSub(Pub/Sub)
-    ETL(ETL / ELT)
-    DataWarehouse(Data Warehouse - BigQuery)
-  end
+%% =====================  FLOWS  =====================
+  %% 1) Public HTTPS calls
+  AdminPortal -. https .-> APIGW
+  TeacherPortal -. https .-> APIGW
+  StudentPortal -. https .-> APIGW
+  ParentPortal  -. https .-> APIGW
 
-  %% FLOW: SUPERADMIN & GATEWAY
-  SuperadminWebapp -->|API| APIGateway
-  AdminWebapp -->|API| APIGateway
-  CustomerPortal -->|API| APIGateway
+  %% 2) Auth & Token (synchronous)
+  APIGW -->|/login| AuthM
+  AuthM  -->|/token/issue| TokenSvc
+  AuthSub -->|/token/issue| TokenSvc
+  TokenSvc -- JWKS --> APIGW
 
-  %% FLOW: API TO CORE
-  APIGateway --> UserMaster
-  APIGateway --> AuthMaster
-  APIGateway --> NotificationMaster
-  APIGateway --> ReportingService
+  %% 3) Revoked-token path
+  APIGW -->|check revoked| R
+  TokenSvc -->|sync revoked| R
 
-  %% FLOW: API TO TENANT SUB SERVICES
-  APIGateway --> UserSub
-  APIGateway --> AuthSub
-  APIGateway --> NotificationSub
+  %% 4) Core routing (sync API)
+  APIGW ==> UserM
+  APIGW ==> NotifM
+  APIGW ==> ReportSvc
 
-  %% FLOW: SYNC MASTER -> SUB
-  UserMaster -->|Provision user| UserSub
-  AuthMaster -->|Provision account| AuthSub
-  NotificationMaster -->|Sync rule| NotificationSub
+  %% 5) Tenant routing (sync API)
+  APIGW ==> AuthSub
+  APIGW ==> UserSub
+  APIGW ==> NotifSub
+  APIGW ==> SMS
 
-  %% FLOW: TENANT SERVICE TO ADAPTERS (Operational APIs)
-  UserSub --> CRM
-  UserSub --> SIS
-  UserSub --> LMS
+  %% 6) Master → Sub data sync (async Pub/Sub)
+  UserM -- "Async Event" --> PubSub
+  NotifM -- "Async Event" --> PubSub
+  PubSub -- "Async Event" --> UserSub
+  PubSub -- "Async Event" --> NotifSub
 
-  %% FLOW: ANALYTICS PIPELINES (into DW)
-  CRM -->|data sync| ETL
-  SIS -->|data sync| ETL
-  LMS -->|data sync| ETL
-
-  UserSub -->|events| PubSub
-  AuthSub -->|events| PubSub
-  NotificationSub -->|events| PubSub
-
-  UserMaster -->|events| PubSub
-  AuthMaster -->|events| PubSub
-  NotificationMaster -->|events| PubSub
-
-  PubSub --> ETL
-  ETL --> DataWarehouse
-  ReportingService -->|query/report| DataWarehouse
-
-  %% Redis Cache Flow
-  AuthMaster -->|cache session/token| RedisCache
-  UserMaster -->|cache RBAC/profile| RedisCache
-  ReportingService -->|cache aggregated result| RedisCache
-
-  %% Monitoring & Audit Flow
-  AuthMaster -->|audit log| MonitoringStack
-  UserMaster -->|audit log| MonitoringStack
-  NotificationMaster -->|audit log| MonitoringStack
-  ReportingService -->|access log| MonitoringStack
-  APIGateway -->|request log| MonitoringStack
+  %% 7) ELT pipeline
+  SMS -- "ELT Pipeline" --> DataWH
+  ReportSvc ==> DataWH
 ```
 
-📌 **Ý nghĩa sơ đồ**:
+#### 📝 Chú thích quan trọng
 
-* **Gateway** là trung tâm điều phối, phân quyền và định tuyến theo `tenant_id`.
-* Mỗi tenant có **stack riêng biệt hoàn toàn**, độc lập về frontend, adapters và phân quyền nội bộ.
-* Các khối **Master** là dịch vụ dùng chung, duy trì tập trung danh tính, phân quyền mẫu và điều phối toàn hệ thống.
-* Superadmin Webapp tương tác trực tiếp với các dịch vụ Master để điều hành toàn bộ kiến trúc.
+1. **API Gateway** xác thực JWT **offline** qua **JWKS** (RS256); chỉ gọi Token Service khi cần kiểm tra **revoked token** (tra Redis) hoặc các trường hợp đặc biệt.&#x20;
+2. **Redis** lưu cache `revoked_tokens` (TTL 15 phút). Token Service đồng bộ cache mỗi khi thu hồi token.
+3. **User Sub** & **Notif Sub** là **read-replica**; dữ liệu đồng bộ bất đồng bộ từ các service Master qua **Pub/Sub**.
+4. **SMS** là nguồn dữ liệu chính cho báo cáo; dữ liệu được trích xuất vào **Data Warehouse** qua đường **ELT** rồi tiêu thụ bởi **Reporting Service**.&#x20;
+5. **Định nghĩa đường nối**
 
-📘 Để xem đầy đủ các sơ đồ chi tiết hơn (RBAC, Auth, Lifecycle, Sync...), truy cập: [system-diagrams.md](./architecture/system-diagrams.md)
+   * `-. https .->`  : Gọi HTTPS từ frontend bên ngoài
+   * `-->`  : Gọi API đồng bộ nội bộ
+   * `==>`  : Gọi API đồng bộ ưu tiên cao (core routing)
+   * `..>`  : Luồng bất đồng bộ (Pub/Sub, ELT)
 
----
-
-## Phụ lục D – Interface Contracts
-
-Tất cả các dịch vụ trong hệ thống dx-vas đều có tài liệu định nghĩa giao tiếp (Interface Contracts), sử dụng định dạng Markdown mô tả OpenAPI hoặc UI behavior.
-
-📁 Các tài liệu IC được lưu trữ tại thư mục: [`interfaces`](./interfaces/)
-
-| Dịch vụ | Mô tả | File IC |
-|--------|-------|---------|
-| API Gateway | Cổng vào trung tâm của hệ thống, xử lý xác thực và kiểm tra RBAC | [`ic-01-api-gateway.md`](./interfaces/ic-01-api-gateway.md) |
-| Admin Webapp | Ứng dụng quản trị nội bộ cho nhân viên và giáo viên | [`ic-02-admin-webapp.md`](./interfaces/ic-02-admin-webapp.md) |
-| Customer Portal | PWA dành cho phụ huynh và học sinh | [`ic-03-customer-portal.md`](./interfaces/ic-03-customer-portal.md) |
-| Notification Service | Dịch vụ gửi thông báo đa kênh (Web, Email, Zalo, Chat) | [`ic-04-notification.md`](./interfaces/ic-04-notification.md) |
-| CRM Adapter | Giao tiếp với SuiteCRM trong quá trình tuyển sinh | [`ic-05-crm.md`](./interfaces/ic-05-crm.md) |
-| SIS Adapter | Giao tiếp với hệ thống Gibbon SIS | [`ic-06-sis.md`](./interfaces/ic-06-sis.md) |
-| LMS Adapter | Giao tiếp với hệ thống Moodle LMS | [`ic-07-lms.md`](./interfaces/ic-07-lms.md) |
-| Auth Service | Dịch vụ xác thực và phát hành token (OAuth2, OTP) | [`ic-08-auth-service.md`](./interfaces/ic-08-auth-service.md) |
-| User Service | Quản lý người dùng, phân quyền động RBAC, trạng thái hoạt động | [`ic-09-user-service.md`](./interfaces/ic-09-user-service.md) |
-
-📌 Mỗi IC có thể bao gồm:
-- Mô tả các API endpoint hoặc UI behavior chính
-- Các schema (request/response)
-- Quy tắc RBAC áp dụng nếu có
-- Link tham chiếu đến các ADR hoặc schema dùng chung
+> Sơ đồ này phản ánh đầy đủ hai Change Request: **Token Service centralization** và **Tenant Stack/SMS simplification**.
 
 ---
 
-## Phụ lục E – Hướng dẫn đóng góp & phát triển
+### 2.2 Component Groups
 
-* Quy trình pull request & review code tại: `CONTRIBUTING.md`
-* Coding style: theo PEP8 + Black (Python), ESLint (JS)
-* Test coverage yêu cầu: ≥ 85% unit, ≥ 70% integration
-* Luồng CI/CD:
+| Nhóm thành phần | Mô tả ngắn | Ghi chú |
+|-----------------|-----------|---------|
+| **1. External IdP & Channels** | Google OAuth2, OTP Provider, Email/SMS Gateway. | Nằm ngoài hạ tầng dx-vas; được tích hợp qua HTTPS (OAuth2, REST). |
+| **2. Frontend Apps / Portals** | 4 cổng web/mobile: **Admin**, **Teacher**, **Student**, **Parent**. | Gọi API Gateway duy nhất bằng HTTPS. |
+| **3. Core Services (Shared)** | API Gateway, Token Service, Auth Master, User Master, Notification Master, Reporting Service. | Chạy **một cụm** cho toàn hệ thống; chịu tải & tách biệt tenant bằng JWT (`tid`). |
+| **4. Tenant Stack (per tenant)** | School Management System (**SMS**), Auth Sub, User Sub, Notification Sub. | Mỗi tenant có **một** stack; Sub services là **read-replica** đồng bộ qua Pub/Sub. |
+| **5. Infrastructure & Data Plane** | Redis (revoked token cache), Pub/Sub bus, Data Warehouse, Monitoring & Logging stack. | Hỗ trợ bảo mật (JWKS cache, key rotation), observability, ELT báo cáo. |
 
-  1. Push code → CI chạy lint/test/scan
-  2. Merge vào `dev` → Deploy Staging
-  3. Merge vào `main` → Require approval → Deploy Production
+> **Phân tầng rõ ràng** giúp:  
+> • **Isolate** tenant-level logic (stack 4) khỏi vùng shared (stack 3).  
+> • **Giảm coupling** – Token Service & Gateway xử lý xác thực tập trung.  
+> • **Mở rộng** – thêm tenant = triển khai một SMS + ba Sub services, không ảnh hưởng Core.
+
+---
+
+## 3. Authentication Flow
+
+### 3.1 Các thành phần tham gia
+| Actor | Vai trò chính |
+|-------|---------------|
+| **Frontend / Mobile** | Gửi yêu cầu đăng nhập, lưu JWT, gọi API Gateway. |
+| **API Gateway** | Cửa trước duy nhất; xác thực JWT offline bằng JWKS, kiểm tra `revoked_tokens` trong Redis, uỷ quyền RBAC. |
+| **Auth Master** | Xác thực Google OAuth2, ánh xạ tenant, gọi Token Service. |
+| **Auth Sub (per tenant)** | Xác thực Local/OTP, đồng bộ user với Master, gọi Token Service. |
+| **Token Service** | Phát hành / làm mới / thu hồi JWT, đồng bộ cache thu hồi sang Redis, xuất JWKS. |
+| **Redis cache** | Cache `revoked_tokens` (TTL 15′) cho Gateway. |
+
+### 3.2 Trình tự đăng nhập & gọi API
+
+```mermaid
+sequenceDiagram
+    participant FE as Frontend
+    participant APIGW as API Gateway
+    participant AuthM as Auth Master
+    participant AuthSub as Auth Sub
+    participant TokenSvc as Token Service
+    participant Redis as Redis Cache
+
+    FE->>APIGW: POST /login (Google hoặc Local/OTP)
+
+    alt Google OAuth2
+        APIGW->>AuthM: /login/google
+        AuthM->>Google OAuth2: OAuth dance
+        Google OAuth2-->>AuthM: id_token
+    else Local / OTP
+        APIGW->>AuthSub: /login/local|otp
+        AuthSub->>AuthSub: verify pwd / OTP
+    end
+
+    par Lấy RBAC
+        AuthM->>UserSub: GET /rbac (roles, perms)
+        AuthSub->>UserSub: GET /rbac
+    end
+
+    AuthM->>TokenSvc: POST /token/issue
+    AuthSub->>TokenSvc: POST /token/issue
+    TokenSvc-->>AuthM: access + refresh JWT
+    TokenSvc-->>AuthSub: access + refresh JWT
+    AuthM-->>APIGW: 200 JWT
+    AuthSub-->>APIGW: 200 JWT
+    APIGW-->>FE: 200 JWT
+
+    opt Subsequent request
+        FE->>APIGW: GET /api/*
+        APIGW->>APIGW: verify RS256 via JWKS
+        APIGW->>Redis: jti revoked?
+        alt OK
+            APIGW->>Backend: forward
+        else Revoked / edge
+            APIGW->>TokenSvc: POST /token/introspect
+            TokenSvc-->>APIGW: status
+        end
+    end
+```
+
+*Chú thích sơ đồ*
+
+* **JWKS** là cơ chế xác thực **mặc định**; `introspect` chỉ được gọi khi Gateway cần khẳng định token chưa bị thu hồi hoặc gần hết hạn.
+* **Redis** đóng vai trò cache danh sách token bị thu hồi; Token Service đẩy cập nhật ngay khi thu hồi (`POST /token/revoke`).
+* Dữ liệu RBAC lấy từ **User Sub** để nhúng vào JWT; giúp Gateway authorize mà không phải gọi lại database.
+
+### 3.3 Vòng đời JWT
+
+| Giai đoạn      | Mô tả                                                                                   | TTL / Lưu trữ            |
+| -------------- | --------------------------------------------------------------------------------------- | ------------------------ |
+| **Issue**      | Auth Master/Sub gọi `POST /token/issue` → nhận `access` (15 ′) & `refresh` (14 ngày).   | DB (`auth_sessions`)     |
+| **Refresh**    | Client gửi `refresh` token tới `POST /token/refresh` → cấp `access` mới, gia hạn phiên. | —                        |
+| **Revoke**     | Logout / admin gọi `POST /token/revoke` với `jti` hoặc `sid`.                           | DB + Redis               |
+| **Introspect** | Gateway/Service gọi `POST /token/introspect` nếu cần xác minh sâu.                      | Trả `active: true/false` |
+
+### 3.4 Cấu trúc JWT (RS256)
+
+```text
+sub   : user_id_global
+tid   : tenant_id
+roles : ["teacher"]
+perms : ["grade.read", "grade.write"]
+auth_provider : "google" | "local" | "otp"
+jti   : e4c7...  (UUID v4)
+sid   : 9ab0...  (session id)
+exp   : 1717833000
+```
+
+### 3.5 Biện pháp bảo mật bổ sung
+
+* **Rate-limit & CAPTCHA** cho Local/OTP; giới hạn OTP theo IP & user.
+* **Key rotation** ≤ 90 ngày; JWKS cache 10 phút tại Gateway/CDN.
+* **Error code** tuân thủ `namespace.snake_case` (xem ADR-011).
+* **mTLS** cho traffic nội bộ giữa Gateway ↔ Core/Tenant services.
+
+> Phần luồng xác thực này đặt nền tảng cho mọi dịch vụ: JWT cung cấp danh tính & RBAC, còn Gateway bảo vệ biên, giữ latency thấp nhờ xác thực offline.
+
+---
+
+## 4. Token Service & JWT Lifecycle
+> **Nguồn thiết kế** – Change Request **03-cr-token-service**:contentReference[oaicite:0]{index=0} & [ADR-006 – Auth Strategy](./ADR/adr-006-auth-strategy.md) :contentReference[oaicite:1]{index=1}  
+
+### 4.1 Vai trò & Ranh giới tin cậy
+* **Token Service** là micro-service **duy nhất** phát hành, làm mới (*refresh*), thu hồi (*revoke*) và introspect JWT cho toàn bộ platform.  
+* Giữ **private RSA key** (RS256); công khai **JWKS** cho API Gateway xác thực **offline**.  
+* Đồng bộ danh sách token bị thu hồi tới **Redis cache** → Gateway truy vấn cục bộ, chỉ gọi `/token/introspect` khi cache miss hoặc token sắp hết hạn.
+
+### 4.2 API Endpoints
+
+| Method | Path | Mô tả | Đối tượng gọi |
+|--------|------|-------|---------------|
+| `POST` | `/token/issue`        | Phát hành *access* + *refresh* token | **Auth Master / Sub** |
+| `POST` | `/token/refresh`      | Làm mới *access* token khi *refresh* hợp lệ | **Client** |
+| `POST` | `/token/revoke`       | Thu hồi token theo `jti`/`sid` | **Logout / Admin** |
+| `POST` | `/token/introspect`   | Trả `active: true/false` + metadata | **Gateway / Internal** |
+| `GET`  | `/.well-known/jwks.json` | JWKS (public keys) | **Gateway / Services / Clients** |
+
+### 4.3 Key Management 🔑  
+* Thuật toán **RS256**; giữ **2 key** hoạt động song song (`kid=current|next`).  
+* **Luân phiên khóa** tối đa **90 ngày/lần**; triển khai bằng Cloud KMS + GitOps pipeline :contentReference[oaicite:2]{index=2}.  
+* **JWKS** có `Cache-Control: public, max-age=600` – Gateway tải lại tự động mỗi 10 phút.
+
+### 4.4 Cấu trúc JWT & TTL
+
+| Claim | Ý nghĩa | Ví dụ |
+|-------|---------|-------|
+| `sub` | `user_id_global` | `"u-123"` |
+| `tid` | `tenant_id`      | `"tenant-abc"` |
+| `roles`, `permissions` | RBAC | `["teacher"]`, `["grade.read"]` |
+| `auth_provider` | `"google"` / `"local"` / `"otp"` | — |
+| `jti` | Token ID (UUID v4) | `"e4c7..."` |
+| `sid` | Session ID        | `"9ab0..."` |
+| `exp` | Hết hạn ≤ 15′ (access) | `1717833000` |
+
+*Refresh token: TTL 14 ngày, lưu bảng `auth_sessions`.*
+
+### 4.5 Thu hồi token & Redis Cache
+
+```mermaid
+flowchart LR
+  TokenSvc -- "sync revoked (jti)" --> Redis[(Redis<br/>revoked_tokens)]
+  APIGW -- "check jti" --> Redis
+  APIGW -- "introspect (rare)" --> TokenSvc
+```
+
+* **Redis TTL 15 phút** – đủ nhanh để propagation nhưng không quá tải network.
+* Gateway chỉ “rơi về” `/introspect` khi **cache miss** hoặc cần kiểm tra chi tiết phiên (`sid`).
+
+### 4.6 Event Publishing 📡
+
+* Phát sự kiện `token.issued` & `token.revoked` lên **Pub/Sub** → **Audit-Logging** & dashboard “token-per-minute”, “revoked-rate”.
+* Sự kiện tuân thủ schema `token.{issued|revoked}.v1` (tham khảo ADR-030 – Event Schema Governance).
+
+### 4.7 Error Codes
+
+* Tất cả response lỗi bao bọc theo `ErrorEnvelope` (ADR-011).
+* Quy ước `namespace.snake_case`, ví dụ `token.expired`, `session.not_found` – quản lý trong `docs/standards/error-codes.md`.
+
+### 4.8 KPI & Monitoring
+
+| KPI                           | Mục tiêu       | Alert                |
+| ----------------------------- | -------------- | -------------------- |
+| **Token issue latency (p95)** | < 100 ms       | > 200 ms 5′ liên tục |
+| **Revoked-check hit-ratio**   | > 95 % (Redis) | < 90 % 10′ liên tục  |
+| **Key rotation drift**        | ≤ 90 ngày      | 80 ngày → cảnh báo   |
+
+> **Tóm tắt** – Đặt Token Service làm “nhà máy” JWT giúp đảm bảo bảo mật, giảm độ trễ và đơn giản hoá quản lý vòng đời token cho toàn hệ thống.
+
+---
+
+## 5. Tenant Stack & School Management System (SMS)
+
+### 5.1 Khái niệm Tenant Stack
+Mỗi **tenant** (trường) có một **stack** dịch vụ biệt lập, triển khai trên **GCP project riêng** theo chiến lược `dx-vas-tenant-<name>` (xem ADR-015, ADR-019) .  
+Stack bao gồm:
+
+| Lớp | Thành phần | Ghi chú |
+|-----|------------|---------|
+| **Frontend** | **Admin / Teacher / Student / Parent Portal** | 4 portal chuẩn hoá, dùng chung mã nguồn; tuỳ biến theme per tenant :contentReference[oaicite:0]{index=0} |
+| **Backend** | **School Management System (SMS)** | Ứng dụng Docker tích hợp CRM + SIS + LMS; thay thế hoàn toàn 3 adapter cũ  |
+| **Sub Services** | `auth-sub`, `user-sub`, `notif-sub` | *Read-replica* đồng bộ dữ liệu từ các **Master** qua Pub/Sub; chỉ đọc/ghi tối thiểu cho tenant :contentReference[oaicite:1]{index=1} |
+| **Data & Cache** | **MariaDB** (SMS DB), Redis (local), Pub/Sub topic-per-tenant | DB bản địa của SMS (MariaDB Galera cluster) + cache phiên bản hoá (`stack_version`, ADR-025) |
+
+### 5.2 Luồng chính
+1. **Portal** gọi **API Gateway** kèm header `X-Tenant-ID`.  
+2. Gateway định tuyến `/sms/**` tới **SMS** của tenant; chèn thêm header `X-User-ID`, `X-Permissions` để RBAC hoạt động.  
+3. **SMS** phục vụ nghiệp vụ trường (điểm danh, học phí, LMS, v.v.).  
+4. **User-sub** & **Notif-sub** nhận sự kiện từ **User-master** / **Notif-master** qua Pub/Sub → cập nhật DB cục bộ.  
+5. **ELT pipeline** trích xuất dữ liệu SMS → **Data Warehouse**; **Reporting Service** truy vấn DW tạo dashboard đa-tenant .
+
+### 5.3 Lợi ích kiến trúc
+* **Đơn giản hoá vận hành** – Loại bỏ ba adapter, giảm số container per tenant ~ 60 %.  
+* **On-boarding nhanh** – Thêm tenant = deploy một container SMS + 3 sub services (Terraform module “tenant-stack”).  
+* **Trải nghiệm nhất quán** – 4 portal chia sẻ UI/UX và SSO, giảm chi phí hỗ trợ người dùng :contentReference[oaicite:3]{index=3}.  
+* **Tách billing & bảo mật** – Project riêng, log/alert dán nhãn `tenant_id` (ADR-022) :contentReference[oaicite:4]{index=4}.
+
+### 5.4 Chuẩn triển khai & versioning
+* Docker image SMS gắn thẻ `vX.Y.Z`; thông tin `stack_version` lưu trong secret mỗi tenant (ADR-025).  
+* CI/CD hỗ trợ rollout so le; Superadmin Webapp quản lý mapping tenant ↔ version.  
+* Pipeline **terraform + github actions** tự động tạo project, DNS, secrets, certs theo template (ADR-015).  
+
+> **TL;DR** – Tenant Stack mới gói gọn nghiệp vụ trường trong **một** SMS, liên kết an toàn vào khung xác thực & quan sát chung, giúp dx-vas “on-board một trường mới trong vài giờ thay vì vài ngày”.
+
+---
+
+## 6. Core & Business Services
+
+> **Mục tiêu** – Liệt kê các dịch vụ chạy **dùng chung** (Core) và **dịch vụ nghiệp vụ** (Business), kèm đường dẫn tài liệu kỹ thuật (ADR / SDD) để tra cứu chi tiết.
+
+### 6.1 Core Services (Shared)
+
+| # | Service | Mục đích chính | ADR / SDD | Ghi chú |
+|---|---------|----------------|-----------|---------|
+| 1 | **API Gateway** | Cổng vào duy nhất, route & rate-limit, xác thực JWT, gắn RBAC. | ADR-009 – API Governance | Envoy + Lua filter, mTLS nội bộ |
+| 2 | **Token Service** | Phát hành / refresh / revoke JWT, JWKS. | ADR-006 – Auth Strategy; CR-03 | RS256, Redis revoked cache |
+| 3 | **Auth Master** | Đăng nhập Google OAuth2, ánh xạ tenant. | ADR-006 | Stateless; lưu session bên TokenSvc |
+| 4 | **User Master** | Quản lý profile toàn cục, RBAC master. | *SDD-User-Master* (WIP) | Pub/Sub phát sự kiện user.* |
+| 5 | **Notification Master** | Orchestrate gửi email/SMS, quản lý template. | ADR-008 – Audit Logging; ADR-028 – Reporting | Fan-out tới Notif-Sub |
+| 6 | **Reporting Service** | Truy vấn Data Warehouse, sinh dashboard & export. | ADR-028 – Reporting Architecture | Multi-tenant; BigQuery |
+| 7 | **Audit-Logging Service** | Thu thập & ký log truy vết. | ADR-008 | Bắt sự kiện token.*, user.* |
+| 8 | **Cost Observability** | Theo dõi chi phí cloud / tenant. | ADR-020 – Cost Observability | Grafana + Cloud Billing API |
+| 9 | **External Observability** | Giám sát uptime API bên ngoài. | ADR-021 – External Observability | Synthetic probe, SLA report |
+| 10 | **Pub/Sub Bus** | Kênh sự kiện bất đồng bộ. | ADR-030 – Event Schema Gov. | topic=“tenant.*”, schema registry |
+| 11 | **Redis Cluster** | Revoked-token cache + transient data. | ADR-022 – SLO & Monitoring | 3-node, cross-zone |
+
+### 6.2 Business Services (per tenant)
+
+| # | Service | Mục đích | ADR / SDD | Ghi chú |
+|---|---------|---------|-----------|---------|
+| 1 | **School Management System (SMS)** | CRM + SIS + LMS tích hợp. | *SDD-SMS* (WIP) | MariaDB; expose `/sms/**` |
+| 2 | **Auth Sub** | Đăng nhập Local/OTP, sync user. | ADR-006 | Bắt buộc nếu dùng Local/OTP |
+| 3 | **User Sub** | Read-replica profile + RBAC theo tenant. | *SDD-User-Sub* (WIP) | Đồng bộ qua Pub/Sub |
+| 4 | **Notification Sub** | Đẩy thông báo realtime nội bộ tenant. | ADR-008 | Nhận event từ Notif Master |
+| 5 | **Local Redis** | Cache session / OTP temp. | (inherit core pattern) | Chỉ trong tenant VPC |
+
+*Các **adapter cũ** `crm-adapter`, `sis-adapter`, `lms-adapter` **đã ngưng** – thay thế hoàn toàn bởi SMS.*
+
+### 6.3 Cross-cutting & Infrastructure
+
+| Thành phần | Vai trò | Liên quan |
+|------------|---------|-----------|
+| **GitOps / ArgoCD** | Deploy Core + Tenant Stack, môi trường Stage/Prod. | ADR-001 – CI/CD |
+| **Terraform Modules** | Provision VPC, CloudSQL (MariaDB), Secrets, DNS. | ADR-015 – Deployment Strategy |
+| **Data Warehouse (BigQuery)** | Lưu trữ ELT từ SMS, log phân tách theo `tenant_id`. | ADR-028 |
+| **Grafana + Prometheus** | Monitor CPU, latency, SLO dashboard. | ADR-022 |
+| **OpenTelemetry Collector** | Trace & log routing → GCP Cloud Logging. | ADR-021 |
+
+### 6.4 Ưu tiên phát triển (Roadmap)
+
+1. **User Service Master – SDD “Legendary++”** (đang viết) → unlock RBAC advance.  
+2. **SMS OpenAPI** → chuẩn hoá contract, bật code-gen client cho portal.  
+3. **Audit-Logging v2** → blockchain timestamp & zero-trust export.  
+4. **Cost Observability automation** → chargeback dòng tiền per tenant.  
+5. **External Observability SLA dashboard** → public status.truongvietanh.edu.vn.
+
+> **Ghi nhớ:** Mọi dịch vụ mới **phải** tuân thủ bộ **5★ standards** và được ghi lại dưới dạng **ADR + SDD** trước khi triển khai.
+
+---
+
+## 7. Observability & Security
+
+> **Mục tiêu** – Đảm bảo **tính minh bạch (observability)** cho vận hành và **tính an toàn (security)** cho dữ liệu/nguồn lực của toàn hệ thống DX-VAS. Các nguyên tắc bên dưới lấy căn cứ từ:  
+> • `ADR-004 – Security` · `ADR-022 – SLO & Monitoring` · `ADR-020 – Cost Observability` · `ADR-021 – External Observability` · `ADR-011 – API Error Format` · `ADR-003 – Secrets`  
+
+### 7.1 Observability 🔍
+
+| Khía cạnh | Thực hiện | Công cụ / ADR | Cảnh báo & Dashboard |
+|-----------|-----------|---------------|----------------------|
+| **Logging** | Toàn bộ service log theo chuẩn JSON (`trace_id`, `tenant_id`, `level`, `error.code`). | ADR-011 | Cloud Logging + Log-based Metrics; alert `error.rate > 5 %`/5′ |
+| **Metrics** | Prometheus scrape Gateway, Core & Tenant; export qua OTLP. | ADR-022 | Grafana dashboard CPU, latency, p95 |
+| **Tracing** | OpenTelemetry inject vào Gateway → trace xuyên suốt tenant. | ADR-022 | Jaeger UI; cảnh báo span > 3 s |
+| **SLO / SLA** | Each core API khai báo target (e.g., `availability 99.9 %`). | ADR-022 | Alert khi `error_budget` còn < 5 % |
+| **Cost** | Collect GCP Billing + resource tag `tenant_id`. | ADR-020 | “Cost per tenant” / ngày, cảnh báo tăng > 20 % |
+| **External Uptime** | Synthetic probe HTTPS 1′/tenant. | ADR-021 | Public status page; SMS alert downtime > 1′ |
+
+#### 7.1.1 Revoked-Token Hit Ratio
+* **Metric**: `revoked_token_cache_hit_ratio` (Gateway).  
+* **Mục tiêu**: > 95 %. Alert nếu < 90 % liên tục 10 phút → điều tra Redis / sync Token Service.
+
+### 7.2 Security 🛡️
+
+| Thành phần | Biện pháp | ADR / Tài liệu |
+|------------|-----------|----------------|
+| **JWT** | RS256, `kid` double keys, rotation ≤ 90 ngày; JWKS cache 10′. | ADR-006 |
+| **API Gateway** | mTLS nội bộ, WAF rule OWASP top-10, strict CORS. | ADR-004 |
+| **Secrets** | GCP Secret Manager, versioning & rotation CI. | ADR-003 |
+| **RBAC** | Claims `roles`, `permissions` trong JWT; Gateway Enforcer plugin. | ADR-007 |
+| **Data-at-Rest** | Cloud KMS key-encrypted (MariaDB, Redis, BigQuery). | ADR-004 |
+| **Network** | VPC-SC, egress whitelisting, Cloud Armor rate-limit. | ADR-004 |
+| **Audit Log** | Token, user, admin action → Audit-Logging Service (immutable). | ADR-008 |
+| **Error Handling** | `ErrorEnvelope` + `namespace.snake_case`; không lộ PII. | ADR-011 |
+
+#### 7.2.1 Key Rotation & JWKS
+* **Rotation job**: Cloud Build pipeline tạo key mới, gắn `kid=next`, deploy Token Service → sau 24 h xoá key cũ.  
+* **Fallback**: Nếu JWKS fetch lỗi > 3 lần, Gateway cứng chặn traffic (fail-closed).
+
+#### 7.2.2 Pen-test & Compliance
+* **Quarterly** penetration test + SAST/DAST; kết quả lưu **requests/04-cr-tenant-system.md** phụ lục bảo mật.  
+* Tuân thủ **GDPR** cho dữ liệu học sinh & phụ huynh; dữ liệu PII được ẩn danh theo `ADR-024`.
+
+### 7.3 Alert Routing & Escalation
+| Severity | Trigger ví dụ | Thời gian phản hồi | Kênh |
+|----------|---------------|--------------------|------|
+| **P1** | API Gateway 5xx surge > 10 % 2′ | 5′ | PagerDuty → Phone |
+| **P2** | SLO breach dự báo 4 h | 30′ | Slack #sre-alerts |
+| **P3** | Cost ↑ 20 % ngày | 8 h | Email FinOps |
+| **P4** | Log anomaly non-critical | 24 h | Jira ticket |
+
+> **Nguyên tắc vàng**: “Bạn không thể bảo vệ điều bạn không quan sát được.” – Observability & Security phải song hành để DX-VAS vận hành tin cậy, tuân thủ, và tối ưu chi phí.
+
+---
+
+## 8. CI/CD & Deployment
+
+> Cơ chế **CI/CD** của DX-VAS áp dụng triệt để triết lý **“Everything-as-Code”** và **GitOps**, bảo đảm triển khai **Zero-Downtime** theo `ADR-014`, ủy quyền phát hành rõ ràng theo `ADR-018`, và hạ tầng bất biến theo `ADR-002` & `ADR-015`.
+
+### 8.1 Nhánh mã & Chính sách PR
+| Nhánh | Mục đích | Bảo vệ |
+|-------|----------|--------|
+| `main` | Mã đã QA, sẵn sàng production | PR bắt buộc 2 reviewer + pass check |
+| `develop` | Hội tụ feature; deploy **Staging** tự động | PR 1 reviewer |
+| `feature/*` | Tính năng / bugfix | Run CI unit-test |
+
+### 8.2 Pipeline CI (GitHub Actions)
+1. **Checkout + Cache**  
+   `actions/checkout@v4` → thiết lập cache pnpm / poetry.
+2. **Static Analysis & SCA**  
+   - **SAST** (SonarQube) – fail nếu *critical*.  
+   - **Dependency CVE** (Dependabot).  
+3. **Unit & Contract Test**  
+   - Python/PyTest + Coverage ≥ 85 %.  
+   - **Contract-Testing** theo `ADR-010` (PactFlow).  
+4. **Build & SBOM**  
+   - Docker multi-arch (`linux/amd64, arm64`).  
+   - Tạo **SBOM CycloneDX**; push Artifact Registry.  
+5. **Image Scan** (GCP Container Analysis) – block CVE “High”.
+6. **Publish**  
+   - Tag `main` ⇒ `vX.Y.Z` (semantic-release).  
+   - Upload Helm chart → **Helm Repo**.
+
+### 8.3 Pipeline CD (Argo CD + Terraform Cloud)
+| Pha | Công cụ | Điều kiện / Phê duyệt |
+|-----|---------|-----------------------|
+| **Infra-Provision** | Terraform Cloud | PR trên *infra repo* → auto-plan, **Manual Approve** |
+| **Staging Deploy** | Argo CD (sync-wave 0) | Auto nếu container tag `v*` push lên `develop` |
+| **Integration Test** | GitHub Action + Postman | Pass 95 % → ghi chú vào PR |
+| **Release Approval** | Argo CD wave “prod-canary” | Yêu cầu **Product Owner + SRE** (theo `ADR-018`) |
+| **Canary 10 %** | Argo Rollouts | 15 min metric check (latency / error rate) |
+| **Full Ramp-Up** | Argo Rollouts | Auto nếu canary stable |
+| **Rollback** | Argo Rollouts `rollback` | < 2 min; traffic switch 100 → previous |
+
+### 8.4 Zero-Downtime & Chiến lược Triển khai
+* **Canary Rollout** (default) – 10 → 25 → 50 → 100 %.  
+* **Blue-Green** – dùng cho migration DB lớn (flag `strategy=bluegreen`).  
+* **Schema Migration** – **GitOps-DB** chạy `flyway` job → version-controlled (ADR-023).  
+* **Auto-Scaling** – HPA theo p95 latency & CPU (ADR-016).  
+* **Env Deploy Boundary** – Staging và Prod tách VPC, project (GCP) (ADR-017).
+
+### 8.5 Tenant On-Boarding Pipeline
+```mermaid
+flowchart LR
+  A[Create Tenant PR] --> B[Terraform Cloud<br/>plan/apply<br/>(project, VPC, MariaDB)]
+  B --> C[DNS & Cert bot]
+  C --> D[Argo CD<br/>sync tenant stack<br/>(SMS + Sub services)]
+  D --> E[API Gateway auto-route<br/>`/sms/{tenant}`]
+  E --> F[Smoke Test suite]
+```
+
+* **Thời gian**: \~ 25 phút/tenant (99-percentile).
+* **Output**: Slack thông báo “Tenant *abc* ready 🎉”.
+
+### 8.6 Quản lý Cấu hình & Secrets
+
+* **ADR-005** – cấu hình qua **ConfigMap/Secret** phân tách `env` và `tenant`.
+* **ADR-003** – Secrets (RSA key, OTP provider) lưu **GCP Secret Manager** với rotation cron.
+
+### 8.7 Kiểm soát Chi phí & Carbon
+
+* **FinOps Job** chạy mỗi đêm: truy vấn Cloud Billing API → BigQuery → Grafana “Cost/Tenant/Service”.
+* Cảnh báo Slack khi chi phí chệch > 20 % so với trung bình 7 ngày.
+
+### 8.8 Sơ đồ luồng CI/CD tổng quan
+
+```mermaid
+graph TB
+  Dev -->|PR| GitHub
+  GitHub -->|CI pass| ArtifactRegistry
+  ArtifactRegistry -->|tag main| ArgoCD
+  ArgoCD -->|sync| Staging
+  Staging -->|integration ok| ArgoGate[Release Approval]
+  ArgoGate -->|canary| ProdCanary
+  ProdCanary -->|auto promote| Prod
+  Prod -->|metrics| Grafana
+```
+
+> **Nguồn tham chiếu:**
+> • `ADR-001 – CI/CD` · `ADR-014 – Zero-Downtime` · `ADR-015 – Deployment Strategy` · `ADR-018 – Release Approval Policy`
+> • Terraform module `tenant-stack` · Helm chart `dx-vas-core`.
+
+---
+
+## 9. Data & Reporting
+
+> Phần này trình bày cách **DX-VAS** thu thập, lưu trữ, quản trị và khai thác dữ liệu — từ **SMS** của từng tenant, qua **ELT pipeline**, vào **Data Warehouse**, và cuối cùng hiển thị báo cáo. Các quyết định thiết kế dựa trên:  
+> • `ADR-023 Schema Migration` :contentReference[oaicite:0]{index=0} · `ADR-024 Data Anonymization & Retention` :contentReference[oaicite:1]{index=1} · `ADR-026 Hard Delete Policy` :contentReference[oaicite:2]{index=2} · `ADR-027 Data Management Strategy` :contentReference[oaicite:3]{index=3} · `ADR-028 Reporting Architecture` :contentReference[oaicite:4]{index=4} · `ADR-029 Report Template Schema` :contentReference[oaicite:5]{index=5} · `ADR-030 Event Schema Governance` :contentReference[oaicite:6]{index=6}
+
+### 9.1 Nguồn dữ liệu gốc (Source-of-Truth)
+| Nguồn | Công nghệ | Phân vùng |
+|-------|-----------|-----------|
+| **SMS DB (per tenant)** | **MariaDB** Galera cluster | 1 schema/tenant |
+| **Event Bus** | Pub/Sub topic `tenant.*` | Schema version =`v1` |
+| **Audit Log** | Cloud Logging → BigQuery | Bảng `audit_log_*` (partition date) |
+
+### 9.2 ELT Pipeline (near-real-time)
+```mermaid
+flowchart LR
+  SMS_MariaDB((MariaDB)) -->|Debezium<br/>CDC| DataLake[(Cloud Storage<br/>Parquet Staging)]
+  DataLake -->|Dataflow<br/>transform| BQ[BigQuery<br/>Data Warehouse]
+  PubSub((Pub/Sub)) -->|Stream<br/>Dataflow| BQ
+```
+
+* **Extract**: Debezium CDC dump **insert/update/delete** mỗi tenant vào Cloud Storage (Parquet).
+* **Load**: Scheduled Dataflow job nạp incremental vào **BigQuery** staging.
+* **Transform**: dbt chạy nightly tạo **Data Mart** (`fct_enrolment`, `dim_student`, v.v.).
+* **Latency mục tiêu**: < 5 phút cho sự kiện, < 30 phút cho batch.
+
+### 9.3 Thiết kế Data Warehouse
+
+| Layer       | Chi tiết                               | Partition / Cluster                 |
+| ----------- | -------------------------------------- | ----------------------------------- |
+| **Raw**     | 1 bảng thô / table\_source / tenant    | `tenant_id`, `_PARTITIONDATE`       |
+| **Staging** | Chuẩn hoá kiểu dữ liệu, thêm `load_ts` | như Raw                             |
+| **Mart**    | Fact / Dim theo Kimball (star schema)  | cluster `tenant_id` & business\_key |
+| **Sandbox** | Export dataset cho ML / BI             | ACL theo RBAC (teacher, admin)      |
+
+> **Retention**: Raw = 30 ngày (xem `ADR-024`); Mart giữ 5 năm, bản ghi PII được ẩn danh (hash + salt).
+
+### 9.4 Báo cáo & BI
+
+* **Reporting Service** đọc Mart, sinh **dashboard multi-tenant** (Grafana, Superset).
+* Mỗi báo cáo tuân thủ **template JSON Schema** v1.0 (định nghĩa tại `ADR-029`).
+* **Public API** `/reports/:id/export` trả về CSV / Parquet; Gateway gắn header `X-Tenant-ID`.
+
+### 9.5 Data Governance & Compliance
+
+| Chính sách            | Nội dung then chốt                                                                | ADR |
+| --------------------- | --------------------------------------------------------------------------------- | --- |
+| **Schema Versioning** | Mọi event/bảng có `schema_version` theo `adr-030`; backward-compatible ≥ 6 tháng. | 030 |
+| **Migration**         | Flyway `V__` script, PR review bắt buộc (`adr-023`).                              | 023 |
+| **Anonymization**     | Hash + salt cho PII; dạy dữ liệu demo qua `synthetic_*` view.                     | 024 |
+| **Hard Delete**       | TTL API `/delete` → soft flag, job purge sau 30 ngày.                             | 026 |
+| **Data Lifecycle**    | Tier S3→Nearline→Coldline ≥ 3 năm; policy BQ partition expire.                    | 027 |
+
+### 9.6 Quan sát & SLA dữ liệu
+
+| Metric                     | Mục tiêu               | Alert                         |
+| -------------------------- | ---------------------- | ----------------------------- |
+| **ELT lag (p95)**          | < 10 phút              | > 20 phút 15′                 |
+| **Data Quality test pass** | = 100 %                | bất kỳ lỗi Great Expectations |
+| **Warehouse cost/tenant**  | +≤ 15 % so với 30 ngày | Slack FinOps daily            |
+
+### 9.7 Tích hợp Event Schema Governance
+
+* Mọi sự kiện `*.*.v1` phải đăng ký schema Avro trong **Schema Registry** (`ADR-030`).
+* Pipeline Dataflow validate schema ID trước khi nạp vào BigQuery; sai lệch → gửi `error.code=data.schema_mismatch`.
+
+> Nền tảng dữ liệu DX-VAS được dựng để **dễ mở rộng**, **tuân thủ** (GDPR) và **tối ưu chi phí** — bảo đảm mỗi tenant truy cập báo cáo kịp thời mà không ảnh hưởng dữ liệu tenant khác.
+
+---
+
+## 10. ADR & CR Index
+
+### 10.1 Architecture Decision Records (ADR)
+
+| ID  | Tên / Chủ đề | Đường dẫn |
+|----|--------------|-----------|
+| 001 | CI/CD & GitOps Pipeline | [adr-001-ci-cd.md](./ADR/adr-001-ci-cd.md) |
+| 002 | Infrastructure-as-Code (Terraform) | [adr-002-iac.md](./ADR/adr-002-iac.md) |
+| 003 | Secrets Management & Key Rotation | [adr-003-secrets.md](./ADR/adr-003-secrets.md) |
+| 004 | Security Principles & Trust Boundary | [adr-004-security.md](./ADR/adr-004-security.md) |
+| 005 | Environment Configuration Strategy | [adr-005-env-config.md](./ADR/adr-005-env-config.md) |
+| 006 | Auth Strategy & Token Service | [adr-006-auth-strategy.md](./ADR/adr-006-auth-strategy.md) |
+| 007 | Role-Based Access Control (RBAC) | [adr-007-rbac.md](./ADR/adr-007-rbac.md) |
+| 008 | Audit Logging | [adr-008-audit-logging.md](./ADR/adr-008-audit-logging.md) |
+| 009 | API Governance & Style | [adr-009-api-governance.md](./ADR/adr-009-api-governance.md) |
+| 010 | Contract Testing | [adr-010-contract-testing.md](./ADR/adr-010-contract-testing.md) |
+| 011 | API Error Format (ErrorEnvelope) | [adr-011-api-error-format.md](./ADR/adr-011-api-error-format.md) |
+| 012 | Standard Response Structure | [adr-012-response-structure.md](./ADR/adr-012-response-structure.md) |
+| 013 | Path Naming Convention | [adr-013-path-naming-convention.md](./ADR/adr-013-path-naming-convention.md) |
+| 014 | Zero-Downtime Deployment | [adr-014-zero-downtime.md](./ADR/adr-014-zero-downtime.md) |
+| 015 | Deployment Strategy & Boundary | [adr-015-deployment-strategy.md](./ADR/adr-015-deployment-strategy.md) |
+| 016 | Auto-Scaling Policy | [adr-016-auto-scaling.md](./ADR/adr-016-auto-scaling.md) |
+| 017 | Environment Deploy Boundary | [adr-017-env-deploy-boundary.md](./ADR/adr-017-env-deploy-boundary.md) |
+| 018 | Release Approval Policy | [adr-018-release-approval-policy.md](./ADR/adr-018-release-approval-policy.md) |
+| 019 | Project Layout Standard | [adr-019-project-layout.md](./ADR/adr-019-project-layout.md) |
+| 020 | Cost Observability | [adr-020-cost-observability.md](./ADR/adr-020-cost-observability.md) |
+| 021 | External Observability & SLA | [adr-021-external-observability.md](./ADR/adr-021-external-observability.md) |
+| 022 | SLA / SLO Monitoring | [adr-022-sla-slo-monitoring.md](./ADR/adr-022-sla-slo-monitoring.md) |
+| 023 | Schema Migration Strategy | [adr-023-schema-migration-strategy.md](./ADR/adr-023-schema-migration-strategy.md) |
+| 024 | Data Anonymization & Retention | [adr-024-data-anonymization-retention.md](./ADR/adr-024-data-anonymization-retention.md) |
+| 025 | Multi-Tenant Versioning | [adr-025-multi-tenant-versioning.md](./ADR/adr-025-multi-tenant-versioning.md) |
+| 026 | Hard-Delete Policy | [adr-026-hard-delete-policy.md](./ADR/adr-026-hard-delete-policy.md) |
+| 027 | Data Management Strategy | [adr-027-data-management-strategy.md](./ADR/adr-027-data-management-strategy.md) |
+| 028 | Reporting Architecture | [adr-028-reporting-architecture.md](./ADR/adr-028-reporting-architecture.md) |
+| 029 | Report Template Schema | [adr-029-report-template-schema.md](./ADR/adr-029-report-template-schema.md) |
+| 030 | Event Schema Governance | [adr-030-event-schema-governance.md](./ADR/adr-030-event-schema-governance.md) |
+
+---
+
+### 10.2 Change Requests (CR)
+
+| Mã CR | Mô tả ngắn | Đường dẫn |
+|-------|------------|-----------|
+| 03-CR | Giới thiệu **Token Service**, chuẩn hóa JWT lifecycle | [03-cr-token-service.md](./requests/03-cr-token-service.md) |
+| 04-CR | **Tenant Stack** simplification & School Management System | [04-cr-tenant-system.md](./requests/04-cr-tenant-system.md) |
+
+> **Ghi chú:**  
+> * **ADR** = quyết định kiến trúc lâu dài; **CR** = thay đổi lớn được phê duyệt sau giai đoạn thiết kế chi tiết.  
+> * Mọi PR mới thay đổi kiến trúc **phải** kèm ADR / CR tương ứng trước khi merge vào `main`.
+
+---
+
+## 11. Standards & Conventions
+
+> **Mục đích** – Bảo đảm **mọi thành phần** của DX-VAS tuân thủ một bộ quy ước thống nhất về thiết kế dịch vụ, dữ liệu, API, mã lỗi, versioning và style code, giúp **giảm sai sót**, **dễ bảo trì** và **đồng nhất trải nghiệm**.
+
+### 11.1 Bộ tiêu chuẩn “5★” (5-Star Standards)
+
+| ⭐ | Tài liệu | Phạm vi | Bắt buộc |
+|----|---------|---------|----------|
+| ⭐1 | [5s.service.design.standard.md](./standards/5s.service.design.standard.md) | Chiến lược service, boundary, SLA, deploy | ✔ |
+| ⭐2 | [5s.data.model.standard.md](./standards/5s.data.model.standard.md) | Quy tắc đặt tên bảng/field, khoá ngoại, index | ✔ |
+| ⭐3 | [5s.interface.contract.doc.standard.md](./standards/5s.interface.contract.doc.standard.md) | Cách viết tài liệu Interface Contract (IC) | ✔ |
+| ⭐4 | [5s.openapi.standard.md](./standards/5s.openapi.standard.md) | Quy định OpenAPI (tags, schemas, examples) | ✔ |
+| ⭐5 | **Security Appendix** (trong ⭐1) | OWASP, mTLS, key rotation | ✔ |
+
+> **Check-list CI**: PR nào chứa file IC/OpenAPI sẽ chạy **linter 5★** – fail nếu vi phạm.
+
+### 11.2 Error Codes & Envelope
+
+| Quy chuẩn | Đường dẫn | Ghi chú |
+|-----------|-----------|---------|
+| **ErrorEnvelope** | ADR-011 | Field `error`, `meta` bắt buộc |
+| **Danh mục mã lỗi** | [error-codes.md](./standards/error-codes.md) | Đặt tên `namespace.snake_case` (vd: `token.expired`) |
+| **Thêm mã lỗi mới** | Update PR vào file trên + reviewer “Tech Lead API” | Không trùng namespace |
+
+### 11.3 Naming & Versioning
+
+| Thực thể | Quy tắc chính | ADR / Standard |
+|----------|---------------|----------------|
+| **API Path** | `/resource/{id}`, verb = HTTP; **không** “/getFoo” | ADR-013 |
+| **Event** | `domain.action.v{major}` – vd: `token.issued.v1` | ADR-030 |
+| **Docker Image** | `service:MAJOR.MINOR.PATCH` (SemVer) | ADR-015 |
+| **Tenant Stack** | `dx-vas-tenant-<slug>` (lower-kebab) | ADR-019 |
+| **Branch Git** | `feature/<ticket>`, `fix/<ticket>` | ADR-001 |
+| **DB Migration** | `V<yyyyMMddHHmm>__<desc>.sql` (Flyway) | ADR-023 |
+
+### 11.4 Style Guide (Code & Docs)
+
+| Ngôn ngữ | Linter / Formatter | Rule nổi bật |
+|----------|-------------------|--------------|
+| **Python** | ruff + black | max-line 120, type-hint bắt buộc |
+| **TypeScript** | eslint + prettier | strictNullChecks, import alias `@/` |
+| **Terraform** | `terraform fmt` + tflint | module version lock |
+| **SQL (MariaDB)** | sqlfluff (`ansi`) | snake_case table/column |
+| **Markdown** | markdownlint | ATX heading, table alignment |
+| **Mermaid** | kroki validate | phải kèm chú thích key đường nối |
+
+> **Docs-as-Code**: Mọi tài liệu (ADR, SDD, IC) lưu trong Git, PR review = code.
+
+### 11.5 Kiểm tra tuân thủ (CI Checks)
+
+1. **5★ Linter** – validate OpenAPI & IC.  
+2. **Schema Registry** – event Avro ID phải khớp ADR-030.  
+3. **SBOM & CVE Scan** – block CVE High/critical.  
+4. **Error code validator** – compare `error.code` xuất hiện trong OpenAPI với danh sách chuẩn.  
+
+### 11.6 Ngoại lệ & Quy trình phê duyệt
+
+* Ngoại lệ **hiếm** (P0 deadline, legacy) ⇒ tạo **RFC** kèm justification, gắn label `standards-waiver`, review bởi **Architecture Board**.  
+* Sau 60 ngày, **waiver** hết hạn; service phải retrofit về đúng chuẩn.
+
+> **Nhắc lại** – “Consistency is speed.” Tuân thủ bộ chuẩn trên giúp đội ngũ DX-VAS **ship nhanh hơn** mà không đánh đổi chất lượng hoặc an toàn.
+
+---
+
+## 12. Appendix
+
+### 12.1 Thuật ngữ (Glossary)
+
+| Thuật ngữ | Định nghĩa ngắn |
+|-----------|-----------------|
+| **Tenant** | Một cơ sở/trường sử dụng DX-VAS; tách biệt bằng `tenant_id`. |
+| **Tenant Stack** | Nhóm dịch vụ cục bộ của tenant: SMS + Auth/User/Notif Sub + DB/Cache. |
+| **SMS (School Management System)** | Backend tích hợp CRM + SIS + LMS cho từng tenant. |
+| **JWT (JSON Web Token)** | Chuỗi ký RS256 mang claim `sub`, `tid`, `roles`, v.v. |
+| **JWKS** | Tập public key (JSON) để Gateway xác thực chữ ký JWT. |
+| **Token Service** | Micro-service phát hành, làm mới, thu hồi JWT. |
+| **RBAC** | Role-Based Access Control – uỷ quyền dựa trên `roles` / `permissions`. |
+| **ADR** | Architecture Decision Record – quyết định kiến trúc dài hạn. |
+| **CR** | Change Request – thay đổi lớn sau giai đoạn phân tích. |
+| **ELT** | Extract-Load-Transform pipeline trích xuất dữ liệu vào DW. |
+| **DW (Data Warehouse)** | BigQuery chứa dữ liệu phân tích nhiều tenant. |
+| **Pub/Sub** | Hàng đợi sự kiện bất đồng bộ của Google Cloud. |
+| **SLO / SLA** | Service Level Objective / Agreement – cam kết chất lượng dịch vụ. |
+| **ErrorEnvelope** | Cấu trúc JSON chuẩn để trả lỗi (`error`, `meta`). |
+
+### 12.2 Danh bạ (Contacts)
+
+| Vai trò | Tên / Nhóm | Liên hệ |
+|---------|------------|---------|
+| **Chief Architect** | John Ng. | `john.ng@dx-vas.io` |
+| **SRE Lead** | Linh P. | `sre@dx-vas.io` |
+| **Product Owner** | Ms. Thu H. | `po@dx-vas.io` |
+| **Architecture Board** | `#arch-board` Slack channel | Họp thứ 5 hàng tuần |
+| **Incident Hotline** | PagerDuty (P1) | `+84 28 7100 xxxx` |
+
+*(Địa chỉ email/điện thoại chỉ là ví dụ; cập nhật khi áp dụng thực tế.)*
+
+### 12.3 Changelog (Tóm tắt)
+
+| Phiên bản | Ngày | Thay đổi chính |
+|-----------|------|----------------|
+| **v2-draft** | 2025-06-09 | *Tạo skeleton README.v2.md* – cấu trúc 12 mục. |
+| **v2-beta** | 2025-06-10 | Tích hợp **Token Service CR-03** & **Tenant Stack CR-04**.<br>Viết lại Vision, Architecture, Auth Flow, Token, SMS. |
+| **v2-rc1** | 2025-06-11 | Hoàn tất Observability, CI/CD, Data, Standards, Glossary. |
+
+> **Lưu ý:** Changelog chỉ ghi **thay đổi ở cấp kiến trúc/tài liệu**. Thay đổi code chi tiết xem Git commit history.
+
+### 12.4 Tài liệu bổ sung
+
+| Chủ đề | Liên kết |
+|--------|---------|
+| **Diagrams (SVG/PNG)** | `docs/diagrams/` |
+| **Service Design Docs (SDD)** | `docs/services/index.md` |
+| **API Reference (OpenAPI)** | `docs/openapi/` *(auto-generated)* |
+| **Runbooks & Playbooks** | `ops/runbook/` |
+| **Governance RFCs** | `docs/rfc/` |
+
+---
+
+> *DX-VAS Platform Documentation v2.*  
+> Phát hành theo giấy phép nội bộ; không sao chép khi chưa có sự đồng ý bằng văn bản.
+
+---
