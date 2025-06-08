@@ -1,11 +1,13 @@
 ---
 title: Thiết kế chi tiết Token Service
-version: "1.0"
-last_updated: "2025-06-08"
+version: "1.4"
+last_updated: "2025-06-09"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
 # 📦 Token Service – Thiết kế Kiến trúc chi tiết
+
+<!-- toc -->
 
 ---
 
@@ -35,12 +37,30 @@ reviewed_by: "Stephen Le"
 
 | Method | Endpoint               | Mô tả ngắn                  |
 |--------|------------------------|-----------------------------|
-| POST   | `/token`               | Sinh mới access & refresh token |
-| POST   | `/token/refresh`       | Làm mới access token từ refresh |
-| POST   | `/token/introspect`    | Kiểm tra hợp lệ của JWT    |
-| POST   | `/token/revoke`        | Thu hồi token theo jti     |
+| POST   | `/v1/token`            | Sinh mới access & refresh token |
+| POST   | `/v1/token/refresh`    | Làm mới access token từ refresh |
+| POST   | `/v1/token/introspect` | Kiểm tra hợp lệ của JWT    |
+| POST   | `/v1/token/revoke`     | Thu hồi token theo jti     |
 | GET    | `/jwks.json`           | JWKS public keys cho Gateway |
-| GET    | `/token/info`          | Lấy metadata của access token |
+| GET    | `/v1/token/info`          | Lấy metadata của access token |
+
+**HTTP Status ↔ Error-code matrix**
+
+| HTTP | error.code                   | Khi nào xảy ra    |
+| ---- | ---------------------------- | ----------------- |
+| 400  | `common.validation_failed`   | Body schema sai   |
+| 401  | `auth.invalid_credentials`   | Refresh token sai |
+| 403  | `token.revoked`              | Token bị thu hồi  |
+| 409  | `token.rotation_in_progress` | Key đang rollover |
+| 422  | `common.validation_error`    | JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ                |
+| 429  | `common.rate_limited`        | Vượt ngưỡng RPS/burst (theo ADR-022)   
+| 500  | `common.internal_error`      | Không mong đợi    |
+
+> **Quy ước path versioning**  
+> Mọi endpoint của Token Service tuân định dạng **`/v{major}/…`** – ví dụ  
+> `/v1/token`, `/v1/token/refresh`. Quy tắc này lấy từ **ADR-009 (API Governance)**  
+> và **ADR-013 (Path Naming Convention)** để đảm bảo khả năng thay đổi phiên bản mà  
+> không phá vỡ client.
 
 > **Chi tiết:** [Interface Contract](./interface-contract.md) & [OpenAPI](./openapi.yaml)
 
@@ -81,8 +101,20 @@ erDiagram
         timestamp created_at "Thời điểm phát hành"
     }
 
-    REVOKED_TOKENS ||--|| TOKEN_STATS : liên_kết_qua_jti
+    REVOKED_TOKENS ||--o| TOKEN_STATS : liên_kết_qua_jti
 ```
+
+> Một revoked_token có thể không sinh bản ghi token_stats nếu enable_token_stats = false.
+
+### Data retention & hard-delete  
+*(tuân ADR-024 Data Anonymization & Retention - và ADR-026 Hard-Delete Policy)*
+
+| Bảng / Tập dữ liệu | TTL | Xử lý sau TTL |
+|--------------------|-----|---------------|
+| `revoked_tokens`   | **30 ngày** | Cron `purge_revoked` chạy hằng đêm, **DROP** bản ghi quá hạn. |
+| `token_stats`      | **90 ngày** | Job `anonymize_token_stats` → hash `user_id`, ẩn danh PII, rồi **DELETE** bản gốc. |
+
+> Các job purge/anonymize ghi log vào `audit_log.purge_history` và phát sự kiện `data.purged.v1` để đáp ứng nghĩa vụ GDPR.
 
 🧩 *Lưu ý*:
 
@@ -250,7 +282,7 @@ Token Service không chỉ là thành phần phục vụ Auth Service Sub trong 
 
 ---
 
-### 1. Giao tiếp chính giữa các Service
+### 5.1. Giao tiếp chính giữa các Service
 
 | Service              | Endpoint                  | Mục đích                                                  |
 |----------------------|----------------------------|-----------------------------------------------------------|
@@ -263,21 +295,21 @@ Token Service không chỉ là thành phần phục vụ Auth Service Sub trong 
 
 ---
 
-### 2. Giao tiếp với hệ thống Pub/Sub
+### 5.2. Giao tiếp với hệ thống Pub/Sub
 
 Token Service **bắt buộc phát hành các sự kiện chuẩn lên Pub/Sub** để các thành phần như Audit Logging, Security Analytics, hoặc các hệ thống Realtime Alert có thể xử lý tiếp.
 
 | Event Name               | Trigger                                   | Description |
 |--------------------------|-------------------------------------------|-------------|
-| `token.issued`           | Khi cấp token mới                         | Thông tin metadata của access token và session |
-| `token.revoked`          | Khi một token bị thu hồi                  | Truy dấu sự kiện bảo mật |
-| `token.introspected.fail` | Khi kiểm tra token thất bại              | Phát hiện token giả mạo hoặc sai lệch cấu trúc |
+| `token.issued.v1`           | Khi cấp token mới                         | Thông tin metadata của access token và session |
+| `token.revoked.v1`          | Khi một token bị thu hồi                  | Truy dấu sự kiện bảo mật |
+| `token.introspect_fail.v1` | Khi kiểm tra token thất bại              | Phát hiện token giả mạo hoặc sai lệch cấu trúc |
 
 #### 🔶 Cấu trúc payload mẫu `token.revoked`
 
 ```json
 {
-  "event": "token.revoked",
+  "event": "token.revoked.v1",
   "timestamp": "2025-06-07T12:34:56Z",
   "tenant_id": "vas001",
   "user_id": "user-123",
@@ -293,7 +325,7 @@ Token Service **bắt buộc phát hành các sự kiện chuẩn lên Pub/Sub**
 
 ```json
 {
-  "event": "token.issued",
+  "event": "token.issued.v1",
   "timestamp": "2025-06-07T12:00:00Z",
   "tenant_id": "vas001",
   "user_id": "user-123",
@@ -310,7 +342,7 @@ Token Service **bắt buộc phát hành các sự kiện chuẩn lên Pub/Sub**
 
 ---
 
-### 3. Kiến trúc triển khai Pub/Sub
+### 5.3. Kiến trúc triển khai Pub/Sub
 
 ```mermaid
 graph TD
@@ -325,7 +357,7 @@ graph TD
 
 ---
 
-### 4. Lưu vết trong Audit Logs
+### 5.4. Lưu vết trong Audit Logs
 
 Ngoài việc phát Pub/Sub, Token Service **cũng sẽ gửi bản sao log nội bộ đến `audit-logging-service`** qua cơ chế chuẩn của toàn hệ thống.
 
@@ -355,19 +387,19 @@ TokenService là tuyến phòng thủ đầu tiên và đóng vai trò trung tâ
 
 ---
 
-### 1. Cơ chế bảo vệ endpoint
+### 6.1. Cơ chế bảo vệ endpoint
 
-| Endpoint                     | Cơ chế bảo vệ                                           |
-|-----------------------------|---------------------------------------------------------|
-| `POST /token`               | Yêu cầu chứng thực thành công từ `auth-service/sub`    |
-| `POST /refresh`             | Kiểm tra refresh token hợp lệ, không bị thu hồi        |
-| `POST /revoke`              | Xác thực token hoặc JTI; kiểm tra session ownership    |
-| `POST /introspect`          | Yêu cầu xác thực và phân quyền (dành cho nội bộ)       |
+| Endpoint                    | Cơ chế bảo vệ                                          |
+|-----------------------------|--------------------------------------------------------|
+| `POST /v1/token`            | Yêu cầu chứng thực thành công từ `auth-service/sub`    |
+| `POST /v1/token/refresh`    | Kiểm tra refresh token hợp lệ, không bị thu hồi        |
+| `POST /v1/token/revoke`     | Xác thực token hoặc JTI; kiểm tra session ownership    |
+| `POST /v1/token/introspect` | Yêu cầu xác thực và phân quyền (dành cho nội bộ)       |
 | `GET /.well-known/jwks.json`| Public, tuy nhiên được kiểm soát cache và audit        |
 
 ---
 
-### 2. Kiểm tra & phòng chống lạm dụng token
+### 6.2. Kiểm tra & phòng chống lạm dụng token
 
 - ✅ **Replay Protection**:
   - Mỗi token có một `jti` (JWT ID) duy nhất, được lưu vào Redis khi bị revoke.
@@ -386,7 +418,7 @@ TokenService là tuyến phòng thủ đầu tiên và đóng vai trò trung tâ
 
 ---
 
-### 3. Phân quyền theo hành vi (RBAC)
+### 6.3. Phân quyền theo hành vi (RBAC)
 
 | Hành vi                     | Yêu cầu permission (gợi ý)       |
 |-----------------------------|----------------------------------|
@@ -399,7 +431,7 @@ TokenService là tuyến phòng thủ đầu tiên và đóng vai trò trung tâ
 
 ---
 
-### 4. Giới hạn & kiểm soát hành vi
+### 6.4. Giới hạn & kiểm soát hành vi
 
 - 🔐 **Rate Limiting**:
   - Giới hạn số lần gọi `/token` và `/refresh` trên mỗi IP hoặc user ID.
@@ -413,17 +445,24 @@ TokenService là tuyến phòng thủ đầu tiên và đóng vai trò trung tâ
 
 ---
 
-### 5. Bảo vệ cấu hình & khoá bí mật
+### 6.5 Bảo vệ cấu hình & khóa bí mật  *(theo ADR-003 – Secrets Management)*
 
-- Tất cả khóa private lưu trong môi trường (GCP Secret Manager).
-- Thay đổi key phải thông qua quy trình chuẩn:
-  - Được audit bởi `token.key.rotate` endpoint.
-  - Lưu thông tin audit (`who`, `when`, `reason`) vào DB.
-  - Grace-period giữa các phiên bản key (~1-2 giờ).
+| Thành phần | Cơ chế | Chi tiết |
+|------------|--------|----------|
+| **RSA private key** | **GCP Secret Manager – versioned** | • Lưu mỗi key dưới `projects/<proj>/secrets/jwt_key/versions/*`.<br>• Alias **`active`** ↔ version đang dùng; alias **`next`** ↔ version mới sinh ra. |
+| **Xoay khóa (rotation job `rotate_key`)** | IaC · Cloud Build | 1. Sinh version mới, gán alias `next`.<br>2. Cập nhật `kid` & redeploy **TokenSvc** (song song 2 key).<br>3. **Grace-period 24 h** cho client refresh JWT.<br>4. Chuyển alias `active` → version mới, xóa version cũ. |
+| **IAM & Workload Identity** | Principle of least privilege | `svc-token-signer@dx-vas-core.iam.gserviceaccount.com` chỉ có `roles/secretmanager.secretAccessor`. |
+| **Audit & Event** | Immutable log + Pub/Sub | • Ghi bản ghi `audit_log.key_rotation` (schema v1: `who`, `when`, `reason`, `old_kid`, `new_kid`).<br>• Phát sự kiện **`key.rotated.v1`** lên topic `security.v1`. |
+| **Env-Config bí mật khác** | Secret Manager + ADR-005 mapping | Biến env tuân format `SERVICE__SECTION__KEY`, ví dụ:<br>`TOKEN_SERVICE__RUNTIME__REDIS_URI`, `TOKEN_SERVICE__SECRET__KMS_KEY_ID`. |
+
+> **Lưu ý vận hành**  
+> • Nếu JWKS fetch lỗi > 3 lần / 5 phút, API Gateway **fail-closed** tất cả request.  
+> • Rotation job chạy **90 ngày/lần** (theo SLA Security), có thể trigger khẩn cấp qua `POST /admin/rotate-key` (RBAC `security.rotate_key`).  
+> • Thông tin key **không bao giờ** ghi vào log thông thường; chỉ lưu HASH đầu mẩu để đối chiếu.
 
 ---
 
-### 6. Test & kiểm chứng bảo mật
+### 6.6. Test & kiểm chứng bảo mật
 
 - ✅ Các test bắt buộc:
   - Token tampering (sửa payload)
@@ -440,29 +479,39 @@ Token Service yêu cầu một số cấu hình động (qua `.env`) và phụ t
 
 ---
 
-### 1. Biến môi trường quan trọng (`.env`)
+### 7.1. Biến môi trường quan trọng (`.env`)
 
 | Biến                      | Mô tả                                                                 | Bắt buộc |
 |---------------------------|----------------------------------------------------------------------|----------|
 | `ENVIRONMENT`             | `local`, `staging`, `production`                                     | ✅       |
 | `PORT`                    | Cổng chạy service                                                    | ✅       |
-| `JWT_PRIVATE_KEY_PATH`    | Đường dẫn tới private key để ký JWT (PEM)                            | ✅       |
+| `TOKEN_SERVICE__SECRET__JWT_KEY_PATH`    | Đường dẫn tới private key để ký JWT (PEM)                            | ✅       |
 | `JWT_PUBLIC_KEY_PATH`     | Đường dẫn tới public key phục vụ `/jwks.json`                        | ✅       |
 | `JWT_EXP_SECONDS`         | Thời gian sống của access token (giây), ví dụ `900` (15 phút)        | ✅       |
 | `JWT_REFRESH_EXP_SECONDS` | TTL của refresh token (giây), ví dụ `604800` (7 ngày)                | ✅       |
 | `JWT_ISSUER`              | Issuer của token (`vas.dx-auth`)                                     | ✅       |
-| `REDIS_URL`               | Kết nối Redis để lưu revoked tokens và introspect cache              | ✅       |
-| `DB_URL`                  | Kết nối PostgreSQL (nếu ghi lại key rotation hoặc log)               | ✅       |
+| `TOKEN_SERVICE__RUNTIME__REDIS_URI`               | Kết nối Redis để lưu revoked tokens và introspect cache              | ✅       |
+| `DB_URL`                  | Kết nối PostgreSQL (nếu ghi lại key rotation hoặc log)               | ⛔️ (Optional) |
 | `PUBSUB_TOPIC_ISSUED`     | Tên topic Pub/Sub phát sự kiện `token.issued`                        | ✅       |
 | `PUBSUB_TOPIC_REVOKED`    | Tên topic Pub/Sub phát sự kiện `token.revoked`                       | ✅       |
 | `JWKS_ROTATION_CRON`      | Lịch quay vòng key (CRON format), ví dụ `"0 0 * * *"`                | ⛔️ (Optional) |
 | `CACHE_CONTROL_HEADER`    | TTL cho header `/jwks.json`, ví dụ `public, max-age=300`             | ✅       |
+| TOKEN_SERVICE__SECRET__JWT_KEY_ID      | Secret Manager **resource ID** của RSA private key (`projects/…/secrets/jwt_key/versions/active`) | ✅       |
+| KMS_KEY_ID                | ID Cloud KMS key (nếu dùng ký qua KMS)                               | ⛔️ (Optional) |
+
+#### Env-Config mapping (ADR-005)
+
+| ENV var                              | Config-Center key                        | Sample value                                   |
+|--------------------------------------|------------------------------------------|------------------------------------------------|
+| `TOKEN_SERVICE__RUNTIME__REDIS_URI`  | `token-service/runtime/redis_uri`        | `redis://redis:6379/0`                         |
+| `KMS_KEY_ID`                         | `token-service/secret/kms_key_id`        | `projects/…/cryptoKeys/jwt-key`                |
+| `TOKEN_SERVICE__SECRET__JWT_KEY_ID`  | `token-service/secret/jwt_key_id`         | `projects/…/secrets/jwt_key/versions/active`                   |
 
 > 📘 **Lưu ý**: File `.env.example` phải luôn đồng bộ với tất cả các biến môi trường.
 
 ---
 
-### 2. Phụ thuộc dịch vụ (External Dependencies)
+### 7.2. Phụ thuộc dịch vụ (External Dependencies)
 
 | Thành phần                   | Mục đích sử dụng                           | Phương án backup |
 |-----------------------------|--------------------------------------------|------------------|
@@ -474,7 +523,7 @@ Token Service yêu cầu một số cấu hình động (qua `.env`) và phụ t
 
 ---
 
-### 3. Khóa bí mật và private keys
+### 7.3. Khóa bí mật và private keys
 
 - Toàn bộ private keys được lưu tại:
   - `GCP Secret Manager` (Production)
@@ -485,7 +534,7 @@ Token Service yêu cầu một số cấu hình động (qua `.env`) và phụ t
 
 ---
 
-### 4. Cấu hình cache & introspection
+### 7.4. Cấu hình cache & introspection
 
 - **Introspect Cache**:
   - Redis lưu kết quả introspect (valid, expired, revoked).
@@ -497,7 +546,7 @@ Token Service yêu cầu một số cấu hình động (qua `.env`) và phụ t
 
 ---
 
-### 5. Cấu hình quan sát & alert
+### 7.5. Cấu hình quan sát & alert
 
 | Loại cảnh báo                     | Mô tả                                                         |
 |----------------------------------|---------------------------------------------------------------|
@@ -525,7 +574,7 @@ Token Service đảm nhiệm vai trò bảo mật quan trọng, do đó kiểm t
 
 ---
 
-### 1. Unit Test (Kiểm thử đơn vị)
+### 8.1. Unit Test (Kiểm thử đơn vị)
 
 ✅ Bắt buộc đạt ≥ 90% coverage trên các module logic chính:
 
@@ -544,7 +593,7 @@ Test tools:
 
 ---
 
-### 2. Integration Test (Kiểm thử tích hợp)
+### 8.2. Integration Test (Kiểm thử tích hợp)
 
 ✅ Mô phỏng hành vi giữa các thành phần:
 
@@ -564,7 +613,7 @@ Test tools:
 
 ---
 
-### 3. Contract Test (OpenAPI-based)
+### 8.3. Contract Test (OpenAPI-based)
 
 ✅ Áp dụng `ADR-010` và `adr-012-response-structure.md`
 
@@ -576,7 +625,7 @@ Test tools:
 
 ---
 
-### 4. Security & Negative Test
+### 8.4. Security & Negative Test
 
 ✅ Phải có các test cho:
 
@@ -596,7 +645,7 @@ Tool gợi ý:
 
 ---
 
-### 5. Performance Test (Optional)
+### 8.5. Performance Test (Optional)
 
 ✅ Đề xuất nếu triển khai production:
 
@@ -607,7 +656,7 @@ Tool gợi ý:
 
 ---
 
-### 6. CI/CD Integration
+### 8.6. CI/CD Integration
 
 - Test được tích hợp vào pipeline GitHub Actions/GitLab CI:
   - ✅ `pre-commit`: format + lint
@@ -617,7 +666,7 @@ Tool gợi ý:
 
 ---
 
-### 7. Tự động sinh test từ OpenAPI
+### 8.7. Tự động sinh test từ OpenAPI
 
 - Có thể dùng:
   - `schemathesis` để tự sinh các request bất thường từ spec
@@ -643,7 +692,7 @@ Token Service đóng vai trò trung tâm trong xác thực & bảo mật của h
 
 ---
 
-### 1. Logging
+### 9.1. Logging
 
 - **Chuẩn định dạng**: theo `adr-012-response-structure.md`
 - **Mọi request phải có `X-Request-ID`**, log theo trace-id
@@ -670,7 +719,7 @@ Token Service đóng vai trò trung tâm trong xác thực & bảo mật của h
 
 ---
 
-### 2. Metrics (Prometheus)
+### 9.2. Metrics (Prometheus)
 
 #### a. Metrics chính
 
@@ -680,7 +729,10 @@ Token Service đóng vai trò trung tâm trong xác thực & bảo mật của h
 | `token_revoked_total`            | Tổng số token bị thu hồi               |
 | `token_verify_failed_total`      | Token invalid (hết hạn, sai chữ ký...) |
 | `jwks_rotation_count`            | Số lần quay vòng JWKS                  |
+| `jwks_cache_hit_ratio`           | Phần trăm JWKS truy xuất từ cache (1-H)* |
 | `token_request_duration_seconds` | Histogram thời gian xử lý 1 request    |
+
+> `jwks_cache_hit_ratio = hits / (hits + miss)` – Mục tiêu ≥ 98 %, cảnh báo nếu < 90 % 10′.
 
 #### b. Ví dụ biểu đồ trên Grafana
 
@@ -693,7 +745,7 @@ Token Service đóng vai trò trung tâm trong xác thực & bảo mật của h
 
 ---
 
-### 3. Tracing
+### 9.3. Tracing
 
 * **Tích hợp với OpenTelemetry**:
 
@@ -704,7 +756,7 @@ Token Service đóng vai trò trung tâm trong xác thực & bảo mật của h
 
 ---
 
-### 4. Alerting & SLO Monitoring
+### 9.4. Alerting & SLO Monitoring
 
 Tuân thủ theo `adr-022-sla-slo-monitoring.md`
 
@@ -712,9 +764,10 @@ Tuân thủ theo `adr-022-sla-slo-monitoring.md`
 
 | Điều kiện                              | Mức độ      | Hành động                               |
 | -------------------------------------- | ----------- | --------------------------------------- |
-| `token_verify_failed_total > X`/5 phút | ⚠️ Warning  | Kiểm tra tấn công token giả mạo         |
+| `token_verify_failed_total > 50`/5 phút | ⚠️ Warning  | Kiểm tra tấn công token giả mạo         |
 | Không có `jwks_rotation_count` > 24h   | 🔥 Critical | Có thể gây verify failure toàn hệ thống |
 | `token_issued_total` giảm bất thường   | ⚠️ Warning  | Kiểm tra luồng login hoặc refresh       |
+| `jwks_cache_hit_ratio` < 0.90 trong 10′| 🔥 Critical | Kiểm tra Redis cache, JWKS endpoint; nếu Redis down → chuyển chế độ `introspect` tạm| 
 
 #### b. Service-Level Objectives (SLO)
 
@@ -722,12 +775,12 @@ Tuân thủ theo `adr-022-sla-slo-monitoring.md`
 | ----------------------------- | -------- |
 | Uptime `/token`, `/jwks.json` | ≥ 99.95% |
 | Token issuance latency (p95)  | < 100ms  |
-| JWKS cache miss ratio         | < 5%     |
+| JWKS cache **hit** ratio      | ≥ 98%    |
 | Rate of revoked-token re-use  | < 1%     |
 
 ---
 
-### 5. Audit Logging
+### 9.5. Audit Logging
 
 * Sự kiện `token.issued`, `token.revoked` phải được:
 
@@ -748,7 +801,7 @@ Tuân thủ theo `adr-022-sla-slo-monitoring.md`
 
 ---
 
-### 6. Healthcheck
+### 9.6. Healthcheck
 
 * `/healthz`: kiểm tra Redis, JWKS keys, background jobs
 * `/readyz`: kiểm tra nếu JWKS đã sẵn sàng phục vụ client
@@ -763,7 +816,7 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 1. Zero Downtime Deployment
+### 10.1. Zero Downtime Deployment
 
 ✅ Tuân thủ `adr-014-zero-downtime.md` và `adr-015-deployment-strategy.md`:
 
@@ -773,7 +826,7 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 2. Auto-Scaling & Load Balancing
+### 10.2. Auto-Scaling & Load Balancing
 
 ✅ Tuân thủ `adr-016-auto-scaling.md`
 
@@ -785,18 +838,19 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 3. Graceful Fallback
+### 10.3. Graceful Fallback
 
-- Nếu Redis down → introspect fallback qua DB
-- Nếu JWKS rotation bị delay → vẫn giữ `last-valid` key dùng được 5 phút nữa
-- TokenService phục hồi từ lỗi cấp phát khóa:
-  - Dùng khóa dự phòng
-  - Delay phát hành mới trong 1 phút nếu có lỗi
-- Token introspection timeout → trả 503 thay vì 5xx nội bộ
+| Tình huống sự cố | Hành động Gateway | Hành động Token Service | Lưu ý SRE |
+|------------------|-------------------|-------------------------|-----------|
+| **Redis Cluster (revoked_tokens) Mất kết nối** | 1. Vẫn xác thực chữ ký bằng **JWKS** (offline).<br>2. Bật *degrade-mode*: Gateway chuyển sang gọi **`POST /v1/token/introspect`** cho **mọi** request (có throttle 200 RPS). | Giữ bảng `revoked_tokens` **in-memory LRU (size 50 k)**; song song retry kết nối Redis. | Alert `revoked_cache_down` 🔥; SRE kiểm tra Memorystore, VPC-SC. |
+| **Token Service Unavailable** | Gateway **fail-closed** (HTTP 503). | — | Alert `token_service_down` 🔥; auto-rollback qua Argo Rollouts. |
+| **JWKS fetch lỗi > 3 lần / 5 phút** | Gateway **reject** mọi request (`502 jwks.unavailable`). | — | Hết sự cố → hit ratio JWKS ≥ 98 % tự clear. |
+
+> **Lưu ý:** Thiết kế mới **không còn fallback qua DB**; Token Service chỉ phụ thuộc Redis và bộ nhớ RAM cho mode khẩn cấp
 
 ---
 
-### 4. High Availability Architecture
+### 10.4. High Availability Architecture
 
 - Redis:
   - Redis Sentinel hoặc Redis Cluster với 3 node (quorum)
@@ -808,7 +862,7 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 5. Retry & Circuit Breaker
+### 10.5. Retry & Circuit Breaker
 
 - Retry với exponential backoff cho:
   - Gọi DB (max 3 lần)
@@ -818,7 +872,7 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 6. Disaster Recovery
+### 10.6. Disaster Recovery
 
 - Toàn bộ JWKS keys được backup hàng giờ vào Cloud Storage
 - Audit logs lưu vào Pub/Sub → không mất dữ liệu dù service down
@@ -826,7 +880,7 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 7. Đảm bảo backward compatibility
+### 10.7. Đảm bảo backward compatibility
 
 - JWKS rotation đảm bảo:
   - Key mới phát hành → JWKS thêm trước 5 phút
@@ -835,7 +889,7 @@ Token Service là một **dịch vụ nền tảng bảo mật**, yêu cầu tí
 
 ---
 
-### 8. Kiểm thử trước khi release
+### 10.8. Kiểm thử trước khi release
 
 - ✅ `contract testing` đảm bảo backward compatibility
 - ✅ `load testing` trước release lớn: simulate 1,000 TPS
@@ -853,7 +907,7 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 1. Hiệu năng từng loại endpoint
+### 11.1. Hiệu năng từng loại endpoint
 
 | Endpoint                  | Tần suất | Mục tiêu latency (p95) | Tối ưu hóa chính |
 |---------------------------|---------|-------------------------|------------------|
@@ -865,7 +919,7 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 2. Kỹ thuật tối ưu
+### 11.2. Kỹ thuật tối ưu
 
 - **Caching tích cực**:
   - JWKS: cache tại CDN + Redis local theo `kid`
@@ -876,7 +930,7 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 3. Horizontal Scaling
+### 11.3. Horizontal Scaling
 
 - Triển khai tối thiểu 3 replicas
 - Scale out theo CPU + latency (`token_request_duration_seconds`)
@@ -884,7 +938,7 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 4. Connection pooling
+### 11.4. Connection pooling
 
 - DB (PostgreSQL): dùng `asyncpg` pool với 50 connections
 - Redis: dùng pool với size động theo lượng request
@@ -892,7 +946,7 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 5. Thử tải (Load Testing)
+### 11.5. Thử tải (Load Testing)
 
 - Đã benchmark với `Locust` và `k6`:
   - 1000 TPS / 3 replica => p95 latency ~65ms (token), ~40ms (introspect)
@@ -901,7 +955,7 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 6. CDN & Edge Cache
+### 11.6. CDN & Edge Cache
 
 - JWKS endpoint (`/.well-known/jwks.json`) được:
   - Cache tại CDN (Cloudflare, GCP CDN)
@@ -910,9 +964,9 @@ Token Service là một service có **tần suất truy cập cực cao**, đặ
 
 ---
 
-### 7. Graceful degradation
+### 11.7. Graceful degradation
 
-- Nếu Redis down → fallback kiểm tra từ DB
+- fallback kiểm tra JWKS + in-memory LRU
 - Nếu Pub/Sub full → ghi audit log vào file + retry job
 - Nếu key rotation thất bại → giữ lại `last-valid-kid` trong 15 phút
 
@@ -932,7 +986,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 1. Phân kỳ triển khai
+### 12.1. Phân kỳ triển khai
 
 | Giai đoạn | Mục tiêu chính |
 |----------|----------------|
@@ -942,7 +996,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 2. Công cụ triển khai
+### 12.2. Công cụ triển khai
 
 - **CI/CD**: GitHub Actions + ArgoCD hoặc Cloud Build
 - **Infrastructure**: GCP (Cloud Run hoặc GKE), Terraform
@@ -950,7 +1004,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 3. Zero Downtime
+### 12.3. Zero Downtime
 
 ✅ Theo `adr-014-zero-downtime.md`, các bước sau được áp dụng:
 
@@ -960,7 +1014,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 4. Seed dữ liệu ban đầu
+### 12.4. Seed dữ liệu ban đầu
 
 - Sinh JWKS ban đầu với key `kid=initial-1`, lưu vào secret và JWKS DB table.
 - Tạo service account đầu tiên (internal) có quyền introspect.
@@ -968,17 +1022,50 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 5. Migration & Data Schema
+### 12.5. Migration & Data Schema *(Safe-Migration – ADR-023)*
 
-- Tạo bảng:
-  - `token_revocation`
-  - `jwks_keys`
-- Giao migration qua `alembic` hoặc `prisma migrate` tuỳ ngôn ngữ.
-- Script seed được chạy như job riêng biệt sau khi deploy thành công.
+Đối với mọi thay đổi **schema** hoặc **lifecycle dữ liệu** của Token Service, áp dụng **quy trình 3 pha** sau để bảo đảm **không downtime** và **an toàn rollback**.
+
+### 🔹 1. Prepare (Shadow Write)
+
+| Bước | Thao tác | Ghi chú |
+|------|----------|---------|
+| 1.1  | Tạo table/bucket **song song** – vd. `revoked_tokens_v2` | Flyway script `V20250615__create_revoked_tokens_v2.sql` |
+| 1.2  | **Dual-write**: mã nguồn TokenSvc ghi cả bảng cũ & v2 (`FeatureFlag: dual_write=true`) | Version `v1.2.0` |
+| 1.3  | Cập nhật **schema_version** (`migration_stage=prepare`) – publish event `schema.prepare.v1` | payload `{resource: "revoked_tokens", stage:"prepare"}` |
+| 1.4  | Chạy backfill nếu cần (COPY ... FROM ...) | Job `backfill_revoked_v2` |
+
+### 🔹 2. Transition (Read Switch)
+
+| Bước | Thao tác | Ghi chú |
+|------|----------|---------|
+| 2.1  | Redeploy TokenSvc `v1.3.0` – **Option flag `read_v2=true`**, vẫn dual-write | Canary 10 % ➜ 100 % trong 30′ |
+| 2.2  | Theo dõi metric `revoked_sync_lag_ms` & compare count(c1) vs c2 | SLO lag < 500 ms |
+| 2.3  | Khi ổn định (> 24 h), tắt dual-write (`dual_write=false`) | Promote stage `transition` |
+| 2.4  | Publish event `schema.transitioned.v1` | —
+
+### 🔹 3. Cleanup (Decommission)
+
+| Bước | Thao tác | Ghi chú |
+|------|----------|---------|
+| 3.1  | Chạy cron `verify_no_read_old` (24 h) – nếu 0 query vào bảng cũ | |
+| 3.2  | **DROP** bảng cũ `revoked_tokens` (Flyway **`V20250617__drop_revoked_tokens.sql`**) | |
+| 3.3  | **Prepare undo script**: Flyway **`U20250617__recreate_revoked_tokens.sql`** để khôi phục bảng cũ nếu rollback | |
+| 3.4  | Cập nhật alias - secret (nếu migration liên quan key) | |
+| 3.5  | Publish `schema.cleanup.v1` & ghi `audit_log.schema_migration` | field `who/when/stage="cleanup"` |
+| 3.6  | Bump `schema_version` global (`revoked_tokens` ⇒ 2) | README + OpenAPI |
+
+### 🔹 Rollback Plan  
+
+* Nếu trong **Transition** metric lỗi > threshold → gắn flag `read_v2=false`, rollback canary.  
+* Phần **Prepare** luôn an toàn: bảng cũ chưa xoá.  
+* Sau **Cleanup** không rollback; cần migration mới `v3`.
+
+> **Nhắc lại**: Luôn commit Flyway script + nâng `schema_version` trong cùng PR với code dual-write để đảm bảo khả năng khôi phục.
 
 ---
 
-### 6. Quản lý cấu hình & môi trường
+### 12.6. Quản lý cấu hình & môi trường
 
 - Tất cả secrets lưu tại GCP Secret Manager:
   - `TOKEN_PRIVATE_KEY`
@@ -990,7 +1077,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 7. Rollback nhanh
+### 12.7. Rollback nhanh
 
 - Duy trì `feature flag` để rollback soft (không cần redeploy)
 - Nếu rollback toàn bộ:
@@ -999,7 +1086,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 8. Quản lý phát hành
+### 12.8. Quản lý phát hành
 
 ✅ Tuân thủ `adr-018-release-approval-policy.md`:
 
@@ -1009,7 +1096,7 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-### 9. Sau triển khai
+### 12.9. Sau triển khai
 
 - Theo dõi:
   - JWKS fetch rate
@@ -1024,17 +1111,13 @@ Token Service là một thành phần bảo mật trọng yếu, nên quá trìn
 
 ---
 
-Dưới đây là nội dung chi tiết cho mục **“## 13. 🧩 Kiến trúc Service”** trong `token-service/design.md`, đảm bảo tuân thủ các ADR liên quan (`adr-004-security`, `adr-006-auth-strategy`, `adr-012-response-structure`, `adr-020-cost-observability`, `adr-022-sla-slo-monitoring`) và đáp ứng tiêu chuẩn 5★ Service Design.
-
----
-
 ## 13. 🧩 Kiến trúc Service
 
 Token Service được thiết kế dưới dạng **stateless microservice**, đóng vai trò trung tâm trong việc phát hành, xác thực và thu hồi token trên toàn hệ thống. Kiến trúc được tối ưu hoá cho hiệu năng, bảo mật và khả năng mở rộng.
 
 ---
 
-### 1. Thành phần chính (Modules)
+### 13.1. Thành phần chính (Modules)
 
 | Module             | Mô tả chức năng chính |
 |--------------------|------------------------|
@@ -1048,7 +1131,7 @@ Token Service được thiết kế dưới dạng **stateless microservice**, �
 
 ---
 
-### 2. Luồng tương tác chính
+### 13.2. Luồng tương tác chính
 
 ```mermaid
 sequenceDiagram
@@ -1068,7 +1151,7 @@ sequenceDiagram
 
 ---
 
-### 3. Triển khai & Hạ tầng
+### 13.3. Triển khai & Hạ tầng
 
 * **Containerized** trên GKE hoặc Cloud Run
 * Dùng **Redis** làm bộ nhớ trung gian để revoke token
@@ -1077,7 +1160,7 @@ sequenceDiagram
 
 ---
 
-### 4. Quan hệ với các service khác
+### 13.4. Quan hệ với các service khác
 
 | Service            | Tương tác chính                              |
 | ------------------ | -------------------------------------------- |
@@ -1088,7 +1171,7 @@ sequenceDiagram
 
 ---
 
-### 5. Phân tách nhiệm vụ (Responsibility Split)
+### 13.5. Phân tách nhiệm vụ (Responsibility Split)
 
 | Trách nhiệm                      | Service đảm nhiệm       |
 | -------------------------------- | ----------------------- |
@@ -1100,7 +1183,7 @@ sequenceDiagram
 
 ---
 
-### 6. High-level Diagram
+### 13.6. High-level Diagram
 
 ```mermaid
 flowchart TD
@@ -1120,14 +1203,20 @@ flowchart TD
 ## 14. 📚 Tài liệu liên quan
 
 ### 🔖 Các Quyết định Kiến trúc (ADR)
-- [ADR - 004 Security Policy](../../ADR/adr-004-security.md): Chính sách bảo mật tổng thể.
-- [ADR - 006 Auth Strategy](../../ADR/adr-006-auth-strategy.md): Chiến lược xác thực người dùng và cấp phát token.
-- [ADR - 012 Response Structure](../../ADR/adr-012-response-structure.md): Chuẩn hóa cấu trúc response cho API.
-- [ADR - 011 API Error Format](../../ADR/adr-011-api-error-format.md): Quy ước về mã lỗi và thông điệp lỗi.
-- [ADR - 015 Deployment Strategy](../../ADR/adr-015-deployment-strategy.md): Chiến lược triển khai CI/CD, blue-green, rolling update.
-- [ADR - 014 Zero Downtime](../../ADR/adr-014-zero-downtime.md): Hướng dẫn đảm bảo không gián đoạn khi triển khai.
-- [ADR - 016 Auto Scaling](../../ADR/adr-016-auto-scaling.md): Chính sách scale động.
-- [ADR - 022 SLA/SLO Monitoring](../../ADR/adr-022-sla-slo-monitoring.md): Mục tiêu giám sát chất lượng dịch vụ.
+
+- [ADR-003 Secrets Management](../../ADR/adr-003-secrets.md): Quy trình lưu trữ & xoay khóa bí mật an toàn.  
+- [ADR-004 Security Policy](../../ADR/adr-004-security.md): Chính sách bảo mật tổng thể.  
+- [ADR-005 Environment Configuration Strategy](../../ADR/adr-005-env-config.md): Chuẩn tách cấu hình – `SERVICE__SECTION__KEY`.  
+- [ADR-006 Auth Strategy](../../ADR/adr-006-auth-strategy.md): Chiến lược xác thực người dùng và cấp phát token.  
+- [ADR-009 API Governance](../../ADR/adr-009-api-governance.md): Quy tắc versioning, naming và style REST.  
+- [ADR-011 API Error Format](../../ADR/adr-011-api-error-format.md): Quy ước mã lỗi & thông điệp lỗi (`namespace.snake_case`).  
+- [ADR-012 Response Structure](../../ADR/adr-012-response-structure.md): Chuẩn hóa cấu trúc JSON response cho API.
+- [ADR-018 Release Approval Policy](../../ADR/adr-018-release-approval-policy.md): Quy trình phê duyệt phát hành.
+- [ADR-022 SLA & SLO Monitoring](../../ADR/adr-022-sla-slo-monitoring.md): Khung giám sát & định nghĩa SLO.
+- [ADR-023 Schema Migration Strategy](../../ADR/adr-023-schema-migration-strategy.md): 3-phase migration (Prepare → Transition → Cleanup).  
+- [ADR-024 Data Anonymization & Retention](../../ADR/adr-024-data-anonymization-retention.md): Ẩn danh PII và TTL dữ liệu.  
+- [ADR-026 Hard-Delete Policy](../../ADR/adr-026-hard-delete-policy.md): Quy trình xoá vĩnh viễn & purge log.  
+- [ADR-030 Event Schema Governance](../../ADR/adr-030-event-schema-governance.md): Đặt tên & version sự kiện `*.v{n}`.
 
 ### 🧩 Dịch vụ liên quan
 - [auth-service/sub](../../services/auth-service/sub/design.md): Service gọi tới `/token`, `/refresh`.
