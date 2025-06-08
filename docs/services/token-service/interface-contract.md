@@ -1,7 +1,7 @@
 ---
 title: Token Service – Interface Contract
-version: "1.1"
-last_updated: "2025-06-08"
+version: "1.3"
+last_updated: "2025-06-09"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
@@ -15,15 +15,21 @@ Token Service cung cấp các API trung tâm để phát hành, làm mới, thu 
 
 | Method | Endpoint                      | Mô tả                                     | Bảo mật | Ghi chú |
 |--------|-------------------------------|-------------------------------------------|---------|--------|
-| POST   | `/token`                      | Cấp token mới dựa trên thông tin người dùng | 🔒 Auth | Được gọi bởi `auth-service/sub` |
-| POST   | `/token/refresh`             | Làm mới token bằng refresh token          | 🔒      | Gọi trực tiếp từ client |
-| POST   | `/token/revoke`              | Thu hồi 1 token cụ thể hoặc theo `sub`    | 🔒      | Sử dụng Redis để blacklist `jti` |
-| POST   | `/token/introspect`          | Kiểm tra tính hợp lệ của token            | 🔒 Internal | Sử dụng bởi `api-gateway` |
+| POST   | `/v1/token`                      | Cấp token mới dựa trên thông tin người dùng | 🔒 Auth | Được gọi bởi `auth-service/sub` |
+| POST   | `/v1/token/refresh`             | Làm mới token bằng refresh token          | 🔒      | Gọi trực tiếp từ client |
+| POST   | `/v1/token/revoke`              | Thu hồi 1 token cụ thể hoặc theo `sub`    | 🔒      | Sử dụng Redis để blacklist `jti` |
+| POST   | `/v1/token/introspect`          | Kiểm tra tính hợp lệ của token            | 🔒 Internal | Sử dụng bởi `api-gateway` |
 | GET    | `/.well-known/jwks.json`     | Trả về public keys để xác thực chữ ký JWT | 🔓 Public | Dùng cho các service verify token |
+
+> **Quy ước path versioning**  
+> Mọi endpoint của Token Service tuân định dạng **`/v{major}/…`** – ví dụ  
+> `/v1/token`, `/v1/token/refresh`. Quy tắc này lấy từ **ADR-009 (API Governance)**  
+> và **ADR-013 (Path Naming Convention)** để đảm bảo khả năng thay đổi phiên bản mà  
+> không phá vỡ client.
 
 ---
 
-## ✅ 1. POST `/token`
+## ✅ 1. POST `/v1/token`
 
 ### 🎯 Mục đích
 Phát hành cặp token (`access_token`, `refresh_token`) mới cho user đã được xác thực trước đó, được gọi nội bộ bởi `auth-service/sub`.
@@ -120,27 +126,20 @@ Content-Type: application/json
 
 ### ❌ Error Responses
 
-| HTTP | code                    | message                        |
-| ---- | ----------------------- | ------------------------------ |
-| 400  | `auth.token.invalid`    | Token yêu cầu không hợp lệ     |
-| 401  | `auth.unauthorized`     | Không có quyền phát hành token |
-| 403  | `auth.tenant.mismatch`  | Tenant không khớp với user     |
-| 422  | `auth.input.invalid`    | Dữ liệu không hợp lệ           |
-| 500  | `internal.server.error` | Lỗi hệ thống nội bộ            |
+| HTTP | code                      | message                        |
+| ---- | ------------------------- | ------------------------------ |
+| 400  | `common.validation_error` | Token yêu cầu không hợp lệ     |
+| 401  | `auth.unauthorized`       | Không có quyền phát hành token |
+| 403  | `auth.tenant.mismatch`    | Tenant không khớp với user     |
+| 422  | `common.validation_error` | JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ |
+| 429  | `common.rate_limited`     | Vượt ngưỡng RPS/burst (theo ADR-022) |
+| 500  | `common.internal_error`   | Lỗi hệ thống nội bộ            |
 
 > ❗ **Note**: Tất cả lỗi đều trả về dưới dạng `ErrorEnvelope` theo [ADR-011](../../ADR/adr-011-api-error-format.md)
 
 ---
 
-Dưới đây là phần chi tiết hóa cho **"## ✅ 2. POST `/token/refresh`"**, đảm bảo:
-
-* Đáp ứng chuẩn 5★ Interface Contract Standard
-* Phù hợp với thiết kế `03-cr-token-service.md` và `auth-service/sub`
-* Bao gồm headers, body, response, error, ví dụ cụ thể
-
----
-
-## ✅ 2. POST `/token/refresh`
+## ✅ 2. POST `/v1/token/refresh`
 
 ### 🎯 Mục đích
 Phát hành cặp token mới dựa trên `refresh_token` hợp lệ. API này cho phép client duy trì đăng nhập mà không cần nhập lại mật khẩu. Được gọi trực tiếp từ client (mobile/web app) hoặc từ `auth-service/sub`.
@@ -232,22 +231,15 @@ Content-Type: application/json
 | 401  | `auth.unauthorized`      | Không có quyền làm mới token               |
 | 403  | `auth.session.revoked`   | Phiên đã bị thu hồi hoặc bị chặn           |
 | 404  | `auth.session.not_found` | Không tìm thấy phiên tương ứng             |
-| 422  | `auth.input.invalid`     | Dữ liệu đầu vào không hợp lệ               |
-| 500  | `internal.server.error`  | Lỗi hệ thống                               |
+| 422  | `common.validation_error` | JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ |
+| 429  | `common.rate_limited`     | Vượt ngưỡng RPS/burst (theo ADR-022) |
+| 500  | `common.internal_error`  | Lỗi hệ thống                               |
 
 > ❗ **Ghi chú:** Đáp ứng chuẩn [ADR-011 - Error Format](../../ADR/adr-011-api-error-format.md)
 
 ---
 
-Dưới đây là phần chi tiết hóa cho **"## ✅ 3. POST `/token/revoke`"**, đảm bảo:
-
-* Tuân thủ nghiêm ngặt **ADR-006**, **ADR-004**, **ADR-011**
-* Theo chuẩn **5★ Interface Contract Standard**
-* Rõ ràng và đủ thông tin cho cả frontend lẫn backend
-
----
-
-## ✅ 3. POST `/token/revoke`
+## ✅ 3. POST `/v1/token/revoke`
 
 ### 🎯 Mục đích
 Thu hồi một phiên đăng nhập (session) cụ thể, chấm dứt hiệu lực của cả access token và refresh token tương ứng.  
@@ -300,21 +292,15 @@ X-Tenant-ID: vas-001
 | 401  | `auth.unauthorized`      | Không có quyền thu hồi phiên         |
 | 403  | `auth.session.forbidden` | Session không thuộc về user hiện tại |
 | 404  | `auth.session.not_found` | Không tìm thấy session được yêu cầu  |
-| 500  | `internal.server.error`  | Lỗi hệ thống nội bộ                  |
+| 422  | `common.validation_error` | JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ |
+| 429  | `common.rate_limited`     | Vượt ngưỡng RPS/burst (theo ADR-022) |
+| 500  | `common.internal_error`  | Lỗi hệ thống nội bộ                  |
 
 > ❗ **Note:** Mọi lỗi đều sử dụng chuẩn `ErrorEnvelope` từ [ADR-011](../../ADR/adr-011-api-error-format.md)
 
 ---
 
-Dưới đây là phần chi tiết hóa cho **"## ✅ 4. POST `/token/introspect`"**, tuân thủ đầy đủ tiêu chuẩn:
-
-* Chuẩn hóa theo **ADR-006**, **ADR-011**
-* Đảm bảo chuẩn **5★ Interface Contract Standard**
-* Hữu ích cho internal services, API Gateway, hoặc frontend debug mode
-
----
-
-## ✅ 4. POST `/token/introspect`
+## ✅ 4. POST `/v1/token/introspect`
 
 ### 🎯 Mục đích
 Kiểm tra tính hợp lệ của một access token hoặc refresh token. Trả về metadata nếu hợp lệ, hoặc trạng thái `active: false` nếu không hợp lệ.  
@@ -387,16 +373,11 @@ Trường `active` cho biết token có hợp lệ không. Nếu `active: false`
 | ---- | ------------------------- | ------------------------------- |
 | 400  | `auth.introspect.invalid` | Token đầu vào không hợp lệ      |
 | 401  | `auth.unauthorized`       | Không có quyền introspect token |
-| 500  | `internal.server.error`   | Lỗi hệ thống                    |
+| 422  | `common.validation_error` | JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ |
+| 429  | `common.rate_limited`     | Vượt ngưỡng RPS/burst (theo ADR-022) |
+| 500  | `common.internal_error`   | Lỗi hệ thống                    |
 
 > ❗ API trả về `200 OK` với `active: false` nếu token không hợp lệ – không trả về `401` để đảm bảo không tiết lộ thông tin cho attacker.
-
----
-
-Dưới đây là phần chi tiết hóa cho **"## ✅ 5. GET `/.well-known/jwks.json`"**, đảm bảo:
-
-* Tuân thủ các tiêu chuẩn **OAuth 2.0**, **OIDC Discovery**, và **ADR-006**
-* Được sử dụng rộng rãi cho việc xác thực chữ ký JWT từ các hệ thống bên ngoài hoặc nội bộ
 
 ---
 
@@ -518,7 +499,7 @@ Trong quá trình thiết kế API của `token-service`, một số enum đã �
 | `access`    | Token truy cập, có thời hạn ngắn (~15 phút)     |
 | `refresh`   | Token làm mới, dùng để lấy access token mới     |
 
-> 🔐 Enum này được dùng trong response của `/token/introspect` để phân biệt loại token đang được kiểm tra.
+> 🔐 Enum này được dùng trong response của `/v1/token/introspect` để phân biệt loại token đang được kiểm tra.
 
 ---
 
@@ -562,16 +543,17 @@ Trong quá trình thiết kế API của `token-service`, một số enum đã �
 
 Mặc dù `token-service` không trực tiếp quản lý người dùng hoặc phân quyền truy cập tài nguyên, nhưng vẫn cần định nghĩa rõ các quyền (permissions) áp dụng cho các hệ thống gọi đến các endpoint đặc thù như introspect hoặc revoke. Điều này đảm bảo kiểm soát truy cập, tuân thủ nguyên tắc Principle of Least Privilege (ADR-004, ADR-006, ADR-007).
 
+> **Note:** Event names follow ADR-030 (*.v1)
 ---
 
 ### 🔒 Các permission áp dụng cho `token-service`
 
 | Permission Key             | Mô tả                                                     | Endpoint yêu cầu |
 |----------------------------|------------------------------------------------------------|------------------|
-| `token.generate`           | Cho phép tạo access token / refresh token (nội bộ)         | `POST /token`    |
-| `token.refresh`            | Cho phép làm mới access token thông qua refresh token      | `POST /token/refresh` |
-| `token.revoke`             | Cho phép thu hồi (revoke) một session token cụ thể        | `POST /token/revoke` |
-| `token.introspect`         | Cho phép kiểm tra thông tin và trạng thái của token        | `POST /token/introspect` |
+| `token.generate`           | Cho phép tạo access token / refresh token (nội bộ)         | `POST /v1/token`    |
+| `token.refresh`            | Cho phép làm mới access token thông qua refresh token      | `POST /v1/token/refresh` |
+| `token.revoke`             | Cho phép thu hồi (revoke) một session token cụ thể        | `POST /v1/token/revoke` |
+| `token.introspect`         | Cho phép kiểm tra thông tin và trạng thái của token        | `POST /v1/token/introspect` |
 | `token.jwks.read`          | Quyền public, không cần auth – dùng cho `GET /.well-known/jwks.json` | ❌ (public) |
 
 > 📌 Trong hầu hết các trường hợp, `token-service` hoạt động như service nội bộ nên các quyền này được kiểm tra bằng service-to-service authentication (JWT có embedded scope/permission claim).
@@ -629,19 +611,30 @@ Tất cả lỗi được trả về dưới dạng chuẩn `ErrorEnvelope` (ADR
 
 | Mã lỗi (`error.code`)      | Mô tả                                                  | HTTP Status | Áp dụng cho endpoint         |
 | -------------------------- | ------------------------------------------------------ | ----------- | ---------------------------- |
-| `token.invalid`            | Access token không hợp lệ                              | 401         | `/token/introspect`          |
-| `token.expired`            | Token đã hết hạn                                       | 401         | `/token/refresh`, introspect |
-| `token.revoked`            | Token đã bị thu hồi                                    | 401         | `/token/refresh`, introspect |
-| `token.unknown_jti`        | Token không nằm trong danh sách thu hồi                | 400         | `/token/revoke`              |
-| `session.not_found`        | Không tìm thấy phiên đăng nhập                         | 404         | `/token/revoke`              |
-| `session.inactive`         | Phiên đăng nhập đã bị hủy                              | 403         | `/token/refresh`, `/revoke`  |
+| `token.invalid`            | Access token không hợp lệ                              | 401         | `/v1/token/introspect`          |
+| `token.expired`            | Token đã hết hạn                                       | 401         | `/v1/token/refresh`, introspect |
+| `token.revoked`            | Token đã bị thu hồi                                    | 401         | `/v1/token/refresh`, introspect |
+| `token.unknown_jti`        | Token không nằm trong danh sách thu hồi                | 400         | `/v1/token/revoke`              |
+| `session.not_found`        | Không tìm thấy phiên đăng nhập                         | 404         | `/v1/token/revoke`              |
+| `session.inactive`         | Phiên đăng nhập đã bị hủy                              | 403         | `/v1/token/refresh`, `/v1/token/revoke`  |
 | `jwks.not_found`           | Không tìm thấy khoá công khai JWKS                     | 500         | `/.well-known/jwks.json`     |
-| `common.validation_failed` | Dữ liệu gửi lên không hợp lệ                           | 400         | Mọi endpoint `POST`          |
-| `common.missing_param`     | Thiếu tham số bắt buộc (`grant_type`, `refresh_token`) | 400         | `/token`, `/refresh`         |
+| `common.validation_error`  | Dữ liệu gửi lên không hợp lệ                           | 400         | Mọi endpoint `POST`          |
+| `common.missing_param`     | Thiếu tham số bắt buộc (`grant_type`, `refresh_token`) | 400         | `/v1/token`, `/v1/token/refresh`         |
 | `common.unauthorized`      | Thiếu token hoặc token không hợp lệ                    | 401         | Tất cả endpoint bảo vệ       |
 | `common.forbidden`         | Không đủ quyền thực hiện hành động                     | 403         | Theo `x-required-permission` |
+| `common.validation_error`  | JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ       | 422         | Mọi endpoint                 |
+| `common.rate_limited`      | Vượt ngưỡng RPS/burst (theo ADR-022)                   | 429         | Mọi endpoint                 |
 | `common.internal_error`    | Lỗi không xác định từ phía server                      | 500         | Mọi endpoint                 |
 
+#### Response Headers – Rate Limiting  *(ADR-022)*
+
+| Header                | Description                                                                    | Example |
+|-----------------------|--------------------------------------------------------------------------------|---------|
+| `RateLimit-Limit`     | Giới hạn tối đa request trong 1 cửa sổ (per tenant / client).                  | `120`   |
+| `RateLimit-Remaining` | Số request còn lại trong cửa sổ hiện tại. Chỉ xuất hiện khi còn > 0.           | `17`    |
+| `Retry-After`         | Thời gian (giây) cần chờ trước khi gửi lại request, kèm theo HTTP 429.         | `42`    |
+
+> Header `RateLimit-Remaining` và `Retry-After` được trả về khi **gần hết** hoặc đã vượt quá ngưỡng, tuân theo khuyến nghị **ADR-022 SLA/SLO Monitoring**.
 ---
 
 📌 **Mọi lỗi đều trả về kèm `X-Request-ID` trong response headers** và được ghi log (audit + cloud logging).
@@ -657,7 +650,7 @@ Dưới đây là các ví dụ `curl` minh họa cách sử dụng các API ch�
 ### 🔑 1. Đăng nhập để lấy token mới
 
 ```bash
-curl -X POST https://api.dxvas.edu.vn/token \
+curl -X POST https://api.truongvietanh.edu.vn/v1/token \
   -H "Content-Type: application/json" \
   -H "X-Request-ID: req-001" \
   -H "X-Tenant-ID: vas-truongvietanh" \
@@ -675,7 +668,7 @@ curl -X POST https://api.dxvas.edu.vn/token \
 ### ♻️ 2. Làm mới token
 
 ```bash
-curl -X POST https://api.dxvas.edu.vn/token/refresh \
+curl -X POST https://api.truongvietanh.edu.vn/v1/token/refresh \
   -H "Content-Type: application/json" \
   -H "X-Request-ID: req-002" \
   -H "X-Tenant-ID: vas-truongvietanh" \
@@ -691,7 +684,7 @@ curl -X POST https://api.dxvas.edu.vn/token/refresh \
 ### 🛑 3. Thu hồi token (logout toàn bộ thiết bị)
 
 ```bash
-curl -X POST https://api.dxvas.edu.vn/token/revoke \
+curl -X POST https://api.truongvietanh.edu.vn/v1/token/revoke \
   -H "Authorization: Bearer <access_token>" \
   -H "X-Request-ID: req-003" \
   -H "X-Tenant-ID: vas-truongvietanh" \
@@ -705,7 +698,7 @@ curl -X POST https://api.dxvas.edu.vn/token/revoke \
 ### 🧐 4. Kiểm tra token (introspect)
 
 ```bash
-curl -X POST https://api.dxvas.edu.vn/token/introspect \
+curl -X POST https://api.truongvietanh.edu.vn/v1/token/introspect \
   -H "Authorization: Bearer <access_token>" \
   -H "X-Request-ID: req-004" \
   -H "X-Tenant-ID: vas-truongvietanh" \
@@ -721,7 +714,7 @@ curl -X POST https://api.dxvas.edu.vn/token/introspect \
 ### 🔐 5. Lấy JWKS key
 
 ```bash
-curl -X GET https://api.dxvas.edu.vn/.well-known/jwks.json
+curl -X GET https://api.truongvietanh.edu.vn/.well-known/jwks.json
 ```
 
 📌 *Trả về public key JWKS để hệ thống khác verify chữ ký JWT.*
@@ -742,5 +735,19 @@ curl -X GET https://api.dxvas.edu.vn/.well-known/jwks.json
 * [Design](./design.md)
 * [Data Model](./data-model.md)
 * [OpenAPI Spec](./openapi.yaml)
-* [ADR - 006 Auth Strategy](../../ADR/adr-006-auth-strategy.md)
-* [ADR - 004 Security](../../ADR/adr-004-security.md)
+
+### 🔖 Các Quyết định Kiến trúc (ADR)
+
+- [ADR-003 Secrets Management](../../ADR/adr-003-secrets.md): Quy trình lưu trữ & xoay khóa bí mật an toàn.  
+- [ADR-004 Security Policy](../../ADR/adr-004-security.md): Chính sách bảo mật tổng thể.  
+- [ADR-005 Environment Configuration Strategy](../../ADR/adr-005-env-config.md): Chuẩn tách cấu hình – `SERVICE__SECTION__KEY`.  
+- [ADR-006 Auth Strategy](../../ADR/adr-006-auth-strategy.md): Chiến lược xác thực người dùng và cấp phát token.  
+- [ADR-009 API Governance](../../ADR/adr-009-api-governance.md): Quy tắc versioning, naming và style REST.  
+- [ADR-011 API Error Format](../../ADR/adr-011-api-error-format.md): Quy ước mã lỗi & thông điệp lỗi (`namespace.snake_case`).  
+- [ADR-012 Response Structure](../../ADR/adr-012-response-structure.md): Chuẩn hóa cấu trúc JSON response cho API.
+- [ADR-018 Release Approval Policy](../../ADR/adr-018-release-approval-policy.md): Quy trình phê duyệt phát hành.
+- [ADR-022 SLA & SLO Monitoring](../../ADR/adr-022-sla-slo-monitoring.md): Khung giám sát & định nghĩa SLO.
+- [ADR-023 Schema Migration Strategy](../../ADR/adr-023-schema-migration-strategy.md): 3-phase migration (Prepare → Transition → Cleanup).  
+- [ADR-024 Data Anonymization & Retention](../../ADR/adr-024-data-anonymization-retention.md): Ẩn danh PII và TTL dữ liệu.  
+- [ADR-026 Hard-Delete Policy](../../ADR/adr-026-hard-delete-policy.md): Quy trình xoá vĩnh viễn & purge log.  
+- [ADR-030 Event Schema Governance](../../ADR/adr-030-event-schema-governance.md): Đặt tên & version sự kiện `*.v{n}`.
