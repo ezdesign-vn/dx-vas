@@ -522,10 +522,10 @@ Stack bao gồm:
 ### 8.5 Tenant On-Boarding Pipeline
 ```mermaid
 flowchart LR
-  A[Create Tenant PR] --> B[Terraform Cloud<br/>plan/apply<br/>(project, VPC, MariaDB)]
+  A[Create Tenant PR] --> B[Terraform Cloud<br/>plan/apply<br/>project, VPC, MariaDB]
   B --> C[DNS & Cert bot]
-  C --> D[Argo CD<br/>sync tenant stack<br/>(SMS + Sub services)]
-  D --> E[API Gateway auto-route<br/>`/sms/{tenant}`]
+  C --> D[Argo CD<br/>sync tenant stack<br/>SMS + Sub services]
+  D --> E["API Gateway auto-route<br/>/sms/{tenant}"]
   E --> F[Smoke Test suite]
 ```
 
