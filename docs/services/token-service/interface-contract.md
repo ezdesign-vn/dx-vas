@@ -83,7 +83,7 @@ Phát hành cặp token (`access_token`, `refresh_token`) mới cho user đã đ
     "expires_in": 3600
   },
   "meta": {
-    "request_id": "req-uuid",
+    "trace_id": "req-uuid",
     "timestamp": "2025-06-07T14:35:00Z"
   }
 }
@@ -116,7 +116,7 @@ Content-Type: application/json
     "expires_in": 3600
   },
   "meta": {
-    "request_id": "abc123",
+    "trace_id": "abc123",
     "timestamp": "2025-06-07T14:35:00Z"
   }
 }
@@ -182,7 +182,7 @@ Phát hành cặp token mới dựa trên `refresh_token` hợp lệ. API này c
     "expires_in": 3600
   },
   "meta": {
-    "request_id": "abc123",
+    "trace_id": "abc123",
     "timestamp": "2025-06-07T15:00:00Z"
   }
 }
@@ -215,7 +215,7 @@ Content-Type: application/json
     "expires_in": 3600
   },
   "meta": {
-    "request_id": "abc123",
+    "trace_id": "abc123",
     "timestamp": "2025-06-07T15:00:00Z"
   }
 }
@@ -601,7 +601,7 @@ Tất cả lỗi được trả về dưới dạng chuẩn `ErrorEnvelope` (ADR
     "message": "Token has expired"
   },
   "meta": {
-    "request_id": "a1b2c3",
+    "trace_id": "a1b2c3",
     "timestamp": "2025-06-07T10:30:00Z"
   }
 }
