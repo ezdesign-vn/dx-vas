@@ -42,17 +42,19 @@ docs/services/<service-name>/
 
 **On Process**
 
-| Ưu tiên | Service                    | Mô tả                                                                 | Trạng thái     |
-|--------:|:---------------------------|------------------------------------------------------------------------|----------------|
-| 1️⃣     | [`auth-service/master/`](./auth-service/master/design.md)     | Quản lý xác thực toàn hệ thống, cấp & verify JWT, quản lý session      | ✅ Hoàn thành |
-| 2️⃣     | [`user-service/master/`](./user-service/master/design.md)     | Quản lý người dùng toàn cục, RBAC động, ánh xạ user ↔ tenant           | ✅ Hoàn thành |
-| 3️⃣     | [`api-gateway/`](./api-gateway/design.md)             | Entry point duy nhất, định tuyến theo tenant, enforce bảo mật & quota | ✅ Hoàn thành |
-| 4️⃣     | [`notification-service/master/`](./notification-service/master/design.md) | Gửi email/SMS/notification đa kênh, cấu hình template, support tenant | ✅ Hoàn thành |
-| 5️⃣     | [`audit-logging-service/`](./audit-logging-service/design.md)   | Ghi nhận hành vi người dùng, hỗ trợ kiểm toán, bảo mật                  | ✅ Hoàn thành |
-| 6️⃣     | [`reporting-service/`](./reporting-service/design.md)       | Sinh báo cáo từ BigQuery, quản lý template, trả dữ liệu phân tích      | ✅ Hoàn thành |
-| 7️⃣     | [`auth-service/sub/`](./auth-service/sub/design.md)        | Phiên bản riêng theo tenant, xác thực nội bộ, login UI tùy chỉnh       | ⬜ Chưa bắt đầu |
-| 8️⃣     | [`user-service/sub/`](./user-service/sub/design.md)        | Quản lý người dùng từng tenant, ánh xạ với dữ liệu đặc thù              | ✅ Hoàn thành |
-| 9️⃣     | [`notification-service/sub/`](./notification-service/sub/design.md)| Bản tenant-specific để override cấu hình thông báo nội bộ              | ⬜ Chưa bắt đầu |
+| Ưu tiên | Service | Mô tả | Trạng thái |
+|---:|:---|:---|:---|
+| 1️⃣ | [`token-service/`](./token-service/design.md) | Là trái tim bảo mật, phát hành và quản lý vòng đời JWT cho toàn hệ thống. | ✅ Hoàn thành |
+| 2️⃣ | [`api-gateway/`](./api-gateway/design.md) | Cổng vào duy nhất, định tuyến, thực thi bảo mật (JWT, RBAC), và rate-limit. | ⏳ Đang chỉnh sửa |
+| 3️⃣ | [`auth-service/master/`](./auth-service/master/design.md) | Xử lý xác thực tập trung qua Google OAuth2, điều phối việc cấp token. | ⏳ Đang chỉnh sửa |
+| 4️⃣ | [`user-service/master/`](./user-service/master/design.md) | Quản lý định danh người dùng và template RBAC toàn cục, phát sự kiện đồng bộ. | ⏳ Đang chỉnh sửa |
+| 5️⃣ | [`auth-service/sub/`](./auth-service/sub/design.md) | Xử lý xác thực cục bộ tại tenant (Local/OTP), tích hợp với Auth Master. | ⏳ Đang chỉnh sửa |
+| 6️⃣ | [`user-service/sub/`](./user-service/sub/design.md) | Quản lý người dùng và RBAC trong phạm vi tenant, nhận dữ liệu đồng bộ từ Master. | ⏳ Đang chỉnh sửa |
+| 7️⃣ | [`sms-service/`](./sms-service/design.md) | Cung cấp nghiệp vụ lõi cho tenant (CRM, SIS, LMS), thay thế các adapter cũ. | ⬜ Chưa bắt đầu |
+| 8️⃣ | [`notification-service/master/`](./notification-service/master/design.md) | Điều phối việc gửi thông báo, quản lý template chung và phát sự kiện fan-out. | ⏳ Đang chỉnh sửa |
+| 9️⃣ | [`notification-service/sub/`](./notification-service/sub/design.md) | Nhận sự kiện và thực thi gửi thông báo (email/SMS) với cấu hình riêng của tenant. | ⬜ Chưa bắt đầu |
+| 🔟 | [`reporting-service/`](./reporting-service/design.md) | Truy vấn Data Warehouse, sinh báo cáo phân tích theo template và quyền hạn. | ⏳ Đang chỉnh sửa |
+| 1️⃣1️⃣| [`audit-logging-service/`](./audit-logging-service/design.md) | Thu thập, lưu trữ, và cung cấp giao diện truy vấn các log kiểm toán quan trọng. | ⏳ Đang chỉnh sửa |
 
 Ví dụ:
 
