@@ -13,20 +13,20 @@ reviewed_by: "Stephen Le"
 
 ## 1. 🎯 Mục tiêu & Phạm vi
 
-### Mục đích
+### 1.1. Mục đích
 `TokenService` được xây dựng để trở thành thành phần chuyên trách quản lý toàn bộ vòng đời của token trong hệ sinh thái DX-VAS, nhằm đảm bảo bảo mật, khả năng mở rộng, tính nhất quán và khả năng introspect token.
 
-### Chức năng chính
+### 1.2. Chức năng chính
 - Sinh JWT token (access + refresh) sau khi xác thực thành công từ `auth-service`.
 - Là nơi kiểm tra và xác minh token (`introspect`).
 - Hỗ trợ thu hồi token (`revoke`) theo `jti`.
 - Cung cấp metadata chi tiết cho mỗi phiên đăng nhập.
 
-### Ngoài phạm vi
+### 1.3. Ngoài phạm vi
 - Không chịu trách nhiệm xác thực danh tính người dùng (được thực hiện bởi `auth-service`).
 - Không phát hành token dạng OTP, Magic Link.
 
-### Người sử dụng chính
+### 1.4. Người sử dụng chính
 - `auth-service/master`, `auth-service/sub`
 - `API Gateway`
 - Frontend client (gián tiếp qua introspect/token-info)
@@ -66,61 +66,113 @@ reviewed_by: "Stephen Le"
 
 ---
 
+Dưới đây là nội dung viết lại đầy đủ mục `## 3. 🗃️ Mô hình dữ liệu chi tiết` cho `token-service/design.md`, theo đúng tiêu chuẩn 5 sao và phản ánh chính xác kiến trúc Redis-centric:
+
+---
+
 ## 3. 🗃️ Mô hình dữ liệu chi tiết
 
-`TokenService` sử dụng mô hình dữ liệu đơn giản nhưng hiệu quả để phục vụ các chức năng cốt lõi như sinh, xác thực và thu hồi token.
+`token-service` không sử dụng cơ sở dữ liệu quan hệ. Toàn bộ trạng thái xác thực (sessions, revoked tokens, JWKS keys) được lưu trữ dưới dạng Redis Key-Value với TTL phù hợp, để đảm bảo tốc độ và khả năng thu hồi.
 
-### Thành phần chính trong mô hình dữ liệu:
-- **revoked_tokens**: Lưu thông tin các `jti` đã bị thu hồi, giúp hệ thống nhanh chóng xác định token không hợp lệ (hard logout, revoke toàn phiên…).
-- **token_stats** *(tuỳ chọn)*: Ghi lại hành vi sử dụng token nhằm phục vụ logging, phân tích bảo mật, phát hiện bất thường hoặc thống kê.
-- **metadata embedded in JWT**: Một số thông tin như `sub`, `jti`, `exp`, `iat`, `device_type`, `auth_method`, `session_id` sẽ được encode trực tiếp vào JWT để phục vụ introspection và trace hiệu quả.
+---
 
-### Liên kết dữ liệu:
-- Token được gắn với user thông qua `user_id`, và có thể liên kết tới session cụ thể qua `session_id` được quản lý bởi `auth-service/sub`.
-- Việc lưu `jti` giúp kiểm tra revoke theo cách nhanh gọn (O(1)) bằng Redis hoặc index DB.
+### 3.1. 🧱 Redis Key Structure
 
-### Sơ đồ ERD (Entity Relationship Diagram)
+| Redis Key | Kiểu dữ liệu | TTL | Mô tả |
+|-----------|--------------|-----|-------|
+| `session:{jti}` | Hash/Object | = `access_token.exp` | Thông tin phiên xác thực đang hoạt động |
+| `revoked:{jti}` | Flag (string: `"revoked"`) | Tuỳ chỉnh (thường = access_token TTL) | Dùng để đánh dấu token đã bị thu hồi |
+| `jwks` | JSON String | Không TTL | Danh sách public keys (JWKS) để verify JWT |
+| `jwk_kid:<kid>` | String | Tuỳ chọn | Public key theo từng `kid`, dùng để rotate key dần dần |
 
-```mermaid
-erDiagram
-    REVOKED_TOKENS {
-        string jti PK "Mã định danh duy nhất của token"
-        string user_id "ID người dùng"
-        string tenant_id "Tenant tương ứng"
-        timestamp revoked_at "Thời điểm thu hồi"
-        string reason "Lý do thu hồi"
-    }
+#### 🔍 Ví dụ: `session:2fd2b01e-83b1-4ff1-96bc-a076d42dc3cc`
 
-    TOKEN_STATS {
-        string token_id PK "JTI của token"
-        string user_id "ID người dùng"
-        string session_id "Phiên đăng nhập"
-        string ip_address "Địa chỉ IP"
-        string user_agent "Thông tin trình duyệt"
-        string device_type "Loại thiết bị"
-        timestamp created_at "Thời điểm phát hành"
-    }
-
-    REVOKED_TOKENS ||--o| TOKEN_STATS : liên_kết_qua_jti
+```json
+{
+  "user_id": "user_abc123",
+  "tenant_id": "vas-primary",
+  "login_method": "otp",
+  "issued_at": "2025-06-10T15:00:00Z",
+  "expires_at": "2025-06-10T16:00:00Z",
+  "metadata": {
+    "ip": "113.23.45.12",
+    "ua": "Mozilla/5.0 (Macintosh...)"
+  }
+}
 ```
 
-> Một revoked_token có thể không sinh bản ghi token_stats nếu enable_token_stats = false.
+📌 **Redis được xem là nguồn dữ liệu tạm thời (ephemeral)**. Nếu key bị mất (do TTL hoặc crash), token tương ứng sẽ trở nên không thể introspect hoặc revoke.
 
-### Data retention & hard-delete  
-*(tuân ADR-024 Data Anonymization & Retention - và ADR-026 Hard-Delete Policy)*
+---
 
-| Bảng / Tập dữ liệu | TTL | Xử lý sau TTL |
-|--------------------|-----|---------------|
-| `revoked_tokens`   | **30 ngày** | Cron `purge_revoked` chạy hằng đêm, **DROP** bản ghi quá hạn. |
-| `token_stats`      | **90 ngày** | Job `anonymize_token_stats` → hash `user_id`, ẩn danh PII, rồi **DELETE** bản gốc. |
+### 3.2. 📦 Cấu trúc Payload & Metadata
 
-> Các job purge/anonymize ghi log vào `audit_log.purge_history` và phát sự kiện `data.purged.v1` để đáp ứng nghĩa vụ GDPR.
+#### 3.2.1 🔐 TokenIssueRequest – Payload gửi đến POST /v1/token
 
-🧩 *Lưu ý*:
+| Trường             | Kiểu                              | Bắt buộc | Mô tả                                             |
+| ------------------ | --------------------------------- | -------- | ------------------------------------------------- |
+| `user_id`          | string                            | ✅        | ID người dùng duy nhất trong hệ thống             |
+| `tenant_id`        | string                            | ✅        | Mã tenant hiện hành                               |
+| `login_method`     | string (`google`, `otp`, `local`) | ✅        | Phương thức xác thực mà người dùng đã sử dụng     |
+| `session_metadata` | object                            | ❌        | Dữ liệu phụ trợ bổ sung cho phiên đăng nhập       |
+| `exp_seconds`      | integer                           | ❌        | Thời gian sống của access\_token (tính bằng giây) |
 
-* Bảng `revoked_tokens` là tối thiểu và **bắt buộc** cho bất kỳ hệ thống hỗ trợ logout an toàn.
-* `token_stats` là tuỳ chọn, nhưng khuyến nghị bật để nâng cao khả năng quan sát & bảo mật.
-* Các thông tin như `user_id`, `tenant_id`, `device_type`, `session_id`... được encode vào JWT để hỗ trợ introspect mà không cần gọi DB mỗi lần.
+> Field `login_method` do `auth-service` xác định. `token-service` không xác minh giá trị này mà chỉ sử dụng để nhúng vào token hoặc ghi log.
+
+---
+
+#### 3.2.2 🧾 JWT Claims được sinh ra
+
+Access token (JWT) sẽ bao gồm các claims sau:
+
+| Claim          | Kiểu      | Mô tả                               |
+| -------------- | --------- | ----------------------------------- |
+| `sub`          | string    | Mã người dùng (`user_id`)           |
+| `tenant`       | string    | Mã tenant                           |
+| `login_method` | string    | Phương thức xác thực                |
+| `jti`          | string    | Mã định danh phiên duy nhất         |
+| `iat`          | timestamp | Thời điểm phát hành                 |
+| `exp`          | timestamp | Thời điểm hết hạn                   |
+| `iss`          | string    | `"token-service"`                   |
+| `aud`          | string    | `"dx_vas"` hoặc tên service sử dụng |
+
+---
+
+#### 3.2.3 💾 Redis Session (Key: session:<jti>)
+
+(Chi tiết đã được mô tả ở `3.1`, không lặp lại ở đây.)
+
+---
+
+#### 3.2.4 📝 Audit Log & Trace
+
+* Khi phát hành token thành công, `token-service` gửi event:
+
+```json
+{
+  "event": "auth.token.issued",
+  "actor_id": "abc123",
+  "tenant_id": "vas-primary",
+  "metadata": {
+    "login_method": "otp",
+    "jti": "uuid",
+    "exp": "2025-06-10T16:00:00Z"
+  }
+}
+```
+
+* Trường `login_method` giúp:
+
+  * Phân tích hành vi login (OTP vs Google)
+  * Ghi nhận tỷ lệ chuyển đổi
+  * Truy tìm các luồng đăng nhập không hợp lệ
+
+---
+
+📌 **Lưu ý kiến trúc**:
+
+* Mọi trường `login_method` và `metadata` đều do `auth-service` truyền sang.
+* `token-service` không thực hiện xác thực, chỉ ghi nhận và phản ánh trạng thái.
 
 👉 **Chi tiết sơ đồ ERD, định nghĩa bảng và chiến lược kiểm thử dữ liệu được trình bày tại**:  
 📂 [Data Model](./data-model.md)

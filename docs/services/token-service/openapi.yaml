@@ -1,13 +1,17 @@
 openapi: 3.0.3
 info:
   title: Token Service API
-  version: 1.2.0
+  version: 1.3.1
   description: |
     Token Service cung cấp API trung tâm để phát hành, làm mới, thu hồi và  
     introspect JWT (RS256), đồng thời expose endpoint JWKS để API Gateway  
     và các service khác xác thực chữ ký offline. Tuân ADR-009/API Governance,  
     ADR-011/API Error Format, ADR-012/Response Structure, ADR-013/Path Naming,  
     ADR-030/Event Schema Governance, CR-03/Token Service Centralisation, CR-04.
+    > Tuân theo schema mô tả chi tiết tại:  
+    > - design.md#4-cấu-trúc-payload--metadata  
+    > - data-model.md#tokenissuepayload
+
   contact:
     name: DX VAS Team
     email: dx@truongvietanh.edu.vn
@@ -107,8 +111,14 @@ components:
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
+    LoginMethod:
+      type: string
+      enum: [oauth2, otp, password]
+      description: Các phương thức xác thực được hỗ trợ.
+
     TokenIssueRequest:
       type: object
+      description: Payload chuẩn để yêu cầu phát hành token sau xác thực.
       required:
         - sub
         - roles
@@ -135,6 +145,8 @@ components:
           type: string
           description: Session ID from auth_sessions
           example: "sess-abc-123"
+        login_method:
+          $ref: '#/components/schemas/LoginMethod' 
 
     TokenResponseData:
       type: object
@@ -339,13 +351,32 @@ paths:
             schema:
               $ref: '#/components/schemas/TokenIssueRequest'
             examples:
-              example-1:
+              password:
                 summary: Request ví dụ
                 value:
                   sub: "user-123"
                   roles: ["teacher"]
                   permissions: ["report.view_login_by_tenant"]
                   session_id: "sess-abc-123"
+                  login_method: "password"
+              oauth2:
+                summary: Đăng nhập Google OAuth2
+                value:
+                  sub: "user-123"
+                  roles: ["admin"]
+                  permissions: ["user.manage"]
+                  session_id: "sess-x1"
+                  login_method: "oauth2"
+
+              otp:
+                summary: Đăng nhập OTP
+                value:
+                  sub: "user-456"
+                  roles: ["student"]
+                  permissions: ["exam.view"]
+                  session_id: "sess-x2"
+                  login_method: "otp"
+
       responses:
         '200':
           description: Tokens issued successfully

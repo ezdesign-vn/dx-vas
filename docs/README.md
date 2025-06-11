@@ -11,6 +11,9 @@ Xây dựng **DX-VAS Platform** thành một nền tảng **chuyển đổi số
 1. **Kết nối liền mạch** – Hợp nhất quy trình giáo dục, vận hành trường học và tương tác phụ huynh-học sinh trên một nền tảng duy nhất.  
 2. **Mở rộng linh hoạt** – Kiến trúc **multi-tenant** cho phép triển khai nhanh nhiều cơ sở/trường, mỗi tenant tự chủ nhưng kế thừa dịch vụ chung.  
 3. **Bền vững & bảo mật** – Áp dụng chuẩn 5★ (Service, Data, Interface, OpenAPI, Security) và tuân thủ các ADR để đảm bảo bảo mật, khả năng quan sát, và tiết kiệm chi phí dài hạn.
+4. Hệ thống hỗ trợ đa dạng phương thức đăng nhập:
+- OAuth2 (Google): Dành cho giáo viên, học sinh, nhân viên – xác thực qua `auth-service/master`.
+- Local/OTP: Dành cho phụ huynh và trường không dùng Google Workspace – xử lý qua `auth-service/sub` và reCAPTCHA.
 
 ### 📦 Phạm vi tài liệu
 Tài liệu này mô tả **toàn bộ kiến trúc và tiêu chuẩn kỹ thuật** của DX-VAS:

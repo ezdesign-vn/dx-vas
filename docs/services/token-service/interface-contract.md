@@ -1,6 +1,6 @@
 ---
 title: Token Service – Interface Contract
-version: "1.4"
+version: "1.5"
 last_updated: "2025-06-09"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -52,13 +52,15 @@ Phát hành cặp token (access_token, refresh_token) mới cho user đã đư�
 ```json
 {
   "sub": "user-123",
-  "roles": [
-    "teacher"
-  ],
-  "permissions": [
-    "report.view_login_by_tenant"
-  ],
-  "session_id": "sess-abc-123"
+  "roles": ["teacher"],
+  "permissions": ["report.view_login_by_tenant"],
+  "session_id": "sess-abc-123",
+  "login_method": "otp",
+  "session_metadata": {
+    "ip": "113.23.45.12",
+    "device_type": "android",
+    "user_agent": "Mozilla/5.0"
+  }
 }
 ```
 
@@ -68,6 +70,8 @@ Phát hành cặp token (access_token, refresh_token) mới cho user đã đư�
 | `roles` | ✅ | array | Danh sách các `role_code` của người dùng trong tenant hiện tại. |
 | `permissions`| ✅ | array | Danh sách các `permission_code` người dùng có. |
 | `session_id` | ✅ | string | ID của phiên đăng nhập, lấy từ bảng `auth_sessions`. |
+| `login_method`     | ✅        | string  | `google` / `otp` / `local`          |
+| `session_metadata` | ❌        | object  | IP, thiết bị, trình duyệt (ghi log) |
 
 ---
 
@@ -347,6 +351,7 @@ Trường `active` cho biết token có hợp lệ không. Nếu `active: false`
   "token_type": "access",
   "session_id": "session-abc-uuid",
   "client_id": "frontend-app",
+  "login_method": "otp",
   "meta": {
     "device_type": "web",
     "ip_address": "192.168.1.10",
@@ -363,6 +368,7 @@ Trường `active` cho biết token có hợp lệ không. Nếu `active: false`
 | `token_type` | access / refresh                          |
 | `session_id` | Gắn với bảng `auth_sessions`              |
 | `meta`       | Dữ liệu bổ sung (IP, thiết bị, agent...)  |
+| `login_method` | Phương thức đăng nhập ban đầu của session (`otp`, `google`, `local`) |
 
 ---
 
@@ -538,6 +544,18 @@ Trong quá trình thiết kế API của `token-service`, một số enum đã �
 
 ---
 
+### 5. `login_method`
+
+| Giá trị  | Mô tả                           |
+| -------- | ------------------------------- |
+| `google` | Đăng nhập bằng Google OAuth2    |
+| `otp`    | Đăng nhập bằng mã OTP           |
+| `local`  | Đăng nhập bằng tài khoản nội bộ |
+
+> 🔐 Dùng để xác định phương thức xác thực đã được sử dụng khi phát hành token/session.
+
+---
+
 ## 📎 Permission Mapping
 
 Mặc dù `token-service` không trực tiếp quản lý người dùng hoặc phân quyền truy cập tài nguyên, nhưng vẫn cần định nghĩa rõ các quyền (permissions) áp dụng cho các hệ thống gọi đến các endpoint đặc thù như introspect hoặc revoke. Điều này đảm bảo kiểm soát truy cập, tuân thủ nguyên tắc Principle of Least Privilege (ADR-004, ADR-006, ADR-007).
@@ -652,11 +670,18 @@ Dưới đây là các ví dụ `curl` minh họa cách sử dụng các API ch�
 curl -X POST https://api.truongvietanh.edu.vn/v1/token \
   -H "Content-Type: application/json" \
   -H "X-Request-ID: req-001" \
-  -H "X-Tenant-ID: vas-truongvietanh" \
+  -H "X-Tenant-ID: vas-primary" \
+  -H "Authorization: Bearer <service-token>" \
   -d '{
-    "grant_type": "password",
-    "email": "student01@example.edu.vn",
-    "password": "abc123456"
+    "sub": "user-123",
+    "roles": ["teacher"],
+    "permissions": ["report.view_login_by_tenant"],
+    "session_id": "sess-abc-123",
+    "login_method": "otp",
+    "session_metadata": {
+      "ip": "113.23.45.12",
+      "device_type": "android"
+    }
   }'
 ```
 
