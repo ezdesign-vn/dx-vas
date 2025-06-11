@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Token Service API
-  version: 1.1.0
+  version: 1.2.0
   description: |
     Token Service cung cấp API trung tâm để phát hành, làm mới, thu hồi và  
     introspect JWT (RS256), đồng thời expose endpoint JWKS để API Gateway  
@@ -17,16 +17,14 @@ info:
   x-author: "DX VAS Team"
   x-reviewed-by: "Stephen Le"
   x-maintainer: "dx@truongvietanh.edu.vn"
-  x-purpose: | # TODO: Mô tả mục đích chính của API này một cách ngắn gọn (1-2 dòng).
-    API của Token Service phục vụ việc 
   x-adr-compliance:
     - adr-007-rbac.md
     - adr-011-api-error-format.md
 
 servers:
-  - url: https://api.truongvietanh.edu.vn
+  - url: https://api.truongvietanh.edu.vn/token
     description: Production
-  - url: https://staging.truongvietanh.edu.vn
+  - url: https://staging.truongvietanh.edu.vn/token
     description: Staging
 
 security:
@@ -517,3 +515,33 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /.well-known/jwks.json:
+      get:
+        tags:
+          - JWKS
+        summary: Get JSON Web Key Set (JWKS)
+        description: >
+          Cung cấp danh sách các public key (JWKS) để các client hoặc service
+          khác có thể xác thực chữ ký của JWT được phát hành bởi Token Service.
+          Endpoint này là public và nên được cache ở phía client.
+        security: [] # Override security toàn cục, đánh dấu đây là public endpoint
+        responses:
+          '200':
+            description: A JWK set
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/JWKS'
+                examples:
+                  success:
+                    summary: JWKS response example
+                    value:
+                      keys:
+                        - kty: "RSA"
+                          use: "sig"
+                          alg: "RS256"
+                          kid: "key-id-1"
+                          n: "uA6kkl5e8fKNS3k0_4ZFnN..."
+                          e: "AQAB"
+          '500':
+            $ref: '#/components/responses/InternalError'

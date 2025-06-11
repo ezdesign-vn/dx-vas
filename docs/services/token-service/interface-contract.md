@@ -1,6 +1,6 @@
 ---
 title: Token Service – Interface Contract
-version: "1.3"
+version: "1.4"
 last_updated: "2025-06-09"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -29,21 +29,21 @@ Token Service cung cấp các API trung tâm để phát hành, làm mới, thu 
 
 ---
 
-## ✅ 1. POST `/v1/token`
+## ✅ 1. POST `/v1/token/issue`
 
 ### 🎯 Mục đích
-Phát hành cặp token (`access_token`, `refresh_token`) mới cho user đã được xác thực trước đó, được gọi nội bộ bởi `auth-service/sub`.
+Phát hành cặp token (access_token, refresh_token) mới cho user đã được xác thực trước đó. API này được gọi nội bộ bởi auth-service (Master hoặc Sub) sau khi xác thực danh tính người dùng thành công.
 
 ---
 
 ### 🔐 Headers yêu cầu
 
-| Tên Header       | Bắt buộc | Mô tả |
-|------------------|----------|-------|
-| `X-Request-ID`   | ✅        | ID truy vết request |
-| `X-Tenant-ID`    | ✅        | Tenant tương ứng |
-| `Content-Type`   | ✅        | `application/json` |
-| `Authorization`  | ✅        | JWT từ `auth-service/sub`, dùng để xác thực danh tính `sub` |
+| Tên Header | Bắt buộc | Mô tả |
+|---|---|---|
+| `X-Request-ID` | ✅ | ID truy vết request, sẽ được trả về trong `meta.trace_id`. |
+| `X-Tenant-ID` | ✅ | Định danh tenant đang thực hiện yêu cầu. |
+| `Content-Type` | ✅ | `application/json` |
+| `Authorization` | ✅ | Token xác thực của service gọi đến (ví dụ: service account token của Auth Service), chứng minh quyền được gọi `token.issue`. |
 
 ---
 
@@ -51,24 +51,23 @@ Phát hành cặp token (`access_token`, `refresh_token`) mới cho user đã đ
 
 ```json
 {
-  "sub": "user-abc-uuid",
-  "scope": "read:profile write:report",
-  "session_metadata": {
-    "ip_address": "192.168.1.1",
-    "user_agent": "Mozilla/5.0",
-    "device_type": "web",
-    "device_model": "MacBookPro16,1",
-    "os_version": "macOS 14.3",
-    "app_version": "1.0.2"
-  }
+  "sub": "user-123",
+  "roles": [
+    "teacher"
+  ],
+  "permissions": [
+    "report.view_login_by_tenant"
+  ],
+  "session_id": "sess-abc-123"
 }
 ```
 
-| Trường             | Bắt buộc | Kiểu DL | Mô tả                           |
-| ------------------ | -------- | ------- | ------------------------------- |
-| `sub`              | ✅        | string  | ID của user cần phát hành token |
-| `scope`            | ⭕        | string  | Phạm vi quyền hạn của token     |
-| `session_metadata` | ⭕        | object  | Metadata phiên đăng nhập        |
+| Trường | Bắt buộc | Kiểu DL | Mô tả |
+|---|---|---|---|
+| `sub` | ✅ | string | Global User ID của người dùng cần cấp token. |
+| `roles` | ✅ | array | Danh sách các `role_code` của người dùng trong tenant hiện tại. |
+| `permissions`| ✅ | array | Danh sách các `permission_code` người dùng có. |
+| `session_id` | ✅ | string | ID của phiên đăng nhập, lấy từ bảng `auth_sessions`. |
 
 ---
 
