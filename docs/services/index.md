@@ -2,7 +2,7 @@
 
 Tài liệu này liệt kê các Service chính trong hệ thống `dx-vas`, được tổ chức theo định hướng microservices. Mỗi service có một thư mục riêng chứa các tài liệu thiết kế chi tiết.
 
-## 🧱 Cấu trúc Tài liệu cho Mỗi Service
+## 1. 🧱 Cấu trúc Tài liệu cho Mỗi Service
 
 Mỗi thư mục của một service sẽ tuân theo cấu trúc chuẩn như sau:
 
@@ -34,7 +34,7 @@ docs/services/<service-name>/
 
 ---
 
-## Dưới đây là danh sách các **service trong hệ thống dx-vas**, được sắp xếp theo **thứ tự ưu tiên từ cao đến thấp**, phản ánh đúng lộ trình triển khai hiện tại và tính phụ thuộc giữa các thành phần:
+## 2. Dưới đây là danh sách các **service trong hệ thống dx-vas**, được sắp xếp theo **thứ tự ưu tiên từ cao đến thấp**, phản ánh đúng lộ trình triển khai hiện tại và tính phụ thuộc giữa các thành phần:
 
 ---
 
@@ -64,3 +64,65 @@ Ví dụ:
 - [Giao diện API (interface-contract.md)](./user-service/master/interface-contract.md)
 - [Mô hình dữ liệu (data-model.md)](./user-service/master/data-model.md)
 - [OpenAPI Spec (openapi.yaml)](./user-service/master/openapi.yaml)
+
+## 3. 📡 Chính sách đặt `servers.url` trong OpenAPI cho các Service
+
+Dưới đây là quy ước đặt `servers.url` cho từng loại service trong hệ thống `dx-vas`, nhằm đảm bảo thống nhất versioning và routing.
+
+---
+
+### 🔒 `auth-service/master` – **Có `/v1`**
+
+```yaml
+servers:
+  - url: https://auth.truongvietanh.edu.vn/auth-master/v1
+    description: Production server
+```
+
+✅ **Lý do:**
+
+* Là **public-facing API**, gọi trực tiếp từ frontend.
+* Các API như `login-via-otp`, `login-via-local`, `oauth2/callback` có thể thay đổi request/response theo version.
+* Cần version tường minh để hỗ trợ backward compatibility & route control tại API Gateway.
+
+---
+
+### 🎯 `token-service` – **Không có `/v1`**
+
+```yaml
+servers:
+  - url: https://api.truongvietanh.edu.vn/token
+    description: Production
+  - url: https://staging.truongvietanh.edu.vn/token
+    description: Staging
+```
+
+❌ **Không cần `/v1` trong URL path**
+
+✅ **Lý do:**
+
+* Là **internal service**, chỉ được gọi từ `auth-service`.
+* API mang tính RPC (`/issue`, `/revoke`, `/introspect`) và hiếm khi cần public backward compatibility.
+* Version được quản lý qua deployment tag (CI/CD), không cần expose qua path.
+
+---
+
+### 🛡️ `api-gateway` – **Không có `/v1` (proxy toàn bộ)**
+
+```yaml
+servers:
+  - url: https://api.truongvietanh.edu.vn/
+    description: API Gateway
+```
+
+✅ **Lý do:**
+
+* Gateway không cung cấp business API riêng, mà proxy toàn bộ sang các service khác.
+* Từng service gắn version trong path của chính nó nếu cần (`/auth-master/v1`, `/reporting/v2`,…).
+
+---
+
+### 📌 Ghi chú quan trọng:
+
+* ❗ Nếu một service **phục vụ frontend** hoặc **có khả năng thay đổi API** → bắt buộc dùng version trong URL (`/v1`, `/v2`,…).
+* ✅ Nếu là internal RPC → giữ path đơn giản, version hóa qua CI/CD hoặc headers.

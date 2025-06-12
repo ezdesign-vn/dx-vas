@@ -1,7 +1,7 @@
 ---
 title: API Gateway – Interface Contract
-version: "2.0"
-last_updated: "2025-06-03"
+version: "2.1"
+last_updated: "2025-06-11"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
@@ -47,6 +47,7 @@ Gateway sẽ tự động thêm các header sau vào request gửi đến backen
 | `X-Tenant-ID`    | Tenant hiện hành, lấy từ JWT hoặc header gốc |
 | `X-Permissions`  | Danh sách quyền (nếu cần), resolved từ cache |
 | `X-Service`      | Tên backend được định tuyến (ghi log/tracing) |
+| `X-Login-Method` | Phương thức đăng nhập: `otp`, `oauth2`, `password` |
 
 > ⚠️ Backend cần tin tưởng các header này là hợp lệ và đã được Gateway kiểm tra.
 
@@ -153,6 +154,7 @@ Khi một request đi qua API Gateway, hệ thống sẽ thực hiện một chu
    - Nếu route không đánh dấu là `public`, Gateway sẽ xác thực JWT:
      - Check chữ ký bằng JWKS từ `token-service`
      - Check token đã bị thu hồi qua Redis key `revoked:{jti}`
+     - Nếu JWT hợp lệ, Gateway trích xuất các trường quan trọng như `sub`, `tenant`, và `login_method` để forward cho backend.
      - Nếu không có trong cache → gọi `/token/introspect`
 
 4. **Phân quyền RBAC**
@@ -203,12 +205,13 @@ ALL /<path>
 
 #### 🔐 Yêu cầu về Header
 
-| Header          | Bắt buộc | Ghi chú                                                                       |
-| --------------- | -------- | ----------------------------------------------------------------------------- |
-| `Authorization` | Có       | Với route không phải `public`; dạng `Bearer <JWT>`                            |
-| `x-trace-id`    | Không    | Nếu không có, Gateway sẽ sinh tự động                                         |
-| `Content-Type`  | Có       | `application/json` nếu có body                                                |
-| (auto forward)  | —        | `X-User-ID`, `X-Tenant-ID`, `X-Service`, `X-Permissions` được Gateway tự thêm |
+| Header           | Bắt buộc | Ghi chú                                                                       |
+| ---------------- | -------- | ----------------------------------------------------------------------------- |
+| `Authorization`  | Có       | Với route không phải `public`; dạng `Bearer <JWT>`                            |
+| `x-trace-id`     | Không    | Nếu không có, Gateway sẽ sinh tự động                                         |
+| `Content-Type`   | Có       | `application/json` nếu có body                                                |
+| (auto forward)   | —        | `X-User-ID`, `X-Tenant-ID`, `X-Service`, `X-Permissions` được Gateway tự thêm |
+| `X-Login-Method` | Không    | Forward bởi Gateway nếu có, ví dụ: `otp`, `oauth2`                            |
 
 ---
 
@@ -387,7 +390,8 @@ File `route_config.json` định nghĩa toàn bộ hành vi định tuyến và 
   "backend": "user-service.master",
   "x-required-permission": "user.update",
   "x-condition": {
-    "user_id": "{{X-User-ID}}"
+    "user_id": "{{X-User-ID}}",
+    "login_method": "otp"
   }
 }
 ```

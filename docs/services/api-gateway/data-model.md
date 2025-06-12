@@ -1,6 +1,6 @@
 ---
 title: API Gateway - Data Model
-version: "2.0"
+version: "2.1"
 last_updated: "2025-06-04"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -60,6 +60,9 @@ Dữ liệu mà API Gateway quản lý được chia thành hai loại chính:
 
 - Mọi cache đều có thể bị invalidated bởi TTL, hoặc chủ động qua Pub/Sub (ví dụ: `rbac.updated`).
 - Gateway sẽ **fallback tự động** nếu cache miss (gọi `user-sub`, `token-service`...).
+
+> 📌 Một số field được trích xuất từ JWT (như `sub`, `tenant_id`, `login_method`) sẽ được forward qua header cho các backend service, nhưng **không được cache riêng trong Redis** tại Gateway.  
+> Chúng là kết quả của quá trình decode JWT (offline introspection) và chỉ được giữ tạm trong memory per-request.
 
 ---
 
@@ -128,6 +131,9 @@ Lưu danh sách permission của user theo tenant – được resolve từ `use
 
 **TTL mặc định:** 300 giây
 **Cơ chế invalidate:** TTL hoặc lắng nghe sự kiện `rbac.updated` (Pub/Sub)
+
+> 🔍 Trường `login_method` không nằm trong cache RBAC mà được lấy từ JWT payload và forward qua `X-Login-Method`.  
+> Backend có thể dùng field này để phân nhánh logic, nhưng Gateway không quản lý cache riêng cho nó.
 
 ---
 

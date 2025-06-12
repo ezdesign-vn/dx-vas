@@ -1,271 +1,400 @@
 ---
 title: Auth Service Master - Data Model
-version: 1.1
-last_updated: 2025-06-01
+version: 2.0
+last_updated: 2025-06-11
 author: DX VAS Team
 reviewed_by: Stephen Le
 ---
 # 🔐 Auth Service Master - Data Model
 
-## 1. Giới thiệu
+Tài liệu này mô tả chi tiết mô hình dữ liệu của **Auth Service Master**.
 
-Tài liệu này mô tả chi tiết mô hình dữ liệu của **Auth Service Master** – một service **cốt lõi** trong hệ thống `dx-vas`, hoạt động theo kiến trúc **multi-tenant** và **stateless**. Service này chịu trách nhiệm quản lý phiên đăng nhập (AuthSession) và cấu hình các nhà cung cấp đăng nhập (AuthProviderConfig) như Google OAuth2.
+Service này là một thành phần **điều phối xác thực trung tâm** trong hệ thống `dx-vas`, hoạt động theo kiến trúc **request-response** và hỗ trợ **multi-tenant**.
 
-Các loại dữ liệu chính được quản lý:
--   Phiên đăng nhập của người dùng (`auth_sessions`)
--   Cấu hình OAuth2 provider (`auth_provider_config`)
--   Danh sách sự kiện `processed_events` để đảm bảo idempotency
-
-Mô hình dữ liệu này là nền tảng cho việc phát triển backend, định nghĩa API, thực hiện migration schema, và bảo đảm tính toàn vẹn dữ liệu cho quá trình xác thực và cấp token.
-
-## 2. Phạm vi Dữ liệu Quản lý (Scope)
-
-Auth Service Master bao gồm:
--   Quản lý phiên đăng nhập JWT và refresh-token (`auth_sessions`)
--   Quản lý cấu hình các nhà cung cấp xác thực (`auth_provider_config`)
--   Xác thực OAuth2, làm mới/thu hồi token
--   Ghi nhận sự kiện xử lý token để đảm bảo idempotency (`processed_events`)
-
-## 3. Ngoài Phạm Vi (Out of Scope)
-
-Auth Service Master **không** chịu trách nhiệm quản lý:
--   ❌ Danh tính người dùng toàn cục (quản lý bởi `user-service/master`)
--   ❌ Gán người dùng vào tenant (quản lý bởi `sub-user-service`)
--   ❌ Phân quyền RBAC (quản lý bởi `user-service/master` và hệ thống RBAC template)
-
-## 4. Mục tiêu của Tài liệu Mô hình Dữ liệu
-
--   Mô tả chi tiết các bảng dữ liệu cốt lõi của Auth Service Master
--   Làm rõ các constraint, khóa chính, khóa ngoại, chỉ mục
--   Hỗ trợ phát triển backend, OpenAPI spec, migration và kiểm thử
--   Liên kết với các tài liệu: `design.md`, `interface-contract.md`, `openapi.yaml`
+**Auth Service Master** chịu trách nhiệm quản lý các loại dữ liệu chính sau:
+- Cấu hình nhà cung cấp xác thực OAuth2 (`auth_provider_configs`)
+- Đăng nhập OTP (`auth_otp_logs`)
+- Nhật ký xác thực thành công/thất bại (`auth_login_audits`)
 
 ---
 
-## 5. Sơ đồ ERD (Entity Relationship Diagram)
+## 1. 🎯 Phạm vi Dữ liệu Quản lý (Scope)
+
+Auth Service Master không lưu trữ token hoặc session của người dùng. Tất cả các dữ liệu liên quan đến vòng đời token được ủy quyền cho `token-service`.
+
+Dưới đây là các nhóm dữ liệu **có trong phạm vi quản lý của Auth Service Master**:
+
+| Nhóm dữ liệu            | Mô tả ngắn                                                   |
+|-------------------------|--------------------------------------------------------------|
+| `auth_provider_configs` | Cấu hình OAuth2 cho từng tenant (Google client ID/secret…)  |
+| `auth_otp_logs`         | Lịch sử gửi OTP (phone/email), hỗ trợ audit & chống spam     |
+| `auth_login_audits`     | Ghi lại log đăng nhập thành công/thất bại và phương thức     |
+
+### ❌ Ngoài phạm vi
+
+| Nhóm dữ liệu                | Ghi chú                                                     |
+|-----------------------------|-------------------------------------------------------------|
+| `auth_sessions`             | ➤ Được quản lý bởi `token-service`                         |
+| `jwks_cache`, `revoked_jti` | ➤ Được cache & xử lý tại `token-service`, không nằm ở đây |
+| `route_config`, `rbac`      | ➤ Thuộc phạm vi của `api-gateway`                          |
+
+---
+
+## 2. 🧱 Cấu trúc bảng dữ liệu
+
+### 2.1. `auth_provider_configs`
+
+Cấu hình OAuth2 cho từng tenant. Cho phép Auth Service Master điều hướng người dùng đến đúng nhà cung cấp và kiểm tra tính hợp lệ của thông tin trả về.
+
+| Trường              | Kiểu        | Bắt buộc | Ghi chú                                      |
+|---------------------|-------------|----------|----------------------------------------------|
+| `tenant_id`         | UUID        | ✅        | Khóa chính (kết hợp với `provider_name`)     |
+| `provider_name`     | TEXT        | ✅        | `google`, `apple`, ...                       |
+| `client_id`         | TEXT        | ✅        | OAuth2 Client ID                             |
+| `client_secret`     | TEXT        | ✅        | Được mã hóa bằng secret backend              |
+| `redirect_uri`      | TEXT        | ✅        | URI được redirect từ nhà cung cấp            |
+| `scopes`            | TEXT[]      | ❌        | Các scope mặc định, ví dụ: `["email", "openid"]` |
+| `is_active`         | BOOLEAN     | ✅        | Cho phép sử dụng hay không                   |
+| `created_at`        | TIMESTAMPTZ | ✅        |                                               |
+| `updated_at`        | TIMESTAMPTZ | ✅        |                                               |
+
+### 2.2. `auth_otp_logs`
+
+Lưu thông tin các lần gửi OTP để phục vụ chống spam, audit và thống kê.
+
+| Trường         | Kiểu        | Bắt buộc | Ghi chú                                      |
+|----------------|-------------|----------|----------------------------------------------|
+| `id`           | UUID        | ✅        | Khóa chính                                   |
+| `tenant_id`    | UUID        | ✅        | Tenant gửi OTP                               |
+| `identifier`   | TEXT        | ✅        | Số điện thoại hoặc email                     |
+| `otp_type`     | TEXT        | ✅        | `phone` hoặc `email`                         |
+| `sent_at`      | TIMESTAMPTZ | ✅        | Thời điểm gửi                                |
+| `via_channel`  | TEXT        | ✅        | `sms`, `email`, hoặc các kênh nội bộ khác    |
+| `status`       | TEXT        | ✅        | `success`, `failed`, `rate_limited`...       |
+| `meta`         | JSONB       | ❌        | Dữ liệu phụ như IP, user agent               |
+
+### 2.3. `auth_login_audits`
+
+Ghi lại các phiên đăng nhập thành công/thất bại, phục vụ truy vết, thống kê và bảo mật.
+
+| Trường           | Kiểu        | Bắt buộc | Ghi chú                                      |
+|------------------|-------------|----------|----------------------------------------------|
+| `id`             | UUID        | ✅        | Khóa chính                                   |
+| `tenant_id`      | UUID        | ✅        |                                              |
+| `user_id`        | UUID        | ✅        | ID người dùng (nếu có)                       |
+| `identifier`     | TEXT        | ✅        | Email/SĐT/username đăng nhập                 |
+| `login_method`   | TEXT        | ✅        | `google`, `otp`, `local`                     |
+| `status`         | TEXT        | ✅        | `success` hoặc `failed`                      |
+| `client_ip`      | TEXT        | ✅        | IP người dùng                                |
+| `user_agent`     | TEXT        | ✅        | Trình duyệt hoặc app                         |
+| `trace_id`       | UUID        | ✅        | Mã trace ID giúp liên kết với hệ thống khác  |
+| `created_at`     | TIMESTAMPTZ | ✅        | Thời điểm đăng nhập                          |
+
+---
+
+## 3. 🧬 ERD & sơ đồ minh họa
+
+Sơ đồ dưới đây thể hiện mô hình dữ liệu logic của Auth Service Master, nhấn mạnh các bảng quan trọng như `auth_provider_configs`, `auth_otp_logs` và `auth_login_audits`.
 
 ```mermaid
 erDiagram
-    AUTH_SESSIONS {
-        UUID session_id PK
-        UUID user_id_global
-        UUID tenant_id
-        TEXT refresh_token_hash
-        TEXT user_agent
-        TEXT ip_address
-        TIMESTAMPTZ expires_at
-        TEXT status
-        TEXT last_login_method
-        TEXT[] permissions_snapshot
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-    }
-
-    AUTH_PROVIDER_CONFIG {
+    AUTH_PROVIDER_CONFIGS {
+        UUID tenant_id PK
         TEXT provider_name PK
         TEXT client_id
         TEXT client_secret
         TEXT redirect_uri
         TEXT[] scopes
-        BOOLEAN enabled
+        BOOLEAN is_active
         TIMESTAMPTZ created_at
         TIMESTAMPTZ updated_at
     }
 
-    PROCESSED_EVENTS {
-        UUID event_id PK
-        TEXT consumer_group_name
-        TIMESTAMPTZ processed_at
+    AUTH_OTP_LOGS {
+        UUID id PK
+        UUID tenant_id
+        TEXT identifier
+        TEXT otp_type
+        TIMESTAMPTZ sent_at
+        TEXT via_channel
+        TEXT status
+        JSONB meta
     }
+
+    AUTH_LOGIN_AUDITS {
+        UUID id PK
+        UUID tenant_id
+        UUID user_id
+        TEXT identifier
+        TEXT login_method
+        TEXT status
+        TEXT client_ip
+        TEXT user_agent
+        UUID trace_id
+        TIMESTAMPTZ created_at
+    }
+
+    AUTH_OTP_LOGS ||--|| AUTH_PROVIDER_CONFIGS : belongs_to
+    AUTH_LOGIN_AUDITS ||--|| AUTH_PROVIDER_CONFIGS : belongs_to
 ```
+
+📌 **Ghi chú:**
+
+* Mặc dù các bảng không có liên kết foreign key cứng trong cơ sở dữ liệu (do tính đa tenant), sơ đồ trên giúp trực quan hóa luồng dữ liệu và mối quan hệ logic.
+* `tenant_id` là khóa phân vùng (partition key) trong toàn bộ hệ thống dx-vas.
+* `user_id` được liên kết ngầm với `user-service` – không có foreign key trực tiếp nhưng mang ý nghĩa tham chiếu ngoài.
 
 ---
 
-## 6. Chi tiết Từng Bảng
+## 4. 📦 Ví dụ dữ liệu & Case sử dụng
 
-### 📌 Bảng: `auth_sessions`
+Phần này cung cấp một số ví dụ thực tế về dữ liệu trong các bảng chính và cách hệ thống sử dụng chúng để thực hiện các nghiệp vụ xác thực.
 
-#### 🧾 Mục đích
+---
 
-Lưu trữ các phiên làm việc người dùng đã xác thực, hỗ trợ refresh-token, audit và phân quyền snapshot.
+### 4.1. Ví dụ: `auth_provider_configs`
 
-#### 📜 Câu lệnh `CREATE TABLE`
+```json
+{
+  "tenant_id": "8a4d6e1f-9007-4f7d-bd9a-12e470e1a123",
+  "provider_name": "google",
+  "client_id": "1007630212910-xyz.apps.googleusercontent.com",
+  "client_secret": "••••••••••",
+  "redirect_uri": "https://auth.truongvietanh.edu.vn/oauth2/callback",
+  "scopes": ["openid", "email", "profile"],
+  "is_active": true,
+  "created_at": "2024-10-01T09:00:00Z",
+  "updated_at": "2025-06-01T10:00:00Z"
+}
+```
+
+📌 **Use case:** Khi người dùng nhấn “Đăng nhập bằng Google”, service truy xuất cấu hình này theo `tenant_id` để tạo link ủy quyền (`Google OAuth2 auth URL`).
+
+---
+
+### 4.2. Ví dụ: `auth_otp_logs`
+
+```json
+{
+  "id": "8d86d9fe-4c25-4268-9560-289e2648fc99",
+  "tenant_id": "8a4d6e1f-9007-4f7d-bd9a-12e470e1a123",
+  "identifier": "+84981112233",
+  "otp_type": "phone",
+  "sent_at": "2025-06-10T14:32:20Z",
+  "via_channel": "sms",
+  "status": "success",
+  "meta": {
+    "client_ip": "172.16.0.10",
+    "user_agent": "Mozilla/5.0"
+  }
+}
+```
+
+📌 **Use case:** Giúp theo dõi lịch sử gửi OTP và kiểm soát rate limit dựa theo `identifier`, `ip`, `user_agent`.
+
+---
+
+### 4.3. Ví dụ: `auth_login_audits`
+
+```json
+{
+  "id": "f38e38f5-10ab-4db5-980f-8c13b6c888a4",
+  "tenant_id": "8a4d6e1f-9007-4f7d-bd9a-12e470e1a123",
+  "user_id": "1f409245-cf1a-4a0d-bcf0-91c7e4cbbd41",
+  "identifier": "ngocminh@vietanh.edu.vn",
+  "login_method": "local",
+  "status": "success",
+  "client_ip": "172.16.0.10",
+  "user_agent": "Mozilla/5.0",
+  "trace_id": "3a34de72-0ba3-4e1d-9c0d-bbfb3bbd5e0b",
+  "created_at": "2025-06-10T15:10:42Z"
+}
+```
+
+📌 **Use case:** Hệ thống phân tích log đăng nhập để phát hiện hành vi bất thường, kiểm toán bảo mật và hỗ trợ điều tra khi có sự cố.
+
+---
+
+## 5. 📚 Chi tiết các bảng
+
+Thông tin chi tiết cho từng bảng dữ liệu chính bao gồm mô tả cột, chỉ mục (index), TTL, các cơ chế audit và ghi chú về khả năng migrate:
+
+---
+
+### 5.1. `auth_provider_configs`
 
 ```sql
-CREATE TABLE auth_sessions (
-    session_id UUID PRIMARY KEY,
-    user_id_global UUID NOT NULL,
+CREATE TABLE auth_provider_configs (
     tenant_id UUID NOT NULL,
-    refresh_token_hash TEXT NOT NULL,
-    user_agent TEXT,
-    ip_address TEXT,
-    expires_at TIMESTAMPTZ NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('active', 'revoked')),
-    last_login_method TEXT,
-    permissions_snapshot TEXT[],
-    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
-);
-```
-
-#### 🧩 Giải thích cột
-
-| Cột                    | Kiểu dữ liệu | Ràng buộc     | Mô tả                                          |
-| ---------------------- | ------------ | ------------- | ---------------------------------------------- |
-| `session_id`           | UUID         | PK            | ID của phiên đăng nhập                         |
-| `user_id_global`       | UUID         | NOT NULL      | ID người dùng toàn cục (user\_service/master)  |
-| `tenant_id`            | UUID         | NOT NULL      | ID của tenant mà phiên này đang hoạt động trong|
-| `refresh_token_hash`   | TEXT         | NOT NULL      | Băm của refresh token                          |
-| `user_agent`           | TEXT         |               | Trình duyệt thiết bị                           |
-| `ip_address`           | TEXT         |               | IP đăng nhập ban đầu                           |
-| `expires_at`           | TIMESTAMPTZ  | NOT NULL      | Thời điểm hết hạn của phiên                    |
-| `status`               | TEXT         | CHECK (enum)  | `active` hoặc `revoked`                        |
-| `last_login_method`    | TEXT         |               | `local` hoặc `google`                          |
-| `permissions_snapshot` | TEXT\[]      |               | Snapshot quyền tại thời điểm tạo token         |
-| `created_at`           | TIMESTAMPTZ  | DEFAULT now() | Tạo lần đầu                                    |
-| `updated_at`           | TIMESTAMPTZ  | DEFAULT now() | Lần cập nhật cuối                              |
-
-#### 🔗 Liên kết và Index
-
-* Index đề xuất:
-
-  * `(user_id_global)`
-  * `(status)`
-  * `(expires_at)`
-
----
-
-### 📌 Bảng: `auth_provider_config`
-
-#### 🧾 Mục đích
-
-Cấu hình OAuth2 cho các nhà cung cấp xác thực như Google.
-
-#### 📜 Câu lệnh `CREATE TABLE`
-
-```sql
-CREATE TABLE auth_provider_config (
-    provider TEXT PRIMARY KEY,
+    provider_name TEXT NOT NULL,
     client_id TEXT NOT NULL,
     client_secret TEXT NOT NULL,
-    auth_url TEXT NOT NULL,
-    token_url TEXT NOT NULL,
-    user_info_url TEXT NOT NULL,
-    scopes TEXT[] NOT NULL,
-    enabled BOOLEAN DEFAULT true,
-    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
+    redirect_uri TEXT NOT NULL,
+    scopes TEXT[],
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (tenant_id, provider_name)
 );
 ```
 
-#### 🧩 Giải thích cột
+| Cột             | Kiểu dữ liệu | Index? | Ghi chú |
+|----------------|--------------|--------|---------|
+| `tenant_id`    | UUID         | ✅     | Phân vùng dữ liệu theo tenant (Partition Key) |
+| `provider_name`| TEXT         | ✅     | Cặp (`tenant_id`, `provider_name`) là PK |
+| `client_id`    | TEXT         |        | Không index |
+| `client_secret`| TEXT         |        | Mã hóa khi lưu |
+| `redirect_uri` | TEXT         |        | URI duy nhất cho từng tenant/provider |
+| `scopes`       | TEXT[]       |        | Array các scope mặc định |
+| `is_active`    | BOOLEAN      | ✅     | Được dùng trong lọc nhanh |
+| `created_at`   | TIMESTAMPTZ  |        | - |
+| `updated_at`   | TIMESTAMPTZ  |        | - |
 
-| Cột             | Kiểu dữ liệu | Ràng buộc     | Mô tả                               |
-| --------------- | ------------ | ------------- | ----------------------------------- |
-| `provider`      | TEXT         | PK            | Mã định danh provider (`google`, `github`, ...) |
-| `client_id`     | TEXT         | NOT NULL      | Client ID do provider cấp           |
-| `client_secret` | TEXT         | NOT NULL      | Bí mật để xác thực                  |
-| `auth_url`      | TEXT         | NOT NULL      | URL để client redirect tới xác thực |
-| `token_url`     | TEXT         | NOT NULL      | URL để lấy access_token             |
-| `user_info_url` | TEXT         | NOT NULL      | URL để lấy profile user             |
-| `scopes`        | TEXT\[]      | NOT NULL      | Quyền được yêu cầu                  |
-| `enabled`       | BOOLEAN      | DEFAULT true  | Có đang bật provider này không      |
-| `created_at`    | TIMESTAMPTZ  | DEFAULT now() | Thời điểm tạo                       |
-| `updated_at`    | TIMESTAMPTZ  | DEFAULT now() | Thời điểm cập nhật cuối             |
-
-### 🔗 Ràng buộc khóa ngoại
-
-- `user_id_global` **(logic)** tham chiếu đến `users_global.user_id` từ User Service Master (qua HTTP call, không FK thực trong DB).
-- `tenant_id` **(logic)** tham chiếu đến `tenants.tenant_id` từ User Service Master.
+**TTL:** Không áp dụng  
+**Audit:** Ghi lại sự kiện cập nhật qua log nội bộ hoặc gửi `config.updated` (tuỳ setup)  
+**Migration Notes:** Cấu trúc ổn định, không nên đổi tên cột; nếu thay đổi provider phải xoá toàn bộ và insert lại.
 
 ---
 
-## 7. Các bảng phụ trợ
-
-### 🔄 Bảng: `processed_events`
-
-#### 📌 Mục đích
-
-Ghi nhận sự kiện đã xử lý để đảm bảo idempotency.
+### 5.2. `auth_otp_logs`
 
 ```sql
-CREATE TABLE processed_events (
-    event_id UUID PRIMARY KEY,
-    consumer_group_name TEXT NOT NULL,
-    processed_at TIMESTAMPTZ DEFAULT now() NOT NULL
+CREATE TABLE auth_otp_logs (
+    id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL,
+    identifier TEXT NOT NULL,
+    otp_type TEXT NOT NULL CHECK (otp_type IN ('phone', 'email')),
+    sent_at TIMESTAMPTZ NOT NULL,
+    via_channel TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('success', 'failed', 'rate_limited')),
+    meta JSONB
 );
 ```
 
+| Cột            | Kiểu dữ liệu | Index? | Ghi chú |
+|----------------|--------------|--------|---------|
+| `id`           | UUID         | ✅     | PK |
+| `tenant_id`    | UUID         | ✅     | Index phụ trợ phân tích đa tenant |
+| `identifier`   | TEXT         | ✅     | SĐT hoặc email |
+| `otp_type`     | TEXT         |        | `phone` hoặc `email` |
+| `sent_at`      | TIMESTAMPTZ  | ✅     | Truy vấn gần thời gian thực |
+| `via_channel`  | TEXT         |        | `sms`, `email`, etc. |
+| `status`       | TEXT         |        | `success`, `failed`, etc. |
+| `meta`         | JSONB        |        | IP, user agent... |
+
+**TTL:** Có thể áp dụng TTL 7–30 ngày với các bản ghi cũ  
+**Audit:** Tự động sinh log OTP mỗi lần gửi  
+**Migration Notes:** Có thể truncate bảng định kỳ nếu đã dùng TTL hoặc archive sang cold storage
+
 ---
 
-## 8. Phụ lục (Tóm tắt Index, ENUM, Kiểm thử)
+### 5.3. `auth_login_audits`
 
-### 📘 Phụ lục A – Index
+```sql
+CREATE TABLE auth_login_audits (
+    id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL,
+    user_id UUID,
+    identifier TEXT NOT NULL,
+    login_method TEXT NOT NULL CHECK (login_method IN ('google', 'otp', 'local')),
+    status TEXT NOT NULL CHECK (status IN ('success', 'failed')),
+    client_ip TEXT,
+    user_agent TEXT,
+    trace_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
 
-| Bảng                   | Cột được index                           |
-| ---------------------- | ---------------------------------------- |
-| `auth_sessions`        | `user_id_global`, `status`, `expires_at` |
-| `auth_provider_config` | `provider_name`                          |
+| Cột            | Kiểu dữ liệu | Index? | Ghi chú |
+|----------------|--------------|--------|---------|
+| `id`           | UUID         | ✅     | PK |
+| `tenant_id`    | UUID         | ✅     | - |
+| `user_id`      | UUID         | ✅     | Có thể null nếu chưa liên kết được |
+| `identifier`   | TEXT         | ✅     | Email/SĐT/username |
+| `login_method` | TEXT         | ✅     | `google`, `otp`, `local` |
+| `status`       | TEXT         |        | `success`, `failed` |
+| `client_ip`    | TEXT         |        | Ghi lại để trace/ban IP |
+| `user_agent`   | TEXT         |        | - |
+| `trace_id`     | UUID         | ✅     | Liên kết với log toàn hệ thống |
+| `created_at`   | TIMESTAMPTZ  | ✅     | Truy vấn theo thời gian đăng nhập |
 
-### 📘 Phụ lục B – Sự kiện Dữ liệu
+**TTL:** Không dùng TTL – log cần lưu lâu dài  
+**Audit:** Chính bản ghi này **là audit log**  
+**Migration Notes:** Nếu cần mở rộng schema, chỉ nên thêm cột nullable. Không nên thay đổi tên cột.
 
-Auth Service Master có thể phát ra một số sự kiện quan trọng để phục vụ mục đích audit hoặc tương tác hệ thống:
+---
 
-| Sự kiện                 | Trigger                                       | Payload chính               |
-|-------------------------|-----------------------------------------------|-----------------------------|
-| `session_created`       | Sau khi xác thực thành công (login OAuth2)    | user_id, tenant_id, method  |
-| `session_revoked`       | Khi người dùng đăng xuất                      | session_id, revoked_by      |
-| `token_refreshed`       | Sau khi dùng refresh token thành công         | user_id, old_session_id     |
+## 6. 📎 Phụ lục (Tóm tắt Index, ENUM, Kiểm thử)
 
-### 📘 Phụ lục C – ENUMs
+### 6.1. 🔎 Chỉ mục (Index Summary)
 
-* `status` (auth\_sessions): `active`, `revoked`
-* `last_login_method`: `local`, `google`
+| Bảng                  | Trường được đánh index                                      | Loại |
+|-----------------------|--------------------------------------------------------------|------|
+| `auth_provider_configs` | (`tenant_id`, `provider_name`), `is_active`               | PK, BTREE |
+| `auth_otp_logs`         | `identifier`, `tenant_id`, `sent_at`                      | BTREE |
+| `auth_login_audits`     | `user_id`, `tenant_id`, `identifier`, `trace_id`, `created_at` | BTREE |
 
-### 📘 Phụ lục D – Chiến lược Kiểm thử cho Mô hình Dữ liệu
+---
 
-#### 1. Mục tiêu
+### 6.2. 📉 ENUMs sử dụng
 
-Đảm bảo rằng các bảng dữ liệu trong Auth Service Master (đặc biệt là `auth_sessions` và `auth_provider_config`) được triển khai đúng cấu trúc, tuân thủ các ràng buộc logic và có thể mở rộng an toàn trong quá trình vận hành.
+Dưới đây là các trường có giá trị dạng ENUM được sử dụng trong hệ thống. Việc chuẩn hóa các giá trị này giúp tăng tính nhất quán khi truy vấn, thống kê và phân tích log.
 
-#### 2. Các cấp độ kiểm thử
+| Trường         | Bảng sử dụng           | Enum Giá trị hợp lệ                 | Ghi chú bổ sung                                    |
+|----------------|------------------------|-------------------------------------|----------------------------------------------------|
+| `otp_type`     | `auth_otp_logs`        | `phone`, `email`                    | Cho biết loại OTP gửi qua số điện thoại hoặc email |
+| `via_channel`  | `auth_otp_logs`        | `sms`, `email`, `internal`, `zalo` | Kênh gửi thực tế – có thể mở rộng thêm             |
+| `status`       | `auth_otp_logs`, `auth_login_audits` | `success`, `failed`, `rate_limited`, `expired`, `invalid` | Mô tả kết quả gửi OTP hoặc kết quả đăng nhập |
+| `login_method` | `auth_login_audits`    | `google`, `otp`, `local`           | Chuẩn hóa để đồng bộ với `grant_type`, `X-Login-Method` |
 
-| Cấp độ kiểm thử | Mục tiêu | Công cụ | Ghi chú |
-|----------------|---------|--------|--------|
-| ✅ Unit Test | Kiểm thử hành vi tạo/xóa session, lưu config provider hợp lệ | pytest + FactoryBoy | Mock CSDL |
-| ✅ Integration Test | Kiểm thử thao tác với bảng thực tế trong Postgres | pytest + testcontainers | Sử dụng CSDL thật |
-| ✅ Migration Test | Đảm bảo schema có thể migrate lên/xuống an toàn | Alembic + pytest | Dùng trên bản sao dữ liệu nhỏ |
-| ✅ Constraint Test | Đảm bảo các ràng buộc `NOT NULL`, `UNIQUE`, `CHECK`, FK hoạt động đúng | SQL Test Cases | Gây lỗi có chủ đích |
-| ✅ Performance Test (tùy chọn) | Kiểm tra hiệu năng truy vấn session khi có nhiều bản ghi | pgbench, EXPLAIN ANALYZE | Dùng trong staging |
+📌 **Lưu ý:**
 
-#### 3. Kịch bản kiểm thử tiêu biểu
+* Các giá trị ENUM trên sẽ được đồng bộ hóa với các hệ thống liên quan như `token-service`, `api-gateway`, và `frontend`.
+* Nên dùng giá trị viết thường (`snake_case` nếu cần) để tránh sai sót khi phân tích log và hiển thị.
 
-**AuthSession Table**
-- ✅ Tạo session hợp lệ với `user_id`, `tenant_id`, `refresh_token` → thành công
-- ✅ Không có `user_id` → bị lỗi `NOT NULL`
-- ✅ Gán session cho user không tồn tại → lỗi `FK`
-- ✅ Tạo nhiều session cho cùng 1 user → được phép (nhiều device)
-- ✅ Truy vấn nhanh theo `refresh_token` (index test)
+---
 
-**AuthProviderConfig Table**
-- ✅ Thêm cấu hình mới với `provider = google` → thành công
-- ✅ Cập nhật `client_secret` → dữ liệu được cập nhật đúng
-- ✅ Thêm `provider` đã tồn tại → bị lỗi `PK`
-- ✅ Xóa provider đang được sử dụng → hành vi tùy theo cascade (nên `RESTRICT`)
+### 6.3. ✅ Chiến lược kiểm thử
 
-#### 4. Tuân thủ quy trình CI/CD
+Chiến lược kiểm thử dữ liệu cho `auth-service/master` cần đảm bảo:
+- Các bảng ghi nhận đúng sự kiện theo từng luồng xác thực.
+- Truy vấn dữ liệu hoạt động ổn định theo thời gian và tenant.
+- Phát hiện các hành vi bất thường qua log và metadata.
 
-- Mỗi thay đổi trong schema phải đi kèm với:
-  - ✅ File migration tương ứng (Alembic)
-  - ✅ Unit test hoặc integration test kiểm chứng
-  - ✅ Được kiểm thử tự động trong GitHub Actions/CI pipeline
+#### 🔍 Kiểm thử luồng OTP
 
-#### 5. Kết luận
+| Tình huống kiểm thử | Bảng liên quan     | Mục tiêu |
+|---------------------|--------------------|----------|
+| Gửi OTP liên tục     | `auth_otp_logs`    | Đảm bảo ghi log đủ các lần gửi (spam detection) |
+| Gửi OTP qua email    | `auth_otp_logs`    | Kiểm tra `via_channel = email`, `otp_type = email` |
+| Gửi OTP bị chặn do rate limit | `auth_otp_logs` | Xác nhận `status = rate_limited` |
+| OTP gửi thành công nhưng user không đăng nhập | `auth_otp_logs`, `auth_login_audits` | Kiểm tra không có `login.success` tương ứng |
 
-Việc kiểm thử mô hình dữ liệu là một phần quan trọng để đảm bảo hệ thống Auth Service Master vận hành ổn định, tin cậy và dễ mở rộng. Các kiểm thử cần được duy trì như một phần của quy trình phát triển chuẩn hóa.
+#### 🔐 Kiểm thử đăng nhập
 
+| Tình huống kiểm thử | Bảng liên quan         | Mục tiêu |
+|---------------------|------------------------|----------|
+| Đăng nhập bằng Google thành công | `auth_login_audits` | Kiểm tra `login_method = google`, `status = success` |
+| Đăng nhập OTP thất bại | `auth_login_audits`   | Kiểm tra ghi log với `status = failed`, `trace_id` đúng |
+| Đăng nhập local thành công | `auth_login_audits` | Ghi đúng `login_method = local`, có `user_id` |
 
-### 📘 Phụ lục E – Tài liệu liên kết
+#### 🔎 Kiểm thử cấu hình OAuth2
+
+| Tình huống kiểm thử | Bảng liên quan         | Mục tiêu |
+|---------------------|------------------------|----------|
+| Truy xuất config không tồn tại | `auth_provider_configs` | Đảm bảo hệ thống trả lỗi rõ ràng |
+| Cập nhật redirect_uri không hợp lệ | `auth_provider_configs` | Kiểm tra reject ở tầng service hoặc migration |
+
+---
+
+📌 **Khuyến nghị CI/CD:**  
+- Dùng **fixture giả lập dữ liệu OTP và login logs** để kiểm thử liên tục trong staging.
+- Áp dụng kiểm thử snapshot để so sánh cấu trúc bảng không bị thay đổi ngoài ý muốn.
+- Theo dõi sự phân bố giá trị của các trường ENUM để phát hiện sai lệch (data drift).
+
+---
+
+### 6.4. 🔗 Liên kết tài liệu hệ thống
 
 ✅ Đã tham chiếu từ:
 

@@ -1,6 +1,6 @@
 ---
 title: Auth Service Master – Interface Contract
-version: 2.0
+version: 2.1
 last_updated: 2025-06-11
 author: DX VAS Team
 reviewed_by: Stephen Le
@@ -111,6 +111,8 @@ Auth Service cung cấp tập hợp các API công khai giúp frontend hoặc ga
 | Token Verify | Kiểm tra tính hợp lệ của access token: `/verify` |
 | Provider Metadata | Cấu hình provider: `/providers` |
 | Dev Mode (tuỳ chọn) | Endpoint giả lập (`/dev/mimic`) dành cho môi trường phát triển |
+| OTP Login | Đăng nhập bằng mã OTP: `/auth/otp`, `/auth/verify-otp` |
+| Local Login | Đăng nhập bằng username/password: `/auth/login` |
 
 ---
 
@@ -119,10 +121,6 @@ Auth Service cung cấp tập hợp các API công khai giúp frontend hoặc ga
 - Để đăng nhập Google OAuth2, client **phải redirect** người dùng đến `/oauth2/login` và lắng nghe phản hồi ở `/oauth2/callback`.
 - API `/auth/exchange` sẽ phát hành token thông qua **`token-service`**, không được gọi trực tiếp ở client.
 - API `/me` và `/verify` nên được sử dụng thông qua **`api-gateway`**, không expose public.
-
----
-
-Dưới đây là phần chi tiết cho mục `🔁 Luồng: OAuth2 Login Flow` trong `auth-service/master/interface-contract.md`, phản ánh đúng vai trò điều phối và không giữ trạng thái của `auth-service/master`.
 
 ---
 
@@ -217,11 +215,235 @@ POST /auth/exchange
 
 ---
 
-Dưới đây là phần mô tả chi tiết cho endpoint `GET /me` trong tài liệu `auth-service/master/interface-contract.md`, phản ánh đúng vai trò introspect user từ JWT do `token-service` phát hành.
+### 2.4. 🔐 POST /auth/otp – Gửi mã OTP
+
+Gửi mã OTP (One-Time Password) tới số điện thoại hoặc địa chỉ email của người dùng để bắt đầu quá trình xác thực.
+
+| Thuộc nhóm API | OTP Login |
+|----------------|-----------|
+
+#### 📥 Request
+
+- **URL:** `/auth/otp`
+- **Phương thức:** `POST`
+- **Auth yêu cầu:** ❌ Không yêu cầu access token
+- **Headers yêu cầu:**
+  - `X-Tenant-ID`: Mã định danh tenant (bắt buộc)
+  - `X-Request-ID` (khuyến nghị)
+
+##### 🔸 Request Body
+
+```json
+{
+  "identifier": "0934567890",
+  "type": "phone"
+}
+```
+
+| Trường       | Kiểu   | Bắt buộc | Mô tả                                   |
+| ------------ | ------ | -------- | --------------------------------------- |
+| `identifier` | string | ✅        | Số điện thoại hoặc email cần gửi mã OTP |
+| `type`       | enum   | ✅        | `"phone"` hoặc `"email"`                |
+
+#### 📤 Response
+
+```json
+{
+  "data": "OTP has been sent",
+  "meta": {
+    "trace_id": "79f2f5ba-3fc7-4c1f-9c6a-843d0caa15bb",
+    "timestamp": "2025-06-10T14:33:00Z"
+  }
+}
+```
+
+#### ❗️Các lỗi có thể gặp
+
+| Mã lỗi                  | Mô tả                                  |
+| ----------------------- | -------------------------------------- |
+| `auth.otp.invalid_type` | Trường `type` không hợp lệ             |
+| `auth.otp.rate_limited` | Gửi quá nhiều OTP trong thời gian ngắn |
+
+#### 🧭 Audit Log
+
+| Event                | Khi nào ghi log                                |
+| -------------------- | ---------------------------------------------- |
+| `auth.otp.requested` | Khi OTP được gửi thành công hoặc bị rate-limit |
+
+#### 🔐 Ghi chú bảo mật
+
+* Có giới hạn số lần gửi OTP theo IP & identifier để chống spam.
+* OTP sẽ được lưu trữ tạm thời trên Redis với TTL ngắn (vd: 5 phút).
+* Nếu type = `email`, hệ thống sẽ dùng `notification-service` để gửi email chứa mã OTP.
 
 ---
 
-### 2.4. 👤 Lấy thông tin người dùng hiện tại
+### 2.5. 🔐 POST /auth/verify-otp – Xác minh mã OTP
+
+Xác minh mã OTP do người dùng nhập. Nếu hợp lệ, hệ thống sẽ:
+1. Xác thực identifier.
+2. Gọi `user-service` để tìm hoặc tạo người dùng.
+3. Gọi `token-service` để phát hành token.
+
+| Thuộc nhóm API | OTP Login |
+|----------------|-----------|
+
+#### 📥 Request
+
+- **URL:** `/auth/verify-otp`
+- **Phương thức:** `POST`
+- **Auth yêu cầu:** ❌ Không yêu cầu access token
+- **Headers yêu cầu:**
+  - `X-Tenant-ID`: Mã định danh tenant (bắt buộc)
+  - `X-Request-ID` (khuyến nghị)
+  - `User-Agent`, `X-Forwarded-For` (để ghi audit, phân tích)
+
+##### 🔸 Request Body
+
+```json
+{
+  "identifier": "0934567890",
+  "otp_code": "123456",
+  "client_ip": "192.168.1.10",
+  "user_agent": "Mozilla/5.0"
+}
+```
+
+| Trường       | Kiểu   | Bắt buộc | Mô tả                          |
+| ------------ | ------ | -------- | ------------------------------ |
+| `identifier` | string | ✅        | Số điện thoại hoặc email       |
+| `otp_code`   | string | ✅        | Mã OTP người dùng nhập         |
+| `client_ip`  | string | ✅        | Địa chỉ IP client              |
+| `user_agent` | string | ✅        | User agent của trình duyệt/app |
+
+#### 📤 Response
+
+```json
+{
+  "data": {
+    "access_token": "<JWT>",
+    "refresh_token": "<JWT>",
+    "expires_in": 3600,
+    "token_type": "bearer"
+  },
+  "meta": {
+    "trace_id": "cfe18234-fcc9-4432-a09e-84c12395cabc",
+    "timestamp": "2025-06-10T15:01:23Z",
+    "additional": {
+      "login_method": "otp"
+    }
+  }
+}
+```
+
+#### ❗️Các lỗi có thể gặp
+
+| Mã lỗi                       | Mô tả                               |
+| ---------------------------- | ----------------------------------- |
+| `auth.otp_invalid`           | Mã OTP không đúng hoặc đã hết hạn   |
+| `auth.otp_expired`           | Mã OTP đã hết hạn                   |
+| `auth.otp_attempts_exceeded` | Vượt quá số lần thử OTP cho phép    |
+| `user.not_found`             | Không tìm thấy người dùng tương ứng |
+| `token.issue_failed`         | Gọi `token-service` thất bại        |
+
+#### 🧭 Audit Log
+
+| Event                    | Khi nào ghi log                          |
+| ------------------------ | ---------------------------------------- |
+| `auth.login.otp.success` | Khi xác minh OTP thành công và cấp token |
+| `auth.login.otp.failed`  | Khi OTP sai, hết hạn hoặc hết lượt thử   |
+
+#### 🔐 Ghi chú bảo mật
+
+* Mỗi OTP chỉ được sử dụng một lần.
+* Số lần thử sai bị giới hạn (thường 5 lần / 10 phút).
+* Tất cả các hành vi sai đều được ghi vào audit để phân tích bất thường.
+* `client_ip` và `user_agent` được forward sang `token-service` và ghi lại trace/audit.
+
+---
+
+### 2.6. 🔐 POST /auth/login – Đăng nhập bằng Username/Password
+
+Xác thực người dùng bằng tài khoản nội bộ (username & password). Sau khi xác minh:
+1. Đồng bộ người dùng từ `user-service`.
+2. Gọi `token-service` để phát hành access token & refresh token.
+
+| Thuộc nhóm API | Local Login |
+|----------------|-------------|
+
+#### 📥 Request
+
+- **URL:** `/auth/login`
+- **Phương thức:** `POST`
+- **Auth yêu cầu:** ❌ Không yêu cầu access token
+- **Headers yêu cầu:**
+  - `X-Tenant-ID`: Mã định danh tenant (bắt buộc)
+  - `X-Request-ID` (khuyến nghị)
+  - `User-Agent`, `X-Forwarded-For` (để audit)
+
+##### 🔸 Request Body
+
+```json
+{
+  "username": "ngocminh",
+  "password": "hunter2",
+  "client_ip": "192.168.1.10",
+  "user_agent": "Mozilla/5.0"
+}
+```
+
+| Trường       | Kiểu   | Bắt buộc | Mô tả                |
+| ------------ | ------ | -------- | -------------------- |
+| `username`   | string | ✅        | Tên đăng nhập nội bộ |
+| `password`   | string | ✅        | Mật khẩu người dùng  |
+| `client_ip`  | string | ✅        | IP client            |
+| `user_agent` | string | ✅        | Chuỗi user agent     |
+
+#### 📤 Response
+
+```json
+{
+  "data": {
+    "access_token": "<JWT>",
+    "refresh_token": "<JWT>",
+    "expires_in": 3600,
+    "token_type": "bearer"
+  },
+  "meta": {
+    "trace_id": "fb81d9e8-2740-4d92-8fa2-c7b17b5a328a",
+    "timestamp": "2025-06-10T15:33:11Z",
+    "additional": {
+      "login_method": "local"
+    }
+  }
+}
+```
+
+#### ❗️Các lỗi có thể gặp
+
+| Mã lỗi                    | Mô tả                               |
+| ------------------------- | ----------------------------------- |
+| `auth.local_login_failed` | Sai username hoặc password          |
+| `user.not_found`          | Không tìm thấy người dùng tương ứng |
+| `token.issue_failed`      | Gọi `token-service` thất bại        |
+
+#### 🧭 Audit Log
+
+| Event                      | Khi nào ghi log         |
+| -------------------------- | ----------------------- |
+| `auth.login.local.success` | Đăng nhập thành công    |
+| `auth.login.local.failed`  | Sai thông tin đăng nhập |
+
+#### 🔐 Ghi chú bảo mật
+
+* Password được mã hóa và so sánh bằng thuật toán an toàn (bcrypt/scrypt).
+* Số lần login sai bị giới hạn để ngăn brute force.
+* Không phản hồi lý do cụ thể khi đăng nhập thất bại (để tránh dò thông tin).
+* Sau đăng nhập, `X-Login-Method: local` sẽ được forward sang các service.
+
+---
+
+### 2.7. 👤 Lấy thông tin người dùng hiện tại
 
 ```http
 GET /me
@@ -275,11 +497,7 @@ GET /me
 
 ---
 
-Dưới đây là phần chi tiết cho endpoint `GET /verify` trong `auth-service/master/interface-contract.md`, phục vụ mục đích introspection token một cách nhẹ, đặc biệt hữu ích cho `api-gateway`.
-
----
-
-### 2.5. 🛡 Kiểm tra tính hợp lệ của token
+### 2.8. 🛡 Kiểm tra tính hợp lệ của token
 
 ```http
 GET /verify
@@ -349,11 +567,7 @@ GET /verify
 
 ---
 
-Dưới đây là phần mô tả chi tiết cho endpoint `GET /providers` trong tài liệu `auth-service/master/interface-contract.md`, phản ánh đúng vai trò tra cứu metadata cấu hình OAuth2 của từng tenant.
-
----
-
-### 2.6. 🧭 Lấy danh sách nhà cung cấp xác thực
+### 2.9. 🧭 Lấy danh sách nhà cung cấp xác thực
 
 ```http
 GET /providers
@@ -410,10 +624,6 @@ GET /providers
 
 ---
 
-Dưới đây là phần **`🛠 Phụ lục: Header, Trace & Error Code`** hoàn chỉnh cho tài liệu `auth-service/master/interface-contract.md`, giúp chuẩn hóa tích hợp và dễ dàng debug trong môi trường production:
-
----
-
 ## 3. 🛠 Phụ lục: Header, Trace & Error Code
 
 ---
@@ -427,6 +637,7 @@ Dưới đây là phần **`🛠 Phụ lục: Header, Trace & Error Code`** hoà
 | `X-Trace-ID`    | ✅ | UUID duy nhất cho mỗi request, phục vụ logging & tracing |
 | `User-Agent`    | ❌ | (Khuyến nghị) Dùng để phân tích client & audit |
 | `X-Forwarded-For` | ❌ | (Tuỳ chọn) IP thực của người dùng, hỗ trợ geo/audit |
+| `X-Login-Method` | ❌ | Forwarded bởi Gateway, phản ánh phương thức login ban đầu (`google`, `otp`, `local`) |
 
 > Mọi request đều nên gắn `X-Trace-ID` (nếu không có, hệ thống sẽ tự sinh và ghi log cảnh báo).
 
@@ -444,7 +655,7 @@ Dưới đây là phần **`🛠 Phụ lục: Header, Trace & Error Code`** hoà
     "timestamp": "2025-06-10T15:35:00Z"
   }
 }
-````
+```
 
 ---
 
@@ -462,6 +673,8 @@ Mọi lỗi đều tuân theo định dạng `auth.<namespace>`, ví dụ:
 | `auth.invalid_tenant`        | Tenant không tồn tại hoặc bị vô hiệu              |
 | `auth.missing_authorization` | Thiếu header `Authorization`                      |
 | `auth.login.failed`          | Đăng nhập thất bại (lý do sẽ ghi trong `details`) |
+| `auth.otp_invalid`           | Mã OTP không đúng hoặc đã hết hạn                 |
+| `auth.local_login_failed`    | Sai username hoặc password                        |
 
 ---
 
@@ -485,31 +698,68 @@ Mọi lỗi đều tuân theo định dạng `auth.<namespace>`, ví dụ:
 
 ---
 
-## 📉 ENUMs Dùng trong Auth Service
+### 3.5. 📉 ENUMs Dùng trong Auth Service
 
-| Trường Enum     | Values                   | Mô tả          |
-| --------------- | ------------------------ | -------------- |
-| `auth_provider` | `google`, `local`, `otp` | Kiểu đăng nhập |
+| Tên ENUM         | Giá trị hợp lệ                            | Mô tả |
+|------------------|-------------------------------------------|-------|
+| `auth_provider`  | `google`, `otp`, `local`                  | Phương thức xác thực người dùng |
+| `otp_type`       | `phone`, `email`                          | Kênh gửi mã OTP |
+| `grant_type`     | `google`, `otp`, `local`                  | Phương thức xác thực truyền vào `token-service` |
+| `login_status`   | `success`, `failed`                       | Trạng thái login (ghi trong audit log) |
+| `token_type`     | `bearer`                                  | Loại token được cấp |
+| `error_namespace`| `auth`, `user`, `token`                   | Namespace của mã lỗi – phục vụ chuẩn hóa ErrorEnvelope |
 
----
+📌 Ghi chú:
 
-## 📋 Permission Code
-
-| `permission_code` | Mô tả                       | Dùng cho API                  | `action` | `resource` | `default_condition` |
-| ----------------- | --------------------------- | ----------------------------- | -------- | ---------- | ------------------- |
-| `public`          | Dùng cho API không cần RBAC | Tất cả API trong Auth Service | -        | -          | -                   |
-
-> 🔐 **Lưu ý:** RBAC không áp dụng trong Auth Service Master
-
----
-
-## HTTP Status Codes dùng chung
-
-| 500 | Internal Server Error – Lỗi không xác định từ phía server |
+* Các giá trị enum phải được đồng bộ xuyên suốt trong OpenAPI Spec, trong `token-service`, và cả trong các dịch vụ sử dụng log/audit.
+* Các field như `login_method`, `auth_provider`, `grant_type` đều sẽ được forward thông qua JWT claims hoặc header (`X-Login-Method`) để đảm bảo trace & audit đầy đủ.
 
 ---
 
-## 🔖 Tài liệu tham chiếu:
+### 3.6. 📋 Permission Code
+
+Các permission dưới đây được sử dụng để kiểm soát truy cập các API của `auth-service/master` trong môi trường nội bộ hoặc dành cho admin. Các API login chính như `/auth/login`, `/auth/verify-otp`, `/oauth2/callback` là public nên không yêu cầu permission.
+
+| Mã Permission                    | Mô tả                                  | Áp dụng cho API                  |
+|----------------------------------|----------------------------------------|----------------------------------|
+| `auth.otp.send`                 | Cho phép gửi mã OTP                    | `POST /auth/otp` (nếu cần giới hạn qua API Gateway) |
+| `auth.user.login_via_local`     | Cho phép đăng nhập bằng tài khoản nội bộ | `POST /auth/login`             |
+| `auth.user.login_via_otp`       | Cho phép đăng nhập bằng OTP            | `POST /auth/verify-otp`         |
+| `auth.user.login_via_oauth2`    | Cho phép login qua Google OAuth2       | `GET /oauth2/callback`          |
+| `auth.provider.admin.read`      | Xem danh sách nhà cung cấp OAuth2 cấu hình | `GET /providers`           |
+| `auth.provider.admin.sync`      | Đồng bộ config OAuth2 với `user-service` | `POST /oauth2/callback` hoặc webhook nội bộ |
+
+📌 Ghi chú:
+- Trong môi trường production, các API login phổ biến **không nên yêu cầu RBAC**, nhưng vẫn nên khai báo permission code để thống nhất log/audit.
+- Với các môi trường nhạy cảm hoặc cần bảo vệ kỹ hơn (như API test hoặc endpoint cấu hình), cần gán permission tương ứng tại Gateway.
+
+---
+
+### 3.7. 📟 HTTP Status Codes dùng chung
+
+Bảng sau mô tả các mã trạng thái HTTP được sử dụng thống nhất trong toàn bộ `auth-service/master`. Việc chuẩn hóa này đảm bảo khả năng dự đoán hành vi và dễ tích hợp với frontend/client.
+
+| Mã | Ý nghĩa ngữ nghĩa (semantics)          | Áp dụng trong trường hợp                                 |
+|----|----------------------------------------|----------------------------------------------------------|
+| `200 OK`           | Yêu cầu thành công               | Tất cả các API trả kết quả hợp lệ                        |
+| `201 Created`      | Tạo mới thành công               | Không dùng trong auth-service (không có create entity)  |
+| `400 Bad Request`  | Dữ liệu đầu vào không hợp lệ     | Thiếu field, sai format, enum không đúng, v.v.           |
+| `401 Unauthorized` | Thiếu hoặc sai thông tin xác thực | Token không hợp lệ, OTP sai, password sai               |
+| `403 Forbidden`    | Người dùng không có quyền truy cập | Khi JWT hợp lệ nhưng không có permission cần thiết      |
+| `404 Not Found`    | Không tìm thấy tài nguyên        | Không tìm thấy người dùng tương ứng                     |
+| `409 Conflict`     | Xung đột dữ liệu logic           | (Hiếm dùng trong auth-service)                          |
+| `429 Too Many Requests` | Quá nhiều request trong thời gian ngắn | Gửi OTP liên tục, vượt giới hạn login                  |
+| `500 Internal Server Error` | Lỗi không xác định phía server | Gọi `user-service`, `token-service` thất bại không mong đợi |
+| `503 Service Unavailable` | Service tạm thời không hoạt động | Khi auth-service bị quá tải hoặc đang bảo trì           |
+
+📌 Ghi chú:
+- Tất cả các lỗi đều được bọc theo chuẩn `ErrorEnvelope`, với `code`, `message`, và `details`.
+- Trace ID được đính kèm trong `meta.trace_id` để phục vụ truy vết (observability).
+- Frontend nên xử lý theo logic mã lỗi (namespace + code), không phụ thuộc tuyệt đối vào HTTP status.
+
+---
+
+### 3.8. 🔖 Tài liệu tham chiếu:
 
 * [Data Model](./data-model.md)
 * [OpenAPI Spec](./openapi.yaml)

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API Gateway - dx-vas
-  version: "2.2"
+  version: "2.3"
   description: |
     API Gateway của hệ thống chuyển đổi số VAS (dx_vas), đóng vai trò điều phối, phân quyền, xác thực và định tuyến các request đến các service backend trong hệ sinh thái.
     
@@ -17,8 +17,8 @@ info:
   contact:
     name: DX VAS Team
 
-  x-api-version: v1.2
-  x-maintainer: dx-team@truongvietanh.edu.vn
+  x-api-version: v1
+  x-maintainer: dx@truongvietanh.edu.vn
   x-adr-compliance:
     - adr-011-api-error-format
     - adr-012-response-structure
@@ -51,41 +51,6 @@ tags:
       Nhóm API dành riêng cho nội bộ phát triển / SRE, có thể được expose conditionally theo môi trường (staging, local dev).
 
     x-internal: true
-
-x-extensions:
-  x-required-permission:
-    type: string
-    description: |
-      Mã permission yêu cầu mà người dùng phải có để truy cập route.  
-      Gateway sẽ kiểm tra permission này trong danh sách RBAC đã resolve từ Redis key `rbac:{user_id}:{tenant_id}`.
-
-    example: "user.read"
-
-  x-condition:
-    type: object
-    description: |
-      Điều kiện phụ thuộc theo ngữ cảnh runtime.  
-      Gateway sẽ thực hiện phép so khớp giữa biểu thức `x-condition` (có thể chứa placeholder như `{{X-User-ID}}`) và context thực tế của request.
-
-    example:
-      user_id: "{{X-User-ID}}"
-      tenant_id: "{{X-Tenant-ID}}"
-
-  x-gateway-enforced:
-    type: boolean
-    description: |
-      Đánh dấu rằng route này được kiểm soát bởi Gateway (RBAC, condition, trace_id...)  
-      Nếu là `false`, route sẽ được forward như raw proxy không có kiểm soát trung gian.
-
-    example: true
-
-  x-route-evaluation:
-    type: string
-    description: |
-      Tóm tắt logic xử lý route – phục vụ mục đích quan sát, testing hoặc phân tích hành vi runtime.  
-      Các giá trị có thể: `check-permission`, `check-condition`, `forward-only`, `introspect-token`, v.v.
-
-    example: "check-permission + forward"
 
 security:
   - bearerAuth: []
@@ -162,6 +127,18 @@ components:
           - "user.read"
           - "report.view"
  
+    X-Login-Method:
+      name: X-Login-Method
+      in: header
+      description: |
+        Phương thức đăng nhập ban đầu được dùng để tạo token.
+        Giá trị này được decode từ JWT và forwarded bởi API Gateway đến backend để phục vụ logging/phân tích.
+      required: false
+      schema:
+        type: string
+        enum: [oauth2, otp, password]
+        example: otp
+
   schemas:
     SuccessEnvelope:
       description: |
@@ -211,6 +188,9 @@ components:
           type: object
           additionalProperties: true
           description: Thông tin phụ tùy trường hợp (version, flags…)
+          example:
+            login_method: otp
+            version: "v1.2"
 
     Pagination:
       description: |
@@ -374,6 +354,7 @@ paths:
       - $ref: '#/components/parameters/X-Trace-ID'
       - $ref: '#/components/parameters/X-Service'
       - $ref: '#/components/parameters/X-Permissions'
+      - $ref: '#/components/parameters/X-Login-Method'
 
     get:
       summary: Proxy GET request

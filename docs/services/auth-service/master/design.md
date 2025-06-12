@@ -1,6 +1,6 @@
 ---
 title: Thiết kế chi tiết auth-service/master
-version: "2.0"
+version: "2.1"
 last_updated: "2025-06-01"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -12,11 +12,14 @@ reviewed_by: "Stephen Le"
 ### 1.1. 🎯 Mục đích
 
 `auth-service/master` đóng vai trò là **"Nhà Điều Phối Xác Thực" (Authentication Orchestrator)** trong hệ sinh thái DX-VAS.  
-Nó chịu trách nhiệm xác minh danh tính người dùng qua Google OAuth2 và điều phối các thành phần liên quan để hoàn tất quá trình đăng nhập.
+Nó chịu trách nhiệm xác minh danh tính người dùng qua các phương thức được hỗ trợ (Google OAuth2, OTP, Local) và điều phối các thành phần liên quan để hoàn tất quá trình đăng nhập.
 
 ### 1.2. ✅ Nằm trong phạm vi
 
-- **Thực hiện luồng OAuth2** với Google để xác minh danh tính người dùng.
+- **Xác thực danh tính người dùng** qua các phương thức được hỗ trợ:
+  - ✅ Google OAuth2
+  - ✅ OTP (One-Time Password)
+  - ✅ Local (username/password)
 - **Lấy thông tin người dùng** (email, name, avatar, user_id...) từ Google và đồng bộ với `user-service`.
 - **Gửi yêu cầu sinh token** tới `token-service` thông qua API `POST /v1/token/issue`.
 - **Lưu audit log đăng nhập** qua `audit-service`.
@@ -47,6 +50,9 @@ Nó chịu trách nhiệm xác minh danh tính người dùng qua Google OAuth2 
 | GET        | /oauth2/login      | Bắt đầu luồng xác thực với Google OAuth2         | ❌   | ❌         | Redirect đến Google |
 | GET        | /oauth2/callback   | Nhận mã `code` từ Google, xử lý lấy access token | ❌   | ❌         | Internal callback endpoint |
 | POST       | /auth/exchange     | Xử lý luồng login hoàn chỉnh và cấp JWT token     | ❌   | ❌         | Gọi Google, đồng bộ user, gọi `token-service` |
+| POST       | /auth/otp         | Gửi mã OTP đến số điện thoại/email             | ❌   | ❌         | Cho phép public truy cập |
+| POST       | /auth/verify-otp  | Xác minh mã OTP và cấp token nếu hợp lệ        | ❌   | ❌         | Gọi `token-service` sau xác thực |
+| POST       | /auth/login       | Đăng nhập bằng username/password               | ❌   | ❌         | Gọi `user-service` xác minh, sau đó gọi `token-service` |
 
 > 🔄 Trong luồng `POST /auth/exchange`, sau khi xác thực thành công từ Google:
 > 1. Gọi `user-service` để tra cứu/đồng bộ user.
@@ -120,13 +126,18 @@ Khi xác thực thành công và cần phát hành token, `auth-service/master` 
   "email": "user@example.com",
   "name": "Nguyễn Văn A",
   "avatar": "https://example.com/avatar.png",
-  "grant_type": "google_oauth2",
+  "grant_type": "google",
   "client_ip": "1.2.3.4",
   "user_agent": "Chrome/117"
 }
 ```
 
 📌 Đây là payload chuẩn hóa giữa các dịch vụ. `token-service` sẽ xử lý logic RBAC, sinh JWT, lưu session và trả lại `access_token`, `refresh_token`, `expires_in`, `session_id`.
+
+- `grant_type`: là phương thức xác thực ban đầu của người dùng. Một trong:
+  - `google`
+  - `otp`
+  - `local`
 
 ---
 
@@ -200,6 +211,9 @@ sequenceDiagram
     AuthService-->>Client: 200 OK + SuccessEnvelope
 ```
 
+> 👉 Các luồng xác thực khác như `OTP`, `Local login` cũng tuân theo quy trình tương tự:  
+> Xác minh → đồng bộ user → gọi `token-service` → gửi audit log.
+
 ---
 
 ### 4.3. 🧠 Diễn giải chi tiết
@@ -258,6 +272,7 @@ Trả về `user_id`, `tenant_id` |
 - Đây là bước đảm bảo mọi người dùng đều có bản ghi đầy đủ trong hệ thống.
 - Thao tác này là **idempotent** – có thể gọi nhiều lần mà không sinh bản ghi trùng.
 
+> 🔁 Tất cả các phương thức xác thực (OAuth2, OTP, Local) đều gọi `user-service` để tìm hoặc tạo user.
 ---
 
 ### 🔗 5.3. `token-service`
@@ -322,6 +337,9 @@ Trả về `user_id`, `tenant_id` |
 | `/me`          | ✅           | `user.read.self`         | Phân quyền nội tại trong token |
 | `/verify`      | ✅           | `auth.verify.token`      | Chỉ gọi được nếu token hợp lệ |
 | `/dev/mimic`   | ❌ (nếu debug mode) | `auth.mimic.dev` | Chỉ bật trong môi trường dev |
+| `/auth/login`     | ❌           | ❌                        | Local login |
+| `/auth/otp`       | ❌           | ❌                        | Gửi mã OTP |
+| `/auth/verify-otp`| ❌           | ❌                        | Xác minh OTP |
 
 ✅ Tất cả phân quyền động đều được kiểm soát ở cấp `api-gateway`. Auth service **không cần** tự tra quyền.
 
@@ -337,6 +355,7 @@ Auth service xử lý và forward các header sau:
 | `X-Tenant-ID`       | Mã tenant được trích xuất từ token |
 | `X-Trace-ID`        | Dùng để trace toàn bộ luồng xử lý |
 | `X-User-ID`         | Inject vào response (ở `/me`, `/verify`) |
+| `X-Login-Method` | Phương thức đăng nhập (`google`, `otp`, `local`) – được decode từ JWT, hỗ trợ logging & conditional logic phía backend |
 
 ---
 
@@ -525,6 +544,10 @@ Việc kiểm thử `auth-service/master` cần đảm bảo 3 tiêu chí:
 | `auth.login.success` | Khi login thành công (kèm user_id, tenant_id, ip) |
 | `auth.login.failed`  | Khi login thất bại (lý do: google_error, user_sync_failed…) |
 | `auth.token.issue_error` | Khi gọi `token-service` thất bại |
+| `auth.login.otp.success`     | Khi OTP login thành công |
+| `auth.login.local.success`   | Khi Local login thành công |
+| `auth.login.otp.failed`      | Khi OTP không đúng hoặc hết hạn |
+| `auth.login.local.failed`    | Khi username/password sai |
 
 > Audit log giúp điều tra post-mortem, phân tích hành vi người dùng và tuân thủ.
 

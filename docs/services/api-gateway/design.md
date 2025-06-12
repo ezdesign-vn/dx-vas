@@ -1,6 +1,6 @@
 ---
 title: Thiết kế chi tiết API Gateway
-version: "2.0"
+version: "2.1"
 last_updated: "2025-06-03"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -108,6 +108,7 @@ Khi backend trả lỗi không đúng chuẩn, Gateway sẽ bắt và biến đ�
 | `X-Trace-ID`    | Dùng để trace toàn hệ thống                       |
 | `X-Service`     | Backend được gọi (thêm vào log hoặc response lỗi) |
 | `X-Permissions` | (Tuỳ chọn) danh sách quyền đã resolved từ cache   |
+| `X-Login-Method`| Phương thức người dùng đã xác thực: `oauth2`, `otp`, `password` |
 
 > ⚠️ Lỗi 403 do sai permission hoặc không thoả điều kiện `x-condition` cần ghi rõ trong `meta.error_type = "rbac.permission_denied"` hoặc `"rbac.condition_failed"`.
 
@@ -311,7 +312,7 @@ Mặc dù Gateway không phát Pub/Sub event nghiệp vụ, **nó có trách nhi
 | Request đến backend    | Thêm header `X-Trace-ID`, `X-User-ID`, `X-Tenant-ID`        |
 | Response lỗi chuẩn hóa | Trả trong `meta.trace_id`, `meta.service`, `meta.timestamp` |
 | Logging                | Mọi log cần đính kèm trace ID cho mục đích truy vết         |
-
+| Header bổ sung         | `X-Login-Method` nếu trích xuất được từ token               |
 ---
 
 ## 6. 🔐 Bảo mật & Phân quyền
@@ -377,6 +378,9 @@ API Gateway là tuyến phòng vệ đầu tiên giữa frontend và hệ thốn
 | `X-Tenant-ID`   | Phân vùng tenant                        |
 | `X-Trace-ID`    | Truy vết request                        |
 | `X-Permissions` | (Tuỳ chọn) danh sách quyền (đã resolve) |
+| `X-Login-Method`| Phương thức người dùng đã xác thực: `oauth2`, `otp`, `password` |
+
+> 💡 Header `X-Login-Method` giúp backend điều chỉnh logic hoặc giao diện theo loại đăng nhập.
 
 ---
 
@@ -532,6 +536,8 @@ API Gateway là điểm đầu tiên tiếp nhận mọi request, nên khả nă
 | `duration_ms`                            | Đo thời gian xử lý                                                      |
 | `permission_checked`, `rbac_result`      | Thông tin kiểm tra quyền, kể cả pass/fail                              |
 | `condition_checked`, `condition_result`  | Nếu có `x-condition`, ghi rõ giá trị kiểm tra và kết quả               |
+| `login_method` | - Nếu lấy được từ token, sẽ được đưa vào log context (`X-Login-Method`) để phân tích hành vi người dùng theo phương thức xác thực </br>- (ví dụ: đánh giá tỷ lệ lỗi theo loại đăng nhập).|
+
 
 > ⚠️ Không log access token, refresh token hoặc thông tin nhạy cảm (theo ADR-004 Security)
 
