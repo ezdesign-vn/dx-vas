@@ -46,7 +46,7 @@ docs/services/<service-name>/
 |---:|:---|:---|:---|
 | 1️⃣ | [`token-service/`](./token-service/design.md) | Là trái tim bảo mật, phát hành và quản lý vòng đời JWT cho toàn hệ thống. | ✅ Hoàn thành |
 | 2️⃣ | [`api-gateway/`](./api-gateway/design.md) | Cổng vào duy nhất, định tuyến, thực thi bảo mật (JWT, RBAC), và rate-limit. | ✅ Hoàn thành |
-| 3️⃣ | [`auth-service/master/`](./auth-service/master/design.md) | Xử lý xác thực tập trung qua Google OAuth2, điều phối việc cấp token. | ⏳ Đang chỉnh sửa |
+| 3️⃣ | [`auth-service/master/`](./auth-service/master/design.md) | Xử lý xác thực tập trung qua Google OAuth2, điều phối việc cấp token. | ✅ Hoàn thành |
 | 4️⃣ | [`user-service/master/`](./user-service/master/design.md) | Quản lý định danh người dùng và template RBAC toàn cục, phát sự kiện đồng bộ. | ⏳ Đang chỉnh sửa |
 | 5️⃣ | [`auth-service/sub/`](./auth-service/sub/design.md) | Xử lý xác thực cục bộ tại tenant (Local/OTP), tích hợp với Auth Master. | ⏳ Đang chỉnh sửa |
 | 6️⃣ | [`user-service/sub/`](./user-service/sub/design.md) | Quản lý người dùng và RBAC trong phạm vi tenant, nhận dữ liệu đồng bộ từ Master. | ⏳ Đang chỉnh sửa |
