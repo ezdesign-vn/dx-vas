@@ -99,7 +99,7 @@ CREATE TABLE users_global (
   updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,    -- Thời điểm cập nhật gần nhất
 
   UNIQUE (email, auth_provider),                    -- 🔐 Mỗi email chỉ được dùng một lần trong cùng một hệ thống xác thực
-  CHECK (auth_provider IN ('google', 'local', 'zalo'))  -- 🛡️ Ràng buộc giá trị hợp lệ
+  CHECK (auth_provider IN ('google', 'local', 'otp'))  -- 🛡️ Ràng buộc giá trị hợp lệ
 );
 ```
 
@@ -235,7 +235,8 @@ CREATE TABLE user_tenant_assignments (
 ## 9. Chi tiết bảng: `global_roles_templates`
 
 ### 🧾 Mục đích
-Bảng `global_roles_templates` định nghĩa các mẫu vai trò dùng chung toàn hệ thống, do Superadmin quản lý. Các Sub User Service sẽ dựa vào các mẫu này để tạo các vai trò tương ứng cho từng tenant.
+
+Bảng `global_roles_templates` lưu trữ các mẫu vai trò dùng chung toàn hệ thống. Các vai trò này được thiết kế bởi superadmin để làm nền tảng gán role mặc định cho từng tenant trong hệ thống multi-tenant. Đây là phần cốt lõi của cơ chế RBAC phân tầng, giúp tiêu chuẩn hóa quản lý quyền truy cập theo từng loại người dùng (admin, teacher, parent...).
 
 ---
 
@@ -243,12 +244,15 @@ Bảng `global_roles_templates` định nghĩa các mẫu vai trò dùng chung t
 
 ```sql
 CREATE TABLE global_roles_templates (
-  template_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 🔑 ID duy nhất cho role template
-  template_code TEXT UNIQUE NOT NULL,                     -- 🏷️ Mã định danh duy nhất (ví dụ: teacher, accountant)
-  description TEXT,                                       -- 📘 Mô tả vai trò
-  is_default BOOLEAN DEFAULT false,                       -- ✅ Có phải vai trò mặc định không?
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,          -- 🕓 Thời điểm tạo
-  updated_at TIMESTAMPTZ DEFAULT now() NOT NULL           -- 🕓 Thời điểm cập nhật cuối
+  role_template_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  template_key TEXT NOT NULL UNIQUE,
+  template_name TEXT NOT NULL,
+  description TEXT,
+  is_system BOOLEAN NOT NULL DEFAULT FALSE,
+  created_by UUID NOT NULL REFERENCES users_global(user_id),
+  updated_by UUID REFERENCES users_global(user_id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ
 );
 ```
 
@@ -256,37 +260,46 @@ CREATE TABLE global_roles_templates (
 
 ### 🧩 Giải thích cột
 
-| Cột            | Kiểu dữ liệu | Ý nghĩa                                                         |
-|----------------|--------------|-----------------------------------------------------------------|
-| `template_id`  | UUID         | ID duy nhất                                                     |
-| `template_code`| TEXT         | Mã vai trò toàn cục (sẽ được clone sang mỗi tenant nếu cần)     |
-| `description`  | TEXT         | Mô tả vai trò (ví dụ: "Giáo viên cấp 1", "Kế toán học phí")     |
-| `is_default`   | BOOLEAN      | Có phải là vai trò mặc định khi tạo tenant mới không            |
-| `created_at`   | TIMESTAMPTZ  | Thời điểm tạo                                                   |
-| `updated_at`   | TIMESTAMPTZ  | Thời điểm cập nhật gần nhất                                     |
+| Cột                | Kiểu dữ liệu  | Ý nghĩa                                                         |
+| ------------------ | ------------- | --------------------------------------------------------------- |
+| `role_template_id` | `UUID`        | Mã định danh duy nhất cho template                              |
+| `template_key`     | `TEXT`        | Khóa kỹ thuật duy nhất (e.g., `teacher_default`, `admin_basic`) |
+| `template_name`    | `TEXT`        | Tên hiển thị của template                                       |
+| `description`      | `TEXT`        | Mô tả chức năng của role này                                    |
+| `is_system`        | `BOOLEAN`     | Đánh dấu vai trò hệ thống (không cho xóa)                       |
+| `created_by`       | `UUID`        | ID người dùng toàn cục tạo template (superadmin)                |
+| `updated_by`       | `UUID`        | ID người dùng toàn cục cập nhật gần nhất                        |
+| `created_at`       | `TIMESTAMPTZ` | Thời điểm tạo template                                          |
+| `updated_at`       | `TIMESTAMPTZ` | Thời điểm cập nhật gần nhất                                     |
 
 ---
 
 ### 🔗 Liên kết & Sử dụng
 
-- 🌍 Là nguồn dữ liệu để clone role sang các tenant mới tạo (bởi Sub User Service)
-- 🧠 Dữ liệu này được quản lý và cập nhật bởi Superadmin thông qua API `/rbac/templates/roles`
-- 🔒 Không được sửa trực tiếp tại Sub Services – đảm bảo chuẩn RBAC toàn hệ thống
+* **Liên kết 1-n với**: `global_permissions_templates` thông qua bảng phụ `global_role_permissions_templates`
+* **Được dùng khi**:
+
+  * Giao diện quản trị tạo hoặc sửa mẫu role
+  * Gán vai trò mặc định khi khởi tạo tenant mới
+  * Đồng bộ RBAC từ master → sub
 
 ---
 
 ### 📤 Sự kiện phát ra
 
-- `rbac_role_template_created`
-- `rbac_role_template_updated`
-- `rbac_role_template_deleted`
+* `role_template.created`: Khi superadmin tạo mẫu vai trò mới
+* `role_template.updated`: Khi cập nhật nội dung role hoặc quyền liên quan
+* Các sự kiện này được phát qua Pub/Sub để đồng bộ xuống `user-service/sub` theo từng tenant nếu có yêu cầu áp dụng mẫu.
 
 ---
 
 ## 10. Chi tiết bảng: `global_permissions_templates`
 
+---
+
 ### 🧾 Mục đích
-Bảng `global_permissions_templates` định nghĩa các quyền (permission) dùng toàn cục, được gán vào các role template trong bảng `global_roles_templates`. Sub User Service sẽ clone các permission này để áp dụng cục bộ cho từng tenant.
+
+Bảng `global_permissions_templates` định nghĩa tập các quyền (permission) dùng chung trên toàn hệ thống, đóng vai trò là mẫu nền tảng cho cơ chế RBAC phân tầng. Các quyền này sẽ được liên kết với `global_roles_templates` để tạo thành cấu trúc role-permission mặc định cho mỗi tenant. Chúng đảm bảo sự thống nhất, an toàn và dễ mở rộng trong quản lý phân quyền hệ thống.
 
 ---
 
@@ -294,14 +307,15 @@ Bảng `global_permissions_templates` định nghĩa các quyền (permission) d
 
 ```sql
 CREATE TABLE global_permissions_templates (
-  template_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 🔑 ID của permission template
-  permission_code TEXT UNIQUE NOT NULL,                   -- 🏷️ Mã định danh quyền
-  action TEXT NOT NULL,                                   -- 🛠️ Hành động (ví dụ: view, edit)
-  resource TEXT NOT NULL,                                 -- 📁 Tài nguyên bị tác động (ví dụ: users, roles)
-  default_condition JSONB,                                -- 🔄 Điều kiện áp dụng mặc định (nếu có)
-  description TEXT,                                        -- 📘 Mô tả quyền
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,          -- 🕓 Thời điểm tạo
-  updated_at TIMESTAMPTZ DEFAULT now() NOT NULL           -- 🕓 Thời điểm cập nhật cuối
+  permission_template_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  permission_key TEXT NOT NULL UNIQUE,
+  permission_name TEXT NOT NULL,
+  description TEXT,
+  service_scope TEXT NOT NULL,
+  created_by UUID NOT NULL REFERENCES users_global(user_id),
+  updated_by UUID REFERENCES users_global(user_id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ
 );
 ```
 
@@ -309,36 +323,96 @@ CREATE TABLE global_permissions_templates (
 
 ### 🧩 Giải thích cột
 
-| Cột                | Kiểu dữ liệu | Ý nghĩa                                                                 |
-|--------------------|--------------|-------------------------------------------------------------------------|
-| `template_id`      | UUID         | ID duy nhất của template                                                |
-| `permission_code`  | TEXT         | Mã định danh duy nhất cho permission toàn cục                          |
-| `action`           | TEXT         | Hành động như `view`, `edit`, `create`, `delete`, v.v.                  |
-| `resource`         | TEXT         | Tên tài nguyên bị kiểm soát (ví dụ: `users`, `tenants`, `roles`)        |
-| `default_condition`| JSONB        | Điều kiện áp dụng mặc định, ví dụ `{"owner_only": true}`               |
-| `description`      | TEXT         | Mô tả quyền, thường để hiển thị cho Superadmin khi cấu hình            |
-| `created_at`       | TIMESTAMPTZ  | Thời điểm tạo                                                          |
-| `updated_at`       | TIMESTAMPTZ  | Thời điểm cập nhật gần nhất                                            |
+| Cột                      | Kiểu dữ liệu  | Ý nghĩa                                                                    |
+| ------------------------ | ------------- | -------------------------------------------------------------------------- |
+| `permission_template_id` | `UUID`        | Mã định danh của mẫu quyền                                                 |
+| `permission_key`         | `TEXT`        | Khóa kỹ thuật, định danh duy nhất (e.g., `user.read:any`, `tenant.update`) |
+| `permission_name`        | `TEXT`        | Tên hiển thị thân thiện của quyền                                          |
+| `description`            | `TEXT`        | Mô tả chức năng quyền                                                      |
+| `service_scope`          | `TEXT`        | Tên service liên quan (e.g., `user-service`, `tenant-service`)             |
+| `created_by`             | `UUID`        | ID người dùng toàn cục tạo quyền                                           |
+| `updated_by`             | `UUID`        | ID người dùng toàn cục cập nhật gần nhất                                   |
+| `created_at`             | `TIMESTAMPTZ` | Thời điểm tạo mẫu quyền                                                    |
+| `updated_at`             | `TIMESTAMPTZ` | Thời điểm cập nhật gần nhất                                                |
 
 ---
 
 ### 🔗 Liên kết & Sử dụng
 
-- 🔧 Được sử dụng để sinh ra các `permissions_in_tenant` trong từng Sub User Service
-- 📌 Gắn với `global_roles_templates` thông qua bảng quan hệ trung gian `global_role_permission_templates` (có thể mở rộng)
-- 🔐 Không chỉnh sửa trực tiếp trong tenant, đảm bảo chuẩn hóa cấu trúc quyền
+* **Liên kết 1-n với**: `global_roles_templates` qua bảng trung gian `global_role_permissions_templates`
+* **Được sử dụng khi**:
+
+  * Khởi tạo hệ thống phân quyền tenant mới
+  * Hiển thị danh sách quyền cho UI quản trị hệ thống
+  * Phân quyền mặc định trong các service sử dụng RBAC (Auth, User, Token…)
 
 ---
 
 ### 📤 Sự kiện phát ra
 
-- `rbac_permission_template_created`
-- `rbac_permission_template_updated`
-- `rbac_permission_template_deleted`
+* `permission_template.created`: Khi superadmin tạo quyền mới
+* `permission_template.updated`: Khi cập nhật mô tả hoặc phạm vi quyền
+* Các sự kiện này được publish qua Pub/Sub để phục vụ audit logging và/hoặc đồng bộ định nghĩa quyền tới các hệ thống phụ trợ nếu cần.
 
 ---
 
-## 11. Các bảng phụ trợ & phụ lục
+## 11. Chi tiết bảng: `global_role_permissions_templates`
+
+---
+
+### 🧾 Mục đích
+
+Bảng `global_role_permissions_templates` định nghĩa quan hệ nhiều-nhiều giữa các vai trò mẫu (`global_roles_templates`) và các quyền mẫu (`global_permissions_templates`). Đây là bảng trung gian quan trọng giúp ánh xạ cấu trúc phân quyền mặc định cho từng loại người dùng, đóng vai trò làm nền cho quá trình khởi tạo RBAC cho từng tenant mới trong hệ thống multi-tenant.
+
+---
+
+### 📜 Câu lệnh `CREATE TABLE`
+
+```sql
+CREATE TABLE global_role_permissions_templates (
+  role_template_id UUID NOT NULL REFERENCES global_roles_templates(role_template_id) ON DELETE CASCADE,
+  permission_template_id UUID NOT NULL REFERENCES global_permissions_templates(permission_template_id) ON DELETE CASCADE,
+  PRIMARY KEY (role_template_id, permission_template_id)
+);
+```
+
+---
+
+### 🧩 Giải thích cột
+
+| Cột                      | Kiểu dữ liệu                                 | Ý nghĩa                                  |
+| ------------------------ | -------------------------------------------- | ---------------------------------------- |
+| `role_template_id`       | `UUID`                                       | Khóa ngoại đến bảng mẫu vai trò          |
+| `permission_template_id` | `UUID`                                       | Khóa ngoại đến bảng mẫu quyền            |
+| **PRIMARY KEY**          | `(role_template_id, permission_template_id)` | Đảm bảo duy nhất mỗi cặp role-permission |
+
+* `ON DELETE CASCADE` đảm bảo nếu role hoặc permission bị xóa, các ánh xạ liên quan cũng bị xóa theo → tránh orphan records.
+
+---
+
+### 🔗 Liên kết & Sử dụng
+
+* **Liên kết 1-n từ**:
+
+  * `global_roles_templates.role_template_id`
+  * `global_permissions_templates.permission_template_id`
+
+* **Được sử dụng khi**:
+
+  * Tạo mới hoặc chỉnh sửa mẫu vai trò trong UI quản trị hệ thống
+  * Khởi tạo dữ liệu RBAC mặc định cho tenant mới (phân phối role → permission)
+  * Đồng bộ dữ liệu RBAC từ master → sub khi có cập nhật quyền hệ thống
+
+---
+
+### 📤 Sự kiện phát ra
+
+* Không phát sinh sự kiện riêng từ bảng này.
+* Tuy nhiên, khi cập nhật mapping này (thêm/xóa permission trong role), các service cần phát `role_template.updated` từ logic nghiệp vụ ở tầng ứng dụng.
+
+---
+
+## 12. Các bảng phụ trợ & phụ lục
 
 ---
 

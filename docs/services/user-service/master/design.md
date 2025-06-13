@@ -1,9 +1,9 @@
 ---
 title: User Service Master – Service Design Document
 description: Service Design Document cho SPA quản trị hệ thống VAS DX
-version: 1.0
+version: 1.1
 author: DX VAS Team
-last_updated: 2025-05-23
+last_updated: 2025-06-13
 reviewed_by: Stephen Le
 ---
 # 📘 User Service Master – Service Design Document
@@ -291,97 +291,540 @@ User Service Master phát các sự kiện lên Google Cloud Pub/Sub để:
 
 ---
 
-## 7. Bảo mật & phân quyền
+## 7. 🔐 Bảo mật & Phân quyền
 
-- Các API cần xác thực nội bộ (`Auth Master`, `Admin Webapp`)
-- Chỉ user có `superadmin` hoặc token kỹ thuật mới được gọi `POST /user-tenant-assignments`
-- Ghi log audit cho mọi thay đổi định danh người dùng
+`user-service/master` xử lý thông tin định danh toàn cục (Global User Identity), do đó yêu cầu chính sách bảo mật và kiểm soát phân quyền chặt chẽ theo kiến trúc RBAC phân tầng (xem chi tiết tại [`rbac-deep-dive.md`](../../architecture/rbac-deep-dive.md)).
 
 ---
 
-## 8. Cấu hình & Triển khai
+### 🛡️ 7.1. Authentication (Xác thực)
 
-### 🔧 Biến môi trường quan trọng
-
-| Biến Môi Trường                | Mô tả                                                                 | Ví dụ Giá trị                            |
-|-------------------------------|----------------------------------------------------------------------|------------------------------------------|
-| `ENV`                         | Môi trường triển khai (`local`, `staging`, `production`)             | `production`                             |
-| `PORT`                        | Cổng dịch vụ                                                          | `8080`                                   |
-| `DATABASE_URL`                | Kết nối tới PostgreSQL chứa dữ liệu người dùng toàn cục              | `postgresql+asyncpg://...`               |
-| `PUBSUB_PROJECT_ID`           | GCP Project ID để phát sự kiện                                       | `vas-dx-core`                            |
-| `PUBSUB_TOPIC_RBAC_TEMPLATE` | Tên topic Pub/Sub để phát `rbac_template_updated`                    | `vas-rbac-template-updated-topic`        |
-| `PUBSUB_TOPIC_TENANT_ASSIGN` | Tên topic Pub/Sub để phát `tenant_user_assigned`                     | `vas-tenant-user-assignment-topic`       |
-| `SERVICE_AUTH_TOKEN`          | Token nội bộ dùng để xác thực giữa các service (JWT hoặc static key) | `secret_token_xyz`                       |
-
-### 🔐 Secrets cần quản lý riêng
-
-| Secret                        | Mô tả                                                                 |
-|------------------------------|----------------------------------------------------------------------|
-| `DATABASE_PASSWORD`          | Mật khẩu truy cập cơ sở dữ liệu                                       |
-| `JWT_PRIVATE_KEY_PATH`       | Đường dẫn tới private key dùng để ký JWT (nếu phát hành tại đây)     |
-| `RBAC_CACHE_REDIS_URL`       | Đường dẫn kết nối tới Redis chứa cache RBAC                          |
-
-> 🔐 Các secrets nên được quản lý thông qua Google Secret Manager hoặc HashiCorp Vault tùy vào chiến lược DevOps của toàn hệ thống.
+* Tất cả các endpoint đều yêu cầu **JWT access token hợp lệ**, do `auth-service/master` cấp phát.
+* Token được xác thực tại API Gateway, sử dụng public key từ `JWKS` endpoint.
+* Service không decode token mà dựa vào gateway để inject `X-User-ID`, `X-User-Role`, `X-Tenant-ID`.
 
 ---
 
-## 9. Chiến lược Test
+### 🧩 7.2. Authorization (Phân quyền động)
 
-### 🧪 Các lớp kiểm thử
+* Hệ thống áp dụng **RBAC 3 tầng**: `global`, `tenant`, và `scoped-role`.
+* Mỗi endpoint định nghĩa `x-required-permission`, ví dụ:
 
-| Loại Test        | Mục tiêu chính                                                         |
-|------------------|------------------------------------------------------------------------|
-| Unit Test        | Kiểm tra logic xử lý đơn vị (ví dụ: xử lý RBAC template, validate input) |
-| Integration Test | Kiểm tra tương tác giữa API, database, Pub/Sub                        |
-| E2E Test (gián tiếp) | Kiểm tra tích hợp qua luồng nghiệp vụ từ Superadmin Webapp hoặc Auth Master |
-| Contract Test    | Kiểm tra tính tương thích OpenAPI với client (Auth, Sub Service...)   |
-
-### 📑 Kịch bản kiểm thử quan trọng
-
-#### ✅ Kiểm thử chức năng quản lý user global
-- Tạo user toàn cục mới với `auth_provider = google`
-- Lookup user theo `email`
-- Không cho phép trùng `email + auth_provider`
-
-#### ✅ Kiểm thử phân bổ người dùng vào tenant
-- Tạo assignment mới (POST `/user-tenant-assignments`)
-- Không cho phép gán cùng user_id + tenant_id 2 lần
-- Kiểm tra sự kiện `tenant_user_assigned` đã được phát lên Pub/Sub
-
-#### ✅ Kiểm thử quản lý RBAC template toàn cục
-- Tạo, sửa, xóa template role & permission
-- Ghi nhận sự kiện `rbac_template_updated` phát đúng format
-- Kiểm tra tính nhất quán nếu nhiều request song song
-
-### 🧰 Công cụ sử dụng
-
-- `pytest`, `httpx`, `asyncpg` – cho unit/integration test
-- Mock GCP Pub/Sub bằng emulator hoặc test double
-- Redis test container để kiểm tra cache logic nếu có
-
-### 🧪 Dữ liệu test mẫu
-
-```json
-{
-  "full_name": "Nguyen Van A",
-  "email": "vana@example.com",
-  "auth_provider": "google"
-}
+```yaml
+x-required-permission: user.read:any
 ```
+
+* Các permission được mapping theo bảng sau:
+
+| Permission         | Mô tả                                 |
+| ------------------ | ------------------------------------- |
+| `user.read:any`    | Truy cập thông tin bất kỳ user nào    |
+| `user.read:self`   | Truy cập chỉ thông tin của chính mình |
+| `user.create`      | Tạo user mới toàn cục                 |
+| `user.update:any`  | Sửa thông tin user bất kỳ             |
+| `user.update:self` | Sửa thông tin của chính mình          |
+
+---
+
+### 🔐 7.3. Bảo vệ dữ liệu nhạy cảm
+
+* Trường `password`, `token`, `email_verified_at` đều được bảo vệ:
+
+  * `password` chỉ ghi, không bao giờ trả về (gắn `writeOnly: true`)
+  * Email được xác minh ở `auth/master`, không lưu lại trong `user/master`
+* Các trường có thể bị giới hạn truy cập tuỳ theo vai trò:
+
+  * `internal_notes` chỉ hiện với `admin`, không hiện với `self`
+
+---
+
+### 🔁 7.4. Audit Logging
+
+* Mọi thao tác ghi (`POST`, `PATCH`, `DELETE`) đều emit sự kiện audit:
+
+  * `user.created`, `user.updated`, `user.merged`
+* Log audit được gửi qua Pub/Sub → `audit-logging-service`, tuân thủ [ADR-008](../../../ADR/adr-008-audit-logging.md)
+
+---
+
+### 🔒 7.5. Internal Auth
+
+* Các call nội bộ (ví dụ: từ `auth-service/master`) sử dụng `SERVICE_AUTH_TOKEN` và được kiểm tra tại gateway.
+* Những API không dành cho public (seed role, fetch global profile) có gắn:
+
+```yaml
+x-internal-only: true
+x-service-auth-required: true
+```
+
+---
+
+### 🚫 7.6. Rate Limiting & Abuse Prevention
+
+* Gateway cấu hình limit mặc định: `100 req/min/user`
+* Các endpoint nhạy cảm (tìm theo email, tạo user) có thể gắn limit riêng.
+
+---
+
+## 8. ⚙️ Cấu hình & Triển khai
+
+### 🔧 Biến môi trường
+
+Service sử dụng cấu hình từ file `.env` (hoặc `settings/.env.<env>.template`) theo chuẩn hóa từ [ADR-005: Env Config](../../../ADR/adr-005-env-config.md). Một số biến chính:
+
+| Tên biến               | Mô tả                                                                 | Ví dụ                            |
+| ---------------------- | --------------------------------------------------------------------- | -------------------------------- |
+| `ENVIRONMENT`          | Môi trường chạy (`local`, `staging`, `production`)                    | `staging`                        |
+| `SERVICE_PORT`         | Cổng chạy service                                                     | `8000`                           |
+| `DATABASE_URL`         | Kết nối PostgreSQL                                                    | `postgresql://user:pass@host/db` |
+| `REDIS_URL`            | Kết nối Redis (cache session/token)                                   | `redis://localhost:6379/0`       |
+| `SERVICE_AUTH_TOKEN`   | Token dùng để gọi nội bộ giữa các service (Auth Master → User Master) | `secret-key`                     |
+| `JWT_PUBLIC_KEY`       | Public key để validate access token (dạng PEM)                        | –                                |
+| `GOOGLE_CLOUD_PROJECT` | Project ID dùng cho Pub/Sub (nếu bật audit)                           | `dxvas-dev`                      |
+| `LOG_LEVEL`            | Mức log (`DEBUG`, `INFO`, ...)                                        | `INFO`                           |
+
+👉 Toàn bộ các biến được liệt kê và version hóa tại: `settings/.env.template`.
+
+---
+
+### 🛠 Cấu trúc thư mục cấu hình
+
+```bash
+settings/
+├── .env.template              # Biến môi trường chuẩn (dùng cho mọi môi trường)
+├── env.staging.yaml          # Override cho môi trường staging
+├── env.production.yaml       # Override cho môi trường production
+└── secrets.yaml              # Chỉ chứa key nhạy cảm, inject từ Vault/SecretManager
+```
+
+* Toàn bộ file `yaml` đều được load tự động bởi module config chuẩn trong `dx-core`.
+* Secrets như `JWT_PRIVATE_KEY` KHÔNG được ghi trực tiếp vào `.env`, mà được mount vào volume hoặc lấy từ SecretManager (theo [ADR-003: Secrets](../../../ADR/adr-003-secrets.md)).
+
+---
+
+### 🚀 CI/CD & Triển khai
+
+Tuân thủ [ADR-001: CI/CD Pipeline](../../../ADR/adr-001-ci-cd.md):
+
+| Thành phần    | Công cụ                        | Ghi chú                                               |
+| ------------- | ------------------------------ | ----------------------------------------------------- |
+| Build & test  | GitHub Actions                 | `test.yaml`, `lint.yaml` trong `.github/workflows/`   |
+| Build image   | Docker, Poetry                 | Image tối ưu từ `python:slim`, không include dev deps |
+| Scan bảo mật  | `trivy`, `semgrep`             | Tích hợp vào CI                                       |
+| Deploy        | ArgoCD                         | Tự động rollout nếu merge vào `main`                  |
+| Observability | OpenTelemetry, Grafana, Sentry | Default gắn theo dx-core                              |
+| Migration     | Alembic, trigger qua Argo Job  | Tách step migrate và deploy rõ ràng                   |
+
+---
+
+📌 Để chạy service cục bộ:
+
+```bash
+cp settings/.env.template .env
+docker-compose up -d postgres redis
+make run
+```
+
+---
+
+## 9. 🧪 Chiến lược Test
+
+Việc kiểm thử `user-service/master` được tổ chức theo **chiến lược kiểm thử đa tầng**, đảm bảo chất lượng từ mức độ logic nội bộ đến tích hợp liên service, đồng thời có thể chạy hiệu quả trong CI/CD pipeline.
+
+---
+
+### ✅ 9.1. Unit Test
+
+* Phạm vi:
+
+  * Xử lý logic nghiệp vụ: tạo user, validate dữ liệu, phân quyền động
+  * Format hóa response và mã lỗi theo ADR-012
+* Công cụ: `pytest + pytest-mock`
+* Mỗi PR mới đều bắt buộc chạy qua test suite này trong GitHub Actions (`test.yaml`)
+* Yêu cầu coverage ≥ **85%**
+
+---
+
+### ✅ 9.2. Contract Test (Consumer-Driven)
+
+Tuân thủ [ADR-010: Contract Testing](../../../ADR/adr-010-contract-testing.md)
+
+* Kiểm thử tương thích giữa `user-service/master` và các consumer (ví dụ: `auth/master`, `api-gateway`)
+* Dùng `pact-python`, publish pact file lên `pact-broker`
+* CI sẽ **fail nếu producer làm gãy contract**
+* Bắt buộc có contract test cho các API:
+
+  * `GET /users-global/{id}`
+  * `POST /users-global`
+  * `GET /users-global/by-email`
+
+---
+
+### ✅ 9.3. Integration Test (Service level)
+
+* Spin-up toàn bộ stack (PostgreSQL, Redis, user-service) trong Docker Compose
+* Chạy các test query + mutation logic đầy đủ (bao gồm validate RBAC, phân quyền)
+* Dùng `httpx` hoặc `pytest-httpx` để test end-to-end response format
+* Đảm bảo emit đúng các sự kiện (`user.created`, `user.duplicated`, `user.updated`) qua Pub/Sub mock
+
+---
+
+### ✅ 9.4. Load & Performance Test (Tùy chọn)
+
+* Dùng `locust` hoặc `k6` để test throughput của các API truy xuất hàng loạt (pagination, filter)
+* Ước lượng ngưỡng tối ưu: 1000 req/s với latency P95 < 200ms
+* Giúp tune indexing, limit-offset, caching Redis user\_id → full profile
+
+---
+
+### ✅ 9.5. Security Test
+
+* `pytest` với các case đặc biệt: không có token, token sai scope, sai tenant
+* Kết hợp `semgrep` để phát hiện hardcoded secrets, lỗi injection
+* Test `user.read:self` vs `user.read:any` để xác minh phân quyền động
+
+---
+
+### 🧪 Báo cáo & Tích hợp CI
+
+* Test chạy qua `make test`, `make test-contract`, `make test-int`
+* Kết quả publish lên `coverage.xml`, `junit.xml`, tích hợp GitHub Checks
+* Pact Broker: `https://pact.dxvas.vn`
+* Allure Report: Tùy chọn publish khi chạy full test suite
 
 > 🧠 Mọi kịch bản test cần bao gồm trường hợp thành công, lỗi logic, và lỗi hệ thống (timeout, lỗi DB, lỗi Pub/Sub...).
 
 ---
 
-## 10. Tài liệu liên quan
+## 10. 📈 Quan sát & Giám sát
+
+Hệ thống quan sát (observability) của `user-service/master` giúp đảm bảo khả năng phát hiện lỗi sớm, đo lường sức khỏe hệ thống và hỗ trợ phân tích hành vi người dùng phục vụ vận hành đa tenant hiệu quả.
+
+---
+
+### 📊 10.1. Logging
+
+* **Chuẩn log JSON** theo `dx-core`, định dạng:
+  `{ timestamp, level, service, trace_id, span_id, user_id, tenant_id, msg, extra... }`
+* Tích hợp OpenTelemetry để đính kèm `trace_id`, `span_id` theo chuẩn OTEL.
+* Log được gửi về:
+
+  * Dev: `stdout` → Loki/Grafana
+  * Prod: GCP Logging hoặc OpenObserve
+
+| Level   | Mục đích                                    |
+| ------- | ------------------------------------------- |
+| `INFO`  | Thao tác thông thường                       |
+| `WARN`  | Thao tác sai, không làm crash               |
+| `ERROR` | Exception, database lỗi, sự cố nghiêm trọng |
+| `DEBUG` | Gỡ lỗi (chỉ bật khi local/dev)              |
+
+---
+
+### 📈 10.2. Metrics
+
+* Sử dụng `Prometheus` exporter thông qua `dx-core.metrics`.
+* Một số metrics quan trọng:
+
+| Metric                            | Loại      | Nhãn                 | Ghi chú                        |
+| --------------------------------- | --------- | -------------------- | ------------------------------ |
+| `http_requests_total`             | Counter   | path, method, status | Tổng số request                |
+| `http_request_duration_seconds`   | Histogram | path, method         | Độ trễ                         |
+| `user_create_success_total`       | Counter   | tenant\_id           | Tạo user thành công            |
+| `user_lookup_by_email_miss_total` | Counter   | –                    | Không tìm thấy user theo email |
+| `db_query_duration_seconds`       | Histogram | model, operation     | Theo dõi hiệu năng DB          |
+
+---
+
+### 🔐 10.3. Audit Logging
+
+Tuân thủ [ADR-008](../../../ADR/adr-008-audit-logging.md):
+
+* Emit các sự kiện audit dạng Pub/Sub:
+
+  * `user.created`
+  * `user.updated`
+  * `user.duplicated`
+* Mỗi event bao gồm: `actor_id`, `target_user_id`, `tenant_id`, `action`, `changes`
+* Được forward sang `audit-logging-service` để lưu DB riêng (GCP BigQuery hoặc PostgreSQL phân vùng)
+
+* Tất cả các thao tác thay đổi dữ liệu liên quan đến người dùng và tenant đều được ghi lại thông qua Audit Logging Service, bao gồm:
+
+    - `user.created`, `user.updated`, `user.deleted`
+    - `user_tenant_assignment.created`
+    - `tenant.created`, `tenant.status_changed`
+    - `role_template.updated`, `permission_template.updated`
+
+* Log bao gồm:
+    - `actor_id`, `tenant_id`, `action`, `target_table`, `before`, `after`, `timestamp`
+    - Request `X-Request-ID` để truy vết qua toàn hệ thống
+
+---
+
+### 💰 10.4. Cost Observability (Billing)
+
+Áp dụng [ADR-020](../../../ADR/adr-020-cost-observability.md):
+
+* Tự động emit sự kiện `usage.user.query` và `usage.user.create`
+* Hỗ trợ billing theo số lần truy cập dữ liệu `global user` của mỗi tenant
+* Các service khác (như SIS, CRM) có thể tích hợp các sự kiện này để ước lượng chi phí
+
+---
+
+### 🧪 10.5. Health Check & Alert
+
+* Endpoint: `GET /healthz` (có thể bổ sung `/readyz`)
+* Tích hợp:
+
+  * Argo Rollout → kiểm tra trước khi scale
+  * GCP Cloud Monitoring → alert theo latency và error rate
+
+---
+
+## 11. 🚀 Độ tin cậy & Phục hồi
+
+`user-service/master` đóng vai trò then chốt trong hệ thống định danh toàn cục, do đó được thiết kế với mục tiêu **khả dụng cao (HA)**, đảm bảo **không mất dữ liệu** và **không gián đoạn khi cập nhật**.
+
+---
+
+### 🧱 11.1. Triển khai không gián đoạn (Zero Downtime)
+
+Tuân thủ [ADR-014: Zero Downtime](../../../ADR/adr-014-zero-downtime.md):
+
+* Sử dụng chiến lược rollout `blue-green` hoặc `canary` qua Argo Rollouts.
+* Endpoint `GET /healthz` + probe readiness kiểm tra DB + Redis + Pub/Sub.
+* Thực hiện shadow traffic test trước khi 100% chuyển route.
+
+---
+
+### ⚙️ 11.2. Chính sách triển khai
+
+Theo [ADR-015: Deployment Strategy](../../../ADR/adr-015-deployment-strategy.md) và [ADR-018: Release Approval](../../../ADR/adr-018-release-approval-policy.md):
+
+* Mọi release đều yêu cầu:
+
+  * Pass CI (`unit`, `contract`, `integration`)
+  * Được duyệt bởi reviewer kỹ thuật
+  * Gắn tag version (`v2.x.x`)
+* Tự động deploy nếu PR merge vào `main` và có tag.
+
+---
+
+### ♻️ 11.3. Auto Scaling
+
+Tuân thủ [ADR-016: Auto Scaling](../../../ADR/adr-016-auto-scaling.md):
+
+* Sử dụng HPA (Horizontal Pod Autoscaler) theo:
+
+  * CPU: ≥ 70%
+  * Request QPS: ≥ 500 req/s
+* Giới hạn min 2 replica, max 10 (có thể override theo tenant load)
+
+---
+
+### 💾 11.4. Dự phòng dữ liệu & recovery
+
+* Toàn bộ dữ liệu lưu tại PostgreSQL phân vùng theo tenant\_id.
+* Backup qua Cloud SQL export định kỳ (6 giờ/lần).
+* Mỗi thay đổi người dùng đều phát `user.updated` → có thể sync vào hệ thống phụ như CRM/LMS/SIS để đảm bảo redundancy.
+
+---
+
+### ⚡ 11.5. Retry & Timeouts
+
+* Giao tiếp nội bộ giữa services có timeout 3s + retry 2 lần (exponential backoff).
+* Nếu `user.master` không phản hồi:
+
+  * Gateway trả lỗi `503` với mã `user.service_unavailable`
+  * Ghi log + emit alert
+
+---
+
+### 🔄 11.6. Rollback & Observability
+
+* Nếu rollout lỗi (readiness probe fail > 20s), tự động rollback về version trước.
+* Tích hợp OpenTelemetry để debug lỗi multi-hop: từ gateway → auth → user.
+
+---
+
+## 12. ⚡️ Hiệu năng & Khả năng mở rộng
+
+`user-service/master` được thiết kế để phục vụ truy vấn user toàn cục đa tenant, với khả năng scale linh hoạt và đáp ứng hàng triệu bản ghi. Mọi thành phần từ lưu trữ, cache đến API đều được tối ưu để đảm bảo throughput cao, latency thấp và hỗ trợ mở rộng theo chiều ngang.
+
+---
+
+### ⚡ 12.1. Truy vấn tối ưu & indexing
+
+* Các API thường xuyên sử dụng như:
+
+  * `GET /users-global/by-email`
+  * `GET /users-global/by-phone`
+  * `GET /users-global/{id}`
+    đều được tối ưu thông qua **index phức hợp** (`email, tenant_id`, `phone_number, tenant_id`).
+* Cơ chế filter sử dụng `tenant_id` như điều kiện bắt buộc để đảm bảo query nhanh và cách ly dữ liệu.
+
+---
+
+### 🧠 12.2. Caching thông minh
+
+* Redis layer để cache các bản ghi người dùng phổ biến (dựa vào LRU hoặc Top-K queries).
+* TTL mặc định: 15 phút. Có cơ chế invalidate khi có `user.updated`.
+* Dữ liệu cache:
+
+  * `user_id → profile`
+  * `email/phone → user_id`
+* Cơ chế warming cache khi khởi động để tăng cold-start performance.
+
+---
+
+### 🚀 12.3. Hỗ trợ phân trang lớn (deep pagination)
+
+* Dùng cơ chế **seek-based pagination** (trang theo `created_at` hoặc `user_id`) để tránh hiệu năng kém khi offset lớn.
+* Default limit: 20. Max limit: 1000.
+* Có hỗ trợ cả offset pagination cho use-case quản trị viên.
+
+---
+
+### ⚙️ 12.4. Horizontal Scaling
+
+* Service stateless → có thể scale theo replica (tuân thủ [ADR-016](../../../ADR/adr-016-auto-scaling.md))
+* Redis + PostgreSQL có thể tách cụm theo workload:
+
+  * Redis: scale theo số lượng hot user
+  * Postgres: có thể sharding theo `tenant_id` nếu vượt quá ngưỡng
+
+---
+
+### 📉 12.5. Theo dõi hiệu năng
+
+* Metrics Prometheus:
+
+  * `http_request_duration_seconds`
+  * `user.lookup_latency_p95`
+  * `db_user_query_duration_seconds`
+* Cảnh báo nếu:
+
+  * `P95 > 200ms` trong 5 phút
+  * `cache_miss_rate > 30%` trong 10 phút
+
+---
+
+### 🧪 12.6. Benchmark & Load test
+
+* Dùng `k6` để test với 1 triệu user, 1000 req/s trong 10 phút:
+
+  * `P95 < 150ms`, `success_rate > 99.9%`
+* Test profile:
+
+  * 90% `GET`
+  * 8% `POST`
+  * 2% `PATCH`
+
+---
+
+## 13. 🧩 Kiến trúc Service
+
+`user-service/master` là một thành phần **core multi-tenant**, chịu trách nhiệm quản lý danh tính toàn cục cho người dùng trên toàn hệ thống VAS, bao gồm: ID định danh, tài khoản gốc, và thông tin liên kết giữa người dùng với các tenant. Service này hoạt động độc lập với các sub-service tenant-specific, và là nguồn dữ liệu gốc phục vụ `auth-service/master`, `token-service` và hệ thống SMS mới tích hợp.
+
+---
+
+### 🧭 13.1. Sơ đồ kiến trúc cập nhật (tuân CR-04)
+
+```mermaid
+flowchart TD
+  subgraph Core Services
+    GATEWAY[API Gateway]
+    AUTH_MASTER[Auth Service - Master]
+    USER_MASTER[User Service - Master]
+    TOKEN[Token Service]
+    AUDIT[Audit Logging Service]
+  end
+
+  subgraph Data Layer
+    PG_GLOBAL[(PostgreSQL - Global)]
+    REDIS[(Redis)]
+  end
+
+  subgraph Tenant System
+    SMS[(School Management System)]
+  end
+
+  GATEWAY -->|JWT + RBAC + X-Tenant-ID| AUTH_MASTER
+  GATEWAY -->|RBAC + Route| USER_MASTER
+
+  AUTH_MASTER -->|Lookup user| USER_MASTER
+  USER_MASTER -->|Read/write| PG_GLOBAL
+  USER_MASTER -->|Cache email/user_id| REDIS
+  USER_MASTER -->|Emit user.created/updated| PUBSUB[(Pub/Sub)]
+  USER_MASTER --> AUDIT
+
+  PUBSUB --> SMS
+```
+
+---
+
+### 🧩 13.2. Thành phần chính
+
+| Thành phần            | Vai trò                                                   |
+| --------------------- | --------------------------------------------------------- |
+| `FastAPI`             | Framework triển khai HTTP API                             |
+| `PostgreSQL` (global) | Lưu trữ chính thông tin người dùng toàn cục               |
+| `Redis`               | Tăng tốc truy xuất `email → user_id`, `user_id → profile` |
+| `Pub/Sub`             | Phát sự kiện cho các hệ thống downstream như `SMS`        |
+| `Audit Logging`       | Ghi nhận thay đổi user phục vụ kiểm tra và compliance     |
+
+---
+
+### ⚙️ 13.3. Cấu trúc thư mục
+
+```bash
+user-service/
+├── main.py                  # Entry point chính
+├── api/                     # Router FastAPI
+│   ├── global_users.py      # Định nghĩa endpoint /users-global/*
+├── models/                  # ORM models
+├── schemas/                 # Request/response schemas
+├── services/                # Business logic: user creation, update, conflict detection
+├── events/                  # Emit Pub/Sub events
+├── core/                    # Cấu hình, middleware, utils
+└── tests/                   # Kiểm thử unit & integration
+```
+
+---
+
+### 🔄 13.4. Giao tiếp & tích hợp
+
+| Dịch vụ                 | Mục đích                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `auth-service/master`   | Xác thực người dùng, gọi `GET /users-global/by-email`                          |
+| `token-service`         | Cung cấp JWT token với `user_id` toàn cục                                      |
+| `API Gateway`           | Áp dụng RBAC & inject các header (`X-User-ID`, `X-Permissions`, `X-Tenant-ID`) |
+| `SMS (Tenant)`          | Tiêu thụ sự kiện `user.created`, `user.updated` để sync user profile           |
+| `audit-logging-service` | Nhận log từ mọi hành động cập nhật, tạo user                                   |
+
+---
+
+### 📣 13.5. Các sự kiện phát ra
+
+Tuân chuẩn định danh sự kiện từ \[ADR-030: Event Schema Governance]:
+
+| Sự kiện           | Khi nào phát                            | Payload                                      |
+| ----------------- | --------------------------------------- | -------------------------------------------- |
+| `user.created`    | Khi tạo user mới toàn cục               | `{ user_id, email, created_by, timestamp }`  |
+| `user.updated`    | Khi cập nhật thông tin người dùng       | `{ user_id, fields_changed, updated_by }`    |
+| `user.duplicated` | Khi phát hiện trùng thông tin định danh | `{ conflict_user_ids, resolution_strategy }` |
+
+---
+
+## 14. Tài liệu liên quan
 
 | Tên tài liệu                                | Mô tả ngắn gọn                                                                 |
 |---------------------------------------------|--------------------------------------------------------------------------------|
-| [rbac-deep-dive.md](../../../rbac-deep-dive.md) | Mô tả chi tiết kiến trúc RBAC, các bảng liên quan và sơ đồ quyền              |
-| [adr-007-rbac.md](../../../adr-007-rbac.md)     | Quyết định thiết kế kiến trúc RBAC phân tầng theo mô hình Master-Sub          |
-| [adr-006-auth-strategy.md](../../../adr-006-auth-strategy.md) | Mô tả chiến lược xác thực, JWT và vai trò của User Service Master/Sub         |
-| [data-model.md](./data-model.md)             | Chi tiết các bảng CSDL được quản lý bởi User Service Master                  |
-| [interface-contract.md](./interface-contract.md) | Hợp đồng API định nghĩa rõ input/output, auth, mã lỗi của các endpoint       |
-| [openapi.yaml](./openapi.yaml)               | File đặc tả OpenAPI kỹ thuật dùng để tạo SDK/Client/Docs tự động             |
-| [system-diagrams.md](../../../system-diagrams.md) | Sơ đồ kiến trúc tổng thể hệ thống, các service và dòng tương tác             |
+| [rbac-deep-dive.md](../../../architecture/rbac-deep-dive.md) | Mô tả chi tiết kiến trúc RBAC, các bảng liên quan và sơ đồ quyền              |
+| [adr-007-rbac.md](../../../ADR/adr-007-rbac.md)     | Quyết định thiết kế kiến trúc RBAC phân tầng theo mô hình Master-Sub          |
+| [adr-006-auth-strategy.md](../../../ADR/adr-006-auth-strategy.md) | Mô tả chiến lược xác thực, JWT và vai trò của User Service Master/Sub         |
+| [Data Model](./data-model.md)             | Chi tiết các bảng CSDL được quản lý bởi User Service Master                  |
+| [Interface Contract](./interface-contract.md) | Hợp đồng API định nghĩa rõ input/output, auth, mã lỗi của các endpoint       |
+| [OpenAPI](./openapi.yaml)               | File đặc tả OpenAPI kỹ thuật dùng để tạo SDK/Client/Docs tự động             |
+| [system-diagrams.md](../../../architecture/system-diagrams.md) | Sơ đồ kiến trúc tổng thể hệ thống, các service và dòng tương tác             |
 | [README.md](../../../README.md)              | Tài liệu kiến trúc tổng quan, mục tiêu tổng thể và các nguyên lý thiết kế     |
