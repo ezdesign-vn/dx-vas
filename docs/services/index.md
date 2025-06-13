@@ -30,7 +30,7 @@ docs/services/<service-name>/
 
 ---
 
-✅ Việc tuân thủ cấu trúc trên giúp toàn bộ tài liệu kiến trúc của dx\_vas thống nhất, dễ tìm, dễ review, dễ onboard người mới.
+✅ Việc tuân thủ cấu trúc trên giúp toàn bộ tài liệu kiến trúc của `dx-vas` thống nhất, dễ tìm, dễ review, dễ onboard người mới.
 
 ---
 
@@ -51,7 +51,7 @@ docs/services/<service-name>/
 | 5️⃣ | [`auth-service/sub/`](./auth-service/sub/design.md) | Xử lý xác thực cục bộ tại tenant (Local/OTP), tích hợp với Auth Master. | ✅ Hoàn thành |
 | 6️⃣ | [`user-service/sub/`](./user-service/sub/design.md) | Quản lý người dùng và RBAC trong phạm vi tenant, nhận dữ liệu đồng bộ từ Master. | ✅ Hoàn thành |
 | 7️⃣ | [`sms-service/`](./sms-service/design.md) | Cung cấp nghiệp vụ lõi cho tenant (CRM, SIS, LMS), thay thế các adapter cũ. | ⬜ Chưa bắt đầu |
-| 8️⃣ | [`notification-service/master/`](./notification-service/master/design.md) | Điều phối việc gửi thông báo, quản lý template chung và phát sự kiện fan-out. | ⏳ Đang chỉnh sửa |
+| 8️⃣ | [`notification-service/master/`](./notification-service/master/design.md) | Điều phối việc gửi thông báo, quản lý template chung và phát sự kiện fan-out. | ✅ Hoàn thành |
 | 9️⃣ | [`notification-service/sub/`](./notification-service/sub/design.md) | Nhận sự kiện và thực thi gửi thông báo (email/SMS) với cấu hình riêng của tenant. | ⬜ Chưa bắt đầu |
 | 🔟 | [`reporting-service/`](./reporting-service/design.md) | Truy vấn Data Warehouse, sinh báo cáo phân tích theo template và quyền hạn. | ⏳ Đang chỉnh sửa |
 | 1️⃣1️⃣| [`audit-logging-service/`](./audit-logging-service/design.md) | Thu thập, lưu trữ, và cung cấp giao diện truy vấn các log kiểm toán quan trọng. | ⏳ Đang chỉnh sửa |
@@ -75,7 +75,7 @@ Dưới đây là quy ước đặt `servers.url` cho từng loại service tron
 
 ```yaml
 servers:
-  - url: https://auth.truongvietanh.edu.vn/auth-master/v1
+  - url: https://api.truongvietanh.edu.vn/auth-master/v1
     description: Production server
 ```
 
