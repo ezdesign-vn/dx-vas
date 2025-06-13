@@ -36,10 +36,10 @@ info:
     - adr-030-event-schema-governance.md
 
 servers:
-  - url: https://api.dxvas.edu.vn/notification
-    description: Production server
-  - url: https://staging.dxvas.edu.vn/notification
-    description: Staging server
+  - url: https://api.truongvietanh.edu.vn/notification-master/v1
+    description: Production Server
+  - url: https://staging-api.truongvietanh.edu.vn/notification-master/v1
+    description: Staging
 
 tags:
   - name: NotificationTemplate
@@ -106,7 +106,7 @@ components:
             code:
               type: string
               description: Mã lỗi định danh
-              example: "TEMPLATE_NOT_FOUND"
+              example: "template.template_not_found"
             message:
               type: string
               description: Mô tả lỗi cho người dùng
@@ -116,7 +116,7 @@ components:
               additionalProperties: true
               description: Thông tin kỹ thuật chi tiết (nếu có)
 
-    TemplateOut:
+    TemplateResponse:
       type: object
       description: Thông tin một template gửi thông báo.
       example:
@@ -124,7 +124,7 @@ components:
         name: "welcome_email"
         type: "email"
         language: "vi"
-        trigger_event: "user.created"
+        trigger_event: "user.created.v1"
       properties:
         id:
           type: string
@@ -152,7 +152,7 @@ components:
         name: "reset_sms"
         type: "sms"
         language: "vi"
-        trigger_event: "password.reset_requested"
+        trigger_event: "password.reset_requested.v1"
         content: "Mã xác thực của bạn là: {{code}}"
       properties:
         name:
@@ -236,6 +236,9 @@ paths:
     get:
       tags: [NotificationTemplate]
       summary: Lấy danh sách template
+      operationId: listNotificationTemplates
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + list-templates"      
       x-required-permission: notification.template.read
       security:
         - bearerAuth: []
@@ -273,7 +276,7 @@ paths:
                     name: "welcome_email"
                     type: "email"
                     language: "vi"
-                    trigger_event: "user.created"
+                    trigger_event: "user.created.v1"
                 meta:
                   request_id: "req-gettpl-001"
                   timestamp: "2025-06-05T10:30:00Z"
@@ -283,7 +286,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/TemplateOut"
+                      $ref: "#/components/schemas/TemplateResponse"
                   meta:
                     $ref: "#/components/schemas/ResponseMeta"
         default:
@@ -298,7 +301,7 @@ paths:
                   request_id: "req-err-999"
                   timestamp: "2025-06-05T10:15:00Z"
                 error:
-                  code: "TEMPLATE_NOT_FOUND"
+                  code: "template.template_not_found"
                   message: "Không tìm thấy template yêu cầu"
                   details:
                     id: "tpl-999"
@@ -309,6 +312,13 @@ paths:
     post:
       tags: [NotificationTemplate]
       summary: Tạo template mới
+      operationId: createNotificationTemplate
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + validate + create-template"
+      x-condition:
+        name: required
+        type: required
+        language: required      
       x-required-permission: notification.template.create
       security:
         - bearerAuth: []
@@ -332,7 +342,7 @@ paths:
                   name: "reset_sms"
                   type: "sms"
                   language: "vi"
-                  trigger_event: "password.reset_requested"
+                  trigger_event: "password.reset_requested.v1"
                 meta:
                   request_id: "req-tpl-create-abc"
                   timestamp: "2025-06-05T10:00:00Z"
@@ -340,7 +350,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/TemplateOut"
+                    $ref: "#/components/schemas/TemplateResponse"
                   meta:
                     $ref: "#/components/schemas/ResponseMeta"
         default:
@@ -355,7 +365,7 @@ paths:
                   request_id: "req-err-999"
                   timestamp: "2025-06-05T10:15:00Z"
                 error:
-                  code: "TEMPLATE_NOT_FOUND"
+                  code: "template.template_not_found"
                   message: "Không tìm thấy template yêu cầu"
                   details:
                     id: "tpl-999"
@@ -366,6 +376,11 @@ paths:
     put:
       tags: [NotificationTemplate]
       summary: Cập nhật template
+      operationId: updateNotificationTemplate
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + validate + update-template"
+      x-condition:
+        id: required
       x-required-permission: notification.template.update
       security:
         - bearerAuth: []
@@ -399,7 +414,7 @@ paths:
                   request_id: "req-err-999"
                   timestamp: "2025-06-05T10:15:00Z"
                 error:
-                  code: "TEMPLATE_NOT_FOUND"
+                  code: "template.template_not_found"
                   message: "Không tìm thấy template yêu cầu"
                   details:
                     id: "tpl-999"
@@ -410,6 +425,14 @@ paths:
     post:
       tags: [ManualSend]
       summary: Gửi thông báo thủ công
+      operationId: sendNotificationManually
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + validate + enqueue-manual-notification"
+      x-emits-event: notification.requested.manual.v1
+      x-condition:
+        template_id: required
+        receiver: required
+        channel: required
       x-required-permission: notification.send.manual
       security:
         - bearerAuth: []
@@ -453,7 +476,7 @@ paths:
                   request_id: "req-err-999"
                   timestamp: "2025-06-05T10:15:00Z"
                 error:
-                  code: "TEMPLATE_NOT_FOUND"
+                  code: "template.template_not_found"
                   message: "Không tìm thấy template yêu cầu"
                   details:
                     id: "tpl-999"
