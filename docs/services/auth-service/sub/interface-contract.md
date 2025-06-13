@@ -1,531 +1,861 @@
 ---
 title: Auth Service (Sub) - Interface Contract
-version: "1.0"
-last_updated: "2025-06-07"
+version: "2.0"
+last_updated: "2025-06-13"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
 
 # 📘 Auth Service Sub – Interface Contract
 
-Auth Sub Service là thành phần thuộc tenant domain, chịu trách nhiệm xác thực người dùng cục bộ theo từng tenant – bao gồm học sinh, phụ huynh và nhân viên tenant. Mỗi tenant có 1 instance riêng biệt được triển khai để đảm bảo độc lập về dữ liệu và xác thực.
+## 1. 🎯 Mục tiêu & Phạm vi tài liệu
 
-Phạm vi:
-- ✅ Quản lý đăng nhập cục bộ (email/password, mã OTP, liên kết Magic Link).
-- ✅ Cấp phát JWT token (access, refresh).
-- ✅ Đăng xuất và làm mới token.
-- ❌ Không quản lý user profile, role hay permission (xem User Service Sub).
-- ❌ Không quản lý danh sách tenant (xem Auth Service Master).
+Tài liệu này định nghĩa rõ các **hợp đồng giao tiếp (interface contract)** của `auth-service/sub` – một service chịu trách nhiệm xác thực người dùng theo từng tenant, bao gồm:
 
-> 🧭 **Nguyên tắc chung:**
-> - Tất cả API yêu cầu header `Authorization: Bearer <JWT>` ngoại trừ các API công khai như `/login`, `/refresh-token`.
-> - Response body tuân thủ [ADR-012 Response Structure](../../../ADR/adr-012-response-structure.md).
-> - Lỗi tuân theo [ADR-011 Error Format](../../../ADR/adr-011-api-error-format.md).
-> - Các token do Sub Auth Service cấp có `aud=tenant:[tenant_id]`.
+- Đăng nhập qua OTP hoặc tài khoản nội bộ (Local login)
+- Quản lý vòng đời phiên đăng nhập (`auth_sessions`)
+- Thu hồi phiên hoặc token đã cấp
+- Cung cấp metadata và audit cho các service khác
 
 ---
 
-## 📌 API: `/auth`
+### 🎯 Mục tiêu chính
 
-Danh sách các API xác thực nội bộ cho tenant:
-
-| Method | Path             | Mô tả                                    | Quyền (RBAC Permission Code) |
-|--------|------------------|-------------------------------------------|-------------------------------|
-| POST   | `/auth/login`    | Đăng nhập tenant bằng email/mật khẩu      | `public`                      |
-| POST   | `/auth/refresh`  | Làm mới access token từ refresh token     | `public`                      |
-| POST   | `/auth/logout`   | Thu hồi refresh token                     | `auth.logout.self`            |
+- Là cơ sở chính thức cho việc **triển khai backend** và **frontend tích hợp**
+- Chuẩn hoá request/response theo OpenAPI
+- Áp dụng các quy tắc phân quyền và bảo mật theo chuẩn `RBAC động`
+- Làm cơ sở cho contract testing, CI/CD và monitoring
 
 ---
 
-### 🧪 Chi tiết API
+### 📦 Các API được định nghĩa tại đây
 
-Dưới đây là phần mở rộng chi tiết cho API:
-
----
-
-#### 1. POST `/auth/login`
-
----
-
-Đăng nhập nội bộ vào hệ thống theo tenant bằng email/mật khẩu hoặc OTP (nếu được cấu hình). Đây là điểm khởi đầu quan trọng cho mọi hành vi người dùng trong hệ thống Sub.
+| Nhóm chức năng | Mô tả |
+|----------------|------|
+| `POST /auth/login` | Đăng nhập người dùng (OTP / Local) |
+| `POST /auth/logout` | Đăng xuất và thu hồi token |
+| `GET /auth/sessions` | Truy vấn lịch sử phiên đăng nhập |
+| `POST /auth/sessions/{id}/revoke` | Thu hồi một phiên cụ thể |
 
 ---
 
-**📥 Request**
+### 🚫 Ngoài phạm vi (Out of Scope)
+
+Các chức năng sau **không nằm trong tài liệu này** và được định nghĩa ở nơi khác:
+
+| Chức năng | Nơi định nghĩa |
+|-----------|----------------|
+| Xác thực Google (OAuth2) | `auth-service/master` |
+| Cấp phát JWT token | `token-service` |
+| Kiểm tra RBAC động | `api-gateway` |
+| Quản lý người dùng | `user-service` |
+
+---
+
+### 🧭 Định hướng kiến trúc
+
+Tài liệu này được xây dựng dựa trên nguyên lý:
+
+- **Stateless Service**: mọi trạng thái phiên đều externalized
+- **Multi-tenant per-instance**: mọi request bắt buộc đi kèm `X-Tenant-ID`
+- **RBAC Externalized**: mọi permission và điều kiện truy cập được xử lý tại gateway hoặc middleware
+- **Auditability**: mọi hành vi phát sinh đều gửi sự kiện để trace và giám sát
+
+> 📌 Mọi API trong tài liệu đều đồng bộ 100% với file OpenAPI (`openapi.yaml`) của `auth-service/sub`.
+
+---
+
+## 2. 🔐 Chính sách Bảo mật & Phân quyền
+
+Toàn bộ các endpoint trong `auth-service/sub` yêu cầu xác thực và phân quyền chặt chẽ dựa trên:
+
+- **JWT token** được cấp từ `token-service`
+- **X-Tenant-ID** để định danh tenant hiện hành
+- **Permission động (RBAC)** để giới hạn quyền truy cập theo vai trò và ngữ cảnh
+
+---
+
+### 2.1. 🛡 Security Scheme
+
+| Thành phần | Bắt buộc | Ghi chú |
+|------------|----------|---------|
+| `Authorization` header | ✅ | Dạng Bearer JWT |
+| `X-Tenant-ID` header | ✅ | Mọi request đều phải xác định tenant |
+| JWT payload | ✅ | Chứa `user_id`, `roles`, `tenant_id`… theo chuẩn hệ thống |
+
+> ⚠️ Token phải được cấp hợp lệ từ `token-service`, ký bằng khóa `RS256`.
+
+---
+
+### 2.2. 🧩 Cơ chế kiểm soát phân quyền
+
+Hệ thống RBAC theo mô hình `permission + condition`, được xử lý **ngoài service** (tại `api-gateway` hoặc middleware) và được kiểm tra lại trong audit/logic nếu cần.
+
+#### Ví dụ:
 
 ```json
-{
-  "email": "student@example.com",
-  "password": "Abcd1234"
+"x-permissions": ["session.read:self"],
+"x-condition": {
+  "user_id": "{{current_user.id}}",
+  "tenant_id": "{{X-Tenant-ID}}"
 }
 ```
 
-> 📝 **Ghi chú**:
->
-> * Trường `email` là định danh đăng nhập chính. Với phụ huynh hoặc học sinh, có thể là số điện thoại nếu được cấu hình OTP.
-> * Trường `password` không được lưu plaintext; sẽ được hash để kiểm tra với CSDL.
+---
+
+### 2.3. 📋 Bảng mapping permission
+
+| Endpoint | Permission | x-condition |
+|----------|------------|-------------|
+| `POST /auth/login` | `auth.login` | `{ "tenant_id": "{{X-Tenant-ID}}" }` |
+| `POST /auth/logout` | `auth.logout` | `{ "tenant_id": "{{X-Tenant-ID}}" }` |
+| `GET /auth/sessions` | `session.read:self` \| `session.read:any` | `{ "user_id": ..., "tenant_id": ... }` |
+| `POST /auth/sessions/{id}/revoke` | `session.revoke:any` | `{ "tenant_id": ... }` |
+
+> Nếu user không thoả `x-condition`, hệ thống sẽ trả lỗi `403 Forbidden`.
 
 ---
 
-**📤 Response – 200 OK**
+### 2.4. 🔐 Bảo vệ dữ liệu nhạy cảm
+
+- Các trường như `ip_address`, `user_agent`, `location` trong session chỉ trả về nếu có quyền `session.read:any`
+- Với quyền `session.read:self`, một số trường có thể bị cắt bỏ để bảo vệ quyền riêng tư
+
+---
+
+### 2.5. 🧠 Gợi ý triển khai
+
+| Vấn đề | Giải pháp |
+|--------|-----------|
+| Người dùng quên gửi `X-Tenant-ID` | Gateway trả lỗi 400 với lỗi `missing_tenant_id` |
+| Quản trị viên muốn xem session của user khác | Cần `session.read:any` và điều kiện tenant match |
+| Hạn chế truy cập chéo giữa tenant | Mọi truy vấn đều bắt buộc `tenant_id = {{X-Tenant-ID}}` |
+
+> ✅ Cơ chế bảo mật và phân quyền được thiết kế để hoạt động an toàn trong môi trường multi-tenant, đồng thời linh hoạt cho quản trị hệ thống trên từng tenant cụ thể.
+
+---
+
+## 3. 📌 Tổng quan API & Luồng nghiệp vụ
+
+Các API trong `auth-service/sub` tập trung phục vụ việc xác thực người dùng theo từng tenant. Tất cả đều tuân thủ kiến trúc phân tầng rõ ràng, hoạt động theo luồng chuẩn xác thực – phát token – quản lý session – thu hồi token.
+
+---
+
+### 3.1. 🔁 Các nhóm chức năng chính
+
+| Nhóm API | Mô tả | Endpoint |
+|----------|------|----------|
+| 🧑‍💼 Xác thực | Đăng nhập bằng OTP hoặc Local login | `POST /auth/login` |
+| 🚪 Đăng xuất | Thu hồi token đang dùng (logout) | `POST /auth/logout` |
+| 📜 Lịch sử phiên | Liệt kê các phiên đăng nhập trước đó | `GET /auth/sessions` |
+| 🔒 Thu hồi phiên | Huỷ bỏ session cụ thể (manual revoke) | `POST /auth/sessions/{id}/revoke` |
+
+---
+
+### 3.2. 🧭 Luồng xử lý chính
+
+```mermaid
+sequenceDiagram
+  participant Frontend
+  participant API Gateway
+  participant Auth Sub
+  participant Token Service
+  participant Redis
+
+  Frontend->>+API Gateway: /auth/login (OTP/local)
+  API Gateway->>+Auth Sub: chuyển tiếp login
+  Auth Sub->>+Token Service: yêu cầu cấp JWT
+  Token Service-->>-Auth Sub: access_token + refresh_token
+  Auth Sub->>Redis: ghi revoked cache (nếu logout)
+  Auth Sub-->>-API Gateway: trả về JWT
+  API Gateway-->>-Frontend: JWT
+
+  note over Auth Sub,Redis: Emit: auth.token.issued
+```
+
+---
+
+### 3.3. 🌐 Mối liên hệ với các service khác
+
+| Service liên quan | Vai trò |
+|-------------------|--------|
+| `token-service` | Sinh & thu hồi access/refresh token |
+| `api-gateway` | Enforce RBAC, forward `x-condition`, kiểm tra revoked token |
+| `user-service` | Đồng bộ thông tin user (id, trạng thái) nếu cần |
+| `notification-service` | Gửi OTP (trong tương lai nếu tách khỏi frontend) |
+
+---
+
+### 3.4. 📣 Sự kiện được phát ra
+
+| Tên sự kiện | Khi nào? | Payload |
+|-------------|----------|---------|
+| `auth.token.issued` | Sau khi login thành công | Thông tin session, token, user metadata |
+| `auth.token.revoked` | Khi logout hoặc bị revoke | Session ID, user ID, lý do |
+| `user.sync.triggered` | (optional) Khi cần đồng bộ user qua tenant khác | user_id, tenant_id |
+
+> 📌 Luồng nghiệp vụ trong `auth-service/sub` được thiết kế đơn giản, dễ mở rộng, và phù hợp tuyệt đối với mô hình multi-tenant per-instance của `dx-vas`.
+
+---
+
+## 4. 📬 Chi tiết các Endpoint
+
+### 4.1. `POST /auth/login`
+
+Đây là endpoint chính để xác thực người dùng thông qua OTP hoặc tài khoản nội bộ (local). Sau khi xác thực thành công, hệ thống sẽ tạo session, phát JWT, lưu metadata và phát sự kiện `auth.token.issued`.
+
+---
+
+#### 📥 Request
+
+**Header yêu cầu**:
+
+| Header | Bắt buộc | Ghi chú |
+|--------|----------|--------|
+| `Authorization` | ❌ | Không cần (chưa login) |
+| `X-Tenant-ID` | ✅ | Xác định tenant đang xử lý |
+
+**Body** (`LoginRequest`, dùng discriminator `login_type`):
 
 ```json
 {
-  "data": {
-    "access_token": "<JWT-access>",
-    "refresh_token": "<JWT-refresh>",
-    "expires_in": 3600,
-    "token_type": "Bearer"
-  },
+  "login_type": "otp",  // hoặc "local"
+  "phone_number": "+84901234567", // OTP
+  "otp_code": "123456"
+}
+```
+
+Hoặc:
+
+```json
+{
+  "login_type": "local",
+  "username": "admin",
+  "password": "123456"
+}
+```
+
+> Các field cụ thể phụ thuộc vào `login_type`. Tài liệu `schemas/LoginRequest` sẽ định nghĩa cụ thể.
+
+---
+
+#### 📤 Response
+
+```json
+{
   "meta": {
-    "request_id": "df1291b2-....",
-    "timestamp": "2025-06-07T12:34:56Z"
+    "request_id": "xyz",
+    "timestamp": "..."
   },
-  "error": null
-}
-```
-
----
-
-**🔐 JWT access\_token**
-
-```json
-{
-  "sub": "user-12345",
-  "aud": "tenant:vas_t001",
-  "iat": 1717784096,
-  "exp": 1717787696,
-  "permissions": ["student.read.self", "notification.receive"]
-}
-```
-
-* **`sub`**: ID người dùng
-* **`aud`**: Ràng buộc tenant
-* **`permissions`**: Mảng quyền được lấy từ Sub User Service (role-based)
-
----
-
-**❌ Các lỗi có thể gặp**
-
-| Status Code | Điều kiện xảy ra                          | Mã lỗi (error.code)        | Mô tả                     |
-| ----------- | ----------------------------------------- | -------------------------- | ------------------------- |
-| 400         | Thiếu trường bắt buộc                     | `auth.missing_fields`      | Thiếu email hoặc password |
-| 401         | Sai mật khẩu hoặc không tồn tại tài khoản | `auth.invalid_credentials` | Không thể xác thực        |
-| 403         | Tài khoản bị khoá                         | `auth.account_locked`      | Không cho phép truy cập   |
-| 429         | Quá nhiều lần thử                         | `auth.rate_limited`        | Tạm khóa đăng nhập        |
-
----
-
-**🧩 Headers**
-
-| Tên header     | Bắt buộc | Mô tả                                    |
-| -------------- | -------- | ---------------------------------------- |
-| `X-Request-ID` | ✅        | ID truy vết request, dùng cho logging    |
-| `X-Tenant-ID`  | ✅        | Mã định danh tenant (do API Gateway gắn) |
-
----
-
-**🔄 Flow tổng quát**
-
-```mermaid
-sequenceDiagram
-    participant FE as Frontend
-    participant GW as API Gateway
-    participant AU as Auth Sub
-    participant US as User Sub
-    participant RS as Redis
-
-    FE->>GW: POST /auth/login
-    GW->>AU: Forward request + headers
-    AU->>US: Lấy user theo email
-    US-->>AU: Thông tin user + role
-    AU->>AU: Kiểm tra password (bcrypt)
-    AU->>RS: Tạo session
-    AU->>FE: Trả access + refresh token
-```
-
----
-
-Dưới đây là phần mở rộng chi tiết cho endpoint:
-
----
-
-#### 2. POST `/auth/refresh`
-
----
-
-Cấp mới một access token hợp lệ dựa trên refresh token còn hiệu lực. Đây là phần quan trọng trong cơ chế duy trì phiên đăng nhập dài hạn (session longevity) mà không cần người dùng nhập lại mật khẩu.
-
----
-
-**📥 Request**
-
-```json
-{
-  "refresh_token": "<JWT-refresh-token>"
-}
-```
-
-> 📝 **Ghi chú**:
->
-> * `refresh_token` phải là token hợp lệ được cấp từ endpoint `/auth/login`.
-> * Refresh token có thời hạn dài hơn access token (mặc định 7–14 ngày).
-> * Token này **không được dùng để truy cập API** mà chỉ dùng để xin access token mới.
-
----
-
-**📤 Response – 200 OK**
-
-```json
-{
   "data": {
-    "access_token": "<JWT-access-new>",
+    "access_token": "<JWT>",
+    "refresh_token": "<JWT>",
     "expires_in": 3600,
+    "session_id": "f2b9c6ae-...95c",
     "token_type": "Bearer"
-  },
+  }
+}
+```
+
+- Response luôn bọc trong `ResponseMeta + TokenEnvelope`
+- `session_id` là UUID phiên login được lưu trong `auth_sessions`
+- Token được phát từ `token-service`, không phải nội bộ auth-sub
+
+---
+
+#### 🔐 Phân quyền & Điều kiện
+
+| Yếu tố | Giá trị |
+|--------|--------|
+| `x-required-permission` | `auth.login` |
+| `x-condition` | `{ "tenant_id": "{{X-Tenant-ID}}" }` |
+
+---
+
+#### 📣 Sự kiện phát ra
+
+- `auth.token.issued`
+- Payload gồm: `user_id`, `tenant_id`, `auth_method`, `session_id`, `ip_address`, `user_agent`, `device_type`, `location`
+
+---
+
+#### ❌ Mã lỗi có thể trả về
+
+| error.code | HTTP | Mô tả |
+|------------|------|------|
+| `auth.invalid_credentials` | 401 | Sai username/password |
+| `auth.otp.invalid` | 400 | Mã OTP không đúng |
+| `auth.otp.expired` | 400 | Mã OTP đã hết hạn |
+| `auth.rate_limited` | 429 | Gửi OTP quá nhiều lần |
+| `auth.tenant_not_found` | 400 | Thiếu hoặc sai `X-Tenant-ID` |
+
+---
+
+#### 🧪 Gợi ý kiểm thử
+
+- Đăng nhập đúng/sai OTP
+- Đăng nhập local đúng/sai
+- Thiếu `X-Tenant-ID` → lỗi
+- Session phải được ghi vào bảng `auth_sessions`
+- Token phải có claim đúng (`sub`, `session_id`, `tenant_id`, `exp`...)
+
+> 📌 Đây là endpoint duy nhất tạo JWT trong `auth-service/sub`. Mọi cấp phát token đều được uỷ quyền sang `token-service`.
+
+---
+
+### 4.2. `POST /auth/logout`
+
+Endpoint này cho phép người dùng hoặc hệ thống **thu hồi token hiện tại** (access hoặc refresh) và đánh dấu session tương ứng là đã bị huỷ. Đồng thời phát sự kiện `auth.token.revoked` để các service khác cập nhật trạng thái.
+
+---
+
+#### 📥 Request
+
+**Header yêu cầu**:
+
+| Header | Bắt buộc | Ghi chú |
+|--------|----------|--------|
+| `Authorization` | ✅ | JWT hiện tại |
+| `X-Tenant-ID` | ✅ | Tenant tương ứng với token |
+
+**Body** (`LogoutRequest`, optional):
+
+```json
+{
+  "reason": "user_logout"
+}
+```
+
+> Nếu không truyền `reason`, mặc định là `"user_logout"`.
+
+---
+
+#### 📤 Response
+
+```json
+{
   "meta": {
-    "request_id": "af2b90dd-...",
-    "timestamp": "2025-06-07T13:45:12Z"
+    "request_id": "...",
+    "timestamp": "..."
   },
-  "error": null
+  "data": {
+    "success": true
+  }
 }
 ```
 
+- Trả về 200 OK với success flag
+- Không cần trả lại token
+
 ---
 
-**🔐 JWT access\_token (mới)**
+#### 🔐 Phân quyền & Điều kiện
+
+| Yếu tố | Giá trị |
+|--------|--------|
+| `x-required-permission` | `auth.logout` |
+| `x-condition` | `{ "tenant_id": "{{X-Tenant-ID}}" }` |
+
+---
+
+#### 🧩 Hành vi nội bộ
+
+- Token hiện tại được decode → lấy `jti` (JWT ID), `session_id`, `user_id`
+- Tạo key `revoked:<jti>` trong Redis với TTL đúng bằng thời gian còn lại
+- Cập nhật bản ghi `auth_sessions` tương ứng: `revoked_at`, `revoked_reason`
+- Ghi log audit và phát sự kiện `auth.token.revoked`
+
+---
+
+#### 📣 Sự kiện phát ra
+
+- `auth.token.revoked`
+- Payload gồm: `session_id`, `user_id`, `tenant_id`, `revoked_reason`, `revoked_at`, `ip_address`, `device_type`
+
+---
+
+#### ❌ Mã lỗi có thể trả về
+
+| error.code | HTTP | Mô tả |
+|------------|------|------|
+| `auth.token.invalid` | 401 | Token không hợp lệ hoặc đã hết hạn |
+| `auth.token.already_revoked` | 400 | Token đã bị thu hồi trước đó |
+| `auth.tenant_mismatch` | 403 | Token không thuộc tenant đang gửi |
+
+---
+
+#### 🧪 Gợi ý kiểm thử
+
+- Logout access token đang dùng → Redis có key `revoked:<jti>`
+- Logout refresh token → cũng phải bị revoke
+- Check Redis TTL và dữ liệu
+- Truy vấn `GET /auth/sessions` → session đổi trạng thái
+- Replay token sau logout → phải bị từ chối tại Gateway
+
+> 📌 Đây là cơ chế chính để thực hiện session termination chủ động, phục vụ cả frontend và admin console. Các revoke xảy ra tại đây là **soft revoke** (qua Redis), không xóa token vật lý.
+
+---
+
+### 4.3. `GET /auth/sessions`
+
+Endpoint này cho phép người dùng truy vấn danh sách phiên đăng nhập trước đó của chính mình, hoặc truy xuất của người dùng khác (nếu có quyền). Hỗ trợ lọc theo `user_id`, `trạng thái`, phân trang.
+
+---
+
+#### 📥 Request
+
+**Header yêu cầu**:
+
+| Header | Bắt buộc | Ghi chú |
+|--------|----------|--------|
+| `Authorization` | ✅ | JWT hợp lệ |
+| `X-Tenant-ID` | ✅ | Tenant hiện hành |
+
+**Query Parameters** (tùy chọn):
+
+| Tham số | Kiểu | Ghi chú |
+|---------|------|--------|
+| `user_id` | UUID | Chỉ định user cụ thể (chỉ khi có quyền `read:any`) |
+| `status` | ENUM | `active`, `revoked`, `expired`, `locked` |
+| `limit` | Integer | Số dòng mỗi trang (default: 20) |
+| `offset` | Integer | Bỏ qua bao nhiêu dòng đầu tiên |
+
+---
+
+#### 📤 Response
 
 ```json
 {
-  "sub": "user-12345",
-  "aud": "tenant:vas_t001",
-  "iat": 1717785096,
-  "exp": 1717788696,
-  "permissions": ["student.read.self", "notification.receive"]
-}
-```
-
----
-
-**❌ Các lỗi có thể gặp**
-
-| Status Code | Tình huống                           | error.code             | Mô tả                            |
-| ----------- | ------------------------------------ | ---------------------- | -------------------------------- |
-| 400         | Thiếu refresh\_token                 | `auth.missing_token`   | Không cung cấp refresh\_token    |
-| 401         | Token hết hạn, sai chữ ký, bị revoke | `auth.invalid_token`   | Không thể xác thực token         |
-| 403         | User bị khóa hoặc đã logout trước đó | `auth.session_revoked` | Phiên đăng nhập không còn hợp lệ |
-| 500         | Lỗi hệ thống trong khi xử lý         | `auth.internal_error`  | Lỗi không xác định               |
-
----
-
-**🧩 Headers**
-
-| Tên header     | Bắt buộc | Mô tả                                    |
-| -------------- | -------- | ---------------------------------------- |
-| `X-Request-ID` | ✅        | ID truy vết request, dùng cho logging    |
-| `X-Tenant-ID`  | ✅        | Mã định danh tenant (do API Gateway gắn) |
-
----
-
-**📦 Lưu ý về Refresh Token**
-
-* Lưu trong Redis (hoặc DB) với TTL tương ứng.
-* Có thể thu hồi (`blacklist`) khi logout, hoặc khi vi phạm.
-* Mỗi lần dùng `refresh_token`, hệ thống có thể chọn cấp **refresh mới** hoặc **tiếp tục dùng token cũ** tùy cấu hình.
-
----
-
-**🔄 Flow tổng quát**
-
-```mermaid
-sequenceDiagram
-    participant FE as Frontend
-    participant GW as API Gateway
-    participant AU as Auth Sub
-    participant RS as Redis
-
-    FE->>GW: POST /auth/refresh
-    GW->>AU: Forward refresh_token
-    AU->>RS: Kiểm tra token còn hiệu lực?
-    RS-->>AU: OK
-    AU->>AU: Sinh access token mới
-    AU->>FE: Trả token mới
-```
-
----
-
-Dưới đây là phần chi tiết hoàn chỉnh cho endpoint:
-
----
-
-#### 3. POST `/auth/logout`
-
----
-
-Thu hồi refresh token hiện tại để kết thúc phiên làm việc của người dùng. Đây là cách chính thống để **chủ động kết thúc phiên**, xóa session khỏi hệ thống, đảm bảo bảo mật khi người dùng rời khỏi thiết bị.
-
----
-
-**📥 Request**
-
-- Không có body.
-- Dựa hoàn toàn vào `Authorization` header mang `access_token`.
-
----
-
-**📤 Response – 204 No Content**
-
-```http
-HTTP/1.1 204 No Content
-X-Request-ID: 63a9e3af-....
-```
-
-> ✅ Không trả về `data` hoặc `error`. Nếu thành công, token hiện tại sẽ bị revoke.
-
----
-
-**🧩 Headers**
-
-| Header          | Bắt buộc | Mô tả                                                  |
-| --------------- | -------- | ------------------------------------------------------ |
-| `Authorization` | ✅        | `Bearer <access_token>` – xác định người dùng hiện tại |
-| `X-Request-ID`  | ✅        | Mã truy vết request                                    |
-| `X-Tenant-ID`   | ✅        | Tenant đang thao tác                                   |
-
----
-
-**📦 Hành vi**
-
-* Trích xuất `user_id` từ access token.
-* Xác định `session_id` hoặc `refresh_token` từ Redis hoặc DB.
-* Thu hồi (revoke) token bằng cách:
-
-  * Xoá khỏi Redis cache.
-  * Hoặc đánh dấu đã thu hồi trong DB.
-* Có thể log lại hành vi này vào `audit-logging-service`.
-
----
-
-**❌ Các lỗi có thể gặp**
-
-| Status Code | Tình huống                           | error.code           | Ghi chú                       |
-| ----------- | ------------------------------------ | -------------------- | ----------------------------- |
-| 401         | Không có access token hoặc token sai | `auth.invalid_token` | Không thể xác thực người dùng |
-| 403         | Token bị khóa, user bị vô hiệu hóa   | `auth.token_revoked` | Không cho phép logout         |
-
----
-
-**🔄 Flow tổng quát**
-
-```mermaid
-sequenceDiagram
-    participant FE as Frontend
-    participant GW as API Gateway
-    participant AU as Auth Sub
-    participant RS as Redis
-
-    FE->>GW: POST /auth/logout (with Bearer token)
-    GW->>AU: Forward request + headers
-    AU->>RS: Revoke session / token
-    AU->>FE: 204 No Content
-```
-
----
-
-**🛡️ Ghi chú Bảo mật**
-
-* Logout thành công nên vô hiệu hóa `refresh_token` ngay lập tức.
-* Nếu nhiều session cho 1 user: nên chỉ thu hồi session hiện tại.
-* Kết hợp tốt với tracking: `audit_logs` có thể ghi lại hành vi logout.
-
----
-
-Dưới đây là phần mở rộng Mermaid Diagram mô tả **luồng tổng quát trạng thái session** trong `auth-service/sub`, phù hợp nếu bạn dự định mở rộng tính năng quản lý nhiều phiên (multi-device session tracking, logout từ xa, audit session, v.v.).
-
----
-
-### 📊 Mermaid – Luồng Trạng thái Session
-
-```mermaid
-stateDiagram-v2
-    [*] --> SessionCreated : Login thành công
-    SessionCreated --> Active : Token access đang còn hiệu lực
-    Active --> Expired : Token access hết hạn
-    Active --> Revoked : Logout hoặc bị admin revoke
-    Expired --> [*]
-    Revoked --> [*]
-```
-
----
-
-#### 🧠 Giải thích:
-
-* **SessionCreated**: Khi người dùng đăng nhập lần đầu (tạo refresh\_token + session entry)
-* **Active**: Access token còn hiệu lực, session hợp lệ
-* **Expired**: Token tự hết hạn (TTL)
-* **Revoked**: Khi gọi `/auth/logout`, hoặc bị force logout từ Admin
-* Mỗi phiên có thể được lưu trong Redis hoặc Postgres để phục vụ:
-
-  * Theo dõi đăng nhập đa thiết bị
-  * Thu hồi chọn lọc
-  * Audit session
-
----
-
-> 📌 **Nếu bạn mở rộng quản lý session nâng cao**, hãy bổ sung bảng `sessions` vào `data-model.md` và bổ sung API:
->
-> * `GET /auth/sessions`
-> * `DELETE /auth/sessions/{id}`
-
----
-
-## 📎 ENUM sử dụng
-
-Các trường ENUM được dùng trong `auth-service/sub` giúp chuẩn hóa dữ liệu trả về và đảm bảo frontend có thể hiển thị chính xác.
-
-| Tên Trường        | Enum Giá Trị                 | Ý nghĩa & Gợi ý UI                                        |
-|-------------------|------------------------------|------------------------------------------------------------|
-| `token_type`      | `Bearer`                     | Kiểu token được cấp, mặc định là `Bearer` trong toàn hệ thống |
-| `error.code`      | `auth.invalid_credentials`<br>`auth.missing_token`<br>`auth.token_revoked`<br>`auth.account_locked`<br>`auth.internal_error` | Mã lỗi trả về theo chuẩn [ADR-011](../../../ADR/adr-011-api-error-format.md) |
-| `auth_method`     | `password`<br>`otp`<br>`magic_link` | Phương thức xác thực được hệ thống hỗ trợ (cho tương lai) |
-| `grant_type`      | `refresh_token`              | Mô tả flow `POST /auth/refresh`, phù hợp chuẩn OAuth2      |
-| `session_status`  | `active`, `revoked`, `expired` | Trạng thái của phiên làm việc – dùng trong tương lai nếu mở endpoint `/sessions` |
-
----
-
-### 📌 Enum: `auth_method`
-
-| Giá trị        | Mô tả                               | Ghi chú triển khai hiện tại            |
-|----------------|--------------------------------------|----------------------------------------|
-| `password`     | Xác thực bằng email/phone + mật khẩu | ✅ Đang được sử dụng                    |
-| `otp`          | Xác thực một lần bằng mã gửi qua SMS/email | ⛔ Chưa hỗ trợ – sẽ triển khai sau (gắn Notification Service) |
-| `magic_link`   | Xác thực qua link gửi qua email      | ⛔ Chưa hỗ trợ – cần triển khai thêm Auth Flow đặc biệt |
-
-> 📌 Ghi chú:  
-> Trong thời điểm hiện tại, hệ thống `auth-service/sub` **chỉ hỗ trợ phương thức `password`**.  
-> Các phương thức như `otp` và `magic_link` được thiết kế sẵn trong schema để chuẩn bị cho tương lai, khi hệ thống mở rộng thêm xác thực thân thiện hơn cho học sinh, phụ huynh hoặc người dùng có kỹ năng số thấp.
-
----
-
-### 📌 Enum: `error.code`
-
-#### Nhóm `auth.*` – Lỗi xác thực
-
-| Mã lỗi                  | Mô tả người dùng (VI)                | Mô tả kỹ thuật                        |
-|-------------------------|---------------------------------------|---------------------------------------|
-| `auth.invalid_credentials` | Sai thông tin đăng nhập              | Email/mật khẩu không đúng             |
-| `auth.account_locked`      | Tài khoản bị khóa                   | Flag khóa từ phía hệ thống quản trị   |
-| `auth.missing_token`       | Thiếu refresh token                 | Không gửi refresh token trong request |
-| `auth.invalid_token`       | Token không hợp lệ                  | Hết hạn, sai chữ ký, cấu trúc sai     |
-
-#### Nhóm `session.*` – Lỗi phiên làm việc
-
-| Mã lỗi                  | Mô tả người dùng (VI)                | Mô tả kỹ thuật                        |
-|-------------------------|---------------------------------------|---------------------------------------|
-| `session.revoked`         | Phiên đăng nhập không còn hợp lệ     | Refresh token đã bị thu hồi           |
-| `session.expired`         | Phiên làm việc đã hết hạn            | TTL Redis đã hết                      |
-| `session.already_logged_out` | Bạn đã đăng xuất                   | Gửi lại logout khi token đã bị revoke |
-
-#### Nhóm `common.*` – Lỗi hệ thống chung
-
-| Mã lỗi                  | Mô tả người dùng (VI)                | Mô tả kỹ thuật                        |
-|-------------------------|---------------------------------------|---------------------------------------|
-| `common.internal_error`  | Lỗi hệ thống. Vui lòng thử lại sau   | Exception chưa được bắt / xử lý       |
-| `common.rate_limited`    | Quá nhiều yêu cầu. Vui lòng chờ...   | Bị throttling hoặc limit từ upstream  |
-
----
-
-> 📌 **Gợi ý i18n**:  
-> Với cấu trúc này, frontend chỉ cần:
-> ```ts
-> t(`error.auth.invalid_credentials`) → “Sai thông tin đăng nhập”
-> ```
-> Dễ tổ chức file dịch JSON đa ngôn ngữ:
-> ```json
-> {
->   "error": {
->     "auth": {
->       "invalid_credentials": "Sai thông tin đăng nhập",
->       ...
->     },
->     "session": {
->       ...
->     }
->   }
-> }
-> ```
-
----
-
-### 🧩 Gợi ý UI (từ Enum)
-
-> Một số enum như `session_status` hoặc `error.code` có thể được mapping ra label + màu sắc cho frontend dễ hiển thị:
-
-| error.code               | Label (VI)                    | Màu đề xuất |
-|--------------------------|-------------------------------|-------------|
-| `auth.invalid_credentials` | Sai thông tin đăng nhập        | `red`       |
-| `auth.account_locked`      | Tài khoản bị khóa              | `orange`    |
-| `auth.missing_token`       | Thiếu refresh token            | `gray`      |
-| `auth.token_revoked`       | Phiên làm việc đã kết thúc      | `gray`      |
-
----
-
-📎 **Tham khảo thêm**:
-- `openapi.yaml` → `components.schemas.ErrorEnvelope`, `LoginResponse`, ...
-- `data-model.md` → bảng `sessions`, `auth_logs`, các enum đi kèm.
-
----
-
-Dưới đây là nội dung chi tiết hóa phần **📎 Permission Mapping** cho `auth-service/sub/interface-contract.md`, đảm bảo tuân thủ chuẩn 5★ Interface Contract Standard và gắn kết chặt chẽ với RBAC từ `rbac-deep-dive.md` và [ADR-007](../../../ADR/adr-007-rbac.md):
-
----
-
-## 📎 Permission Mapping
-
-Tài liệu này mô tả các quyền (RBAC permissions) được áp dụng trong `auth-service/sub`, nhằm kiểm soát hành vi truy cập API theo từng người dùng.
-
-> 🔐 Lưu ý:
-> - Các quyền này **không thể hardcode trong frontend**, mà phải được kiểm tra từ JWT.
-> - Sub Auth Service không tự quản lý role hay permission, mà nhận từ Sub User Service khi cấp JWT.
-
----
-
-### 🧩 Bảng Mapping
-
-| `permission_code`     | API Endpoint                   | Hành động | Đối tượng       | Mô tả & Ghi chú                                         |
-|------------------------|--------------------------------|-----------|------------------|---------------------------------------------------------|
-| `public`               | `POST /auth/login`             | `login`   | `N/A`            | Không cần xác thực – dùng cho đăng nhập ban đầu         |
-| `public`               | `POST /auth/refresh`           | `refresh` | `N/A`            | Không yêu cầu token access – dùng refresh token         |
-| `auth.logout.self`     | `POST /auth/logout`            | `delete`  | `session`        | Chỉ cho phép người dùng thu hồi token của chính mình    |
-
----
-
-### 🔄 Ánh xạ `permission` trong JWT
-
-Ví dụ JWT payload sau:
-
-```json
-{
-  "sub": "user-456",
-  "permissions": [
-    "auth.logout.self",
-    "student.read.self",
-    "notification.receive"
+  "meta": {
+    "request_id": "...",
+    "pagination": {
+      "total": 82,
+      "limit": 20,
+      "offset": 0
+    }
+  },
+  "data": [
+    {
+      "session_id": "f2b9c6ae-...",
+      "user_id": "de56...",
+      "auth_method": "otp",
+      "created_at": "2024-06-01T10:45:00Z",
+      "revoked_at": null,
+      "ip_address": "203.113.12.1",
+      "device_type": "web",
+      "user_agent": "Mozilla/5.0 ...",
+      "location": "Ho Chi Minh, VN",
+      "status": "active"
+    }
   ]
 }
 ```
 
----
-
-### 🔒 Chính sách kiểm tra
-
-* `auth.logout.self` → bắt buộc phải có trong `permissions` khi gọi `/auth/logout`.
-* Dùng `condition`: `{ "user_id": "$CURRENT" }` – nghĩa là chỉ được thao tác trên chính mình.
-* Ánh xạ sẽ được lưu tại Auth Master và sync về từng tenant qua cơ chế schema `permission` riêng biệt.
+- Trả về mảng `SessionOut` theo chuẩn schema
+- Metadata gồm pagination info và `request_id`
 
 ---
 
-📎 Xem thêm:
+#### 🔐 Phân quyền & Điều kiện
+
+| Yếu tố | Giá trị |
+|--------|--------|
+| `x-required-permission` | `session.read:self` hoặc `session.read:any` |
+| `x-condition` | `{ "user_id": "{{current_user.id}}", "tenant_id": "{{X-Tenant-ID}}" }` |
+
+> Nếu user gửi `user_id` ≠ chính họ → cần `session.read:any`.
+
+---
+
+#### 🔎 Lưu ý về bảo mật
+
+- Nếu chỉ có `read:self`, hệ thống sẽ **ẩn** hoặc **mask** một số metadata (`ip_address`, `location`, `user_agent`)
+- Nếu có `read:any`, sẽ thấy đầy đủ thông tin các session
+
+---
+
+#### ❌ Mã lỗi có thể trả về
+
+| error.code | HTTP | Mô tả |
+|------------|------|------|
+| `auth.forbidden` | 403 | Không đủ quyền truy cập dữ liệu |
+| `auth.invalid_query` | 400 | Truy vấn không hợp lệ (sai user_id, offset âm...) |
+
+---
+
+#### 🧪 Gợi ý kiểm thử
+
+- Gọi không truyền `user_id` → trả session chính mình
+- Gọi `user_id = self` nhưng thiếu quyền → 403
+- Phân trang: limit/offset hoạt động chính xác
+- So sánh số lượng session khớp DB `auth_sessions`
+- Mask metadata khi dùng quyền `read:self`
+
+> 📌 Đây là API quan trọng để người dùng tự kiểm tra lịch sử hoạt động hoặc để quản trị viên giám sát đăng nhập trong tenant của họ.
+
+---
+
+### 4.4. `POST /auth/sessions/{id}/revoke`
+
+Endpoint này cho phép quản trị viên thu hồi một phiên đăng nhập cụ thể của người dùng trong tenant. Hành động này vô hiệu hóa token tương ứng nếu còn hiệu lực, cập nhật trạng thái session và phát sự kiện `auth.token.revoked`.
+
+---
+
+#### 📥 Request
+
+**Header yêu cầu**:
+
+| Header | Bắt buộc | Ghi chú |
+|--------|----------|--------|
+| `Authorization` | ✅ | JWT có quyền quản trị |
+| `X-Tenant-ID` | ✅ | Tenant của phiên cần revoke |
+
+**Path Parameter**:
+
+| Param | Kiểu | Ghi chú |
+|-------|------|--------|
+| `id` | UUID | ID của session (`session_id`) cần thu hồi |
+
+**Body** (`RevokeSessionRequest`, optional):
+
+```json
+{
+  "reason": "admin_forced"
+}
+```
+
+> Nếu không cung cấp `reason`, hệ thống dùng mặc định `"manual"`.
+
+---
+
+#### 📤 Response
+
+```json
+{
+  "meta": {
+    "request_id": "...",
+    "timestamp": "..."
+  },
+  "data": {
+    "success": true
+  }
+}
+```
+
+- Trả về 200 OK nếu thu hồi thành công hoặc đã bị thu hồi trước đó
+
+---
+
+#### 🔐 Phân quyền & Điều kiện
+
+| Yếu tố | Giá trị |
+|--------|--------|
+| `x-required-permission` | `session.revoke:any` |
+| `x-condition` | `{ "tenant_id": "{{X-Tenant-ID}}" }` |
+
+> Chỉ cho phép thao tác với các session thuộc tenant hiện tại.
+
+---
+
+#### 🧩 Hành vi nội bộ
+
+- Truy vấn `auth_sessions` để xác định session hợp lệ
+- Nếu session đã bị revoke → trả success idempotent
+- Nếu session còn hoạt động:
+  - Ghi `revoked_at`, `revoked_reason`
+  - Ghi Redis key `revoked:<jti>` nếu token còn hiệu lực
+  - Emit sự kiện `auth.token.revoked`
+
+---
+
+#### 📣 Sự kiện phát ra
+
+- `auth.token.revoked`
+- Payload gồm: `session_id`, `user_id`, `tenant_id`, `revoked_reason`, `revoked_by`, `ip_address`
+
+---
+
+#### ❌ Mã lỗi có thể trả về
+
+| error.code | HTTP | Mô tả |
+|------------|------|------|
+| `session.not_found` | 404 | Không tìm thấy session |
+| `auth.forbidden` | 403 | Không đủ quyền hoặc sai tenant |
+| `session.already_revoked` | 400 | Phiên đã bị thu hồi từ trước (có thể cho phép idempotent success) |
+
+---
+
+#### 🧪 Gợi ý kiểm thử
+
+- Revoke một session chưa bị thu hồi → cập nhật DB, Redis
+- Revoke lại cùng session → không lỗi (idempotent)
+- Truy vấn `GET /auth/sessions` → thấy trạng thái `revoked`
+- Xác minh sự kiện `auth.token.revoked` được phát đúng metadata
+- Check token tương ứng → bị từ chối khi dùng lại
+
+> 📌 Đây là API quản trị quan trọng cho phép vô hiệu hóa các phiên nghi ngờ hoặc chấm dứt truy cập ngay lập tức trong các tình huống khẩn cấp về bảo mật.
+
+---
+
+## 5. 📦 Schema sử dụng trong request/response
+
+Tài liệu này mô tả các schema dữ liệu chính được sử dụng trong body của các request và response của `auth-service/sub`. Tất cả schema đều được định nghĩa và version hóa rõ ràng trong file OpenAPI (`openapi.yaml`) đi kèm.
+
+---
+
+### 5.1. 📨 `LoginRequest`
+
+```json
+{
+  "login_type": "otp",  // hoặc "local"
+  "phone_number": "+84901234567",
+  "otp_code": "123456"
+}
+```
+
+- `login_type`: `enum` (`otp`, `local`)
+- Nếu `otp` → yêu cầu `phone_number` và `otp_code`
+- Nếu `local` → yêu cầu `username` và `password`
+- Được định nghĩa bằng `oneOf` trong OpenAPI với discriminator `login_type`
+
+---
+
+### 5.2. 📤 `TokenEnvelope`
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsIn...",
+  "refresh_token": "eyJhbGciOiJSUzI1NiIsIn...",
+  "expires_in": 3600,
+  "session_id": "3b61237d-...",
+  "token_type": "Bearer"
+}
+```
+
+- Bao gói thông tin token được cấp
+- Trả về trong mọi response `login`
+
+---
+
+### 5.3. 📥 `LogoutRequest`
+
+```json
+{
+  "reason": "user_logout"
+}
+```
+
+- `reason`: string, optional, các giá trị gợi ý: `user_logout`, `expired`, `device_lost`, `admin_forced`
+
+---
+
+### 5.4. 📜 `SessionOut`
+
+```json
+{
+  "session_id": "b6a1d437-...",
+  "user_id": "1e332...",
+  "auth_method": "local",
+  "created_at": "2024-06-01T10:45:00Z",
+  "revoked_at": null,
+  "ip_address": "192.168.1.1",
+  "device_type": "web",
+  "user_agent": "Mozilla/5.0 ...",
+  "location": "Ho Chi Minh, VN",
+  "status": "active"
+}
+```
+
+- Trả về trong `GET /auth/sessions`
+- Có thể bị ẩn/mask bớt nếu quyền chỉ là `session.read:self`
+
+---
+
+### 5.5. 🛑 `ErrorEnvelope`
+
+```json
+{
+  "error": {
+    "code": "auth.invalid_credentials",
+    "message": "Tên đăng nhập hoặc mật khẩu không đúng",
+    "data": {
+      "attempts_left": 1
+    }
+  },
+  "meta": {
+    "request_id": "xyz",
+    "timestamp": "2024-06-13T07:22:30Z"
+  }
+}
+```
+
+- Được chuẩn hóa theo `adr-011-api-error-format.md`
+- Tất cả response lỗi đều bọc trong `ErrorEnvelope`
+
+---
+
+### 5.6. 📦 `ResponseMeta`
+
+```json
+{
+  "request_id": "req_abc123",
+  "timestamp": "2024-06-13T07:22:30Z",
+  "pagination": {
+    "total": 120,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+- Có mặt trong mọi response thành công
+- `pagination` chỉ có khi dùng response dạng danh sách
+
+> 📌 Tất cả schema đều versioned và test tự động bằng contract testing tools (`schemathesis`, `dredd`, etc.) trong CI pipeline.
+
+---
+
+## 6. 🎯 Quy ước response & mã lỗi
+
+Mọi API trong `auth-service/sub` tuân thủ nghiêm ngặt định dạng phản hồi chuẩn hoá của hệ thống VAS DX. Điều này đảm bảo tính nhất quán, dễ debug và khả năng mở rộng các công cụ tự động hoá (contract testing, monitoring, tracing).
+
+---
+
+### 6.1. 📦 Cấu trúc phản hồi thành công
+
+Mỗi response thành công đều phải bọc trong:
+
+```json
+{
+  "meta": {
+    "request_id": "abc123",
+    "timestamp": "2024-06-13T08:00:00Z"
+  },
+  "data": {
+    // Nội dung tuỳ API
+  }
+}
+```
+
+- `meta`: luôn có `request_id` (traceable), `timestamp`, và optional `pagination`
+- `data`: chứa payload thực tế (token, session list, success flag...)
+
+> Cấu trúc này được chuẩn hóa theo `adr-012-response-structure.md`
+
+---
+
+### 6.2. 🛑 Cấu trúc phản hồi lỗi
+
+Tất cả lỗi đều trả về định dạng chuẩn `ErrorEnvelope`:
+
+```json
+{
+  "error": {
+    "code": "auth.invalid_credentials",
+    "message": "Sai tên đăng nhập hoặc mật khẩu",
+    "data": {
+      "attempts_left": 1
+    }
+  },
+  "meta": {
+    "request_id": "abc123",
+    "timestamp": "2024-06-13T08:01:30Z"
+  }
+}
+```
+
+- `code`: mã lỗi dạng snake-case (bắt buộc)
+- `message`: mô tả ngắn gọn, có thể dùng đa ngôn ngữ
+- `data`: optional – dùng để truyền thêm context (ví dụ: `attempts_left`, `lockout_duration`)
+
+---
+
+### 6.3. 📋 Danh sách mã lỗi phổ biến
+
+| Mã lỗi | HTTP | Mô tả |
+|--------|------|------|
+| `auth.invalid_credentials` | 401 | Sai username/password |
+| `auth.otp.invalid` | 400 | Mã OTP sai |
+| `auth.otp.expired` | 400 | OTP đã hết hạn |
+| `auth.token.invalid` | 401 | Token không hợp lệ hoặc đã thu hồi |
+| `auth.token.already_revoked` | 400 | Token đã bị thu hồi từ trước |
+| `session.not_found` | 404 | Không tìm thấy phiên |
+| `auth.forbidden` | 403 | Không đủ quyền theo RBAC |
+| `auth.tenant_mismatch` | 403 | Tenant không khớp |
+| `auth.rate_limited` | 429 | Gửi OTP/quá nhiều yêu cầu |
+
+> Danh sách đầy đủ được định nghĩa trong file `error-codes.md` và `adr-011-api-error-format.md`
+
+---
+
+### 6.4. 🧪 Contract testing yêu cầu
+
+- Mỗi mã lỗi đều phải có test tương ứng
+- Hành vi sai phải trả đúng mã HTTP + `error.code`
+- CI pipeline không cho phép thay đổi `error.code` hoặc `ResponseMeta` format nếu không có migration
+
+> ✅ Cách tiếp cận nhất quán giúp tăng khả năng giám sát tự động, phân tích lỗi chính xác, hỗ trợ frontend hiển thị rõ ràng và giảm thiểu lỗi tích hợp giữa các đội.
+
+---
+
+## 7. 🧪 Hỗ trợ kiểm thử & tích hợp
+
+Tài liệu này hỗ trợ đầy đủ cho các hoạt động kiểm thử thủ công, kiểm thử tự động, tích hợp CI/CD và contract testing nhằm đảm bảo độ tin cậy và tính đúng đắn của `auth-service/sub`.
+
+---
+
+### 7.1. ✅ Mẫu request thực tế
+
+| Mục đích | Method & URL | Gợi ý curl |
+|---------|--------------|------------|
+| Đăng nhập OTP | `POST /auth/login` | `curl -X POST ... -H "X-Tenant-ID: t1" -d '{...}'` |
+| Logout | `POST /auth/logout` | `curl -H "Authorization: Bearer ..."` |
+| Liệt kê session | `GET /auth/sessions` | `curl -G ... --data-urlencode 'user_id=...'` |
+| Thu hồi phiên | `POST /auth/sessions/{id}/revoke` | `curl -X POST ... -d '{ "reason": "admin_forced" }'` |
+
+📎 Gợi ý: Sử dụng [Postman Collection] hoặc [Insomnia Export] đính kèm dự án.
+
+---
+
+### 7.2. 🧪 Contract Testing
+
+| Mục tiêu | Công cụ đề xuất |
+|---------|----------------|
+| Kiểm tra schema đúng với OpenAPI | `Dredd`, `Schemathesis`, `Stoplight Prism` |
+| Kiểm tra định dạng lỗi & mã lỗi | `pytest + snapshot test`, `jest + supertest` |
+| So khớp `response.meta` & pagination | Tích hợp test CI/CD |
+| Đảm bảo backward compatibility | Contract test snapshot lockfile |
+
+> ✅ Tài liệu này đồng bộ 100% với `openapi.yaml` – có thể dùng để sinh test auto.
+
+---
+
+### 7.3. 🧪 Kiểm thử phân quyền & điều kiện
+
+- Test thiếu `X-Tenant-ID` → trả lỗi 400
+- Test `session.read:self` vs `read:any` → khác nhau về metadata
+- Test `session.revoke:any` → không được phép thu hồi phiên tenant khác
+- Test `auth.token.revoked` → emit event đúng metadata
+
+---
+
+### 7.4. 🛠 Tích hợp CI/CD
+
+- Mỗi PR bắt buộc chạy test schema → không cho phép thay đổi `ErrorEnvelope`, `ResponseMeta`
+- Có rule YAML kiểm tra presence của `x-required-permission`, `x-condition` trong mỗi path
+
+---
+
+### 7.5. 📡 Tích hợp observability
+
+- Mỗi request được gán `request_id` và trace ID để debug xuyên service
+- Response chuẩn hóa hỗ trợ APM/monitoring như Datadog, Grafana Tempo, OpenTelemetry
+
+> ✅ Với tài liệu này, đội frontend, backend, QA, và devops đều có thể tự động hoá quá trình kiểm thử và kiểm tra hợp đồng tích hợp xuyên tầng một cách chính xác và hiệu quả.
+
+---
+
+## 8. 📚 Tài liệu liên quan
 
 * [Data Model](./data-model.md)
 * [OpenAPI Spec](./openapi.yaml)

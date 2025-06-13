@@ -1,548 +1,725 @@
 ---
 title: "Auth Service Sub - Data Model"
-version: "1.0"
-last_updated: "2025-06-07"
+version: "2.0"
+last_updated: "2025-06-13"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
+# 🗃️ Auth Service Sub - Data Model v2.0
 
-# 🗃️ Auth Service Sub - Data Model
+## 1. 📘 Mục tiêu & Phạm vi
 
-Service này là một thành phần **tenant-specific** trong hệ thống `dx-vas`, hoạt động theo kiến trúc **request-response + token-based authentication**, chịu trách nhiệm xác thực người dùng và duy trì phiên đăng nhập cho từng tenant.
+Tài liệu này định nghĩa **mô hình dữ liệu** cho `auth-service/sub`, một service xác thực per-tenant trong hệ thống `dx-vas`. Việc thiết kế mô hình dữ liệu chuẩn xác là nền tảng để:
 
----
-
-## 1. Phạm vi Dữ liệu Quản lý (Scope)
-
-- Thông tin xác thực người dùng (`auth_sessions`)
-- Quản lý token đăng nhập và refresh (`auth_sessions`)
-- Ghi nhận thiết bị và metadata login (`auth_sessions`)
-- Đảm bảo bảo mật và duy trì quyền truy cập theo session
+- Đảm bảo tính toàn vẹn, bảo mật và khả năng mở rộng của dữ liệu xác thực người dùng
+- Phục vụ các thao tác xác thực OTP, Local Login, quản lý phiên đăng nhập, và thu hồi token
+- Ghi nhận metadata cần thiết cho audit log, bảo vệ hệ thống khỏi gian lận
+- Đảm bảo khả năng truy vết (traceability) và phân quyền truy cập theo chính sách RBAC
 
 ---
 
-## 2. Ngoài Phạm Vi (Out of Scope)
+### 🎯 Mục tiêu cụ thể
 
-- ❌ Quản lý thông tin người dùng (user profile) – thuộc `user-service/sub`
-- ❌ Cấu hình vai trò và quyền (RBAC) – thuộc `auth-service/master`
-- ❌ Ghi log hành vi người dùng – thuộc `audit-logging-service`
-
----
-
-## 3. Mục tiêu của Tài liệu Mô hình Dữ liệu
-
-- Làm rõ schema bảng `auth_sessions` của service
-- Chuẩn hóa và hỗ trợ triển khai migration, kiểm thử, phát triển API
-- Phản ánh chính xác các luồng nghiệp vụ trong tài liệu `design.md`
-- Tuân thủ các ADR sau:
-  - [ADR-003 - Secrets Management](../../../ADR/adr-003-secrets.md)
-  - [ADR-004 - Security Policy](../../../ADR/adr-004-security.md)
-  - [ADR-012 - Response Structure](../../../ADR/adr-012-response-structure.md)
+- Thiết kế bảng dữ liệu `auth_sessions` chuẩn hóa, phản ánh đầy đủ vòng đời một phiên đăng nhập
+- Định nghĩa cấu trúc cache `revoked_tokens` trên Redis dùng để thu hồi token chủ động
+- Chuẩn hóa metadata gắn với session bao gồm `ip_address`, `user_agent`, `device_type`, `location`
+- Phân loại và mô tả các giá trị ENUM quan trọng trong logic xác thực (`auth_method`, `device_type`, v.v.)
+- Thiết lập chiến lược Retention & Anonymization nhất quán với toàn hệ thống
+- Hỗ trợ kiểm thử và migration schema dễ dàng trên môi trường multi-tenant
 
 ---
 
-Dưới đây là phiên bản **chi tiết và chuẩn hóa hơn** cho mục `## 4. Sơ đồ ERD` trong file `auth-service/sub/data-model.md`, với các điểm nổi bật:
+### 📦 Phạm vi dữ liệu được quản lý
 
-* Sử dụng **Mermaid ERD** thể hiện đầy đủ tất cả các cột chính, bao gồm metadata mới.
-* Có chú thích quan hệ rõ ràng giữa `users` và `auth_sessions`.
-* Giải thích đầy đủ các ký hiệu, vai trò giữa các thực thể.
+| Loại dữ liệu | Mô tả |
+|--------------|------|
+| **auth_sessions** | Ghi nhận mỗi phiên đăng nhập thành công của user |
+| **revoked_tokens** | Lưu token bị thu hồi chủ động hoặc hết hiệu lực (Redis) |
+| **Session metadata** | Thông tin môi trường xác thực: IP, thiết bị, trình duyệt |
+| **Login method** | Phân biệt giữa OTP / Local login |
+| **Trạng thái phiên** | Được duy trì để phục vụ giao diện quản trị hoặc phân tích |
 
 ---
 
-## 4. Sơ đồ ERD (Entity Relationship Diagram)
+### 🚫 Ngoài phạm vi (Out of Scope)
 
-Sơ đồ dưới đây mô tả mối quan hệ giữa người dùng (`users`) và các phiên đăng nhập (`auth_sessions`). Đây là quan hệ **1-N**: một người dùng có thể có nhiều phiên đăng nhập.
+| Thành phần | Ghi chú |
+|------------|---------|
+| **OAuth2 / Social login (Google)** | Được xử lý bởi `auth-service/master` theo `adr-006` |
+| **Thông tin người dùng (user profile)** | Được quản lý tại `user-service` |
+| **Kiểm tra RBAC / quyền truy cập** | Được thực hiện tại `api-gateway` và `rbac-cache` |
+| **Refresh token storage** | Không lưu refresh token, chỉ xử lý revoke qua `token-service` |
+
+---
+
+### 🧭 Liên hệ kiến trúc tổng thể
+
+Mô hình dữ liệu được thiết kế để vận hành tốt trong kiến trúc:
+- Multi-tenant per-instance (mỗi tenant có DB riêng hoặc schema riêng)
+- Stateless microservice (tất cả trạng thái xác thực được externalized)
+- Token-based auth (không lưu trạng thái user đăng nhập trong RAM)
+- RBAC externalized (quản lý quyền ngoài auth-service/sub)
+
+---
+
+## 2. 🧩 Tổng Quan Dữ Liệu & Mối Quan Hệ
+
+Mô hình dữ liệu của `auth-service/sub` được thiết kế tối giản và hiệu quả, tập trung vào việc quản lý **vòng đời phiên đăng nhập** và **việc thu hồi token**, đồng thời ghi nhận đầy đủ metadata phục vụ cho audit, phân tích bảo mật và giám sát hành vi người dùng.
+
+---
+
+### 2.1. Sơ đồ ERD (Entity Relationship Diagram)
 
 ```mermaid
 erDiagram
-  users ||--o{ auth_sessions : has
 
-  users {
+  AUTH_SESSIONS {
     UUID id PK
-    TEXT full_name
-    TEXT email
-    BOOLEAN is_active
-  }
-
-  auth_sessions {
-    UUID id PK
-    UUID user_id FK
-    TIMESTAMPTZ issued_at
-    TIMESTAMPTZ expired_at
-    BOOLEAN is_active
-    TEXT refresh_token_hash
+    UUID user_id
     TEXT auth_method
     TEXT device_type
-    TEXT device_model
-    TEXT user_agent
-    TEXT os_version
-    TEXT app_version
     TEXT ip_address
+    TEXT user_agent
     TEXT location
-    TIMESTAMPTZ last_active_at
-    TIMESTAMPTZ created_at
-    TIMESTAMPTZ updated_at
+    TEXT session_status
+    TIMESTAMP created_at
+    TIMESTAMP expired_at
+    TIMESTAMP revoked_at
+    TEXT revoked_reason
+    UUID tenant_id
   }
+
+  REVOKED_TOKENS {
+    TEXT jti PK
+    UUID session_id FK
+    UUID user_id
+    TIMESTAMP revoked_at
+    TEXT reason
+    UUID tenant_id
+  }
+
+  AUTH_SESSIONS ||--o{ REVOKED_TOKENS : has
 ```
 
 ---
 
-### 🔍 Giải thích quan hệ
+### 2.2. Giải thích mối quan hệ
 
-* `users.id` là khóa chính của bảng người dùng, được quản lý bởi `user-service/sub`.
-* `auth_sessions.user_id` là khóa ngoại (`FK`) trỏ tới người dùng sở hữu phiên đó.
-* Một người dùng (`users`) có thể đăng nhập trên nhiều thiết bị/phiên khác nhau ⇒ cần ghi lại metadata chi tiết.
+| Quan hệ | Loại | Mô tả |
+|--------|------|------|
+| `auth_sessions` → `revoked_tokens` | 1:N | Mỗi phiên có thể có nhiều token bị thu hồi liên quan (vd. refresh token, access token thứ cấp) |
+| `user_id`, `tenant_id` | Chỉ định người dùng và tenant tương ứng với phiên |
+| `session_id` | Được sử dụng để liên kết ngược từ cache hoặc revoke record đến phiên đăng nhập gốc |
 
----
-
-### 📌 Ký hiệu sơ đồ
-
-| Ký hiệu | Ý nghĩa                  |        |                           |
-| ------- | ------------------------ | ------ | ------------------------- |
-| `PK`    | Primary Key (khóa chính) |        |                           |
-| `FK`    | Foreign Key (khóa ngoại) |        |                           |
-| \`      |                          | --o{\` | Quan hệ 1-N (một - nhiều) |
+✅ Mọi bảng đều có khóa chính rõ ràng, hỗ trợ phân vùng theo `tenant_id` nếu cần.
 
 ---
 
-### 📎 Mở rộng trong tương lai
+### 2.3. Ký hiệu & conventions
 
-| Tính năng                  | Mở rộng tương ứng                 |
-| -------------------------- | --------------------------------- |
-| Ghi nhận hoạt động         | Thêm bảng `session_activity_logs` |
-| Ghi nhận lỗi bảo mật       | Tích hợp `audit-logging-service`  |
-| Hạn chế thiết bị đăng nhập | Cần bảng `trusted_devices`        |
-
----
-
-## 5. 📌 Bảng: `auth_sessions`
-
-### 🧾 Mục đích
-
-Lưu trữ mọi phiên đăng nhập người dùng, kèm thông tin metadata để phục vụ các chức năng:
-
-* Đăng nhập đa thiết bị
-* Theo dõi hoạt động và bảo mật
-* Dashboard phiên đăng nhập (giao diện người dùng và quản trị)
+- **UUID**: Toàn bộ các khoá chính và liên kết đều dùng UUID để đảm bảo tính toàn cục và dễ trace.
+- **snake_case**: Dùng thống nhất cho tên cột.
+- **tenant_id**: Có mặt ở mọi bảng để đảm bảo khả năng lọc, truy xuất và bảo vệ tenant isolation.
+- **Timestamp**: Luôn dùng timezone-aware timestamp (`TIMESTAMPTZ` nếu PostgreSQL).
+- **Trạng thái logic** (như `revoked_at`, `revoked_reason`, `session_status`) dùng nullable field thay vì boolean flag — đảm bảo mở rộng về sau.
 
 ---
 
-### 📜 Cấu trúc SQL
+### 🧠 Ghi chú thiết kế
+
+- Không có bảng `users` trong service này – mọi thông tin user được đồng bộ từ `user-service`.
+- Cache `revoked_tokens` trên Redis có thể phản ánh một phần dữ liệu từ DB để tối ưu tra cứu runtime.
+- Session metadata có thể phục vụ cho audit log, tracking đăng nhập bất thường, hoặc security scoring.
+
+---
+
+## 3. 📌 Bảng `auth_sessions`
+
+Bảng `auth_sessions` ghi lại mọi phiên đăng nhập thành công của người dùng (qua OTP hoặc Local login), là cơ sở cho việc quản lý vòng đời xác thực, phục vụ kiểm tra bảo mật, thống kê hành vi người dùng và kiểm soát thu hồi token.
+
+---
+
+### 3.1. 🧾 Mục đích
+
+- Lưu vết mỗi lần đăng nhập thành công
+- Gắn metadata liên quan đến môi trường đăng nhập
+- Liên kết với `revoked_tokens` để hỗ trợ revoke có mục tiêu
+- Phục vụ thống kê đăng nhập và cảnh báo bảo mật
+- Là nguồn dữ liệu chính cho hệ thống audit logging & observability
+
+---
+
+### 3.2. 📜 Cấu trúc SQL (PostgreSQL)
 
 ```sql
 CREATE TABLE auth_sessions (
-  id UUID PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  issued_at TIMESTAMPTZ NOT NULL,
-  expired_at TIMESTAMPTZ NOT NULL,
-  is_active BOOLEAN DEFAULT true,
-  refresh_token_hash TEXT NOT NULL,
-  auth_method TEXT CHECK (auth_method IN ('password', 'otp', 'magic_link')),
-
-  -- Metadata mở rộng
-  device_type TEXT CHECK (device_type IN ('web', 'ios', 'android')),
-  device_model TEXT,
-  user_agent TEXT,
-  os_version TEXT,
-  app_version TEXT,
-  ip_address TEXT,
-  location TEXT,
-  last_active_at TIMESTAMPTZ,
-
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
-);
-```
-
----
-
-### 📋 Mô tả các cột chính (bao gồm metadata)
-
-| Cột                  | Kiểu DL     | Ràng buộc     | Mô tả                                   |
-| -------------------- | ----------- | ------------- | --------------------------------------- |
-| `id`                 | UUID        | PK            | Mã định danh phiên                      |
-| `user_id`            | UUID        | FK            | Tham chiếu đến người dùng               |
-| `issued_at`          | TIMESTAMPTZ | NOT NULL      | Thời gian phát hành token               |
-| `expired_at`         | TIMESTAMPTZ | NOT NULL      | Thời gian hết hạn token                 |
-| `is_active`          | BOOLEAN     | DEFAULT TRUE  | Trạng thái còn hiệu lực                 |
-| `refresh_token_hash` | TEXT        | NOT NULL      | Hash của refresh token                  |
-| `auth_method`        | TEXT ENUM   | CHECK         | Phương thức xác thực                    |
-| `device_type`        | TEXT ENUM   | CHECK         | Loại thiết bị (`web`, `ios`, `android`) |
-| `device_model`       | TEXT        |               | Tên thiết bị (VD: iPhone 13)            |
-| `user_agent`         | TEXT        |               | Trình duyệt hoặc app agent              |
-| `os_version`         | TEXT        |               | Phiên bản hệ điều hành                  |
-| `app_version`        | TEXT        |               | Phiên bản ứng dụng (mobile)             |
-| `ip_address`         | TEXT        |               | Địa chỉ IP client                       |
-| `location`           | TEXT        |               | Thông tin địa lý (từ IP hoặc user chọn) |
-| `last_active_at`     | TIMESTAMPTZ |               | Thời điểm hoạt động gần nhất            |
-| `created_at`         | TIMESTAMPTZ | DEFAULT now() | Tạo bản ghi                             |
-| `updated_at`         | TIMESTAMPTZ | DEFAULT now() | Cập nhật gần nhất                       |
-
----
-
-### 🔐 Lưu ý bảo mật
-
-* Không bao giờ lưu trực tiếp `refresh_token`. Chỉ lưu `hash`.
-* Có thể thêm salting + peppering nếu cần tăng cường bảo mật.
-* Trường `ip_address` và `user_agent` hỗ trợ phát hiện login đáng ngờ.
-
----
-
-### 📌 Đặc điểm chính
-
-* ✅ Thiết kế **stateless** cho access token
-* ✅ Cho phép **revoke từng session**
-* ✅ Dễ mở rộng để lưu metadata thiết bị, vị trí địa lý (nếu cần)
-* ✅ Sẵn sàng tích hợp với `audit-logging-service` cho các sự kiện như: login, logout, failed login, revoke
-
----
-
-## 5.1 📌 Bảng phụ: `revoked_tokens`
-
-### 🧾 Mục đích
-
-Bảng `revoked_tokens` dùng để lưu trữ các **refresh token đã bị thu hồi** (hoặc access token nếu dùng JWT có TTL dài) nhằm:
-- Ngăn token bị lạm dụng
-- Hỗ trợ logout tất cả thiết bị
-- Kiểm tra nhanh trong `middleware` hoặc `auth validator`
-
----
-
-### 📜 Cấu trúc SQL
-
-```sql
-CREATE TABLE revoked_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  token_hash TEXT NOT NULL,
   user_id UUID NOT NULL,
-  revoked_at TIMESTAMPTZ DEFAULT now(),
-  reason TEXT,
-  expired_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
+  tenant_id UUID NOT NULL,
+  auth_method TEXT NOT NULL CHECK (auth_method IN ('otp', 'local')),
+  session_status TEXT DEFAULT 'active', -- optional UI status
+  ip_address TEXT,
+  user_agent TEXT,
+  device_type TEXT,
+  location TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  expired_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ,
+  revoked_reason TEXT
 );
 ```
 
 ---
 
-### 📋 Mô tả các cột
+### 3.3. 📋 Mô tả các cột
 
-| Cột          | Kiểu DL     | Ràng buộc     | Mô tả                                   |
-| ------------ | ----------- | ------------- | --------------------------------------- |
-| `id`         | UUID        | PK            | ID nội bộ                               |
-| `token_hash` | TEXT        | NOT NULL      | Giá trị hash của token đã bị revoke     |
-| `user_id`    | UUID        | NOT NULL      | Người dùng bị thu hồi token             |
-| `revoked_at` | TIMESTAMPTZ | DEFAULT now() | Thời điểm bị revoke                     |
-| `reason`     | TEXT        | NULLABLE      | Ghi chú lý do (e.g. logout, suspicious) |
-| `expired_at` | TIMESTAMPTZ | NOT NULL      | Khi nào token này hết hạn thật sự       |
-| `created_at` | TIMESTAMPTZ | DEFAULT now() | Thời điểm tạo bản ghi                   |
-
----
-
-### 🧠 Lưu ý triển khai
-
-* Trước khi phát hành token mới hoặc xử lý refresh:
-
-  * Kiểm tra `token_hash` có tồn tại trong `revoked_tokens` hay không.
-* Có thể lưu trong Redis để kiểm tra nhanh, xóa khi `expired_at < now()`
-* Trường `reason` có thể dùng trong audit log hoặc dashboard Admin
+| Cột | Kiểu | Mô tả |
+|-----|------|------|
+| `id` | UUID | ID phiên đăng nhập |
+| `user_id` | UUID | ID người dùng đăng nhập |
+| `tenant_id` | UUID | Tenant sở hữu phiên này |
+| `auth_method` | TEXT | `otp` hoặc `local` |
+| `session_status` | TEXT | Optional UI tag (`active`, `revoked`, `expired`, etc.) |
+| `ip_address` | TEXT | Địa chỉ IP từ frontend/backend |
+| `user_agent` | TEXT | Trình duyệt/thiết bị truy cập |
+| `device_type` | TEXT | Phân loại thiết bị: `web`, `mobile`, `kiosk` |
+| `location` | TEXT | Ước lượng địa lý nếu có (từ IP) |
+| `created_at` | TIMESTAMPTZ | Thời điểm login thành công |
+| `expired_at` | TIMESTAMPTZ | Dự kiến thời điểm token hết hạn |
+| `revoked_at` | TIMESTAMPTZ | Nếu bị thu hồi thủ công hoặc logout |
+| `revoked_reason` | TEXT | Lý do bị thu hồi (nếu có) |
 
 ---
 
-### 📊 So sánh nhanh
+### 3.4. 🔐 RBAC & Bảo mật theo cột
 
-| Cách                  | Ưu điểm                  | Nhược điểm                         |
-| --------------------- | ------------------------ | ---------------------------------- |
-| Dùng TTL JWT          | Không cần lưu session    | Không thể revoke theo user         |
-| Dùng `revoked_tokens` | Cho phép revoke chọn lọc | Cần thêm query + lưu thêm bảng phụ |
-
----
-
-📎 Gợi ý thêm:
-
-* Gắn với `audit-logging-service` khi revoke token
-* Có thể xem như bảng log bảo mật mức cao
+- Chỉ **chính user (`self`) hoặc admin nội bộ** có quyền đọc
+- Cột `ip_address`, `user_agent`, `location` được đánh dấu là **dữ liệu nhạy cảm** theo `adr-024`
+- Tất cả truy cập đọc phải đi qua lớp kiểm tra `x-condition` dựa trên `user_id` hoặc `tenant_id`
 
 ---
 
-## 6. 🧩 Indexes & Constraints
+### 3.5. ⚡ Index & Constraint
 
-Để đảm bảo **tính toàn vẹn dữ liệu**, **truy vấn nhanh** và **hiệu năng cao**, bảng `auth_sessions` được áp dụng các index và constraint như sau:
-
----
-
-### 🔐 Constraints
-
-| Tên Ràng buộc           | Mô tả |
-|-------------------------|------|
-| `PRIMARY KEY (id)`      | Mỗi session có một ID duy nhất |
-| `FOREIGN KEY (user_id)` | Ràng buộc tham chiếu tới bảng `users(id)` |
-| `CHECK (auth_method)`   | Chỉ cho phép các giá trị enum hợp lệ: `password`, `otp`, `magic_link` |
-| `CHECK (device_type)`   | Chỉ chấp nhận `web`, `ios`, `android` |
-
-> 🔎 Gợi ý thêm: Nếu triển khai multi-tenant, có thể thêm ràng buộc `CHECK (tenant_id IS NOT NULL)` (nếu có `tenant_id` trong schema).
+| Tên | Kiểu | Mục đích |
+|-----|------|----------|
+| `idx_auth_sessions_user` | B-tree | Truy xuất nhanh theo `user_id` |
+| `idx_auth_sessions_tenant_created` | B-tree | Truy xuất theo `tenant_id` và `created_at` |
+| `check_auth_method` | CHECK | Ràng buộc `otp` hoặc `local` |
+| `check_not_future_created_at` | CHECK | `created_at` không được lớn hơn `now()` |
 
 ---
 
-### ⚡ Indexes
+### 3.6. 💡 Ví dụ bản ghi
 
-| Tên Index                  | Cột                         | Mục đích |
-|---------------------------|------------------------------|----------|
-| `idx_auth_sessions_user`  | `user_id`                    | Truy vấn theo user – thường dùng trong bảng quản lý thiết bị |
-| `idx_auth_sessions_token` | `refresh_token_hash`         | Kiểm tra token nhanh trong middleware |
-| `idx_auth_sessions_active`| `is_active`                  | Lọc các session đang hoạt động |
-| `idx_auth_sessions_exp`   | `expired_at`                 | Tự động dọn session hết hạn (batch job) |
-| `idx_auth_sessions_last`  | `last_active_at DESC`        | Truy vấn phiên gần nhất |
-| `idx_auth_sessions_geo`   | `location`, `ip_address`     | Phân tích truy cập địa lý, hiển thị UI |
-| `idx_auth_sessions_device`| `device_type`, `os_version`  | Lọc thiết bị trong phân tích hoặc UI quản trị |
-
----
-
-### 🔧 Gợi ý nâng cao (tuỳ quy mô)
-
-- **Partial Index:** `WHERE is_active = true` giúp tăng tốc tìm session còn hiệu lực.
-- **Composite Index:** `(user_id, device_type, is_active)` cho màn hình quản lý thiết bị người dùng.
-- **Unique Constraint:** (chỉ dùng nếu thiết kế giới hạn 1 thiết bị/1 user): `UNIQUE(user_id, device_type, device_model, os_version)`.
-
----
-
-Dưới đây là phần chi tiết hoá cho mục `## 7. Retention & Data Lifecycle` trong `auth-service/sub/data-model.md`, tuân thủ chuẩn 5★ và phù hợp với ADR-024 về dữ liệu nhạy cảm & vòng đời:
-
----
-
-## 7. ♻️ Retention & Data Lifecycle
-
-Việc quản lý vòng đời của dữ liệu `auth_sessions` là yếu tố quan trọng giúp hệ thống:
-- Giảm thiểu rủi ro bảo mật
-- Tối ưu dung lượng lưu trữ
-- Đảm bảo tuân thủ các nguyên tắc pháp lý và chính sách nội bộ
-
----
-
-### 🕒 Thời hạn lưu trữ
-
-| Loại dữ liệu       | Thời gian giữ | Cách xóa |
-|--------------------|---------------|----------|
-| Phiên đăng nhập (`auth_sessions`) | 30 ngày sau khi `expired_at` | Xoá định kỳ bằng batch job |
-| Token bị thu hồi (`revoked_tokens`) | 7 ngày sau `expired_at` | Xoá tự động |
-| Token đang hoạt động | Theo TTL – được thiết lập khi phát hành | Hết hạn tự nhiên + thủ công |
-
----
-
-### 🧹 Cơ chế dọn dẹp (Garbage Collection)
-
-- Tạo 1 cronjob chạy mỗi ngày lúc 2AM:
-```sql
-  DELETE FROM auth_sessions WHERE expired_at < now() - interval '30 days';
+```json
+{
+  "id": "f2b9c6ae-4b78-4d99-b4ea-25db9c91a95c",
+  "user_id": "7b6d3f56-25b9-42cf-9c29-631f6fd43a90",
+  "tenant_id": "school-abc",
+  "auth_method": "otp",
+  "ip_address": "118.70.84.12",
+  "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6)",
+  "device_type": "mobile",
+  "location": "Ho Chi Minh, VN",
+  "created_at": "2025-06-13T10:32:20Z",
+  "expired_at": "2025-06-13T12:32:20Z",
+  "session_status": "active"
+}
 ```
 
-* Redis cache nếu dùng cho refresh-token cũng phải thiết lập TTL tương ứng.
-* `revoked_tokens` nên có `expired_at` và TTL tương đương JWT gốc.
+---
+
+📌 Ghi chú:
+
+- Trường `expired_at` thường được xác định bởi JWT TTL + policy
+- Trường `revoked_at` có thể được gắn khi user logout hoặc bị revoke thủ công qua API
+- Trường `location` là tuỳ chọn (nullable), thường được xác định từ IP phía frontend gửi về
 
 ---
 
-### 🔐 Dữ liệu nhạy cảm
+## 4. 📌 Cache `revoked_tokens` (Redis)
 
-| Trường                       | Nhạy cảm? | Hành động bảo vệ                                 |
-| ---------------------------- | --------- | ------------------------------------------------ |
-| `refresh_token_hash`         | ✅         | Hash bằng SHA-256, không lưu plain token         |
-| `ip_address`, `location`     | ✅         | Có thể xem là PII, hạn chế query không cần thiết |
-| `user_agent`, `device_model` | ⚠️        | Không cần ẩn danh nhưng nên hạn chế log thô      |
+Hệ thống sử dụng Redis như một bộ nhớ đệm phân tán để lưu thông tin các token đã bị thu hồi (revoked), giúp `api-gateway` và các service liên quan kiểm tra nhanh tính hợp lệ của token khi nhận request.
 
 ---
 
-### 🧠 Gợi ý mở rộng
+### 4.1. 🧾 Mục đích
 
-* Bảng `auth_sessions_archive` có thể dùng để lưu session lịch sử hơn 30 ngày nếu cần auditing.
-* Nếu dùng multi-tenant, nên có batch xoá theo `tenant_id` độc lập (xoá tenant cũng xoá toàn bộ session).
-* Hỗ trợ `manual revocation` (qua admin UI) nên được ghi log sang `audit-logging-service`.
-
----
-
-## 8. 🧾 ENUMs
-
-Các trường dạng liệt kê (ENUM) giúp đảm bảo dữ liệu chuẩn hóa, dễ validate từ backend tới frontend, đồng thời hỗ trợ mapping UI hiệu quả.
+- Truy vấn nhanh token có bị thu hồi hay không mà không cần truy cập DB
+- Hỗ trợ người dùng logout chủ động trên mọi thiết bị
+- Hạn chế token reuse hoặc abuse khi xảy ra mất mát thiết bị
 
 ---
 
-### 8.1. `auth_method`
+### 4.2. 🧩 Cấu trúc Redis Key-Value
 
-| Giá trị        | Mô tả                             | Trạng thái |
-|----------------|------------------------------------|------------|
-| `password`     | Xác thực bằng mật khẩu truyền thống | Đang dùng |
-| `otp`          | Mã một lần gửi qua SMS/email       | Dự kiến hỗ trợ |
-| `magic_link`   | Đăng nhập bằng link (email)        | Dự kiến hỗ trợ |
+| Thành phần | Mô tả |
+|------------|------|
+| **Key** | `revoked:<jti>` (VD: `revoked:1f2e3d4c`) |
+| **Value** (JSON) | Metadata về lý do và thời điểm bị thu hồi |
+| **TTL** | Bằng hoặc lớn hơn TTL tối đa của token tương ứng |
 
-> 🔮 Có thể mở rộng thêm các phương thức: `sso`, `webauthn`, `biometric` trong tương lai.
+📌 Ví dụ giá trị Redis:
 
----
-
-### 8.2. `device_type`
-
-| Giá trị    | Mô tả             | Áp dụng |
-|------------|------------------|---------|
-| `web`      | Trình duyệt       | ✅ |
-| `ios`      | Ứng dụng iOS      | ✅ |
-| `android`  | Ứng dụng Android  | ✅ |
-
-> Các giá trị này giúp UI filter và hiển thị biểu tượng thiết bị tương ứng.
+```json
+{
+  "revoked_at": "2025-06-13T10:40:00Z",
+  "reason": "user_logout",
+  "session_id": "f2b9c6ae-4b78-4d99-b4ea-25db9c91a95c",
+  "user_id": "7b6d3f56-25b9-42cf-9c29-631f6fd43a90"
+}
+```
 
 ---
 
-### 8.3. `session_status` (nội bộ UI)
+### 4.3. ♻️ TTL và chính sách dọn dẹp
 
-| Giá trị     | Mô tả                         | Màu sắc UI (gợi ý) |
-|-------------|-------------------------------|--------------------|
-| `active`    | Phiên đang hoạt động          | Xanh lá ✅          |
-| `expired`   | Hết hạn                        | Xám ⚪               |
-| `revoked`   | Bị thu hồi                     | Đỏ ❌               |
+- Mỗi token được lưu kèm `TTL = expiration_time - now`
+- Token đã hết hạn sẽ **tự động bị Redis xoá**
+- Không cần migration hay cleanup định kỳ
 
-> Đây là dạng enum nội bộ dùng cho UI mapping từ logic `expired_at`, `is_active`. Không cần lưu cứng trong DB.
+📌 Nếu dùng `Sliding TTL` hoặc `Refresh token rotation`, phải bảo đảm TTL đủ dài để bao phủ thời gian kiểm tra replay.
 
 ---
 
-### 8.4. `error.code` (theo ADR-011)
+### 4.4. 🔁 Tương tác trong lifecycle
 
-Các mã lỗi chuẩn hóa hỗ trợ frontend xử lý i18n, fallback logic tốt hơn:
+| Hành động | Kết quả trên Redis |
+|----------|--------------------|
+| **Logout thành công** | Ghi `revoked:<jti>` kèm lý do |
+| **Token bị force revoke (Admin)** | Ghi `revoked:<jti>` từ background job |
+| **Refresh token bị dùng lại** | Ghi `revoked:<jti>` + cảnh báo audit |
+| **Login mới** | Không ghi gì vào Redis (token hợp lệ) |
 
-| Code              | Mô tả                         |
-|-------------------|-------------------------------|
-| `auth.invalid_credentials` | Đăng nhập thất bại |
-| `auth.missing_token`       | Thiếu token          |
-| `auth.expired_token`       | Token đã hết hạn     |
-| `session.not_found`        | Session không tồn tại |
-| `session.already_revoked`  | Session đã bị thu hồi |
-
-> 📌 Nên dùng định dạng `dot-separated` để dễ filter theo module (`auth.*`, `session.*`).
+Tất cả service consumer (gateway, audit, CRM adapter…) phải **check revoked cache trước khi xử lý logic** nếu thấy token hợp lệ về mặt signature.
 
 ---
 
-## 9. 🔐 Data Access Control
+### 4.5. 🚨 Lưu ý triển khai
 
-Việc kiểm soát truy cập dữ liệu `auth_sessions` là cực kỳ quan trọng vì:
-- Dữ liệu liên quan đến danh tính người dùng và các hành vi xác thực
-- Dễ bị khai thác nếu không được bảo vệ kỹ
-
----
-
-### 🧑‍💻 Cấp độ truy cập theo Role
-
-| Role                | Truy cập phiên (`auth_sessions`) | Hành động được phép             |
-|---------------------|----------------------------------|---------------------------------|
-| `user:read:self`    | Chỉ phiên của chính họ           | Xem danh sách phiên, thiết bị đang đăng nhập |
-| `user:revoke:self`  | Chỉ phiên của chính họ           | Thu hồi session của chính mình |
-| `user:read:any`     | Mọi phiên của mọi user           | (Chỉ dành cho admin hoặc hệ thống) |
-| `user:revoke:any`   | Thu hồi mọi phiên bất kỳ         | (Chỉ dành cho hệ thống hoặc bảo mật) |
+- Redis phải được cấu hình HA, persistence và TTL-aware eviction policy
+- Thực hiện bằng Redis Cluster nếu có hơn 50k tenant/token active
+- Mọi key đều phải được prefix `revoked:` để phân biệt namespace rõ ràng
+- Redis sử dụng db-index riêng nếu chia cho nhiều dịch vụ
+- Không dùng để backup token – chỉ để kiểm tra tính hợp lệ tức thời
 
 ---
 
-### 🔐 Cơ chế kiểm tra RBAC
+📌 Ghi chú bảo mật:
 
-Mọi truy cập tới session đều phải qua RBAC middleware, được thiết kế theo:
-- [ADR-007 - RBAC Strategy](../../../ADR/adr-007-rbac.md)
-- [rbac-deep-dive.md](../architecture/rbac-deep-dive.md)
-
----
-
-### 🛑 Bảo vệ dữ liệu nhạy cảm
-
-| Trường                    | Bảo vệ                        |
-|---------------------------|-------------------------------|
-| `refresh_token_hash`      | Không bao giờ trả về qua API |
-| `ip_address`, `location`  | Chỉ hiển thị cho chủ sở hữu hoặc admin có quyền |
-| `user_agent`, `device_model` | Có thể hiện trong bảng quản lý thiết bị |
+- Thông tin lưu trong Redis **không chứa JWT gốc**
+- Dữ liệu nhạy cảm như `session_id` có thể được ẩn hoặc mã hóa nếu chia sẻ multi-tenant cluster
+- Redis phải nằm sau firewall hoặc private subnet trong hạ tầng cloud
 
 ---
 
-### 🧠 Gợi ý nâng cao
+## 5. 🧩 Session Metadata
 
-| Tính năng | Giải pháp |
-|-----------|-----------|
-| Session hijacking prevention | Chỉ cho phép 1 session / thiết bị nếu được bật |
-| Tenant isolation (multi-tenant) | Thêm `tenant_id` vào bảng và filter theo `X-Tenant-ID` |
+Mỗi phiên đăng nhập (`auth_session`) được gắn kèm **metadata** phản ánh ngữ cảnh truy cập của người dùng. Những dữ liệu này giúp tăng cường bảo mật, hỗ trợ phân tích hành vi, và phục vụ cho các hệ thống quan sát (observability) & kiểm toán (audit).
 
 ---
 
-## 10. 📘 Phụ lục A – Chiến lược kiểm thử
+### 5.1. 📋 Danh sách các trường metadata
 
-Chiến lược kiểm thử dành cho `auth_sessions` cần đảm bảo:
-
-- Mỗi phiên login được ghi nhận chính xác.
-- Token có vòng đời và tính hợp lệ đúng như thiết kế.
-- Không có rò rỉ dữ liệu nhạy cảm trong log, API hoặc response.
-
----
-
-### 10.1. ✅ Unit Tests
-
-| Module | Test Case chính |
-|--------|-----------------|
-| Session Model | Khởi tạo phiên đúng cấu trúc |
-|              | Hash token đúng định dạng |
-|              | Enum không chấp nhận giá trị không hợp lệ |
-|              | Trường bắt buộc (NOT NULL) hoạt động đúng |
-| Token Utility | Hash + so sánh refresh_token |
-|              | TTL tính toán chuẩn |
-| Time Logic   | `expired_at` sinh chính xác |
-|              | `last_active_at` cập nhật đúng |
-
-> Mục tiêu: đạt 95–100% coverage cho module token/session
+| Trường | Kiểu | Mô tả |
+|--------|------|------|
+| `ip_address` | TEXT | Địa chỉ IP gốc của client (có thể lấy từ header `X-Forwarded-For`) |
+| `user_agent` | TEXT | Chuỗi trình duyệt gửi kèm request |
+| `device_type` | TEXT | Phân loại thiết bị: `web`, `mobile`, `kiosk`, `tablet`… |
+| `location` | TEXT | Ước lượng địa lý (city/country) từ IP (nếu có) |
+| `login_context` | JSONB *(optional)* | Ghi chú mở rộng như: app version, referral, login reason, MFA step |
 
 ---
 
-### 10.2. 🔁 Integration Tests
+### 5.2. 🧠 Nguồn gốc dữ liệu
 
-| API                       | Tình huống kiểm thử chính |
-|---------------------------|----------------------------|
-| POST `/auth/login`        | Tạo session mới, tạo đúng metadata |
-|                           | Trả về `refresh_token` hợp lệ |
-| POST `/auth/refresh`      | Token mới → session cũ bị vô hiệu hóa |
-| POST `/auth/logout`       | Gọi API sẽ cập nhật `is_active = false` |
-| GET `/auth/sessions`      | Trả đúng danh sách session thuộc user |
-| GET `/auth/sessions/{id}` | Trả đúng dữ liệu, từ chối nếu không đúng quyền |
-
-> Sử dụng database sandbox + stub JWT tokens để chạy test.
+- Các trường này được **thu thập từ frontend hoặc middleware tại gateway**
+- Sau đó đính kèm vào payload gửi đến `auth-service/sub` trong quá trình login
+- Được ghi trực tiếp vào bảng `auth_sessions` hoặc lưu kèm audit log
 
 ---
 
-### 10.3. 🔐 Security Tests
+### 5.3. 🛡 Bảo mật & xử lý dữ liệu nhạy cảm
 
-| Hình thức kiểm thử | Mục tiêu |
-|--------------------|----------|
-| Token replay       | Một refresh token chỉ dùng được 1 lần |
-| Session hijack     | Không truy cập được phiên người khác |
-| Token injection    | Token giả không được chấp nhận |
-| Invalid device     | Thiết bị giả mạo không ghi nhận được metadata |
+| Dữ liệu | Độ nhạy | Hướng xử lý |
+|--------|--------|-------------|
+| `ip_address`, `location` | Cao | Có thể ẩn đi khi gửi đến audit log (theo `adr-024`) |
+| `user_agent` | Trung bình | Trích xuất thông tin chính (OS, trình duyệt) nếu cần |
+| `login_context` | Tuỳ thuộc | Cần xác định cụ thể schema & xếp hạng độ nhạy |
 
----
-
-### 10.4. 🛠 Auto Generated Tests (OpenAPI)
-
-Sử dụng `schemathesis`, `dredd`, hoặc `prance` để:
-
-- Sinh test case từ `openapi.yaml`
-- Kiểm tra phản hồi có đúng `status code`, `schema`, `required headers`
-- Xác nhận `readOnly`, `writeOnly` hoạt động đúng với field như `id`, `refresh_token`
+Mọi metadata đều phải tuân theo chiến lược **anonymization hoặc masking** khi lưu lâu dài hoặc gửi sang hệ thống ngoài.
 
 ---
 
-### 10.5. 🧪 Manual QA Scenarios (Frontend / Mobile)
+### 5.4. 📈 Sử dụng trong hệ thống
 
-| Tình huống thực tế | Kết quả mong đợi |
-|--------------------|------------------|
-| Đăng nhập từ 2 thiết bị | Cả 2 phiên được ghi nhận |
-| Refresh từ app cũ | App mới thấy token cũ vô hiệu |
-| Thu hồi session thủ công | Session đó logout và không dùng lại được |
-
----
-
-### 10.6. 🧩 Test Cho Migration
-
-- Chạy migration `alembic` trên database trống và database thực tế (có dữ liệu)
-- Đảm bảo backward compatibility nếu sửa đổi schema `auth_sessions`
+- Được gắn vào mỗi bản ghi `auth_sessions`
+- Gửi lên Pub/Sub khi phát sinh sự kiện `auth.token.issued` hoặc `auth.token.revoked`
+- Làm chỉ số chính trong dashboard theo dõi đăng nhập (Prometheus/Grafana)
+- Sử dụng để phát hiện đăng nhập bất thường, login từ quốc gia bất thường, thiết bị lạ
 
 ---
 
-## 11. 📚 Liên kết tài liệu
+### 5.5. 💡 Gợi ý mở rộng tương lai
+
+- Trích xuất fingerprint hoặc session hash để xác định danh tính thiết bị
+- Liên kết với alert system khi đăng nhập từ IP blacklist hoặc bị nghi ngờ
+
+```json
+{
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+  "ip_address": "203.113.135.42",
+  "device_type": "web",
+  "location": "Ha Noi, VN",
+  "login_context": {
+    "app_version": "1.2.3",
+    "mfa_completed": true
+  }
+}
+```
+
+> ✅ Việc lưu metadata chính xác và bảo vệ đúng mức sẽ giúp hệ thống `auth-service/sub` vừa an toàn, vừa giàu khả năng quan sát mà không vi phạm quyền riêng tư người dùng.
+
+---
+
+## 6. 🧾 ENUMs & Constants
+
+Các giá trị ENUM giúp chuẩn hóa và giới hạn phạm vi đầu vào hợp lệ trong quá trình xác thực, đồng thời hỗ trợ hiển thị trạng thái rõ ràng trong hệ thống quản trị hoặc giao diện frontend.
+
+---
+
+### 6.1. 📌 `auth_method`
+
+Xác định phương thức xác thực mà người dùng sử dụng để đăng nhập.
+
+| Giá trị | Ý nghĩa |
+|--------|--------|
+| `otp` | Xác thực qua mã OTP gửi SMS/email |
+| `local` | Xác thực bằng username/password nội bộ |
+
+📌 Sử dụng trong: bảng `auth_sessions`, OpenAPI schema `LoginRequest`.
+
+---
+
+### 6.2. 📌 `device_type`
+
+Phân loại thiết bị từ frontend giúp phân tích hành vi và phát hiện đăng nhập bất thường.
+
+| Giá trị | Ý nghĩa |
+|--------|--------|
+| `web` | Trình duyệt desktop hoặc trình duyệt mobile |
+| `mobile` | Ứng dụng mobile native |
+| `tablet` | Thiết bị tablet (iPad, Android tablet…) |
+| `kiosk` | Thiết bị truy cập cố định (máy điểm danh…) |
+| `unknown` | Không xác định được |
+
+📌 Sử dụng trong: `auth_sessions.device_type`
+
+---
+
+### 6.3. 📌 `session_status`
+
+Dùng nội bộ để hiển thị trạng thái phiên đăng nhập trong giao diện admin.
+
+| Giá trị | Ý nghĩa |
+|--------|--------|
+| `active` | Phiên đang hoạt động bình thường |
+| `revoked` | Đã bị thu hồi thủ công |
+| `expired` | Hết hạn tự động |
+| `locked` | Bị khóa bởi quản trị viên hoặc hệ thống |
+
+📌 Không ảnh hưởng tới xác thực token – token validity được kiểm tra riêng.
+
+---
+
+### 6.4. 📌 `error.code`
+
+Theo chuẩn `adr-011`, mọi response lỗi đều bao gồm `error.code` dạng định danh ngắn, giúp frontend hoặc hệ thống quản trị hiển thị và xử lý dễ dàng hơn.
+
+| Code | Mô tả | HTTP |
+|------|------|------|
+| `auth.invalid_credentials` | Sai tên đăng nhập hoặc mật khẩu | 401 |
+| `auth.otp.expired` | Mã OTP đã hết hạn | 400 |
+| `auth.otp.invalid` | Mã OTP không chính xác | 400 |
+| `auth.session.revoked` | Phiên đã bị thu hồi | 403 |
+| `auth.token.reuse_detected` | Refresh token bị sử dụng lại | 401 |
+| `auth.rate_limited` | Gửi OTP quá nhiều lần | 429 |
+
+📌 Tất cả mã lỗi phải nằm trong danh sách được định nghĩa trước (xem thêm `error-codes.md`).
+
+---
+
+### 🧩 Gợi ý mở rộng
+
+- Các enum nên được central hóa trong file `schemas/constants.py` (Python), `constants.ts` (TypeScript), hoặc đặt trong schema validator (OpenAPI/JSON Schema)
+- Hỗ trợ tự động sinh document và kiểm thử dựa trên enum list (contract testing)
+
+---
+
+## 7. 🔐 Data Access Control (RBAC)
+
+Tất cả dữ liệu trong `auth-service/sub` đều được bảo vệ bởi cơ chế **Role-Based Access Control (RBAC)** động, với điều kiện (`x-condition`) được kiểm tra tại `api-gateway` hoặc middleware RBAC trước khi request đến được service.
+
+---
+
+### 7.1. 🧩 Chính sách RBAC áp dụng
+
+| Hành động | Permission | Ghi chú |
+|----------|------------|--------|
+| Xem phiên của chính mình | `session.read:self` | Cho phép user xem lịch sử login của chính họ |
+| Admin xem toàn bộ session | `session.read:any` | Dành cho quản trị viên nội bộ (per-tenant) |
+| Thu hồi phiên | `session.revoke:any` | Thường dùng cho giao diện quản lý hoặc bảo mật |
+| Liệt kê phiên theo user | `session.list:any` | Lọc theo `user_id` – cần admin quyền cao hơn |
+
+---
+
+### 7.2. 📌 Kiểm tra điều kiện (`x-condition`)
+
+Việc cấp quyền không chỉ phụ thuộc vào permission string mà còn phụ thuộc vào điều kiện kèm theo như sau:
+
+| Trường | Ý nghĩa | Ví dụ |
+|--------|---------|-------|
+| `user_id = {{current_user.id}}` | Chỉ xem được dữ liệu của chính mình | `session.read:self` |
+| `tenant_id = {{X-Tenant-ID}}` | Giới hạn trong tenant hiện hành | Áp dụng cho mọi quyền admin |
+| `ip_address LIKE "10.%"` | (Advanced) Filter theo vùng mạng nội bộ | Không áp dụng mặc định |
+
+📌 Các `x-condition` được mô tả rõ trong `interface-contract.md` ở phần `x-condition` và được enforced tại `api-gateway`.
+
+---
+
+### 7.3. 🔒 Áp dụng vào mô hình dữ liệu
+
+| Bảng | Quyền đọc | Quyền ghi | Trường nhạy cảm |
+|------|-----------|-----------|-----------------|
+| `auth_sessions` | `session.read` | Không cho sửa | `ip_address`, `user_agent`, `location` |
+| `revoked_tokens` (cache) | Không cho đọc | Chỉ `auth-sub` có thể ghi | `session_id`, `reason` |
+
+Tất cả truy cập trực tiếp vào bảng cần đi qua lớp RBAC filter (hoặc được kiểm tra trước ở gateway).
+
+---
+
+### 7.4. 🧠 Best Practices
+
+- **Không trả session người khác** kể cả admin nếu chưa kiểm RBAC kỹ
+- Dùng `x-condition` trên cả tenant và user scope để giảm rủi ro rò rỉ chéo tenant
+- Mọi sự kiện đọc/ghi nhạy cảm nên được ghi vào audit log kèm `actor_id`, `trace_id`
+
+---
+
+📌 Ví dụ:
+
+```json
+"x-permissions": ["session.read:self"],
+"x-condition": {
+  "user_id": "{{current_user.id}}",
+  "tenant_id": "{{X-Tenant-ID}}"
+}
+```
+
+> ✅ Hệ thống RBAC động như vậy đảm bảo khả năng kiểm soát tinh vi nhưng vẫn linh hoạt để mở rộng, đặc biệt quan trọng trong hệ thống multi-tenant như `dx-vas`.
+
+---
+
+## 8. 🕒 Data Lifecycle & Retention Policy
+
+Mọi dữ liệu liên quan đến xác thực trong `auth-service/sub` đều được gắn liền với vòng đời xác định rõ ràng và chính sách xử lý dữ liệu sau khi hết hạn. Điều này đảm bảo hệ thống vừa tuân thủ các quy định bảo mật (như GDPR), vừa tối ưu chi phí lưu trữ và hiệu năng.
+
+---
+
+### 8.1. ♻️ Retention Policy theo loại dữ liệu
+
+| Loại dữ liệu | Bảng | TTL đề xuất | Hành động sau TTL |
+|--------------|------|-------------|-------------------|
+| Phiên đăng nhập (`auth_sessions`) | PostgreSQL | 180 ngày | Ẩn hoặc xóa dữ liệu nhạy cảm (`anonymize`) |
+| Token thu hồi (`revoked_tokens`) | Redis | TTL = thời gian sống token | Tự động xoá khi hết TTL |
+| Audit Log (`auth.token.*`) | Pub/Sub / log | ≥ 365 ngày | Lưu trữ dài hạn theo cấu hình hệ thống |
+
+📌 Lưu ý: TTL thực tế có thể được cấu hình theo tenant-level policy hoặc quy định hệ thống.
+
+---
+
+### 8.2. 🔐 Anonymization theo `adr-024`
+
+Dữ liệu sau khi hết TTL sẽ được **ẩn một phần (mask)** hoặc **ẩn toàn bộ** như sau:
+
+| Trường | Chiến lược anonymize |
+|--------|----------------------|
+| `ip_address` | Xoá hoặc hash một chiều (`anonymize(ip)`) |
+| `user_agent` | Xoá hoặc rút gọn (`browser:Chrome`, `device:Mobile`) |
+| `location` | Xoá hoặc giảm độ chính xác (chỉ giữ country code) |
+| `revoked_reason` | Optional: có thể giữ hoặc cắt bỏ tuỳ cấu hình |
+
+📌 Một job nền (`retention_worker`) sẽ thực hiện xoá hoặc làm mờ định kỳ.
+
+---
+
+### 8.3. 🔥 Chính sách xóa cứng (Hard Delete)
+
+Theo `adr-026`, hệ thống không cho phép xóa bản ghi session thủ công từ API. Xoá cứng chỉ được thực hiện:
+
+- Tự động khi đạt TTL
+- Qua job batch định kỳ có kiểm soát (background cron job)
+- Không cho phép xóa bản ghi riêng lẻ từ phía người dùng
+
+---
+
+### 8.4. 🧠 Gợi ý vận hành
+
+- Nên lưu phiên bản đã anonymize lâu hơn (ví dụ: giữ 12 tháng thay vì 6 nếu đã xoá nhạy cảm)
+- Cho phép admin xem dữ liệu anonymized để phục vụ phân tích, thống kê
+- Với tenant VIP có yêu cầu lưu lâu hơn, có thể cấu hình TTL riêng (cần mở rộng job)
+
+---
+
+### 8.5. Ví dụ biểu đồ lifecycle
+
+```mermaid
+graph LR
+  login[Phiên đăng nhập thành công] --> alive[Trong 180 ngày]
+  alive --> anonymized[Được làm mờ dữ liệu nhạy cảm]
+  anonymized --> expired[Xoá khỏi DB sau 12 tháng]
+```
+
+> ✅ Chính sách vòng đời rõ ràng giúp hệ thống vừa tiết kiệm tài nguyên, vừa đảm bảo quyền riêng tư và kiểm soát dữ liệu tốt theo tiêu chuẩn cao nhất.
+
+---
+
+## 9. 🔁 Migration & Schema Evolution
+
+Việc phát triển lâu dài của `auth-service/sub` yêu cầu khả năng mở rộng và cập nhật schema dữ liệu một cách **an toàn, không gián đoạn**, và **tương thích với các tenant đang hoạt động**. Tài liệu này định nghĩa chiến lược migration nhất quán theo ADR-023.
+
+---
+
+### 9.1. 📘 Tuân theo mô hình 3-phase migration
+
+Mọi thay đổi về schema (thêm/sửa/xóa cột, index…) phải tuân thủ mô hình migration an toàn:
+
+| Giai đoạn | Mô tả | Ghi chú |
+|-----------|-------|--------|
+| **Phase 1: Expand** | Thêm cột mới (nullable), thêm bảng, thêm index | Không ảnh hưởng production |
+| **Phase 2: Migrate** | Viết dữ liệu cũ sang format mới, update logic backend | Phải giữ song song format cũ & mới |
+| **Phase 3: Contract** | Xóa cột/bảng/index cũ sau khi không còn sử dụng | Luôn có buffer ít nhất 1-2 tuần |
+
+📌 Không bao giờ combine DROP & ADD trong cùng một migration nếu đang chạy trên nhiều tenant.
+
+---
+
+### 9.2. 🧱 Công cụ & best practices
+
+| Yếu tố | Khuyến nghị |
+|--------|-------------|
+| **Migration tool** | Sử dụng Alembic (Python) hoặc Liquibase (SQL) |
+| **Version hóa** | Mỗi schema change gắn version riêng (`v2.1_add_revoked_reason`) |
+| **Tenant isolation** | Migration phải chạy riêng cho từng tenant |
+| **Idempotent** | Mọi script có thể chạy lại mà không gây lỗi |
+
+---
+
+### 9.3. 🚧 Kiểm thử migration
+
+Mỗi thay đổi phải kèm checklist kiểm thử:
+
+- ✅ Unit test với schema mới
+- ✅ Chạy migration test trên sandbox với dữ liệu thật (một số tenant)
+- ✅ Snapshot schema trước & sau để kiểm tra diff
+- ✅ So khớp rollback (nếu có) hoặc backup trước khi deploy
+
+📌 Các test nên được mô tả cụ thể tại `docs/tests/db-migration/`
+
+---
+
+### 9.4. 🛠 Multi-Tenant Considerations
+
+| Tình huống | Cách xử lý |
+|-----------|------------|
+| Tenant mới tạo | Áp dụng schema mới ngay lập tức |
+| Tenant đang active | Dùng background worker migration chạy dần |
+| Lỗi khi migrate | Rollback từng tenant, không rollback toàn hệ thống |
+
+---
+
+### 9.5. 🧠 Gợi ý mở rộng
+
+- Áp dụng flag `db_version` theo tenant để kiểm soát trạng thái migration
+- Xây dựng dashboard theo dõi migration status per tenant
+- Dùng canary tenant để test trước với schema mới
+
+---
+
+> ✅ Với chiến lược migration bài bản như trên, hệ thống `auth-service/sub` có thể mở rộng và nâng cấp liên tục mà không gây downtime hay mất dữ liệu – đúng định hướng zero-downtime của toàn kiến trúc `dx-vas`.
+
+---
+
+## 10. ✅ Kiểm thử liên quan dữ liệu
+
+Việc kiểm thử toàn diện mô hình dữ liệu là yếu tố bắt buộc để đảm bảo độ ổn định, tính đúng đắn và khả năng mở rộng của `auth-service/sub`. Mục tiêu là đảm bảo mọi thay đổi đều được kiểm soát và phản ánh chính xác qua cả schema, API và hành vi runtime.
+
+---
+
+### 10.1. 🧪 Unit Tests (Database Layer)
+
+| Thành phần | Kiểm thử |
+|------------|----------|
+| Models (`auth_sessions`) | Tạo, đọc, lọc, sắp xếp, cập nhật trạng thái |
+| Constraints | Vi phạm `CHECK`, `NOT NULL`, `FK` phải raise lỗi đúng |
+| Enum | Chỉ nhận giá trị nằm trong danh sách hợp lệ |
+| Index hiệu quả | Kiểm thử tốc độ truy vấn theo `user_id`, `tenant_id` |
+
+---
+
+### 10.2. 🔁 Integration Tests (Service Logic + DB)
+
+| Luồng nghiệp vụ | Kiểm thử |
+|----------------|---------|
+| Đăng nhập thành công | Tạo `auth_session`, gán metadata đúng |
+| Logout | Cập nhật `revoked_at`, ghi vào Redis đúng TTL |
+| Token reuse | Ghi log revoke, kiểm tra Redis key `revoked:<jti>` |
+| Audit log | Gửi đúng sự kiện `auth.token.issued`, `auth.token.revoked` kèm metadata |
+
+📌 Cần có pre-seeded data test trên DB test riêng biệt cho các tenant giả lập.
+
+---
+
+### 10.3. 🔐 Security & Access Control Tests
+
+| Kiểm thử | Mục tiêu |
+|----------|----------|
+| `session.read:self` vs `any` | Đảm bảo không lộ dữ liệu tenant khác |
+| Bypass RBAC | Gửi request thiếu `x-condition` → bị từ chối |
+| Data masking | Test endpoint khi trả về session bị `anonymize` |
+| Rate limit OTP | Test ghi log session không bị abuse / log quá nhiều |
+
+---
+
+### 10.4. 🧾 Contract Testing (Schema & API)
+
+Theo `adr-010`, toàn bộ schema và API phải được kiểm thử bằng:
+
+- ✅ JSON Schema validation (OpenAPI → Test Generator)
+- ✅ `revoked_tokens` format đúng key prefix & value
+- ✅ Các response luôn theo chuẩn `ErrorEnvelope`, `ResponseMeta`
+
+📌 Test sử dụng tool như `Dredd`, `Schemathesis`, hoặc tích hợp Postman/Newman nếu cần.
+
+---
+
+### 10.5. 🧪 Migration & Data Retention Tests
+
+| Kiểm thử | Mô tả |
+|---------|--------|
+| Migration `auth_sessions` | Schema mới không ảnh hưởng dữ liệu cũ |
+| TTL Redis | Redis xoá `revoked:<jti>` đúng thời điểm |
+| Anonymize job | Mask `ip`, `location`, `user_agent` sau TTL |
+| Rollback safe | Backup + restore nếu migration lỗi ở 1 tenant |
+
+---
+
+✅ Tất cả các test đều phải được tích hợp CI/CD (GitHub Actions hoặc GitLab CI), chạy tự động theo PR và giai đoạn release, giúp đảm bảo **không ai có thể merge mà không qua kiểm thử dữ liệu đầy đủ**.
+
+---
+
+## 11. 📚 Tài liệu liên quan
 
 * [Interface Contract](./interface-contract.md)
 * [OpenAPI Spec](./openapi.yaml)
