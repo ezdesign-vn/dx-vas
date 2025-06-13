@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: "User Service Master – API Spec"
-  version: "1.3.0"
+  version: "1.4.0"
   description: |
     API cho `User Service Master`, phục vụ cho việc quản lý người dùng toàn cục,
     phân quyền RBAC theo template, và gán người dùng vào các tenant (trường học).
@@ -18,7 +18,7 @@ info:
     - [data-model.md](./data-model.md)
   contact:
     name: DX VAS Team
-    email: dx-vas@truongvietanh.edu.vn
+    email: dx@truongvietanh.edu.vn
 
   x-api-version: "v1"
   x-last-updated: "2025-06-13"
@@ -140,7 +140,7 @@ components:
             - code
             - message
           properties:
-            error:
+            code:
               type: string
               description: "Mã lỗi chuẩn (VD: `USER_NOT_FOUND`, `INVALID_PAYLOAD`)"
               example: "USER_NOT_FOUND"
@@ -150,7 +150,7 @@ components:
               description: Thông điệp lỗi cho developer
               example: "Không tìm thấy người dùng tương ứng với email + provider"
               readOnly: true
-            data:
+            details:
               type: object
               additionalProperties: true
               description: Thông tin bổ sung giúp debug
@@ -579,6 +579,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "bad_request"
+              message: "Thiếu trường bắt buộc: email"
+              details:
+                missing_field: "email"
+            meta:
+              trace_id: "req-abc123"
+              timestamp: "2025-06-13T08:00:00Z"
 
     401Unauthorized:
       description: Unauthorized – Thiếu hoặc JWT không hợp lệ
@@ -586,6 +595,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "unauthorized"
+              message: "Yêu cầu xác thực bằng JWT"
+              details: {}
+            meta:
+              trace_id: "req-def456"
+              timestamp: "2025-06-13T08:01:00Z"
 
     403Forbidden:
       description: Forbidden – Không có quyền truy cập tài nguyên
@@ -593,6 +610,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "forbidden"
+              message: "Người dùng không có quyền truy cập tài nguyên này"
+              details: {}
+            meta:
+              trace_id: "req-ghi789"
+              timestamp: "2025-06-13T08:02:00Z"
 
     404NotFound:
       description: Not Found – Không tìm thấy tài nguyên
@@ -600,6 +625,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "user.not_found"
+              message: "Không tìm thấy người dùng với email + provider"
+              details:
+                email: "alice@vas.edu.vn"
+                provider: "otp"
+            meta:
+              trace_id: "req-jkl012"
+              timestamp: "2025-06-13T08:03:00Z"
 
     409Conflict:
       description: Conflict – Dữ liệu đã tồn tại hoặc trạng thái không cho phép
@@ -607,6 +642,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "tenant.conflict"
+              message: "Tenant với mã 'vas_hcm' đã tồn tại"
+              details:
+                tenant_code: "vas_hcm"
+            meta:
+              trace_id: "req-mno345"
+              timestamp: "2025-06-13T08:04:00Z"
 
     422UnprocessableEntity:
       description: Unprocessable Entity – Dữ liệu đúng định dạng nhưng không xử lý được
@@ -614,6 +658,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "validation.failed"
+              message: "Dữ liệu không thỏa mãn ràng buộc nghiệp vụ"
+              details:
+                constraint: "email must be unique within auth_provider"
+            meta:
+              trace_id: "req-pqr678"
+              timestamp: "2025-06-13T08:05:00Z"
 
     500InternalError:
       description: Internal Server Error – Lỗi không mong muốn phía server
@@ -621,6 +674,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: "internal_error"
+              message: "Lỗi không xác định trong hệ thống"
+              details: {}
+            meta:
+              trace_id: "req-stu901"
+              timestamp: "2025-06-13T08:06:00Z"
 
   securitySchemes:
     BearerAuth:
