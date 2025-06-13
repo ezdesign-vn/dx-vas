@@ -29,7 +29,7 @@ externalDocs:
 servers:
   - url: https://api.truongvietanh.edu.vn/user-sub/v1
     description: Production (tenant-scoped)
-  - url: https://staging.truongvietanh.edu.vn/user-sub/v1
+  - url: https://staging-api.truongvietanh.edu.vn/user-sub/v1
     description: Staging    
 
 tags:

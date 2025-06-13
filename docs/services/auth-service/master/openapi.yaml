@@ -526,12 +526,24 @@ paths:
                     format: uri
                     example: "https://accounts.google.com/o/oauth2/auth?client_id=..."
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /oauth2/callback:
@@ -572,12 +584,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/OAuth2CallbackEnvelope'
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /auth/exchange:
@@ -622,12 +646,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/OAuth2CallbackEnvelope'
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /me:
@@ -663,12 +699,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/MeEnvelope'
         '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
         '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/403Forbidden'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /verify:
@@ -704,12 +752,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/MeEnvelope'
         '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
         '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/403Forbidden'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /providers:
@@ -745,12 +805,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProviderListEnvelope'
         '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
         '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/403Forbidden'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /auth/otp:
@@ -799,12 +871,24 @@ paths:
                     meta:
                       request_id: "req_otp123"
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /auth/verify-otp:
@@ -841,14 +925,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/OAuth2CallbackEnvelope'
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /auth/login:
@@ -885,14 +984,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/OAuth2CallbackEnvelope'
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '429':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/429TooManyRequests'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
 
   /dev/mimic:
@@ -951,8 +1065,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/OAuth2CallbackEnvelope'
         '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/400BadRequest'
         '422':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/422Unprocessable'
         '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/500InternalError'
