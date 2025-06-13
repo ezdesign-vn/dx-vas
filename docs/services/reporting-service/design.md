@@ -32,7 +32,7 @@ reviewed_by: "Stephen Le"
 Service này **không** thực hiện các tác vụ sau:
 
 - ❌ Lưu trữ dữ liệu phân tích gốc (do Data Warehouse đảm nhận).
-- ❌ Trực tiếp truy cập các service như CRM, SIS, LMS.
+- ❌ Trực tiếp truy cập các service như School Management System (SMS)
 - ❌ Sinh báo cáo thời gian thực từ dữ liệu giao dịch gốc.
 - ❌ Gửi thông báo khi báo cáo hoàn thành (giao cho Notification Service).
 - ❌ Phân tích AI hoặc ML trên dữ liệu (chuẩn bị cho giai đoạn sau).

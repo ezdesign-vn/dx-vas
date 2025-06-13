@@ -1,6 +1,6 @@
 ---
 title: Reporting Service – Interface Contract
-version: "1.1"
+version: "1.2"
 last_updated: "2025-06-04"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
@@ -262,8 +262,34 @@ reviewed_by: "Stephen Le"
 * **RBAC:** `report.manage_saved_config`
 
 ---
+## 📎 Phụ lục
 
-## 📚 Tài liệu liên quan
+### 📚 Chuẩn hóa mã lỗi (Error Codes)
+
+Tất cả các mã lỗi (`error.code`) trong response phải tuân thủ theo chuẩn định danh namespace được mô tả tại:
+
+* [Error Codes](../../standards/error-codes.md)
+* [ADR-011 Error Format](../../ADR/adr-011-api-error-format.md)
+
+**Yêu cầu bắt buộc:**
+
+* Mã lỗi phải viết theo dạng **snake\_case**, có **namespace phân tách rõ ràng**, ví dụ:
+
+  * `user.user_not_found`
+  * `auth.invalid_token`
+  * `common.validation_failed`
+* Mỗi response lỗi (401, 403, 404, 422...) phải trả về đối tượng `ErrorEnvelope`, gồm 2 phần:
+
+  * `error` – chứa `code`, `message`, `details`
+  * `meta` – chứa `trace_id`, `timestamp`
+
+**Gợi ý thực hành:**
+
+* Không dùng các mã lỗi chung chung như `"BAD_REQUEST"`, `"NOT_FOUND"`, `"FORBIDDEN"`
+* Luôn khai báo ví dụ cụ thể (ví dụ trong `components/examples/` hoặc inline OpenAPI) để giúp dev hiểu nhanh
+* Tái sử dụng error namespace có sẵn từ `error-codes.md` hoặc khai báo namespace mới nếu cần
+
+### 📚 Tài liệu liên quan
 
 - [Design Spec](./design.md)
 - [Data Model](./data-model.md)
@@ -274,3 +300,4 @@ reviewed_by: "Stephen Le"
 - [ADR-007 - RBAC Architecture](../../ADR/adr-007-rbac.md)
 - [ADR-028 - Reporting Architecture](../../ADR/adr-028-reporting-architecture.md)
 - [ADR-030 - Event Schema Governance](../../ADR/adr-030-event-schema-governance.md)
+- [Error Codes](../../standards/error-codes.md)

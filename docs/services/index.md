@@ -53,7 +53,7 @@ docs/services/<service-name>/
 | 7️⃣ | [`sms-service/`](./sms-service/design.md) | Cung cấp nghiệp vụ lõi cho tenant (CRM, SIS, LMS), thay thế các adapter cũ. | ⬜ Chưa bắt đầu |
 | 8️⃣ | [`notification-service/master/`](./notification-service/master/design.md) | Điều phối việc gửi thông báo, quản lý template chung và phát sự kiện fan-out. | ✅ Hoàn thành |
 | 9️⃣ | [`notification-service/sub/`](./notification-service/sub/design.md) | Nhận sự kiện và thực thi gửi thông báo (email/SMS) với cấu hình riêng của tenant. | ⬜ Chưa bắt đầu |
-| 🔟 | [`reporting-service/`](./reporting-service/design.md) | Truy vấn Data Warehouse, sinh báo cáo phân tích theo template và quyền hạn. | ⏳ Đang chỉnh sửa |
+| 🔟 | [`reporting-service/`](./reporting-service/design.md) | Truy vấn Data Warehouse, sinh báo cáo phân tích theo template và quyền hạn. | ✅ Hoàn thành |
 | 1️⃣1️⃣| [`audit-logging-service/`](./audit-logging-service/design.md) | Thu thập, lưu trữ, và cung cấp giao diện truy vấn các log kiểm toán quan trọng. | ⏳ Đang chỉnh sửa |
 
 Ví dụ:
