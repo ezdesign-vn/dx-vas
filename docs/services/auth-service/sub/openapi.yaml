@@ -501,7 +501,7 @@ paths:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
-      x-emits-event: auth.token.issued
+      x-emits-event: auth.token.issued.v1
       x-gateway-enforced: true
       x-route-evaluation: "check-permission + issue-token"
 
@@ -536,7 +536,7 @@ paths:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/401Unauthorized'
-      x-emits-event: auth.token.revoked
+      x-emits-event: auth.token.revoked.v1
       x-gateway-enforced: true
       x-route-evaluation: "check-permission + revoke-token"
 
@@ -569,6 +569,7 @@ paths:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/403Forbidden'
+      x-emits-event: audit.session.queried.v1      
       x-gateway-enforced: true
       x-route-evaluation: "check-permission + paginate-query"
 
@@ -604,6 +605,6 @@ paths:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
           $ref: '#/components/responses/404NotFound'
-      x-emits-event: auth.token.revoked
+      x-emits-event: auth.token.revoked.v1
       x-gateway-enforced: true
       x-route-evaluation: "check-permission + revoke-session"

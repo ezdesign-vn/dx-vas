@@ -96,63 +96,52 @@ flowchart TD
 
 ### 🔐 Danh sách endpoint chính
 
-| Phương thức | Đường dẫn | Mô tả | Yêu cầu phân quyền |
-|------------|-----------|------|--------------------|
-| `POST` | `/auth/otp/request` | Gửi mã OTP qua SMS/email | `auth.otp.request` |
-| `POST` | `/auth/otp/verify` | Xác thực OTP và cấp JWT | `auth.otp.verify` |
-| `POST` | `/auth/local` | Xác thực username/password và cấp JWT | `auth.local.login` |
-| `POST` | `/auth/logout` | Đăng xuất & thu hồi token | `auth.logout` |
+Auth Service - Sub cung cấp 4 endpoint chính phục vụ xác thực người dùng và quản lý phiên đăng nhập. Thiết kế tuân thủ chuẩn OpenAPI và thống nhất với các tài liệu interface-contract và mô hình dữ liệu.
 
-Tất cả các endpoint trên đều được truy cập thông qua `api-gateway`, có kiểm tra `x-required-permission` và `x-condition` ở tầng gateway.
+| API Endpoint                      | Phương thức | Mô tả                                             | Phân quyền           | Ghi chú                                         |
+| --------------------------------- | ----------- | ------------------------------------------------- | -------------------- | ----------------------------------------------- |
+| `POST /auth/login`                | `POST`      | Xác thực người dùng qua OTP hoặc tài khoản nội bộ | `auth.login`         | Gộp chung xử lý login OTP và Local              |
+| `POST /auth/logout`               | `POST`      | Thu hồi token hiện tại (self logout)              | `auth.logout`        | Thu hồi session và đánh dấu token revoked       |
+| `GET /auth/sessions`              | `GET`       | Liệt kê các phiên đăng nhập                       | `session.read:any`   | Hỗ trợ lọc theo `user_id`, `status`, phân trang |
+| `POST /auth/sessions/{id}/revoke` | `POST`      | Thu hồi một phiên đăng nhập cụ thể                | `session.revoke:any` | Dành cho admin thu hồi session bất kỳ           |
+
+📌 Lưu ý:
+
+* API `/auth/login` sử dụng `oneOf` để phân biệt giữa OTP và Local login thông qua `login_type`, không tách thành các route riêng như `/auth/otp/request` hay `/auth/local`.
+* Tất cả các API đều sử dụng `X-Tenant-ID` trong `x-condition` để đảm bảo phân vùng tenant.
+* Header `Authorization: Bearer <token>` áp dụng cho các API bảo vệ, trừ `POST /auth/login`.
 
 ---
 
 ### 📦 Cấu trúc request/response
 
-#### 📩 Ví dụ request xác thực OTP
-```json
-POST /auth/otp/verify
-{
-  "otp_code": "123456",
-  "login_method": "phone",
-  "otp_type": "login",
-  "phone": "+84123456789"
-}
-```
+#### ✅ Request Schema
 
-#### 📤 Ví dụ response thành công
-```json
-{
-  "data": {
-    "access_token": "eyJhbGciOi...",
-    "refresh_token": "eyJhbGciOi...",
-    "token_type": "Bearer",
-    "expires_in": 3600
-  },
-  "meta": {
-    "request_id": "abc123",
-    "timestamp": "2025-06-13T10:00:00Z"
-  }
-}
-```
+* `LoginRequest`: `oneOf` 2 loại:
 
-#### ❌ Ví dụ response lỗi (ErrorEnvelope)
-```json
-{
-  "error": {
-    "namespace": "auth",
-    "code": "otp.invalid",
-    "message": "Mã OTP không hợp lệ",
-    "details": {
-      "attempts_left": 1
-    }
-  },
-  "meta": {
-    "request_id": "abc123",
-    "timestamp": "2025-06-13T10:00:00Z"
-  }
-}
-```
+  * `LoginRequestOTP`: `{ login_type: otp, phone_number, otp_code }`
+  * `LoginRequestLocal`: `{ login_type: local, username, password (writeOnly) }`
+* `LogoutRequest`: `{ reason: string }` (tuỳ chọn)
+
+#### ✅ Response Schema
+
+* `TokenEnvelope`: `{ access_token, refresh_token, expires_in, session_id, token_type }`
+* `SessionOut`: `{ session_id, user_id, auth_method, created_at, revoked_at, device_type, ip_address, location, user_agent, status }`
+* `PaginatedSessions`: `{ meta: ResponseMeta, data: [SessionOut] }`
+* `ErrorEnvelope`: `{ error: { code, message, data }, meta: ResponseMeta }`
+* `ResponseMeta`: `{ request_id, timestamp, pagination? }`
+
+#### 🎯 Mã lỗi chuẩn
+
+| HTTP | Mã lỗi                     | Mô tả                                                                |
+| ---- | -------------------------- | -------------------------------------------------------------------- |
+| 400  | `auth.invalid_payload`     | Payload không hợp lệ                                                 |
+| 401  | `auth.invalid_credentials` | Sai OTP hoặc mật khẩu                                                |
+| 403  | `auth.forbidden`           | Không đủ quyền                                                       |
+| 404  | `session.not_found`        | Không tìm thấy session                                               |
+| 200  | –                          | Response dạng `TokenEnvelope`, `SuccessBoolean`, `PaginatedSessions` |
+
+> 📌 Tất cả schema và mã lỗi đều tuân thủ định nghĩa trong `components/schemas` và `components/responses` của `openapi.yaml`, đồng thời thống nhất với `data-model.md`.
 
 ---
 
