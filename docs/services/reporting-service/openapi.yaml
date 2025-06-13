@@ -627,6 +627,7 @@ paths:
     post:
       summary: Truy vấn dữ liệu báo cáo theo report template
       operationId: queryReport
+      x-audit-action: report_query_executed
       x-required-permission: report.query
       x-emits-event: report.query.issued
       x-gateway-enforced: true
