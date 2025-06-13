@@ -178,7 +178,32 @@ Trả về danh sách permission template đã được đồng bộ.
 
 ---
 
-## 4. 📑 Phụ lục: ENUM và Permission Code
+## 4. 📑 Phụ lục: Error Codes, ENUM và Permission Code
+
+### 📚 Chuẩn hóa mã lỗi (Error Codes)
+
+Tất cả các mã lỗi (`error.code`) trong response phải tuân thủ theo chuẩn định danh namespace được mô tả tại:
+
+* [Error Codes](../../../standards/error-codes.md)
+* [ADR-011 Error Format](../../../ADR/adr-011-api-error-format.md)
+
+**Yêu cầu bắt buộc:**
+
+* Mã lỗi phải viết theo dạng **snake\_case**, có **namespace phân tách rõ ràng**, ví dụ:
+
+  * `user_sub.user_not_found`
+  * `auth.invalid_token`
+  * `common.validation_failed`
+* Mỗi response lỗi (401, 403, 404, 422...) phải trả về đối tượng `ErrorEnvelope`, gồm 2 phần:
+
+  * `error` – chứa `code`, `message`, `details`
+  * `meta` – chứa `trace_id`, `timestamp`
+
+**Gợi ý thực hành:**
+
+* Không dùng các mã lỗi chung chung như `"BAD_REQUEST"`, `"NOT_FOUND"`, `"FORBIDDEN"`
+* Luôn khai báo ví dụ cụ thể (ví dụ trong `components/examples/` hoặc inline OpenAPI) để giúp dev hiểu nhanh
+* Tái sử dụng error namespace có sẵn từ `error-codes.md` hoặc khai báo namespace mới nếu cần
 
 ### ✅ ENUM: `status` (UserLocal)
 
@@ -191,6 +216,7 @@ Trả về danh sách permission template đã được đồng bộ.
 
 * `local`
 * `google`
+* `otp`
 
 ### ✅ Permission Codes sử dụng
 
@@ -207,3 +233,4 @@ Trả về danh sách permission template đã được đồng bộ.
 * [ADR-012 Response Structure](../../../ADR/adr-012-response-structure.md)
 * [ADR-011 Error Format](../../../ADR/adr-011-api-error-format.md)
 * [ADR-027 Data Management Strategy](../../../ADR/adr-027-data-management-strategy.md)
+* [Error Codes](../../../standards/error-codes.md)

@@ -5,7 +5,7 @@
 openapi: 3.0.3
 info:
   title: User Service Sub – API Spec
-  version: 1.0.0
+  version: 1.1.0
   description: |
     OpenAPI specification for user-service/sub.
     Tuân thủ ADR-012, ADR-011 và các nguyên tắc RBAC động theo ADR-027.
@@ -27,9 +27,9 @@ externalDocs:
   url: https://github.com/ezdesign-vn/dx-vas/tree/main/docs/services/user-service/sub/
 
 servers:
-  - url: https://api.truongvietanh.edu.vn/user-sub
+  - url: https://api.truongvietanh.edu.vn/user-sub/v1
     description: Production (tenant-scoped)
-  - url: https://staging-api.truongvietanh.edu.vn/user-sub
+  - url: https://staging.truongvietanh.edu.vn/user-sub/v1
     description: Staging    
 
 tags:
@@ -110,7 +110,7 @@ components:
       properties:
         code:
           type: string
-          example: "FORBIDDEN"
+          example: "auth.permission_denied"
         message:
           type: string
           example: "Bạn không có quyền truy cập tài nguyên này."
@@ -124,7 +124,7 @@ components:
       enum: [active, invited, suspended, deleted]
 
     # ✅ User Schemas
-    UserOut:
+    UserResponse:
       type: object
       description: Thông tin người dùng trong tenant
       properties:
@@ -155,12 +155,12 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/UserOut'
+            $ref: '#/components/schemas/UserResponse'
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
     # ✅ Roles
-    RoleOut:
+    RoleResponse:
       type: object
       properties:
         role_code:
@@ -176,7 +176,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/RoleOut'
+            $ref: '#/components/schemas/RoleResponse'
         meta:
           $ref: '#/components/schemas/ResponseMeta'
 
@@ -215,32 +215,77 @@ components:
           $ref: '#/components/schemas/ResponseMeta'
 
   responses:
-    UnauthorizedError:
-      description: Không xác thực
+    401Unauthorized:
+      description: Unauthorized – Thiếu hoặc JWT không hợp lệ
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            unauthorized:
+              $ref: '#/components/examples/UnauthorizedError'
+
+    403Forbidden:
+      description: Forbidden – Không có quyền truy cập tài nguyên
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            forbidden:
+              $ref: '#/components/examples/ForbiddenError'
+
+    500InternalError:
+      description: Internal Server Error – Lỗi không mong muốn phía server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            internal_error:
+              $ref: '#/components/examples/InternalServerError'
+
+  #===Error===
+  examples:
+    UnauthorizedError:
+      summary: Yêu cầu xác thực bằng JWT
+      value:
+        error:
+          code: "auth.unauthorized"
+          message: "Yêu cầu xác thực bằng JWT"
+          details: {}
+        meta:
+          trace_id: "req-def456"
+          timestamp: "2025-06-13T08:01:00Z"
 
     ForbiddenError:
-      description: Không đủ quyền
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+      summary: Người dùng không có quyền truy cập tài nguyên
+      value:
+        error:
+          code: "auth.permission_denied"
+          message: "Người dùng không có quyền truy cập tài nguyên này"
+          details: {}
+        meta:
+          trace_id: "req-ghi789"
+          timestamp: "2025-06-13T08:02:00Z"
 
     InternalServerError:
-      description: Lỗi hệ thống nội bộ
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+      summary: Lỗi không xác định trong hệ thống
+      value:
+        error:
+          code: "common.internal_error"
+          message: "Lỗi không xác định trong hệ thống"
+          details: {}
+        meta:
+          trace_id: "req-stu901"
+          timestamp: "2025-06-13T08:06:00Z"
 
 paths:
   /users:
     get:
       summary: Danh sách người dùng trong tenant
       description: Trả về danh sách người dùng trong tenant hiện tại. Hỗ trợ tìm kiếm, phân trang và sắp xếp.
+      operationId: listUsers      
       x-required-permission: tenant.read_users
       parameters:
         - $ref: '#/components/parameters/AuthorizationHeader'
@@ -282,22 +327,26 @@ paths:
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: '#/components/responses/401Unauthorized'
         '403':
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          $ref: '#/components/responses/ForbiddenError'
+          $ref: '#/components/responses/403Forbidden'
         '500':
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/500InternalError'
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + list-users"
+
 
   /users/me:
     get:
       tags: [users]
       summary: Lấy thông tin user hiện tại
+      operationId: getCurrentUser      
       parameters:
         - $ref: '#/components/parameters/AuthorizationHeader'
       responses:
@@ -309,21 +358,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserOut'
+                $ref: '#/components/schemas/UserResponse'
         '401':
-          description: Chưa xác thực
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          $ref: '#/components/responses/401Unauthorized'
+      x-gateway-enforced: true
+      x-route-evaluation: "resolve-user + read-self"          
 
   /users/me/permissions:
     get:
       tags: [users]
       summary: Lấy quyền hiện tại của user
+      operationId: getCurrentUserPermissions      
       parameters:
         - $ref: '#/components/parameters/AuthorizationHeader'
       responses:
@@ -337,19 +385,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/PermissionStringsResponse'
         '401':
-          description: Chưa xác thực
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          $ref: '#/components/responses/401Unauthorized'
+      x-gateway-enforced: true
+      x-route-evaluation: "resolve-user + read-permissions"          
 
   /roles:
     get:
       tags: [rbac]
       summary: Danh sách role templates
+      operationId: listRolesInTenant      
       x-required-permission: tenant.view_rbac_config
       parameters:
         - $ref: '#/components/parameters/AuthorizationHeader'
@@ -364,28 +411,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/RoleListResponse'
         '401':
-          description: Chưa xác thực
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          $ref: '#/components/responses/401Unauthorized'
         '403':
-          description: Không đủ quyền
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          $ref: '#/components/responses/403Forbidden'
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + fetch-roles"
 
   /permissions:
     get:
       tags: [rbac]
       summary: Danh sách permission templates
+      operationId: listPermissionsInTenant      
       x-required-permission: tenant.view_rbac_config
       parameters:
         - $ref: '#/components/parameters/AuthorizationHeader'
@@ -400,20 +442,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/PermissionListResponse'
         '401':
-          description: Chưa xác thực
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          $ref: '#/components/responses/401Unauthorized'
         '403':
-          description: Không đủ quyền
           headers:
             X-Request-ID:
               $ref: '#/components/headers/X-Request-ID'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+          $ref: '#/components/responses/403Forbidden'
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + fetch-permissions"

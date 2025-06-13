@@ -49,7 +49,7 @@ docs/services/<service-name>/
 | 3️⃣ | [`auth-service/master/`](./auth-service/master/design.md) | Xử lý xác thực tập trung qua Google OAuth2, điều phối việc cấp token. | ✅ Hoàn thành |
 | 4️⃣ | [`user-service/master/`](./user-service/master/design.md) | Quản lý định danh người dùng và template RBAC toàn cục, phát sự kiện đồng bộ. | ✅ Hoàn thành |
 | 5️⃣ | [`auth-service/sub/`](./auth-service/sub/design.md) | Xử lý xác thực cục bộ tại tenant (Local/OTP), tích hợp với Auth Master. | ✅ Hoàn thành |
-| 6️⃣ | [`user-service/sub/`](./user-service/sub/design.md) | Quản lý người dùng và RBAC trong phạm vi tenant, nhận dữ liệu đồng bộ từ Master. | ⏳ Đang chỉnh sửa |
+| 6️⃣ | [`user-service/sub/`](./user-service/sub/design.md) | Quản lý người dùng và RBAC trong phạm vi tenant, nhận dữ liệu đồng bộ từ Master. | ✅ Hoàn thành |
 | 7️⃣ | [`sms-service/`](./sms-service/design.md) | Cung cấp nghiệp vụ lõi cho tenant (CRM, SIS, LMS), thay thế các adapter cũ. | ⬜ Chưa bắt đầu |
 | 8️⃣ | [`notification-service/master/`](./notification-service/master/design.md) | Điều phối việc gửi thông báo, quản lý template chung và phát sự kiện fan-out. | ⏳ Đang chỉnh sửa |
 | 9️⃣ | [`notification-service/sub/`](./notification-service/sub/design.md) | Nhận sự kiện và thực thi gửi thông báo (email/SMS) với cấu hình riêng của tenant. | ⬜ Chưa bắt đầu |

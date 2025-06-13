@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: "User Service Master – API Spec"
-  version: "1.4.0"
+  version: "1.5.1"
   description: |
     API cho `User Service Master`, phục vụ cho việc quản lý người dùng toàn cục,
     phân quyền RBAC theo template, và gán người dùng vào các tenant (trường học).
@@ -35,9 +35,9 @@ info:
     - ADR-030
 
 servers:
-  - url: https://api.truongvietanh.edu.vn/user-service-master/v1
+  - url: https://api.truongvietanh.edu.vn/user-master/v1
     description: Production Server
-  - url: https://staging-api.truongvietanh.edu.vn/user-service-master/v1
+  - url: https://staging.truongvietanh.edu.vn/user-master/v1
     description: Staging
 
 tags:
@@ -142,8 +142,8 @@ components:
           properties:
             code:
               type: string
-              description: "Mã lỗi chuẩn (VD: `USER_NOT_FOUND`, `INVALID_PAYLOAD`)"
-              example: "USER_NOT_FOUND"
+              description: "Mã lỗi chuẩn theo error-codes.md (VD: `user.user_not_found`, `common.validation_failed`)"
+              example: "user.user_not_found"
               readOnly: true
             message:
               type: string
@@ -162,7 +162,7 @@ components:
           $ref: "#/components/schemas/ResponseMeta"
       example:
         error:
-          code: "USER_NOT_FOUND"
+          code: "user.user_not_found"
           message: "Không tìm thấy người dùng tương ứng với email + provider"
           details:
             email: "alice@vas.edu.vn"
@@ -580,14 +580,8 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "bad_request"
-              message: "Thiếu trường bắt buộc: email"
-              details:
-                missing_field: "email"
-            meta:
-              trace_id: "req-abc123"
-              timestamp: "2025-06-13T08:00:00Z"
+            bad_request:
+              $ref: '#/components/examples/MissingParamError'
 
     401Unauthorized:
       description: Unauthorized – Thiếu hoặc JWT không hợp lệ
@@ -596,13 +590,8 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "unauthorized"
-              message: "Yêu cầu xác thực bằng JWT"
-              details: {}
-            meta:
-              trace_id: "req-def456"
-              timestamp: "2025-06-13T08:01:00Z"
+            unauthorized:
+              $ref: '#/components/examples/UnauthorizedError'
 
     403Forbidden:
       description: Forbidden – Không có quyền truy cập tài nguyên
@@ -611,13 +600,8 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "forbidden"
-              message: "Người dùng không có quyền truy cập tài nguyên này"
-              details: {}
-            meta:
-              trace_id: "req-ghi789"
-              timestamp: "2025-06-13T08:02:00Z"
+            forbidden:
+              $ref: '#/components/examples/ForbiddenError'
 
     404NotFound:
       description: Not Found – Không tìm thấy tài nguyên
@@ -626,15 +610,8 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "user.not_found"
-              message: "Không tìm thấy người dùng với email + provider"
-              details:
-                email: "alice@vas.edu.vn"
-                provider: "otp"
-            meta:
-              trace_id: "req-jkl012"
-              timestamp: "2025-06-13T08:03:00Z"
+            user_not_found:
+              $ref: '#/components/examples/UserNotFoundError'
 
     409Conflict:
       description: Conflict – Dữ liệu đã tồn tại hoặc trạng thái không cho phép
@@ -643,14 +620,8 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "tenant.conflict"
-              message: "Tenant với mã 'vas_hcm' đã tồn tại"
-              details:
-                tenant_code: "vas_hcm"
-            meta:
-              trace_id: "req-mno345"
-              timestamp: "2025-06-13T08:04:00Z"
+            tenant_conflict:
+              $ref: '#/components/examples/TenantConflictError'
 
     422UnprocessableEntity:
       description: Unprocessable Entity – Dữ liệu đúng định dạng nhưng không xử lý được
@@ -659,14 +630,8 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "validation.failed"
-              message: "Dữ liệu không thỏa mãn ràng buộc nghiệp vụ"
-              details:
-                constraint: "email must be unique within auth_provider"
-            meta:
-              trace_id: "req-pqr678"
-              timestamp: "2025-06-13T08:05:00Z"
+            validation_failed:
+              $ref: '#/components/examples/ValidationFailedError'
 
     500InternalError:
       description: Internal Server Error – Lỗi không mong muốn phía server
@@ -675,19 +640,99 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorEnvelope'
           example:
-            error:
-              code: "internal_error"
-              message: "Lỗi không xác định trong hệ thống"
-              details: {}
-            meta:
-              trace_id: "req-stu901"
-              timestamp: "2025-06-13T08:06:00Z"
+            internal_error:
+              $ref: '#/components/examples/InternalServerError'
+
+  #===Examples===
+  examples:
+    MissingParamError:
+      summary: "Request thiếu trường bắt buộc (ví dụ: email)"
+      value:
+        error:
+          code: "common.missing_param"
+          message: "Thiếu trường bắt buộc: email"
+          details:
+            missing_field: "email"
+        meta:
+          trace_id: "req-abc123"
+          timestamp: "2025-06-13T08:00:00Z"
+
+    UnauthorizedError:
+      summary: Yêu cầu xác thực bằng JWT
+      value:
+        error:
+          code: "auth.unauthorized"
+          message: "Yêu cầu xác thực bằng JWT"
+          details: {}
+        meta:
+          trace_id: "req-def456"
+          timestamp: "2025-06-13T08:01:00Z"
+
+    ForbiddenError:
+      summary: Người dùng không có quyền truy cập tài nguyên
+      value:
+        error:
+          code: "auth.permission_denied"
+          message: "Người dùng không có quyền truy cập tài nguyên này"
+          details: {}
+        meta:
+          trace_id: "req-ghi789"
+          timestamp: "2025-06-13T08:02:00Z"
+
+    UserNotFoundError:
+      summary: Không tìm thấy người dùng với email + provider
+      value:
+        error:
+          code: "user.not_found"
+          message: "Không tìm thấy người dùng với email + provider"
+          details:
+            email: "alice@vas.edu.vn"
+            provider: "otp"
+        meta:
+          trace_id: "req-jkl012"
+          timestamp: "2025-06-13T08:03:00Z"
+
+    TenantConflictError:
+      summary: Tenant với mã đã tồn tại
+      value:
+        error:
+          code: "tenant.conflict"
+          message: "Tenant với mã 'vas_hcm' đã tồn tại"
+          details:
+            tenant_code: "vas_hcm"
+        meta:
+          trace_id: "req-mno345"
+          timestamp: "2025-06-13T08:04:00Z"
+
+    ValidationFailedError:
+      summary: Dữ liệu không thỏa mãn ràng buộc nghiệp vụ
+      value:
+        error:
+          code: "validation.failed"
+          message: "Dữ liệu không thỏa mãn ràng buộc nghiệp vụ"
+          details:
+            constraint: "email must be unique within auth_provider"
+        meta:
+          trace_id: "req-pqr678"
+          timestamp: "2025-06-13T08:05:00Z"
+
+    InternalServerError:
+      summary: Lỗi không xác định trong hệ thống
+      value:
+        error:
+          code: "common.internal_error"
+          message: "Lỗi không xác định trong hệ thống"
+          details: {}
+        meta:
+          trace_id: "req-stu901"
+          timestamp: "2025-06-13T08:06:00Z"
 
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
 paths:
   /users-global/by-email:
     get:
