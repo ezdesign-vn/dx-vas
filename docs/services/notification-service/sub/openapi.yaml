@@ -1,0 +1,578 @@
+openapi: 3.0.3
+info:
+  title: Notification Sub Service – OpenAPI Spec
+  version: "1.0"
+  description: |
+    Notification Sub Service cung cấp API để truy vấn log gửi, gửi thử notification, và tra cứu metadata template theo từng tenant.  
+    Tất cả API đều thực hiện dưới context đa tenant và yêu cầu phân quyền RBAC.
+
+  contact:
+    name: DX VAS Team
+    email: dx@truongvietanh.edu.vn
+
+  x-api-version: "v1"
+  x-last-updated: "2025-06-14"
+  x-maintainer: dx@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    - adr-026-hard-delete-policy
+    - adr-030-event-schema-governance
+    - adr-007-rbac
+    - adr-008-audit-logging
+    - adr-024-data-anonymization-retention
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/notification-sub/v1
+    description: Production Server
+  - url: https://staging-api.truongvietanh.edu.vn/notification-sub/v1
+    description: Staging
+
+tags:
+  - name: Notification Logs
+    description: Truy vấn lịch sử gửi notification
+  - name: Template
+    description: Tra cứu danh sách template
+  - name: Send Test
+    description: Gửi thử notification qua các kênh
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  #===Headers===
+  headers:
+    X-Request-ID:
+      description: |
+        Mã định danh yêu cầu duy nhất, được tạo bởi Gateway để trace toàn hệ thống.  
+        Được phản hồi lại ở mọi response để phục vụ debug, audit, và correlate logs.
+      schema:
+        type: string
+        example: "req-34b2fc83-12b8-4efb-9d01-abc123456def"
+      required: true
+
+  schemas:
+    #===Enums===
+    StatusEnum:
+      type: string
+      description: |
+        Trạng thái gửi của notification:
+        - `sent`: gửi thành công
+        - `failed`: gửi thất bại
+        - `queued`: đang chờ xử lý
+        - `fallback`: gửi qua kênh dự phòng
+        - `test`: log thử nghiệm, không gửi thật
+      enum: [sent, failed, queued, fallback, test]
+      example: sent
+
+    ChannelEnum:
+      type: string
+      description: |
+        Các kênh hỗ trợ gửi notification:
+        - `email`: thư điện tử
+        - `sms`: tin nhắn
+        - `push`: thông báo đẩy
+      enum: [email, sms, push]
+      example: email
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      description: |
+        Định dạng lỗi chuẩn cho mọi API – tuân theo `ADR-011`. 
+        Trả về khi có lỗi xảy ra trong xử lý nghiệp vụ, phân quyền, hoặc dữ liệu đầu vào không hợp lệ.
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: "Mã lỗi theo định danh chuẩn `namespace.snake_case`, ví dụ: `notification.template_not_found`"
+              example: notification.template_not_found
+            message:
+              type: string
+              description: Mô tả ngắn gọn lỗi cho người dùng cuối hoặc developer
+              example: Template with event_code 'welcome' and channel 'email' not found.
+            details:
+              type: object
+              description: |
+                Thông tin kỹ thuật chi tiết – phục vụ cho việc debug.
+                Có thể chứa tên field sai, trace nội bộ hoặc đề xuất fix.
+              additionalProperties: true
+              nullable: true
+              example:
+                missing_params: ["full_name", "email"]
+                suggestion: "Check if default_params were provided in template."
+      example:
+        error:
+          code: notification.template_not_found
+          message: Template with event_code 'welcome' and channel 'email' not found.
+          details:
+            missing_params: ["full_name", "email"]
+
+    ResponseMeta:
+      type: object
+      description: |
+        Metadata chuẩn cho các API trả về danh sách – tuân thủ `ADR-012`.  
+        Được dùng cho phân trang phía frontend.
+      properties:
+        total:
+          type: integer
+          description: Tổng số kết quả có thể trả về (không chỉ riêng trang hiện tại)
+          example: 125
+        page:
+          type: integer
+          description: Trang hiện tại (bắt đầu từ 1)
+          example: 2
+        page_size:
+          type: integer
+          description: Số phần tử trên mỗi trang
+          example: 50
+        has_next:
+          type: boolean
+          description: Còn trang tiếp theo không?
+          example: true
+      example:
+        total: 125
+        page: 2
+        page_size: 50
+        has_next: true
+
+    NotificationLog:
+      type: object
+      description: |
+        Bản ghi log cho mỗi lần gửi notification (gửi thật hoặc test).  
+        Bao gồm trace ID, trạng thái gửi, người nhận, lỗi (nếu có), và payload đầu vào.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Mã định danh log
+          example: 93d01be5-50d4-4c31-8ea0-abc5f8dc3123
+        tenant_id:
+          type: string
+          description: Tenant thực hiện gửi (được xác định qua `X-Tenant-ID`)
+          example: vas-truongvietanh
+        event_code:
+          type: string
+          description: Mã nghiệp vụ triggering event
+          example: user.welcome
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        recipient:
+          type: string
+          description: Người nhận (email, số điện thoại, device ID...)
+          example: minh.le@truongvietanh.edu.vn
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+          example: sent
+        error_message:
+          type: string
+          description: Thông báo lỗi nếu trạng thái là `failed`
+          nullable: true
+          example: SMTP server not reachable
+        trace_id:
+          type: string
+          description: ID dùng để truy vết qua các service
+          example: f6789e2a1237b12c1b33
+        sent_at:
+          type: string
+          format: date-time
+          description: Thời điểm gửi notification (UTC ISO 8601)
+          example: "2025-06-14T08:30:00Z"
+        payload:
+          type: object
+          description: Payload (params) đã dùng để render template
+          example:
+            full_name: "Lê Minh"
+            email: "minh.le@truongvietanh.edu.vn"
+          additionalProperties: true
+      example:
+        id: 93d01be5-50d4-4c31-8ea0-abc5f8dc3123
+        tenant_id: vas-truongvietanh
+        event_code: user.welcome
+        channel: email
+        recipient: minh.le@truongvietanh.edu.vn
+        status: sent
+        error_message: null
+        trace_id: f6789e2a1237b12c1b33
+        sent_at: "2025-06-14T08:30:00Z"
+        payload:
+          full_name: "Lê Minh"
+          email: "minh.le@truongvietanh.edu.vn"
+
+    TemplateMeta:
+      type: object
+      description: |
+        Metadata của template hiện hành: sự kiện, kênh, version, ngôn ngữ, trạng thái.  
+        Được trả về trong `GET /notifications/templates`.
+      properties:
+        id:
+          type: string
+          description: Mã định danh template
+          example: 4a1e36e0-bd91-11ee-bc4d-2f07c87f4370
+        event_code:
+          type: string
+          description: Mã sự kiện gắn với template
+          example: user.welcome
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        version:
+          type: integer
+          description: Phiên bản template (auto-increment)
+          example: 3
+        language:
+          type: string
+          description: Ngôn ngữ (`vi`, `en`,...)
+          example: vi
+        is_active:
+          type: boolean
+          description: Template này có đang được dùng không?
+          example: true
+        updated_at:
+          type: string
+          format: date-time
+          description: Thời điểm cập nhật cuối cùng
+          example: "2025-06-14T07:55:00Z"
+      example:
+        id: 4a1e36e0-bd91-11ee-bc4d-2f07c87f4370
+        event_code: user.welcome
+        channel: email
+        version: 3
+        language: vi
+        is_active: true
+        updated_at: "2025-06-14T07:55:00Z"
+
+  #===Responses===
+  responses:
+
+    400BadRequest:
+      description: Dữ liệu đầu vào không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_param:
+              $ref: '#/components/examples/Example400MissingParam'
+
+    401Unauthorized:
+      description: Yêu cầu xác thực nhưng không có token hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_token:
+              $ref: '#/components/examples/Example401MissingToken'
+
+    403Forbidden:
+      description: Không có quyền truy cập tài nguyên hoặc sai tenant
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            forbidden_access:
+              $ref: '#/components/examples/Example403NoPermission'
+
+    404NotFound:
+      description: "Tài nguyên không tồn tại (ví dụ: template không tìm thấy)"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            template_not_found:
+              $ref: '#/components/examples/Example404TemplateNotFound'
+
+    500InternalError:
+      description: Lỗi hệ thống không xác định
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            generic_error:
+              $ref: '#/components/examples/Example500GenericError'
+
+  #===Examples===
+  examples:
+
+    Example400MissingParam:
+      summary: Thiếu biến bắt buộc
+      value:
+        error:
+          code: notification.missing_param
+          message: "Missing required parameter: recipient"
+          details:
+            missing_field: recipient
+
+    Example401MissingToken:
+      summary: Thiếu token xác thực
+      value:
+        error:
+          code: auth.unauthorized
+          message: Bearer token missing or invalid
+
+    Example403NoPermission:
+      summary: Không có quyền truy cập
+      value:
+        error:
+          code: auth.forbidden
+          message: You do not have permission to perform this action.
+
+    Example404TemplateNotFound:
+      summary: Không tìm thấy template
+      value:
+        error:
+          code: notification.template_not_found
+          message: Template with event_code 'user.welcome' not found.
+
+    Example500GenericError:
+      summary: Lỗi hệ thống
+      value:
+        error:
+          code: system.internal_error
+          message: An unexpected error occurred. Please try again later.
+
+paths:
+  /notifications/logs:
+    get:
+      tags: [Notification Logs]
+      summary: Truy vấn log gửi notification
+      operationId: getNotificationLogs
+      x-required-permission: notification.read.log
+      x-audit-action: notification.logs.read
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      x-gateway-enforced:
+        auth_required: true
+        tenant_header: true
+        permission_checked: true
+      x-route-evaluation: internal
+      x-emits-event: []
+      parameters:
+        - in: query
+          name: event_code
+          description: Mã sự kiện tương ứng với template gửi
+          schema: { type: string }
+          example: user.welcome
+        - in: query
+          name: channel
+          description: Kênh gửi notification
+          schema: { type: string }
+          example: email
+        - in: query
+          name: status
+          description: Trạng thái gửi (`sent`, `failed`, `test`...)
+          schema: { type: string }
+          example: sent
+        - in: query
+          name: recipient
+          description: Email hoặc số điện thoại người nhận
+          schema: { type: string }
+          example: minh.le@truongvietanh.edu.vn
+        - in: query
+          name: from_date
+          description: Từ ngày (ISO date)
+          schema: { type: string, format: date }
+          example: 2025-06-01
+        - in: query
+          name: to_date
+          description: Đến ngày (ISO date)
+          schema: { type: string, format: date }
+          example: 2025-06-14
+        - in: query
+          name: page
+          description: Trang kết quả (bắt đầu từ 1)
+          schema: { type: integer, default: 1 }
+          example: 1
+        - in: query
+          name: page_size
+          description: Số kết quả mỗi trang
+          schema: { type: integer, default: 50 }
+          example: 20
+      responses:
+        "200":
+          description: Danh sách log gửi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/ResponseMeta"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/NotificationLog"
+        "401":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/401Unauthorized'
+        "403":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+
+  /notifications/test:
+    post:
+      tags: [Send Test]
+      summary: Gửi thử một notification
+      operationId: sendNotificationTest
+      x-required-permission: notification.send.test
+      x-audit-action: notification.test_sent
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      x-gateway-enforced:
+        auth_required: true
+        tenant_header: true
+        permission_checked: true
+        body_schema_validated: true
+      x-route-evaluation: internal
+      x-emits-event:
+        - notification.test_sent
+      x-codegen-request-example:
+        summary: Ví dụ gửi thử email welcome
+        value:
+          event_code: user.welcome
+          channel: email
+          recipient: minh.le@truongvietanh.edu.vn
+          params:
+            full_name: "Lê Minh"
+            school_year: "2025"        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event_code, channel, recipient]
+              properties:
+                event_code:
+                  type: string
+                  description: Mã event tương ứng với template
+                  example: user.welcome
+                channel:
+                  type: string
+                  description: Kênh gửi (email, sms, push...)
+                  example: email
+                recipient:
+                  type: string
+                  description: Email/sđt/device ID người nhận
+                  example: minh.le@truongvietanh.edu.vn
+                params:
+                  type: object
+                  description: Tham số dùng để render nội dung
+                  example:
+                    full_name: "Lê Minh"
+                    school_year: "2025"
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Kết quả gửi thử
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preview:
+                    type: string
+                    description: Nội dung sau khi render
+                    example: "Xin chào Lê Minh, chào mừng bạn đến với năm học 2025!"
+                  status:
+                    type: string
+                    description: Trạng thái gửi thử
+                    example: sent
+        "400":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/400BadRequest'
+        "401":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/401Unauthorized'
+        "403":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/500InternalError'
+
+  /notifications/templates:
+    get:
+      tags: [Template]
+      summary: Truy vấn danh sách template đang có
+      operationId: getTemplates
+      x-required-permission: notification.read.template
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      x-gateway-enforced:
+        auth_required: true
+        tenant_header: true
+        permission_checked: true
+      x-route-evaluation: internal
+      x-emits-event: []
+      responses:
+        "200":
+          description: Danh sách template hiện hành
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/ResponseMeta"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TemplateMeta"
+              example:
+                meta:
+                  total: 2
+                  page: 1
+                  page_size: 50
+                  has_next: false
+                data:
+                  - id: 4a1e36e0-bd91-11ee-bc4d-2f07c87f4370
+                    event_code: user.welcome
+                    channel: email
+                    version: 3
+                    language: vi
+                    is_active: true
+                    updated_at: "2025-06-14T07:55:00Z"
+                  - id: 79b97320-aaa2-11ee-bc4d-2f07c87f4370
+                    event_code: password.reset
+                    channel: sms
+                    version: 1
+                    language: vi
+                    is_active: true
+                    updated_at: "2025-06-10T10:45:00Z"                      
+        "401":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/401Unauthorized'
+        "403":
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/500InternalError'
