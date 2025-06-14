@@ -66,10 +66,6 @@ reviewed_by: "Stephen Le"
 
 ---
 
-Dưới đây là nội dung viết lại đầy đủ mục `## 3. 🗃️ Mô hình dữ liệu chi tiết` cho `token-service/design.md`, theo đúng tiêu chuẩn 5 sao và phản ánh chính xác kiến trúc Redis-centric:
-
----
-
 ## 3. 🗃️ Mô hình dữ liệu chi tiết
 
 `token-service` không sử dụng cơ sở dữ liệu quan hệ. Toàn bộ trạng thái xác thực (sessions, revoked tokens, JWKS keys) được lưu trữ dưới dạng Redis Key-Value với TTL phù hợp, để đảm bảo tốc độ và khả năng thu hồi.

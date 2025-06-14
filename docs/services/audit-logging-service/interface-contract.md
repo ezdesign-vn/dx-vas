@@ -1,664 +1,403 @@
 ---
 title: Audit Logging Service - Interface Contract
-version: "1.0"
-last_updated: "2025-06-07"
+version: "2.1"
+last_updated: ["2025-06-14"]
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
 
 # 📘 Audit Logging Service – Interface Contract
 
-Tài liệu này mô tả các API chính mà **Audit Logging Service** cung cấp – theo cách dễ đọc, đầy đủ thông tin cho backend, frontend và devops. 
+## 1. 📌 Phạm vi và Trách nhiệm
 
-> ✅ Phạm vi: Service này ghi nhận, lưu trữ và cung cấp khả năng truy vấn các hành vi người dùng/hệ thống có tính audit.  
-> 🚫 Không chịu trách nhiệm phân tích, dashboard (giao cho Reporting Service), hoặc alerting (giao cho hệ thống cảnh báo riêng).
+Audit Logging Service (ALS) là một thành phần nằm trong tầng **Core Services** của hệ thống dx-vas, có trách nhiệm:
 
----
-
-## 📌 API: `/audit-logs`
-
-Danh sách các API phục vụ việc ghi nhận và truy xuất hành vi audit.
-
-| Method | Path                        | Mô tả                                 | Quyền (RBAC Permission Code)   |
-|--------|-----------------------------|---------------------------------------|--------------------------------|
-| POST   | `/audit-logs`               | Ghi nhận một hành động audit          | `audit.create.logs`            |
-| POST   | `/audit-logs/bulk`          | Ghi nhận hàng loạt hành động audit   | `audit.create.logs.bulk`       |
-| GET    | `/audit-logs`               | Truy vấn danh sách log                | `audit.read.logs`              |
-| GET    | `/audit-logs/{id}`          | Lấy chi tiết một bản ghi log          | `audit.read.logs`              |
+- **Thu thập audit log** từ các nguồn nội bộ thông qua 2 cơ chế:
+  - Giao tiếp **event-driven** qua Pub/Sub (`audit.events.v1`)
+  - Giao tiếp **synchronous HTTP API** dành cho các service không hỗ trợ emit event
+- **Áp dụng chính sách bảo mật và masking** trước khi lưu log, nhằm đảm bảo thông tin nhạy cảm không bị lộ (tuân theo `ADR-024`)
+- **Lưu trữ bền vững** các bản ghi log vào kho dữ liệu trung tâm (BigQuery hoặc Firestore), phục vụ truy vấn và kiểm toán
+- **Cung cấp REST API phân quyền** cho phép truy vấn lịch sử hành động theo `tenant`, `user`, `trace`, hoặc `resource`
+- **Hỗ trợ tracing xuyên suốt hệ thống** bằng cách liên kết log với `trace_id` phát sinh từ gateway hoặc frontend
 
 ---
 
-### 🧪 Chi tiết API
+### 1.1. ✅ ALS **không đảm nhận** các nhiệm vụ sau:
 
-#### 1. POST `/audit-logs`
-
-Ghi nhận một hành động audit đơn lẻ vào hệ thống.  
-API này được sử dụng bởi các service backend (user-service, auth-service, notification-service...) hoặc frontend (qua API Gateway) khi có hành vi cần lưu vết phục vụ kiểm toán.
-
----
-
-### 🧾 Headers yêu cầu
-
-| Header           | Bắt buộc | Mô tả |
-|------------------|----------|-------|
-| `Authorization`  | ✅       | `Bearer <JWT>` – dùng để xác thực người dùng và trích xuất actor |
-| `X-Tenant-ID`    | ✅       | ID tenant hiện hành (nếu không có trong JWT) |
-| `X-Request-ID`   | ✅       | ID truy vết request – được gắn vào log, trace, response, và phục vụ debugging liên service |
-
-> ✅ Với thay đổi này, `X-Request-ID` trở thành **bắt buộc**, đảm bảo mọi bản ghi log đều có thể truy vết xuyên suốt hệ thống.
-
-> 💡 Nếu request thiếu header này, API sẽ trả về lỗi `422` với thông báo `Missing required header: X-Request-ID`.
+- Không ghi nhận **application logs** (debug/error logs) – việc này thuộc trách nhiệm của runtime environment.
+- Không lưu trữ **metrics hoặc performance logs** – các chỉ số này do Prometheus/Grafana xử lý.
+- Không hiển thị giao diện người dùng – log được hiển thị qua Admin WebApp hoặc các dashboard khác.
+- Không phục vụ mục đích alerting trực tiếp – nhưng có thể tích hợp gián tiếp qua Observability Platform (`ADR-021`).
 
 ---
 
-### 📥 Request Body
+### 1.2. 🧭 Mối liên hệ chính
+
+| Hệ thống | Mục đích tương tác |
+|----------|---------------------|
+| API Gateway | Gửi log qua HTTP Ingestion API (các hành vi người dùng qua web) |
+| Auth Service | Phát event `auth.login.success`, `token.exchanged`, `otp.verified` |
+| User Service | Ghi nhận các hành động tạo, cập nhật người dùng |
+| Admin WebApp | Truy vấn log thông qua API `/audit-log` |
+| Reporting Service | Truy vấn log theo `trace_id` để tạo báo cáo bảo mật |
+| Notification Service | Gửi event khi gửi/thất bại notification (`notification.sent`, `failed`) |
+
+---
+
+## 2. 📌 API: `/audit-log`
+
+Các API cho phép truy vấn các bản ghi hành vi đã lưu trữ trong hệ thống. Tất cả các API yêu cầu xác thực JWT, kiểm tra quyền RBAC và ràng buộc theo tenant (`X-Tenant-ID`).
+
+---
+
+### 2.1. `GET /audit-log`
+
+Truy vấn danh sách bản ghi audit log, với khả năng lọc theo nhiều tiêu chí (user, action, thời gian...) và phân trang.
+
+#### 📥 Request
+
+- **Headers:**
+  - `Authorization: Bearer <JWT>`
+  - `X-Tenant-ID: string` – Tenant hiện tại
+
+- **Query Parameters:**
+  - `actor_user_id`: string – lọc theo người thực hiện hành động
+  - `trace_id`: string – lọc theo trace
+  - `action`: string – lọc theo hành động
+  - `resource_type`: string – loại tài nguyên liên quan (`user`, `tenant`, etc.)
+  - `status`: `success` \| `failure` \| `warning`
+  - `from_time`, `to_time`: ISO 8601 timestamp
+  - `page`, `page_size`: phân trang
+
+#### 📤 Response
 
 ```json
 {
-  "actor_id": "user-123",
-  "actor_type": "user",
-  "action": "UPDATE",
-  "resource_type": "USER",
-  "resource_id": "user-abc",
-  "timestamp": "2025-06-07T13:00:00Z",
-  "tenant_id": "tenant-001",
-  "metadata": {
-    "field_changed": "email",
-    "old_value": "a@example.com",
-    "new_value": "b@example.com"
-  },
-  "request_id": "req-xyz-999",
-  "event_id": "event-123"
-}
-```
-
-> 🧠 `event_id` được sử dụng để đảm bảo idempotency – nếu log bị gửi trùng, hệ thống sẽ không ghi đè.
-
----
-
-### 🔐 RBAC
-
-* **Yêu cầu permission:** `audit.create.logs`
-* Actor phải thuộc đúng tenant hoặc có role `superadmin`
-
----
-
-### ✅ Response (201 Created)
-
-```json
-{
-  "data": {
-    "id": "audit-abc999",
-    "created_at": "2025-06-07T13:00:01Z"
-  },
-  "meta": {
-    "request_id": "req-xyz-999",
-    "timestamp": "2025-06-07T13:00:01Z"
-  },
-  "error": null
-}
-```
-
----
-
-### ❌ Response lỗi thường gặp
-
-| HTTP Code | Lỗi                | Mô tả                                    |
-| --------- | ------------------ | ---------------------------------------- |
-| `401`     | Unauthorized       | Thiếu hoặc sai JWT                       |
-| `403`     | Forbidden (RBAC)   | Không có quyền `audit.create.logs`       |
-| `422`     | Validation Error   | Thiếu trường bắt buộc hoặc sai định dạng |
-| `409`     | Duplicate Event ID | `event_id` đã được ghi trước đó          |
-
----
-
-### 🔎 Ví dụ thực tế
-
-Audit một hành động xoá học sinh:
-
-```json
-{
-  "actor_id": "teacher-456",
-  "actor_type": "user",
-  "action": "DELETE",
-  "resource_type": "STUDENT",
-  "resource_id": "student-abc",
-  "timestamp": "2025-06-07T15:20:00Z",
-  "metadata": {
-    "reason": "duplicate entry",
-    "approved_by": "admin-001"
-  },
-  "event_id": "ev-std-del-0001"
-}
-```
-
----
-
-### 🧪 Các tiêu chí kiểm thử
-
-| Case                           | Kỳ vọng                      |
-| ------------------------------ | ---------------------------- |
-| Đủ thông tin, permission đúng  | `201 Created` với ID         |
-| Thiếu `actor_id` hoặc `action` | `422 Unprocessable Entity`   |
-| Sai `timestamp` format         | `422` – ISO-8601 required    |
-| Dùng `event_id` trùng          | `409 Conflict` – idempotency |
-| Gửi từ tenant khác             | `403 Forbidden`              |
-
----
-
-#### 2. POST `/audit-logs/bulk`
-
-Ghi nhận **nhiều hành động audit cùng lúc** trong một request.  
-Phù hợp cho các service backend hoặc batch job cần lưu nhiều log trong 1 giao dịch hoặc thời điểm cụ thể (ví dụ: import học sinh, cập nhật hàng loạt điểm số...).
-
----
-
-### 🧾 Headers yêu cầu
-
-| Header           | Bắt buộc | Mô tả |
-|------------------|----------|-------|
-| `Authorization`  | ✅       | `Bearer <JWT>` – để xác thực và gán actor mặc định nếu không có trong mỗi bản ghi |
-| `X-Tenant-ID`    | ✅       | ID tenant – dùng cho phân vùng dữ liệu |
-| `X-Request-ID`   | ✅       | Trace ID dùng để debug và liên kết toàn bộ batch log |
-
----
-
-### 📥 Request Body
-
-Là mảng tối đa **100 bản ghi**, mỗi bản ghi có cấu trúc tương tự như `POST /audit-logs`:
-
-```json
-[
-  {
-    "actor_id": "admin-001",
-    "actor_type": "user",
-    "action": "UPDATE",
-    "resource_type": "STUDENT",
-    "resource_id": "student-123",
-    "timestamp": "2025-06-07T13:00:00Z",
-    "metadata": {
-      "field": "score",
-      "old": 7,
-      "new": 9
-    },
-    "event_id": "batch-001"
-  },
-  {
-    "actor_id": "admin-001",
-    "actor_type": "user",
-    "action": "UPDATE",
-    "resource_type": "STUDENT",
-    "resource_id": "student-124",
-    "timestamp": "2025-06-07T13:01:00Z",
-    "metadata": {
-      "field": "score",
-      "old": 6,
-      "new": 8
-    },
-    "event_id": "batch-002"
-  }
-]
-```
-
----
-
-### 🔐 RBAC
-
-* **Yêu cầu permission:** `audit.create.logs.bulk`
-* Actor bắt buộc là service hoặc user có quyền ghi hàng loạt audit (đa số là backend, không phải frontend)
-
----
-
-### ✅ Response (207 Multi-Status)
-
-Vì đây là ghi nhiều log, nên response theo chuẩn `multi-status` (inspired by WebDAV) – phản hồi trạng thái cho từng bản ghi:
-
-```json
-{
-  "meta": {
-    "success_count": 98,
-    "failure_count": 2,
-    "request_id": "req-xyz-999"
-  },
   "data": [
     {
-      "event_id": "batch-001",
-      "status": "created",
-      "id": "audit-uuid-001"
-    },
-    {
-      "event_id": "batch-002",
-      "status": "error",
-      "error": {
-        "code": "DUPLICATE_EVENT_ID",
-        "message": "Event ID already exists"
-      }
+      "id": "log-abc123",
+      "tenant_id": "vas-sch-01",
+      "trace_id": "trace-xyz",
+      "actor_user_id": "user-01",
+      "action": "user.login.success",
+      "resource_type": "user",
+      "status": "success",
+      "created_at": "2025-06-14T12:00:00Z"
     }
   ],
-  "error": null
-}
-```
-
----
-
-### ❌ Response lỗi tổng
-
-| HTTP Code | Lỗi                    | Mô tả                                         |
-| --------- | ---------------------- | --------------------------------------------- |
-| `401`     | Unauthorized           | Thiếu JWT                                     |
-| `403`     | Forbidden (RBAC)       | Không có quyền `audit.create.logs.bulk`       |
-| `422`     | Invalid payload        | Nếu không phải mảng hoặc vượt quá 100 bản ghi |
-| `207`     | Multi-status (partial) | Một số bản ghi thành công, một số lỗi         |
-
----
-
-### 💡 Lưu ý triển khai
-
-| Yếu tố               | Ghi chú                                                   |
-| -------------------- | --------------------------------------------------------- |
-| Tối đa 100 log/lần   | Giới hạn để tránh overload DB                             |
-| Ghi theo batch SQL   | `INSERT INTO ... VALUES (...), (...)`                     |
-| Idempotency từng log | Dựa trên `event_id` riêng biệt                            |
-| Tách `created_at`    | Tự động tạo theo từng bản ghi, không dùng timestamp chung |
-
----
-
-### 🧪 Các tiêu chí kiểm thử
-
-| Case                           | Kỳ vọng                             |
-| ------------------------------ | ----------------------------------- |
-| Gửi 5 bản ghi đúng             | `201` với 5 bản ghi `created`       |
-| Trùng `event_id` với bản đã có | Bản ghi đó báo `DUPLICATE_EVENT_ID` |
-| Gửi mảng >100 bản ghi          | `422` – vượt giới hạn               |
-| Không phải mảng JSON           | `422` – invalid request             |
-
----
-
-### 📎 Gợi ý sử dụng
-
-* ✅ Ghi log hàng loạt sau khi import file Excel
-* ✅ Ghi audit cho từng user được bulk cập nhật điểm
-* ❌ Không dùng từ frontend – nên chỉ dùng cho backend trusted
-
----
-
-#### 3. GET `/audit-logs`
-
-API dùng để **truy vấn danh sách bản ghi audit** theo nhiều tiêu chí lọc khác nhau.  
-Được dùng trong:
-- Giao diện admin (Audit Dashboard)
-- Tính năng kiểm tra hành vi gần đây
-- Debug trace logic
-
----
-
-### 🧾 Headers yêu cầu
-
-| Header           | Bắt buộc | Mô tả |
-|------------------|----------|-------|
-| `Authorization`  | ✅       | `Bearer <JWT>` – xác thực và phân quyền |
-| `X-Tenant-ID`    | ✅       | Tenant phân vùng dữ liệu |
-| `X-Request-ID`   | ✅       | Trace ID phục vụ debug |
-
----
-
-### 🔎 Query Parameters
-
-| Param             | Bắt buộc | Kiểu DL     | Mô tả |
-|-------------------|----------|-------------|------|
-| `actor_id`        | ❌       | string      | Lọc theo ID người thực hiện |
-| `actor_type`      | ❌       | enum        | `user`, `system`, `service` |
-| `action`          | ❌       | enum        | `CREATE`, `UPDATE`, `DELETE`, `LOGIN`, ... |
-| `resource_type`   | ❌       | enum        | `USER`, `CLASS`, `FEE`, ... |
-| `resource_id`     | ❌       | string      | ID của đối tượng bị tác động |
-| `from`            | ❌       | ISO-8601    | Thời gian bắt đầu (UTC) |
-| `to`              | ❌       | ISO-8601    | Thời gian kết thúc (UTC) |
-| `page`            | ❌       | int         | Trang hiện tại (mặc định: 1) |
-| `limit`           | ❌       | int (1–100) | Số dòng mỗi trang (mặc định: 20) |
-
----
-
-### ✅ Response (200 OK)
-
-```json
-{
-  "data": [
-    {
-      "id": "audit-001",
-      "actor_id": "admin-123",
-      "action": "DELETE",
-      "resource_type": "STUDENT",
-      "resource_id": "stu-xyz",
-      "timestamp": "2025-06-07T12:34:56Z",
-      "metadata": {
-        "reason": "duplicate",
-        "approved_by": "admin-001"
-      }
-    },
-    ...
-  ],
   "meta": {
-    "request_id": "req-xyz",
     "pagination": {
       "page": 1,
-      "limit": 20,
-      "total_items": 42,
-      "total_pages": 3
-    }
+      "page_size": 20,
+      "total": 125
+    },
+    "request_id": "req-789",
+    "timestamp": "2025-06-14T12:00:01Z"
   },
   "error": null
 }
 ```
 
----
+#### 🔐 Phân quyền & Điều kiện
 
-### 🔐 RBAC
+* Yêu cầu scope: `audit.read.log`
+* RBAC enforced theo condition:
 
-* **Yêu cầu permission:** `audit.read.logs`
-* Người dùng chỉ có thể truy vấn dữ liệu thuộc tenant của họ
-* Các role như `school_admin`, `sys_auditor` thường có quyền này
+  ```json
+  { "tenant_id": "{{X-Tenant-ID}}" }
+  ```
+* Masking động theo role: các trường nhạy cảm như `input_parameters`, `ip_address`, `user_agent` sẽ bị che nếu không có quyền cao (e.g. `tenant_admin`)
 
----
+#### 📣 Sự kiện phát ra
 
-### ⚠️ Giới hạn truy vấn
+* Không có
 
-| Giới hạn       | Mức mặc định     | Ghi chú                         |
-| -------------- | ---------------- | ------------------------------- |
-| `limit` tối đa | 100              | Tránh trả quá nhiều log 1 lần   |
-| `from-to` max  | 180 ngày         | Tùy chỉnh theo retention policy |
-| Default sort   | `timestamp desc` | Log mới nhất hiển thị trước     |
+#### ❌ Mã lỗi có thể trả về
 
----
+| Code                       | Mô tả                                           |
+| -------------------------- | ----------------------------------------------- |
+| `common.unauthorized`      | Không gửi JWT hoặc JWT không hợp lệ             |
+| `common.forbidden`         | Không có quyền `audit.read.log` hoặc sai tenant |
+| `common.validation_failed` | Tham số query không hợp lệ (e.g. sai datetime)  |
+| `common.internal_error`    | Lỗi truy vấn BigQuery hoặc hệ thống gián đoạn   |
 
-### 🧪 Các tiêu chí kiểm thử
+#### 🧪 Gợi ý kiểm thử
 
-| Tình huống                           | Kết quả kỳ vọng                           |
-| ------------------------------------ | ----------------------------------------- |
-| Truy vấn không có filter             | Trả về log gần nhất                       |
-| Truy vấn `resource_id=student-123`   | Trả về đúng hành vi liên quan học sinh đó |
-| Lọc theo `action=DELETE`, `from=...` | Lọc chính xác, giới hạn theo thời gian    |
-| Không có quyền truy cập log          | `403 Forbidden`                           |
-| Token hợp lệ nhưng `X-Tenant-ID` sai | Không có log hoặc `403`                   |
-
----
-
-### 💡 Best Practice cho Frontend
-
-* Tích hợp filter nâng cao (dropdown enum)
-* Hiển thị tooltip cho metadata → thường chứa lý do, hành vi cụ thể
-* Hiển thị tên người thực hiện từ `actor_id` qua lookup User Service (nếu cần)
+* Gửi truy vấn hợp lệ → nhận log đúng và có phân trang
+* Gửi truy vấn thiếu `Authorization` → nhận lỗi `common.unauthorized`
+* Gửi truy vấn sai định dạng `from_time` → lỗi `common.validation_failed`
+* Dùng token đúng scope nhưng sai tenant → không thấy log hoặc lỗi `common.forbidden`
+* Gửi truy vấn khi backend lỗi BigQuery → nhận `common.internal_error`
 
 ---
 
-#### 4. GET `/audit-logs/{id}`
+### 2.2. `GET /audit-log/{id}`
 
-API này cho phép lấy **chi tiết một bản ghi log cụ thể**, dựa trên `id` duy nhất của log.  
-Được dùng khi người dùng từ giao diện Audit Dashboard hoặc từ các hệ thống backend cần xem chi tiết một hành vi cụ thể.
+Lấy chi tiết một bản ghi log cụ thể theo ID log.
 
----
+#### 📥 Request
 
-### 📌 Mục đích
+* **Path parameter:**
 
-- Hiển thị popup/modal chi tiết audit log
-- Phục vụ kiểm tra hành vi, xác định người chịu trách nhiệm
-- Truy vết và kiểm tra integrity của hành vi
+  * `id`: string – UUID của bản ghi log
 
----
+* **Headers:**
 
-### 🧾 Headers yêu cầu
+  * `Authorization: Bearer <JWT>`
+  * `X-Tenant-ID: string`
 
-| Header           | Bắt buộc | Mô tả |
-|------------------|----------|-------|
-| `Authorization`  | ✅       | `Bearer <JWT>` – để xác thực người dùng |
-| `X-Tenant-ID`    | ✅       | Tenant dùng để phân vùng dữ liệu |
-| `X-Request-ID`   | ✅       | Trace ID – hỗ trợ debug, giám sát |
-
----
-
-### 📥 Path Parameters
-
-| Param  | Bắt buộc | Kiểu DL | Mô tả                      |
-|--------|----------|---------|----------------------------|
-| `id`   | ✅       | string (UUID) | ID duy nhất của bản ghi audit log |
-
----
-
-### ✅ Response (200 OK)
+#### 📤 Response
 
 ```json
 {
   "data": {
-    "id": "audit-001",
-    "tenant_id": "tenant-abc",
-    "actor_id": "teacher-999",
-    "actor_type": "user",
-    "action": "UPDATE",
-    "resource_type": "STUDENT",
-    "resource_id": "stu-123",
-    "timestamp": "2025-06-07T12:34:56Z",
-    "request_id": "req-xyz-001",
-    "event_id": "event-001",
-    "metadata": {
-      "field_changed": "dob",
-      "old_value": "2012-03-01",
-      "new_value": "2012-03-02",
-      "approved_by": "admin-001"
-    }
+    "id": "log-abc123",
+    "tenant_id": "vas-sch-01",
+    "trace_id": "trace-xyz",
+    "actor_user_id": "user-01",
+    "action": "user.login.success",
+    "resource_type": "user",
+    "status": "success",
+    "input_parameters": {
+      "email": "masked",
+      "name": "masked"
+    },
+    "ip_address": "masked",
+    "user_agent": "masked",
+    "created_at": "2025-06-14T12:00:00Z"
   },
   "meta": {
-    "request_id": "req-xyz-001",
-    "timestamp": "2025-06-07T12:35:00Z"
+    "request_id": "req-456",
+    "timestamp": "2025-06-14T12:00:01Z"
   },
   "error": null
 }
 ```
 
----
+#### 🔐 Phân quyền & Điều kiện
 
-### ❌ Response lỗi thường gặp
+* Scope bắt buộc: `audit.read.log`
+* Điều kiện RBAC:
 
-| HTTP Code | Lỗi                 | Mô tả                                                    |
-| --------- | ------------------- | -------------------------------------------------------- |
-| `401`     | Unauthorized        | Thiếu JWT hoặc không hợp lệ                              |
-| `403`     | Forbidden           | Không có quyền `audit.read.logs` hoặc không thuộc tenant |
-| `404`     | Not Found           | Không tìm thấy bản ghi log theo ID                       |
-| `422`     | Invalid UUID format | Nếu `id` không đúng định dạng UUID v4                    |
+  ```json
+  { "tenant_id": "{{X-Tenant-ID}}" }
+  ```
+* Masking động áp dụng như trên
 
----
+#### 📣 Sự kiện phát ra
 
-### 🔐 RBAC
+* Không có
 
-* **Permission yêu cầu:** `audit.read.logs`
-* Chỉ được phép xem log thuộc `tenant_id` tương ứng
-* Nếu là `superadmin` hoặc `sys_auditor` có thể xem nhiều tenant (nếu JWT cho phép)
+#### ❌ Mã lỗi có thể trả về
 
----
+| Code                    | Mô tả                                        |
+| ----------------------- | -------------------------------------------- |
+| `common.unauthorized`   | Không có hoặc JWT không hợp lệ               |
+| `common.forbidden`      | Không được truy cập log không thuộc tenant   |
+| `common.not_found`      | Log không tồn tại hoặc không thuộc quyền xem |
+| `common.internal_error` | Lỗi hệ thống khi truy xuất dữ liệu           |
 
-### 🧪 Các tình huống kiểm thử
+#### 🧪 Gợi ý kiểm thử
 
-| Tình huống                          | Kết quả kỳ vọng    |
-| ----------------------------------- | ------------------ |
-| Lấy log có `id` hợp lệ, quyền đúng  | `200 OK`           |
-| Log tồn tại nhưng khác `tenant_id`  | `403 Forbidden`    |
-| ID log không tồn tại                | `404 Not Found`    |
-| Thiếu `Authorization` header        | `401 Unauthorized` |
-| Gửi ID sai format (không phải UUID) | `422`              |
-
----
-
-### 💡 Best Practice (Frontend)
-
-* Gọi API này khi user bấm “🔍 Chi tiết” trên một dòng log từ `GET /audit-logs`
-* Hiển thị metadata theo dạng bảng key-value dễ đọc
-* Nếu có `request_id`, có thể dẫn link sang Cloud Logging trace
+* Lấy log hợp lệ với đúng tenant và quyền → thấy log đầy đủ
+* Lấy log thuộc tenant khác → lỗi `common.forbidden` hoặc `common.not_found`
+* Lấy log với user không đủ quyền → bị che `input_parameters`
+* Lấy log không tồn tại → lỗi `common.not_found`
+* Gây lỗi backend (e.g. tạm ngưng BigQuery) → lỗi `common.internal_error`
 
 ---
 
-## 📎 ENUM sử dụng
+## 📌 Chú thích Định dạng Response & Lỗi
 
-Để đảm bảo tính thống nhất, dễ hiểu và có thể mapping UI (label, màu sắc, icon), các trường có giá trị lựa chọn trước (enum) trong Audit Logging Service được chuẩn hoá theo các bảng phụ trợ như sau:
+Tất cả API tuân thủ định dạng chuẩn hóa của hệ thống (xem ADR-012 và ADR-011).
 
----
-
-### 1. `actor_type`
-
-| Giá trị       | Mô tả tiếng Việt      | Dùng cho UI |
-|---------------|------------------------|-------------|
-| `user`        | Người dùng (giáo viên, admin, học sinh) | 👤 |
-| `system`      | Hệ thống nội bộ (scheduler, automation) | ⚙️ |
-| `service`     | Service khác (API Gateway, Notification Service...) | 🔁 |
-
-> Sử dụng để xác định ai là người thực hiện hành động.
-
----
-
-### 2. `action`
-
-| Giá trị       | Mô tả tiếng Việt         | Loại icon gợi ý |
-|---------------|---------------------------|------------------|
-| `CREATE`      | Tạo mới                   | 🟢 ➕ |
-| `UPDATE`      | Cập nhật                  | 🟡 ✏️ |
-| `DELETE`      | Xoá                       | 🔴 🗑️ |
-| `LOGIN`       | Đăng nhập                 | 🔐 |
-| `LOGOUT`      | Đăng xuất                 | 🚪 |
-| `APPROVE`     | Duyệt hành động           | ✅ |
-| `REJECT`      | Từ chối hành động         | ❌ |
-| `EXPORT`      | Xuất dữ liệu              | 📤 |
-| `IMPORT`      | Nhập dữ liệu              | 📥 |
-
-> Có thể mở rộng tuỳ use case. Tất cả action đều phải tuân thủ schema chuẩn để phục vụ truy vấn và phân tích hành vi.
-
----
-
-### 3. `resource_type`
-
-| Giá trị         | Mô tả tài nguyên được tác động       |
-|------------------|---------------------------------------|
-| `USER`           | Người dùng (học sinh, giáo viên, phụ huynh) |
-| `STUDENT`        | Học sinh                              |
-| `TEACHER`        | Giáo viên                             |
-| `PARENT`         | Phụ huynh                             |
-| `CLASS`          | Lớp học                               |
-| `SCHEDULE`       | Thời khoá biểu                        |
-| `FEE`            | Phí và hoá đơn                        |
-| `TEMPLATE`       | Notification Template                 |
-| `AUDIT_LOG`      | Bản ghi log (meta-level audit)        |
-| `PERMISSION`     | Quyền                                |
-| `ROLE`           | Vai trò                              |
-| `CONFIG`         | Cấu hình hệ thống                    |
-
-> Dùng để phân loại nhanh hành vi đang tác động lên nhóm dữ liệu nào.
-
----
-
-### 4. `actor_scope` (tuỳ chọn nếu dùng RBAC nâng cao)
-
-| Giá trị         | Mô tả                                     |
-|------------------|--------------------------------------------|
-| `global`         | Thực hiện bởi hệ thống toàn cục            |
-| `tenant`         | Thực hiện trong phạm vi tenant cụ thể      |
-| `school_branch`  | Giới hạn theo chi nhánh hoặc site          |
-
----
-
-### 🎨 UI Mapping Suggestion
-
-| Field          | Color            | Icon suggestion |
-|----------------|------------------|------------------|
-| `CREATE`       | Green             | ➕ |
-| `UPDATE`       | Yellow            | ✏️ |
-| `DELETE`       | Red               | 🗑️ |
-| `LOGIN`        | Blue              | 🔐 |
-| `REJECT`       | Gray              | ❌ |
-| `EXPORT`       | Purple            | 📤 |
-
-> Những bảng phụ trợ này nên được hiển thị trên Dashboard để người dùng lọc & hiểu rõ hành vi đang xem.
-
----
-
-## 📎 Permission Mapping
-
-Hệ thống sử dụng cơ chế **RBAC (Role-Based Access Control)** phân tầng, như mô tả trong [`rbac-deep-dive.md`](../architecture/rbac-deep-dive.md), để kiểm soát quyền truy cập vào các API.
-
-Dưới đây là bảng ánh xạ **permission code** với từng API endpoint tương ứng của Audit Logging Service.
-
----
-
-### 🔐 Bảng Phân Quyền Chi Tiết
-
-| `permission_code`        | API liên quan                             | Phương thức | Mô tả quyền                        |
-|--------------------------|-------------------------------------------|-------------|------------------------------------|
-| `audit.create.logs`      | `/audit-logs`                             | `POST`      | Cho phép ghi một bản ghi audit     |
-| `audit.create.logs.bulk` | `/audit-logs/bulk`                        | `POST`      | Cho phép ghi hàng loạt bản ghi audit |
-| `audit.read.logs`        | `/audit-logs`, `/audit-logs/{id}`        | `GET`       | Truy vấn danh sách hoặc chi tiết log |
-
----
-
-### 🧠 Quy tắc áp dụng permission
-
-- Mọi API đều yêu cầu có header `Authorization: Bearer <token>`.
-- `permission_code` được trích xuất từ JWT (trong payload `permissions`).
-- Nếu không có permission phù hợp:
-  - API sẽ trả về `403 Forbidden`
-  - Và log lại hành vi vi phạm (nếu ghi log audit cả lỗi truy cập)
-
----
-
-### 🔍 Ví dụ Payload JWT:
+### ✅ Thành công (200 OK / 204 No Content)
 
 ```json
 {
-  "sub": "admin-123",
-  "tenant_id": "vas_hn",
-  "permissions": [
-    "audit.read.logs",
-    "audit.create.logs"
-  ]
+  "data": { ... },
+  "meta": {
+    "request_id": "req-xyz",
+    "timestamp": "2025-06-14T12:00:00Z"
+  },
+  "error": null
+}
+```
+
+### ❌ Lỗi (4xx/5xx)
+
+```json
+{
+  "data": null,
+  "meta": {
+    "request_id": "req-xyz",
+    "timestamp": "2025-06-14T12:00:00Z"
+  },
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Bạn không có quyền xem log này.",
+    "details": null
+  }
 }
 ```
 
 ---
 
-### 🧪 Quy tắc kiểm thử
+## 3. 📥 Giao tiếp Pub/Sub
 
-| Tình huống                                                     | Kết quả mong đợi          |
-| -------------------------------------------------------------- | ------------------------- |
-| Người dùng có `audit.read.logs`                                | Truy vấn log thành công   |
-| Không có `audit.read.logs`                                     | `403 Forbidden`           |
-| Có `audit.create.logs.bulk` nhưng không có `audit.create.logs` | Không gọi được API đơn lẻ |
-| JWT hợp lệ nhưng không có trường `permissions`                 | `403 Forbidden`           |
+Audit Logging Service hỗ trợ giao tiếp sự kiện qua Pub/Sub với hai vai trò:
 
 ---
 
-### 🛡️ RBAC & Tầng kiểm tra
+### 3.1. 📥 Ingestion từ topic `audit.events.v1`
 
-* Việc kiểm tra permission được thực hiện bởi middleware của mỗi service.
-* Mỗi API trong `openapi.yaml` sẽ có trường:
+ALS là **consumer chính thức** của topic Pub/Sub:
 
-```yaml
-x-required-permission: audit.read.logs
 ```
 
+projects/dx-vas/topics/audit.events.v1
+
+```
+
+Các service trong hệ thống sẽ phát các sự kiện hành vi người dùng, bảo mật, truy cập tài nguyên... lên topic này thay vì gọi HTTP API nội bộ.
+
+#### ✅ Định danh sự kiện
+
+Tên sự kiện tuân theo quy ước:
+
+```
+
+vas.<domain>.<event>.v<version>
+
+```
+
+Ví dụ:
+- `vas.auth.login_success.v1`
+- `vas.user.updated.v1`
+- `vas.notification.sent.v1`
+
+#### 📄 Định dạng payload (ví dụ)
+
+```json
+{
+  "event": "vas.user.updated.v1",
+  "tenant_id": "vas-sch-01",
+  "trace_id": "abc-xyz-123",
+  "actor_user_id": "u_456",
+  "target_resource_type": "user",
+  "target_resource_id": "u_123",
+  "action_type": "update",
+  "status": "success",
+  "payload_before": { ... },
+  "payload_after": { ... },
+  "source_service": "user-service",
+  "timestamp": "2025-06-14T12:00:00Z"
+}
+```
+
+#### 🔐 IAM cho subscriber
+
+ALS sử dụng service account:
+
+```
+als@dx-vas.iam.gserviceaccount.com
+```
+
+Cần được cấp quyền `roles/pubsub.subscriber` cho topic `audit.events.v1`. Việc binding IAM phải được cấu hình rõ ràng cho từng môi trường (staging/production).
+> ⚠️ ALS chỉ xử lý event có schema hợp lệ đã đăng ký theo ADR-030
+
 ---
 
-### 🎯 Gợi ý mapping với role
+### 3.2. 📤 Phát sự kiện thứ cấp (optional)
 
-| Role              | Permissions gắn với role               |
-| ----------------- | -------------------------------------- |
-| `school_admin`    | `audit.read.logs`                      |
-| `sys_auditor`     | `audit.read.logs`, `audit.create.logs` |
-| `service_account` | `audit.create.logs.bulk`               |
+⚠️ **Tính năng này đang TẮT mặc định trong production**. Chỉ bật nếu hệ thống downstream cần theo dõi tín hiệu log ghi thành công.
 
-> ⚠️ Các role được định nghĩa tại `user-service/master`, phân phối theo từng tenant.
+Audit Logging Service hỗ trợ phát sự kiện thứ cấp `vas.audit.persisted.v1` khi một bản ghi được lưu vào BigQuery/Firestore.
+
+Mục đích:
+
+* Đồng bộ ETL pipeline
+* Trigger engine phân tích hành vi
+* Hệ thống downstream cần xác nhận việc ghi log hoàn tất
+
+#### ⚙️ Cấu hình bật/tắt
+
+```yaml
+emit_audit_event_enabled: false
+audit_event_topic: vas.audit.persisted.v1
+```
+
+#### 📄 Cấu trúc sự kiện
+
+```json
+{
+  "event": "vas.audit.persisted.v1",
+  "log_id": "log-abc123",
+  "tenant_id": "vas-sch-01",
+  "timestamp": "2025-06-14T12:00:00Z",
+  "source_service": "user-service",
+  "action_type": "delete"
+}
+```
+
+#### 🔒 Lưu ý
+
+* Không có consumer bắt buộc. Chỉ phát khi cấu hình `emit_audit_event_enabled: true`
+* Không đảm bảo delivery — không retry nếu downstream không subscribe đúng
 
 ---
 
-📎 Tham khảo thêm:
+## 4. 📎 Phụ lục
 
-* [Design](./design.md)
-* [Data Model](./data-model.md)
-* [OpenAPI](./openapi.yaml)
-* [`adr-007-rbac.md`](../../ADR/adr-007-rbac.md)
-* [`rbac-deep-dive.md`](../../architecture/rbac-deep-dive.md)
-* [`auth-service/master/design.md`](../auth-service/master/design.md)
+### 4.1. 📎 Các ENUM sử dụng trong Audit Logging Service
 
+| Tên trường         | Giá trị hợp lệ                                  | Mô tả                                                             |
+|--------------------|--------------------------------------------------|-------------------------------------------------------------------|
+| `status`           | `success`, `failure`, `warning`                 | Trạng thái kết quả của hành động ghi log                         |
+| `resource_type`    | `user`, `tenant`, `role`, `permission`, `token`, `report`, `notification`, `config`, `system` | Loại tài nguyên liên quan đến hành động được ghi nhận            |
+| `action_type`      | `create`, `read`, `update`, `delete`, `assign`, `login`, `logout`, `verify`, `exchange`, `send`, `generate` | Hành vi được thực hiện bởi actor                                 |
+| `source_service`   | `user-service`, `auth-service/master`, `auth-service/sub`, `notification-service`, `reporting-service`, `api-gateway`, `admin-webapp`, `external-adapter`, `system-task` | Tên service khởi phát hành động (được dùng trong Pub/Sub & trace) |
+| `log_channel` _(nội bộ)_ | `http`, `pubsub`                          | Kênh ghi nhận log – dùng để phân biệt luồng trigger              |
+
+📌 **Ghi chú**:
+
+* Enum `action_type` được đồng bộ với [ADR-008 – Audit Format](../../ADR/adr-008-audit-logging.md)
+* Enum `source_service` phải khớp với giá trị thực tế `service_name` trong trace & event emitter
+* Các enum này được dùng trong query param, schema Pub/Sub và bảng log
+
+---
+
+### 4.2. 📎 Bảng Permission Code cho Audit Logging Service
+
+| `permission_code`  | Mô tả                                              | API sử dụng                                  | `action` | `resource` | `default_condition`                      |
+|---------------------|----------------------------------------------------|----------------------------------------------|----------|------------|------------------------------------------|
+| `audit.read.log`    | Đọc danh sách hoặc chi tiết log hành vi người dùng | `GET /audit-log`, `GET /audit-log/{id}`      | `read`   | `log`      | `{ "tenant_id": "{{X-Tenant-ID}}" }`     |
+| `audit.write`       | Ghi log (nội bộ, qua HTTP hoặc Pub/Sub)            | `POST /audit-log` (nội bộ), Pub/Sub listener | `create` | `log`      | `internal only, scope-based allowed`     |
+
+---
+
+#### 🎯 Giải thích:
+
+- `audit.read.log`:
+  - Áp dụng cho tất cả hành vi truy vấn log.
+  - Kiểm soát theo tenant hiện tại (`X-Tenant-ID`).
+  - Hệ thống hỗ trợ **masking động** với các trường nhạy cảm như `input_parameters`, `ip_address`, `user_agent` nếu người dùng không có vai trò đủ cao (e.g. không phải `tenant_admin`).
+
+- `audit.write`:
+  - **Không cấp cho người dùng cuối** – chỉ sử dụng nội bộ service → cần xác thực bằng JWT + scope `audit.write`.
+  - Các hệ thống như `user-service`, `auth-service`, `api-gateway` có thể gọi `POST /audit-log` hoặc emit Pub/Sub event khi xảy ra hành vi cần ghi nhận.
+
+---
+
+### 4.3. 📚 Tài liệu liên quan
+
+| Tài liệu | Mô tả |
+|---------|-------|
+| [design.md](./design.md) | Thiết kế tổng thể của Audit Logging Service, bao gồm kiến trúc, mô hình dữ liệu và luồng nghiệp vụ |
+| [data-model.md](./data-model.md) | Định nghĩa chi tiết cấu trúc bảng log, định dạng lưu trữ và masking |
+| [ADR-008 - Audit Format](../../ADR/adr-008-audit-logging.md) | Định dạng schema log chuẩn cho toàn hệ thống |
+| [ADR-030 - Event Schema Governance](../../ADR/adr-030-event-schema-governance.md) | Quy tắc định danh, versioning và quản lý schema sự kiện |
+| [rbac-deep-dive.md](../../architecture/rbac-deep-dive.md) | Phân tích sâu về RBAC, permission `audit.read.log` và masking theo role |
+| [ADR-024 - Data Anonymization & Retention](../../ADR/adr-024-data-anonymization-retention.md) | Chiến lược ẩn danh và xóa dữ liệu nhạy cảm trong log |
+| [ADR-012 - Response Structure](../../ADR/adr-012-response-structure.md) | Định dạng phản hồi chuẩn của toàn hệ thống |
+| [ADR-011 - Error Format](../../ADR/adr-011-api-error-format.md) | Cấu trúc lỗi chuẩn (error envelope) dùng trong tất cả API |

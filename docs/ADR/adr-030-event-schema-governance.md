@@ -11,7 +11,7 @@ tags: [event, schema, pubsub, governance, dx-vas]
 
 ## 1. 📌 Bối cảnh (Context)
 
-Trong kiến trúc DX-VAS, nhiều service quan trọng như User Service, Auth Service, LMS, CRM, SIS sử dụng Pub/Sub để phát các sự kiện (events) phục vụ cho tính năng realtime hoặc tích hợp xuống các hệ thống phân tích. 
+Trong kiến trúc DX-VAS, nhiều service quan trọng như User Service, Auth Service, SMS sử dụng Pub/Sub để phát các sự kiện (events) phục vụ cho tính năng realtime hoặc tích hợp xuống các hệ thống phân tích. 
 
 Tuy nhiên, hệ thống hiện chưa có một cơ chế quản lý schema sự kiện rõ ràng, dẫn đến nguy cơ:
 - Thay đổi field trong sự kiện gây lỗi ngầm ở các consumer.
@@ -28,6 +28,8 @@ Chúng tôi quyết định chuẩn hóa chiến lược quản lý schema sự 
 - Mỗi sự kiện có một **schema định nghĩa chuẩn** (JSON Schema hoặc Protobuf).
 - Mỗi sự kiện mang theo thông tin version rõ ràng (vd: `vas.user.created.v1`)
 - Tất cả schema được lưu trữ và công bố trong một **event registry trung tâm**.
+- Các service có thể phát **sự kiện thứ cấp** (vd: `vas.audit.persisted.v1`) để phục vụ hệ thống downstream như ETL pipeline, AI analytics hoặc alerting system. 
+- Các schema này vẫn phải đăng ký & quản lý như các schema thông thường.
 
 ---
 
@@ -46,6 +48,11 @@ Ví dụ:
 - `vas.auth.login_success.v1`
 - `vas.user.created.v2`
 - `vas.lms.lesson_completed.v1`
+
+- Tên sự kiện có thể phản ánh mục đích nội bộ hoặc downstream như:
+  - `vas.audit.persisted.v1` (được phát bởi Audit Logging Service)
+  - `vas.report.generated.v1` (do Reporting Service phát sau khi sinh xong báo cáo)
+- Những sự kiện này gọi là **sự kiện thứ cấp (secondary events)** – không bắt buộc, nhưng hữu ích cho tích hợp phân tích/AI/logging.
 
 ### 3.2. Quy ước schema
 
@@ -70,6 +77,7 @@ Ví dụ:
   - Producer chính
   - Consumer hiện tại hoặc tiềm năng (nếu biết)
   - Trạng thái: `active`, `deprecated`, `draft`, ...
+  - Phân loại: `primary` (người dùng gây ra) / `secondary` (nội bộ hệ thống tạo ra để tracking hoặc downstream)
 
 - (Tương lai) Có thể cân nhắc sử dụng một **Schema Registry chuyên dụng** như Google Schema Registry, Confluent Schema Registry hoặc dịch vụ tùy biến để quản lý tốt hơn khi số lượng schema lớn.
 
@@ -84,6 +92,28 @@ Ví dụ:
 1. Thêm schema mới → PR vào `/event-schemas/`
 2. Reviewer kiểm tra backward-compatibility
 3. Merge → cập nhật README registry + gắn version
+4. Với sự kiện thứ cấp (`*.persisted.v1`, `*.failed.v1`), cần mô tả rõ trigger và giá trị phân tích để tránh lạm dụng phát tán.
+
+### 3.6. 📦 Ví dụ bổ sung schema `audit_log_persisted.v1` (đặt tại `/event-schemas/audit.persisted.v1.schema.json`)
+
+> Sẽ do ALS phát sau khi ghi log thành công.
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AuditLogPersisted",
+  "type": "object",
+  "properties": {
+    "event": { "type": "string", "enum": ["vas.audit.persisted.v1"] },
+    "log_id": { "type": "string", "description": "ID của log trong BigQuery hoặc Firestore" },
+    "tenant_id": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "source_service": { "type": "string" },
+    "action_type": { "type": "string" }
+  },
+  "required": ["event", "log_id", "tenant_id", "timestamp", "source_service", "action_type"]
+}
+```
 
 ---
 
