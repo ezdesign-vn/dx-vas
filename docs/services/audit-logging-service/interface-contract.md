@@ -304,7 +304,8 @@ als@dx-vas.iam.gserviceaccount.com
 ```
 
 Cần được cấp quyền `roles/pubsub.subscriber` cho topic `audit.events.v1`. Việc binding IAM phải được cấu hình rõ ràng cho từng môi trường (staging/production).
-> ⚠️ ALS chỉ xử lý event có schema hợp lệ đã đăng ký theo ADR-030
+> - ⚠️ ALS chỉ xử lý event có schema hợp lệ đã đăng ký theo ADR-030
+> - ⚠️ Không cấp cho user-facing client
 
 ---
 
