@@ -144,12 +144,12 @@ Lưu trữ toàn bộ hành vi người dùng hoặc hệ thống có tác độ
 
 | Trường | Kiểu dữ liệu | Mô tả |
 |--------|--------------|-------|
-| `log_id` | `STRING` | ID duy nhất của bản ghi (UUID v4) |
+| `id` | `STRING` | ID duy nhất của bản ghi (UUID v4) |
 | `tenant_id` | `STRING` | Tenant nơi hành động xảy ra |
 | `actor_user_id` | `STRING` | ID người thực hiện hành động (có thể là system hoặc service) |
-| `target_resource_type` | `STRING` | Loại đối tượng bị tác động (e.g. `user`, `template`, `config`) |
-| `target_resource_id` | `STRING` | ID đối tượng bị tác động |
-| `action_type` | `STRING` | Loại hành động (`create`, `update`, `delete`, `login`, etc.) |
+| `resource_type` | `STRING` | Loại đối tượng bị tác động (e.g. `user`, `template`, `config`) |
+| `resource_id` | `STRING` | ID đối tượng bị tác động |
+| `action` | `STRING` | Loại hành động (`create`, `update`, `delete`, `login`, etc.) |
 | `action_scope` | `STRING` | Phạm vi hành động (`global`, `tenant`, `internal`) |
 | `timestamp` | `TIMESTAMP` | Thời điểm xảy ra hành động (UTC) |
 | `trace_id` | `STRING` | Mã trace toàn cục để liên kết log giữa các service |
@@ -190,7 +190,7 @@ Tuân thủ `ADR-024 - Data Anonymization & Retention`:
 | Use case | Field filter |
 |----------|--------------|
 | Truy vết hành động của người dùng | `actor_user_id`, `tenant_id`, `timestamp` |
-| Kiểm tra thay đổi config hệ thống | `target_resource_type = 'config'` |
+| Kiểm tra thay đổi config hệ thống | `resource_type = 'config'` |
 | Xem toàn bộ hành động từ một service | `source_service`, `trace_id` |
 | Truy xuất theo trace cho incident | `trace_id` |
 
@@ -342,9 +342,9 @@ ALS là **consumer chính** của topic `audit.events.v1` trên Pub/Sub.
   "tenant_id": "t_1234",
   "trace_id": "abc-xyz",
   "actor_user_id": "u_789",
-  "target_resource_type": "user",
-  "target_resource_id": "u_456",
-  "action_type": "update",
+  "resource_type": "user",
+  "resource_id": "u_456",
+  "action": "update",
   "payload_before": {...},
   "payload_after": {...},
   ...
@@ -386,11 +386,11 @@ Việc phát sự kiện không ảnh hưởng luồng xử lý chính, không y
 ```json
 {
   "event": "vas.audit.persisted.v1",
-  "log_id": "log_abc123",
+  "id": "log_abc123",
   "tenant_id": "vas-sch-01",
   "timestamp": "2025-06-14T08:00:00Z",
   "source_service": "user-service",
-  "action_type": "delete"
+  "action": "delete"
 }
 ```
 
@@ -606,7 +606,7 @@ Audit Logging Service (ALS) là thành phần trọng yếu về bảo mật và
 
 - Toàn bộ log hệ thống và ứng dụng đều được ghi ở định dạng **structured JSON**.
 - Các trường bắt buộc trong mỗi dòng log:
-  - `timestamp`, `trace_id`, `tenant_id`, `actor_user_id`, `action_type`, `status`, `duration_ms`
+  - `timestamp`, `trace_id`, `tenant_id`, `actor_user_id`, `action`, `status`, `duration_ms`
 - Các tình huống log:
   - Log tiếp nhận thành công sự kiện audit
   - Log từ chối do vi phạm RBAC hoặc thiếu JWT
@@ -677,14 +677,14 @@ Audit Logging Service (ALS) được thiết kế với mục tiêu **không đ�
 | Pub/Sub Consumer | Sử dụng ack deadline mở rộng, và chỉ ack khi ghi log thành công. Nếu thất bại → tự động redeliver sau 10s |
 | Emit sự kiện `audit_log_persisted.v1` | Gửi lại nếu thất bại tạm thời, log warning nếu fail vĩnh viễn |
 
-> ✅ Đảm bảo không mất log do lỗi tạm thời và không double-count nhờ `log_id` duy nhất.
+> ✅ Đảm bảo không mất log do lỗi tạm thời và không double-count nhờ `id` duy nhất.
 
 ---
 
 ### 10.2. 🧾 Bảo vệ idempotency (chống log trùng)
 
-- Mỗi log mang `log_id` duy nhất (UUID v4 hoặc hash(trace_id + action))
-- Khi ghi xuống BigQuery/Firestore, ALS kiểm tra tồn tại `log_id` trước khi ghi
+- Mỗi log mang `id` duy nhất (UUID v4 hoặc hash(trace_id + action))
+- Khi ghi xuống BigQuery/Firestore, ALS kiểm tra tồn tại `id` trước khi ghi
 - Cơ chế này đảm bảo:
   - Tránh trùng log do retry
   - Cho phép các client `at-least-once` mà không ảnh hưởng tới tính toàn vẹn dữ liệu

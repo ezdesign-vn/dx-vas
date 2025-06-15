@@ -284,9 +284,9 @@ Ví dụ:
   "tenant_id": "vas-sch-01",
   "trace_id": "abc-xyz-123",
   "actor_user_id": "u_456",
-  "target_resource_type": "user",
-  "target_resource_id": "u_123",
-  "action_type": "update",
+  "resource_type": "user",
+  "resource_id": "u_123",
+  "action": "update",
   "status": "success",
   "payload_before": { ... },
   "payload_after": { ... },
@@ -333,11 +333,11 @@ audit_event_topic: vas.audit.persisted.v1
 ```json
 {
   "event": "vas.audit.persisted.v1",
-  "log_id": "log-abc123",
+  "id": "log-abc123",
   "tenant_id": "vas-sch-01",
   "timestamp": "2025-06-14T12:00:00Z",
   "source_service": "user-service",
-  "action_type": "delete"
+  "action": "delete"
 }
 ```
 
@@ -356,13 +356,13 @@ audit_event_topic: vas.audit.persisted.v1
 |--------------------|--------------------------------------------------|-------------------------------------------------------------------|
 | `status`           | `success`, `failure`, `warning`                 | Trạng thái kết quả của hành động ghi log                         |
 | `resource_type`    | `user`, `tenant`, `role`, `permission`, `token`, `report`, `notification`, `config`, `system` | Loại tài nguyên liên quan đến hành động được ghi nhận            |
-| `action_type`      | `create`, `read`, `update`, `delete`, `assign`, `login`, `logout`, `verify`, `exchange`, `send`, `generate` | Hành vi được thực hiện bởi actor                                 |
+| `action`      | `create`, `read`, `update`, `delete`, `assign`, `login`, `logout`, `verify`, `exchange`, `send`, `generate` | Hành vi được thực hiện bởi actor                                 |
 | `source_service`   | `user-service`, `auth-service/master`, `auth-service/sub`, `notification-service`, `reporting-service`, `api-gateway`, `admin-webapp`, `external-adapter`, `system-task` | Tên service khởi phát hành động (được dùng trong Pub/Sub & trace) |
 | `log_channel` _(nội bộ)_ | `http`, `pubsub`                          | Kênh ghi nhận log – dùng để phân biệt luồng trigger              |
 
 📌 **Ghi chú**:
 
-* Enum `action_type` được đồng bộ với [ADR-008 – Audit Format](../../ADR/adr-008-audit-logging.md)
+* Enum `action` được đồng bộ với [ADR-008 – Audit Format](../../ADR/adr-008-audit-logging.md)
 * Enum `source_service` phải khớp với giá trị thực tế `service_name` trong trace & event emitter
 * Các enum này được dùng trong query param, schema Pub/Sub và bảng log
 

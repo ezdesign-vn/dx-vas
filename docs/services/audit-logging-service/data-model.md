@@ -1,589 +1,697 @@
 ---
 title: "Audit Logging Service - Data Model"
-version: "1.0"
-last_updated: "2025-06-07"
+version: "2.0"
+last_updated: "2025-06-14"
 author: "DX VAS Team"
 reviewed_by: "Stephen Le"
 ---
 
 # 🗃️ Audit Logging Service - Data Model
 
-Tài liệu này mô tả chi tiết mô hình dữ liệu của **Audit Logging Service**, một thành phần **cốt lõi** trong hệ thống `dx-vas`, theo kiến trúc **event-driven, multi-tenant, AI-ready**. Service này đảm nhận lưu trữ các hành vi nghiệp vụ (audit logs) để phục vụ kiểm tra, điều tra sự cố, theo dõi hành vi hệ thống, và tuân thủ chính sách bảo mật (ADR-004, ADR-008).
+Tài liệu này mô tả chi tiết mô hình dữ liệu của **Audit Logging Service** – một service **cốt lõi** trong hệ thống `dx-vas`, hoạt động theo kiến trúc **event-driven + REST hybrid**, đa tenant.
 
-Audit Logging Service chịu trách nhiệm quản lý:
-- Lưu trữ các bản ghi nhật ký hành vi (bảng `audit_logs`)
-- Đảm bảo tính toàn vẹn dữ liệu log (append-only, immutable)
-- Tra cứu log theo thời gian, actor, hành động, module
-- Hỗ trợ dashboard kiểm tra truy vết sự kiện người dùng/actor
+**Audit Logging Service** chịu trách nhiệm quản lý các loại dữ liệu chính sau:
+- Bản ghi hành vi người dùng (`audit_logs`)
+- Sự kiện đã xử lý (`processed_events`) – phục vụ kiểm soát idempotency
+- Các bảng ENUM mở rộng (trạng thái, loại tài nguyên, v.v.)
 
 ---
 
 ## 1. Phạm vi Dữ liệu Quản lý (Scope)
 
-Audit Logging Service bao gồm:
-- Ghi nhận hành vi người dùng liên quan đến dữ liệu (CRUD)
-- Ghi nhận thao tác hệ thống có ảnh hưởng đến trạng thái dịch vụ
-- Ghi nhận chi tiết context: actor, ip, device, source, thời gian
-- Cho phép truy vấn audit log theo nhiều chiều (actor, module, action...)
+Audit Logging Service bao gồm việc quản lý:
+- Bản ghi hành vi người dùng hoặc hệ thống từ các nguồn event hoặc HTTP nội bộ
+- Metadata liên quan như `trace_id`, `actor_user_id`, `resource_type`, `action`, `input_parameters`
+- Các bảng phụ để hỗ trợ lưu dấu `event_id` đã xử lý (Pub/Sub)
+- Masking dữ liệu đầu vào theo quyền hạn
 
 ---
 
 ## 2. Ngoài Phạm Vi (Out of Scope)
 
-Audit Logging Service **không** chịu trách nhiệm:
-- ❌ Quản lý user/permission (thuộc `user-service`)
-- ❌ Ghi nhận log hệ thống hạ tầng (thuộc observability stack)
-- ❌ Ghi nhận metrics (thuộc Grafana/Prometheus)
+Audit Logging Service **không** chịu trách nhiệm quản lý:
+- ❌ Log hệ thống ứng dụng (debug/error logs)
+- ❌ Quản lý người dùng, vai trò (user/role/permission)
+- ❌ Trực tiếp alerting (chỉ phục vụ observability downstream)
+- ❌ Phân tích dữ liệu (do hệ thống downstream xử lý)
 
 ---
 
 ## 3. Mục tiêu của Tài liệu Mô hình Dữ liệu
 
-- Làm rõ cấu trúc bảng `audit_logs`, chuẩn hóa cách lưu trữ log.
-- Định nghĩa đầy đủ các trường, enum, chỉ mục phục vụ truy vấn hiệu quả.
-- Hỗ trợ quy trình review schema, migration, và quản lý lifecycle.
-- Tuân thủ các ADR liên quan như:
-  - [ADR-008 - Audit Logging](../../ADR/adr-008-audit-logging.md)
-  - [ADR-023 - Schema Migration Strategy](../../ADR/adr-023-schema-migration-strategy.md)
-  - [ADR-024 - Data Anonymization & Retention](../../ADR/adr-024-data-anonymization-retention.md)
-  - [ADR-026 - Hard Delete Policy](../../ADR/adr-026-hard-delete-policy.md)
+- Trình bày cấu trúc các bảng dữ liệu cốt lõi (`audit_logs`, `processed_events`)
+- Mô tả khóa chính/phụ, chỉ mục, ENUM
+- Tuân thủ các nguyên tắc và ràng buộc đã được định nghĩa trong các ADR liên quan:
+  - RBAC: [ADR-007](../../ADR/adr-007-rbac.md)
+  - Retention & anonymization: [ADR-024](../../ADR/adr-024-data-anonymization-retention.md)
+  - Chính sách không xóa vật lý: [ADR-026](../../ADR/adr-026-hard-delete-policy.md)
+  - Quản lý schema sự kiện: [ADR-030](../../ADR/adr-030-event-schema-governance.md)
+- Cung cấp cơ sở dữ liệu cho việc thiết kế OpenAPI, cấu hình migration, auditing, observability, và tracing
+- Phục vụ kiểm thử dữ liệu và tracing
 
 ---
 
-## 4. Sơ đồ ERD (Entity Relationship Diagram)
+## 4. Sơ đồ ERD
 
-**Sơ đồ sơ bộ**
+### 4.1. Sơ đồ tổng thể
+
 ```mermaid
 erDiagram
   audit_logs {
     UUID id PK
-    UUID tenant_id
-    TEXT module
+    TEXT tenant_id
+    TEXT trace_id
+    TEXT actor_user_id
     TEXT action
-    UUID actor_id
-    TEXT actor_type
-    TEXT actor_email
-    TEXT actor_ip
-    TEXT target_id
-    TEXT target_type
-    JSONB context
-    TEXT source
-    TIMESTAMPTZ created_at
-  }
-```
-
-**Sơ đồ chi tiết**
-
-Sơ đồ dưới đây mô tả cấu trúc bảng chính của `audit-logging-service` và các mối quan hệ phụ trợ định hướng mở rộng trong tương lai.
-```mermaid
-erDiagram
-  audit_logs {
-    UUID id PK
-    UUID tenant_id FK
-    TEXT module
-    TEXT action
-    UUID actor_id
-    TEXT actor_type
-    TEXT actor_email
-    TEXT actor_ip
-    TEXT target_id
-    TEXT target_type
-    JSONB context
-    TEXT source
+    TEXT source_service
+    TEXT resource_id
+    TEXT resource_type
+    TEXT status
+    JSONB input_parameters
+    TEXT ip_address
+    TEXT user_agent
     TIMESTAMPTZ created_at
   }
 
-  tenants {
-    UUID id PK
-    TEXT name
+  processed_events {
+    UUID event_id PK
+    TEXT consumer_group_name
+    TIMESTAMPTZ processed_at
   }
-
-  audit_logs ||--|| tenants : belongs_to
 ```
 
 ---
 
-### 🔎 Giải thích chi tiết
+### 4.2. Ghi chú mô hình
 
-* **`audit_logs`** là bảng trung tâm chứa các bản ghi hành vi.
-* **`tenants`**: Bảng quản lý thông tin tenant (dữ liệu phân vùng theo tenant ID).
-* Mối quan hệ **`audit_logs.tenant_id → tenants.id`** thể hiện mọi log đều thuộc về một tenant cụ thể (multi-tenant aware).
+#### 🔹 `audit_logs`
 
----
+* Là bảng chính của hệ thống, chứa toàn bộ bản ghi hành vi người dùng và hệ thống.
+* Dữ liệu được ghi nhận qua hai nguồn:
 
-### 🎯 Ghi chú mở rộng (nếu cần về sau)
+  * API nội bộ (`POST /audit-log`)
+  * Consumer Pub/Sub (`audit.events.v1`)
+* Dữ liệu được **partition theo `created_at`**, phục vụ mục đích retention (xem ADR-024).
+* Trường `input_parameters`, `ip_address`, `user_agent` có thể được **mask động** theo role.
 
-* Có thể mở rộng thêm bảng:
+#### 🔹 `processed_events`
 
-  * `enum_actor_types`, `enum_action_types`, `enum_target_types`: dùng để mapping ra label cho UI.
-  * `actor_lookup`: mapping `actor_id` sang display name/avatar/email từ User Service.
-* Có thể normalize `context` (hiện lưu JSONB) nếu cần phân tích sâu (data warehouse).
-
----
-
-### 📌 Mục tiêu của ERD
-
-* Hỗ trợ các team frontend/backend/BI hiểu mối quan hệ dữ liệu
-* Làm cơ sở cho việc thiết kế query, index, báo cáo
-* Chuẩn hóa cho việc migrate dữ liệu và phát hiện inconsistency
+* Dùng để ghi nhận các sự kiện đã xử lý từ Pub/Sub, giúp đảm bảo **idempotency** và tránh ghi log trùng.
+* `event_id` là UUID duy nhất phát sinh bởi producer, lấy từ metadata của event schema (tuân theo ADR-030).
+* `consumer_group_name` là tên nhóm consumer định danh cho từng instance hoặc môi trường.
+* Không có quan hệ khóa ngoại vật lý đến `audit_logs` do mỗi event có thể ghi nhiều log hoặc không ghi gì (bị reject do validate schema sai).
 
 ---
 
-## 5. 📌 Bảng `audit_logs`
+### 4.3. Tương quan thực tế với hệ thống
 
-Bảng `audit_logs` là thành phần trung tâm của Audit Logging Service. Đây là nơi **ghi nhận toàn bộ hành vi nghiệp vụ** xảy ra trong hệ thống, phục vụ cho các nhu cầu:
-
-- Truy vết hoạt động người dùng
-- Đảm bảo tuân thủ quy định nội bộ (compliance)
-- Điều tra sự cố bảo mật
-- Phân tích hành vi người dùng phục vụ cải tiến sản phẩm
-
----
-
-### 🧾 Mục đích
-
-- Ghi **immutable log** (không chỉnh sửa/xoá) mọi hành vi liên quan tới dữ liệu, cấu hình, quyền, truy cập.
-- Lưu metadata phong phú để hỗ trợ việc phân tích & tìm kiếm.
-- Dễ dàng mở rộng để hỗ trợ dashboard hoặc hệ thống phân tích BI.
+| Thành phần           | Vai trò liên quan đến dữ liệu                                     |
+| -------------------- | ----------------------------------------------------------------- |
+| API Gateway          | Gửi log HTTP qua `POST /audit-log`, tạo `audit_logs`              |
+| Pub/Sub Consumer     | Ghi log từ event → `audit_logs`, đồng thời ghi `processed_events` |
+| BigQuery             | Hệ quản trị lưu trữ chính, dùng cho truy vấn và phân tích         |
+| Firestore (optional) | Lưu log tạm thời, phục vụ các dashboard nhỏ hoặc backup           |
+| Admin WebApp         | Truy vấn dữ liệu từ bảng `audit_logs` qua API                     |
+| Reporting Service    | Đọc `audit_logs` theo `trace_id` để sinh báo cáo bảo mật          |
 
 ---
 
-### 🧱 Cấu trúc bảng
+📌 **Lưu ý:** Nếu trong tương lai triển khai tính năng phát sự kiện thứ cấp (`vas.audit.persisted.v1`), log ID từ `audit_logs` sẽ là thành phần chính của payload, nhưng không tạo ràng buộc khóa ngoại vật lý.
+
+---
+
+## 5. Chi tiết Từng Bảng
+
+### 5.1. 📌 Bảng: `audit_logs`
+
+#### 🧾 Mục đích
+
+Lưu trữ các hành vi (audit log) phát sinh từ người dùng hoặc hệ thống nhằm phục vụ các mục tiêu:
+
+- Truy vết hoạt động người dùng & hệ thống
+- Phục vụ kiểm toán nội bộ và bên ngoài
+- Kết nối với báo cáo bảo mật, cảnh báo hành vi bất thường
+- Hỗ trợ hệ thống quan sát (observability), thống kê và AI phân tích
+
+Bảng này là trung tâm của **Audit Logging Service**, tiếp nhận dữ liệu từ 2 nguồn:
+
+- HTTP API (`POST /audit-log`)
+- Consumer Pub/Sub (`audit.events.v1`)
+
+---
+
+#### 🧬 Cấu trúc SQL
 
 ```sql
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY,
-    tenant_id UUID NOT NULL,
-    module TEXT NOT NULL,
+    tenant_id TEXT NOT NULL,
+    trace_id TEXT,
+    actor_user_id TEXT,
     action TEXT NOT NULL,
-    actor_id UUID,
-    actor_type TEXT,
-    actor_email TEXT,
-    actor_ip TEXT,
-    target_id TEXT,
-    target_type TEXT,
-    context JSONB,
-    source TEXT,
+    source_service TEXT NOT NULL,
+    resource_id TEXT NOT NULL,
+    resource_type TEXT NOT NULL,
+    status TEXT CHECK (status IN ('success', 'failure', 'warning')) NOT NULL,
+    input_parameters JSONB,
+    ip_address TEXT,
+    user_agent TEXT,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 ```
 
 ---
 
-### 📋 Giải thích cột chi tiết
+#### 📋 Giải thích các cột
 
-| Cột           | Kiểu DL     | Ràng buộc | Mô tả                                                                       |
-| ------------- | ----------- | --------- | --------------------------------------------------------------------------- |
-| `id`          | UUID        | PK        | ID duy nhất cho bản ghi log (được tạo bằng UUIDv4)                          |
-| `tenant_id`   | UUID        | NOT NULL  | Xác định tenant đang thực hiện hành động                                    |
-| `module`      | TEXT        | NOT NULL  | Module trong hệ thống phát sinh hành vi (`auth`, `user`, `notification`...) |
-| `action`      | TEXT        | NOT NULL  | Hành vi xảy ra (`CREATE`, `DELETE`, `LOGIN`, `ASSIGN_ROLE`, ...)            |
-| `actor_id`    | UUID        | nullable  | ID của người/systems/service thực hiện hành động                            |
-| `actor_type`  | TEXT        | nullable  | `user`, `system`, `parent`, `service_account`, ...                          |
-| `actor_email` | TEXT        | nullable  | Email/identifier khác giúp phân giải `actor_id`                             |
-| `actor_ip`    | TEXT        | nullable  | IP address nơi hành vi được thực hiện                                       |
-| `target_id`   | TEXT        | nullable  | ID của đối tượng bị tác động (ví dụ: `user-xyz`)                            |
-| `target_type` | TEXT        | nullable  | Loại đối tượng bị tác động (`USER`, `CLASS`, `TEMPLATE`, ...)               |
-| `context`     | JSONB       | nullable  | Metadata mở rộng của hành vi (ví dụ: giá trị cũ/mới, lý do...)              |
-| `source`      | TEXT        | nullable  | Nguồn thực hiện hành vi (`WebApp`, `Admin`, `Script`, `API Gateway`, ...)   |
-| `created_at`  | TIMESTAMPTZ | NOT NULL  | Thời điểm log được ghi nhận, mặc định là `now()`                            |
-
----
-
-### 🛡️ Các đặc điểm thiết kế chính
-
-| Đặc điểm                 | Mục tiêu                                               |
-| ------------------------ | ------------------------------------------------------ |
-| **Immutable**            | Không sửa/xoá log sau khi ghi                          |
-| **Append-only**          | Chỉ ghi thêm, hỗ trợ phát hiện hành vi bất thường      |
-| **Tối ưu truy vấn**      | Có các index cho `tenant_id`, `actor_id`, `created_at` |
-| **Mô hình flexible**     | Sử dụng JSONB để linh hoạt mở rộng `context`           |
-| **An toàn multi-tenant** | Có phân vùng logic theo `tenant_id`                    |
-| **Ready for BI**         | Có thể xuất log sang BigQuery nếu cần                  |
+| Cột                | Kiểu dữ liệu | Ràng buộc     | Mô tả                                                   |
+| ------------------ | ------------ | ------------- | ------------------------------------------------------- |
+| `id`               | UUID         | PRIMARY KEY   | Mã định danh duy nhất cho bản ghi log                   |
+| `tenant_id`        | TEXT         | NOT NULL      | Tenant tạo ra hành vi (RBAC được kiểm theo trường này)  |
+| `trace_id`         | TEXT         |               | ID truy vết toàn hệ thống (có thể trùng giữa nhiều log) |
+| `actor_user_id`    | TEXT         |               | User ID gây ra hành vi (nếu có)                         |
+| `action`           | TEXT         | NOT NULL      | Mã hành động (e.g. `user.login.success`)                |
+| `source_service`   | TEXT         | NOT NULL      | Tên service phát sinh hành động (e.g. `user-service`, `auth-service`) |
+| `resource_id`      | TEXT         | NOT NULL      | ID đối tượng bị tác động (e.g. `u_123`, `t_123`)        |
+| `resource_type`    | TEXT         | NOT NULL      | Loại đối tượng bị tác động (e.g. `user`, `tenant`)      |
+| `status`           | TEXT         | CHECK ENUM    | Trạng thái kết quả (`success`, `failure`, `warning`)    |
+| `input_parameters` | JSONB        |               | Payload ban đầu, có thể bị mask theo role               |
+| `ip_address`       | TEXT         |               | IP của actor (nếu có)                                   |
+| `user_agent`       | TEXT         |               | User Agent của actor                                    |
+| `created_at`       | TIMESTAMPTZ  | DEFAULT now() | Thời điểm ghi nhận hành vi                              |
 
 ---
 
-### 📌 Ví dụ context (JSONB)
+#### 🔐 Masking động theo quyền truy cập
+
+Các trường sau có thể bị **ẩn đi** tùy theo vai trò người xem (`RBAC + masking`):
+
+* `input_parameters`
+* `ip_address`
+* `user_agent`
+
+Chi tiết về masking được mô tả trong `design.md > #6 Bảo mật`.
+
+---
+
+#### 🔁 Luồng dữ liệu ghi log
+
+```text
+HTTP /audit-log
+      └──> Validate + Mask
+            └──> INSERT INTO audit_logs
+
+Pub/Sub Consumer
+      └──> Validate + Mask
+            └──> INSERT INTO audit_logs
+```
+
+---
+
+#### 🧪 Gợi ý kiểm thử
+
+| Tình huống                                | Kết quả mong đợi                               |
+| ----------------------------------------- | ---------------------------------------------- |
+| Ghi log từ HTTP                           | Log lưu đúng tenant, đúng actor                |
+| Ghi log từ Pub/Sub                        | Có bản ghi log, status hợp lệ                  |
+| User không có quyền cao → xem log bị mask | `input_parameters` trả về `"masked"`           |
+| Dữ liệu thiếu field bắt buộc              | Bị reject trước khi insert                     |
+| Ghi log nhiều tenant khác nhau            | Partition đúng `tenant_id`, truy vấn tách biệt |
+| Truy vấn `trace_id` → nhiều log liên quan | OK, hỗ trợ truy xuất trace full flow           |
+
+---
+
+#### 🧠 Ghi chú đặc biệt
+
+* Không nên đặt FK tới `users`, `tenants`, `roles` → tránh coupling schema chặt.
+* Nên có **policy partition theo `created_at`** (BigQuery / Postgres partition by time).
+* Có thể thêm cột `source` nếu cần phân biệt log từ `http`, `pubsub`, `batch`, v.v.
+
+---
+
+#### 📊 Đề xuất Index
+
+```sql
+CREATE INDEX idx_audit_logs_trace_id ON audit_logs(trace_id);
+CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at DESC);
+CREATE INDEX idx_audit_logs_actor ON audit_logs(actor_user_id);
+```
+
+---
+
+📌 Đây là bảng duy nhất được expose qua `GET /audit-log`, `GET /audit-log/{id}` trong OpenAPI.
+
+---
+
+### 5.2. 📌 Bảng: `processed_events`
+
+#### 🧾 Mục đích
+
+Ghi nhận **danh sách các sự kiện đã xử lý** từ Pub/Sub nhằm:
+
+- Đảm bảo **idempotency**: một sự kiện chỉ được xử lý đúng một lần.
+- Giúp **debug** luồng xử lý event: biết event nào đã được xử lý, event nào chưa.
+- Phục vụ audit nội bộ và phân tích downtime/retry khi cần.
+
+#### 🧬 Cấu trúc
+
+```sql
+CREATE TABLE processed_events (
+    event_id UUID PRIMARY KEY,
+    consumer_group_name TEXT NOT NULL,
+    processed_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+```
+
+#### 🧾 Mô tả các cột
+
+| Cột                   | Kiểu dữ liệu | Ràng buộc     | Mô tả                                                                 |
+| --------------------- | ------------ | ------------- | --------------------------------------------------------------------- |
+| `event_id`            | UUID         | PRIMARY KEY   | ID sự kiện nhận từ metadata (`event_metadata.event_id`)               |
+| `consumer_group_name` | TEXT         | NOT NULL      | Tên consumer (theo service + env) giúp phân biệt source               |
+| `processed_at`        | TIMESTAMPTZ  | DEFAULT now() | Thời điểm ALS xử lý thành công sự kiện (ghi log hoặc bỏ qua có lý do) |
+
+#### 🔐 Chính sách bảo mật & xóa
+
+* Bảng chỉ ghi – không có API public, không expose qua REST.
+* Truy cập chỉ dành cho **internal operator** hoặc background task.
+* Dữ liệu có thể bị xoá theo retention 90 ngày, hoặc xoá thủ công nếu `event_id` không còn dùng để đối chiếu trace.
+
+#### 🔁 Luồng hoạt động
+
+```text
+Pub/Sub → Consumer → Validate → Ghi log vào `audit_logs` → Ghi event_id vào `processed_events`
+```
+
+#### 🧪 Gợi ý kiểm thử
+
+| Tình huống                                     | Kết quả mong đợi                                                             |
+| ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| Consumer xử lý event hợp lệ                    | Có bản ghi `event_id` trong bảng                                             |
+| Consumer xử lý lại cùng `event_id` (duplicate) | Bị bỏ qua – idempotent, không xử lý lại                                      |
+| Gửi sự kiện giả `event_id` nhưng schema sai    | Không tạo `processed_events`, log lỗi nội bộ                                 |
+| Bảng không có index                            | Truy vấn chậm – nên có index ở `processed_at` (nếu phân tích theo thời gian) |
+
+#### ⚙️ Đề xuất Index
+
+```sql
+CREATE INDEX idx_processed_events_time ON processed_events(processed_at DESC);
+```
+
+#### 📎 Ghi chú đặc biệt
+
+* Không có quan hệ FK với `audit_logs` vì một sự kiện có thể:
+
+  * Không tạo log (do bị reject hoặc chỉ ping)
+  * Tạo nhiều log cùng lúc (vd: batch import)
+* Phần `consumer_group_name` nên chuẩn hóa theo format:
+
+```text
+als-sub.<env>.<region>
+```
+
+Ví dụ: `als-sub.prod.ap-southeast1`
+
+---
+
+## 6. Indexes & Constraints
+
+Các chỉ mục (indexes) và ràng buộc (constraints) đóng vai trò then chốt trong việc đảm bảo:
+
+- Tốc độ truy vấn nhanh chóng theo nhiều chiều (`trace_id`, `actor_user_id`, `tenant_id`, `created_at`)
+- Tính toàn vẹn dữ liệu
+- Hạn chế trùng lặp hoặc sai định dạng
+
+---
+
+### 6.1. Bảng: `audit_logs`
+
+#### 🔎 Các chỉ mục chính (Indexes)
+
+| Index Name                        | Cột                  | Mục đích chính                                |
+|----------------------------------|-----------------------|-----------------------------------------------|
+| `idx_audit_logs_trace_id`        | `trace_id`            | Truy vết theo luồng tương tác                |
+| `idx_audit_logs_created_at`      | `created_at DESC`     | Truy vấn thời gian gần nhất (phân trang)     |
+| `idx_audit_logs_actor_user_id`   | `actor_user_id`       | Truy xuất log theo người dùng cụ thể         |
+| `idx_audit_logs_tenant_id`       | `tenant_id`           | Phân lập dữ liệu theo tenant (RBAC filter)   |
+| `idx_audit_logs_action_resource` | `(action, resource_type)` | Truy vấn theo loại hành vi và đối tượng |
+
+> 💡 Nếu sử dụng BigQuery: nên phân vùng (`partition`) theo `DATE(created_at)` và tạo `cluster` theo `tenant_id, trace_id`.
+
+#### 🛡️ Ràng buộc dữ liệu (Constraints)
+
+| Tên Constraint                | Cột / Kiểu         | Ý nghĩa                                                 |
+|------------------------------|--------------------|----------------------------------------------------------|
+| `pk_audit_logs`              | `id` (PK)          | Mỗi bản ghi log là duy nhất                              |
+| `ck_audit_logs_status_enum`  | `status`           | Chỉ cho phép: `success`, `failure`, `warning`            |
+| `nn_audit_logs_tenant_id`    | `tenant_id`        | Bắt buộc có tenant                                       |
+| `nn_audit_logs_action`  | `action`      | Bắt buộc ghi rõ hành động                                |
+| `nn_audit_logs_resource_type`| `resource_type`     | Bắt buộc có loại đối tượng liên quan                     |
+| `df_created_at_now`          | `created_at`       | Mặc định là `now()` nếu không được truyền từ producer    |
+
+---
+
+### 6.2. Bảng: `processed_events`
+
+#### 🔎 Index
+
+| Index Name                        | Cột               | Mục đích                                 |
+|----------------------------------|-------------------|------------------------------------------|
+| `idx_processed_events_time`      | `processed_at DESC` | Truy vấn sự kiện mới nhất                |
+| *(PK mặc định)*                  | `event_id`        | Đảm bảo duy nhất – hỗ trợ idempotency    |
+
+#### 🛡️ Ràng buộc
+
+| Tên Constraint                 | Cột / Kiểu        | Ý nghĩa                                    |
+|-------------------------------|-------------------|---------------------------------------------|
+| `pk_processed_events`         | `event_id`        | Chống xử lý lặp từ cùng 1 sự kiện           |
+| `nn_processed_consumer_group` | `consumer_group_name` | Bắt buộc ghi rõ tên consumer xử lý      |
+
+---
+
+### 🔧 Gợi ý nâng cao
+
+- ✅ Sử dụng `covering index` nếu hệ thống hỗ trợ (e.g. PostgreSQL 12+)
+- ✅ Trong môi trường có hàng triệu bản ghi mỗi ngày: cân nhắc tạo view phân vùng theo tenant để dễ audit/debug
+- ⚠️ Không tạo index trên `input_parameters` (JSONB) nếu không dùng truy vấn filter phức tạp → tốn chi phí
+
+---
+
+> 📌 Toàn bộ index và constraint đều phải được mô tả rõ trong migration script, kèm unit test nếu thao tác schema phức tạp (tuân theo `ADR-023 Schema Migration Strategy`)
+
+---
+
+## 7. Chính sách Lưu trữ & Xóa
+
+Chính sách này nhằm đảm bảo dữ liệu trong bảng `audit_logs` và `processed_events` được lưu trữ đúng thời gian cần thiết, tuân thủ các tiêu chuẩn bảo mật và pháp lý (compliance), đồng thời tối ưu chi phí vận hành.
+
+---
+
+### 7.1. ⏳ Thời gian lưu trữ (Retention Period)
+
+| Bảng               | Mặc định Retention | Ghi chú                                           |
+|--------------------|--------------------|--------------------------------------------------|
+| `audit_logs`       | 365 ngày           | Dữ liệu hành vi người dùng và hệ thống          |
+| `processed_events` | 90 ngày            | Chỉ dùng để idempotency và tracking kỹ thuật    |
+
+> 📌 Các mốc thời gian có thể điều chỉnh cấu hình theo tenant hoặc môi trường (staging vs production)
+
+---
+
+### 7.2. 🧹 Chiến lược Xóa Dữ liệu (Deletion Strategy)
+
+Theo **ADR-026**, hệ thống **không sử dụng hard-delete mặc định** với dữ liệu có thể liên quan đến auditing hoặc forensic analysis. Do đó:
+
+#### 🔸 Bảng `audit_logs`:
+
+- Không xóa bản ghi bằng `DELETE` vật lý.
+- Sử dụng chiến lược **partition expiration** (BigQuery) hoặc batch archival (Firestore/Postgres).
+- Khi đến hạn retention:
+  - Dữ liệu có thể được:
+    - Chuyển sang BigQuery Cold Storage hoặc Data Lake
+    - Xóa mềm thông qua `archived_at` timestamp (nếu cần)
+- Một số trường hợp tuân thủ đặc biệt (e.g. yêu cầu của phụ huynh/học sinh theo luật) có thể kích hoạt pipeline **data anonymization** theo ADR-024.
+
+#### 🔸 Bảng `processed_events`:
+
+- Có thể **xóa vật lý hoàn toàn** sau `processed_at + 90 ngày` vì không ảnh hưởng đến compliance.
+
+---
+
+### 7.3. 🔐 Chính sách Anonymization (Ẩn danh dữ liệu)
+
+Áp dụng theo ADR-024:
+
+- Với các field nhạy cảm trong `audit_logs`:
+  - `input_parameters`
+  - `ip_address`
+  - `user_agent`
+
+Có thể được **mask động theo vai trò người dùng (RBAC)** khi truy vấn, hoặc **anonymize toàn bộ** sau thời gian retention:
+
+| Phương án | Khi nào áp dụng        | Cơ chế thực thi                                 |
+|----------|-------------------------|-------------------------------------------------|
+| Masking  | Khi query API           | Thực hiện trong service layer (`design.md > #6`) |
+| Anonymize| Sau 12 tháng (config)   | Batch job chạy hằng tuần xóa nội dung field     |
+
+> 🔎 Audit log không bao giờ ghi `password`, `OTP`, `JWT`, hoặc các credential nhạy cảm – được loại bỏ ngay từ bước validate đầu vào.
+
+---
+
+### 7.4. ✈️ Dữ liệu tạm thời
+
+- Các dữ liệu debug/log có TTL < 7 ngày (e.g. draft logs, schema error) được lưu trong Firestore hoặc memory store, và tự xóa theo TTL.
+- Không đi vào audit_logs chính.
+
+---
+
+### 7.5. 🧪 Kiểm thử & Quan sát Retention
+
+- Viết job giả lập log đã quá hạn → kiểm tra có bị xóa hoặc anonymize đúng
+- Viết câu truy vấn validate:
+```sql
+  SELECT COUNT(*) FROM audit_logs WHERE created_at < now() - INTERVAL '1 year';
+```
+
+> Log về hành vi anonymization nên được ghi lại với action = audit.anonymized
+
+---
+
+## 8. Phân quyền Truy cập Dữ liệu
+
+Dữ liệu trong bảng `audit_logs` chứa nhiều trường nhạy cảm liên quan đến hành vi người dùng, IP truy cập, thông tin hành động... Do đó, hệ thống áp dụng chính sách phân quyền chặt chẽ theo mô hình RBAC đa tầng (xem `ADR-007`).
+
+---
+
+### 8.1. Phạm vi truy cập theo vai trò (Role-based Access)
+
+| Vai trò (`role`)     | Truy cập log tenant khác | Nhận dữ liệu không bị mask | Truy vấn nâng cao (`trace_id`, `resource_type`) |
+|-----------------------|--------------------------|-----------------------------|-------------------------------------------------|
+| `superadmin`          | ✅                        | ✅                           | ✅                                               |
+| `tenant_admin`        | ❌                        | ✅                           | ✅                                               |
+| `tenant_auditor`      | ❌                        | ❌ *(1)*                     | ✅                                               |
+| `teacher`, `staff`    | ❌                        | ❌                           | ❌ *(giới hạn theo actor_user_id)*              |
+
+> *(1)* Các role thấp hơn `tenant_admin` chỉ thấy các trường đã được **mask động** (e.g. `input_parameters: "masked"`)
+
+---
+
+### 8.2. Masking động dữ liệu
+
+Các trường sau sẽ được che khuất (mask) nếu user không có quyền cao:
+
+| Trường bị mask        | Khi nào áp dụng                                    |
+|------------------------|----------------------------------------------------|
+| `input_parameters`     | Nếu không có `view_sensitive_payload`             |
+| `ip_address`           | Nếu không có `view_ip`                             |
+| `user_agent`           | Nếu không có `view_device_info`                   |
+
+Ví dụ sau phản ánh kết quả truy vấn đối với 2 vai trò khác nhau:
 
 ```json
+// Truy cập với quyền thấp
 {
-  "field_changed": "status",
-  "old_value": "draft",
-  "new_value": "published",
-  "reason": "Approval by admin"
+  "input_parameters": "masked",
+  "ip_address": "masked",
+  "user_agent": "masked"
+}
+
+// Truy cập với quyền cao
+{
+  "input_parameters": {
+    "email": "john@example.com",
+    "name": "John"
+  },
+  "ip_address": "192.168.1.2",
+  "user_agent": "Mozilla/5.0"
 }
 ```
 
 ---
 
-## 6. 🧮 Indexes & Constraints
+### 8.3. Điều kiện ràng buộc theo Tenant
 
-Việc thiết kế các chỉ mục (index) và ràng buộc (constraints) phù hợp là cực kỳ quan trọng để đảm bảo hiệu năng truy vấn, tính toàn vẹn dữ liệu, và khả năng scale khi dữ liệu log tăng nhanh.
+Mọi truy vấn từ client đều phải có header `X-Tenant-ID`. Điều kiện bắt buộc:
 
----
-
-### 🎯 Mục tiêu thiết kế index
-
-- Tối ưu các truy vấn phổ biến: theo `tenant_id`, `actor_id`, `module`, `created_at`
-- Phục vụ phân trang log (`ORDER BY created_at DESC`)
-- Tăng tốc độ lọc theo hành vi (`action`, `target_type`, `target_id`)
-- Phân vùng logical theo tenant để dễ quản lý và xóa dữ liệu cũ
-
----
-
-### 📋 Danh sách Index đề xuất
-
-| Tên Index                     | Cột liên quan                         | Ghi chú |
-|-------------------------------|---------------------------------------|--------|
-| `idx_audit_logs_tenant_time` | (`tenant_id`, `created_at DESC`)      | Truy vấn theo tenant + thời gian gần nhất |
-| `idx_audit_logs_actor_time`  | (`actor_id`, `created_at DESC`)       | Truy vấn theo người dùng thực hiện |
-| `idx_audit_logs_module`      | (`module`)                            | Truy vấn theo module hệ thống |
-| `idx_audit_logs_target`      | (`target_id`, `target_type`)          | Truy vấn log theo đối tượng bị tác động |
-| `idx_audit_logs_action`      | (`action`)                            | Truy vấn theo loại hành động |
-| `idx_audit_logs_source`      | (`source`)                            | Phân tích theo kênh thực hiện |
-| `idx_audit_logs_tenant_actor`| (`tenant_id`, `actor_id`)             | Kết hợp tenant & actor để phục vụ truy vết chéo |
-
----
-
-### 🔒 Constraints
-
-| Ràng buộc           | Mô tả |
-|---------------------|------|
-| `PRIMARY KEY (id)`  | Đảm bảo mỗi bản ghi log là duy nhất (UUID) |
-| `NOT NULL` trên `tenant_id`, `module`, `action`, `created_at` | Đảm bảo dữ liệu không bị thiếu thông tin quan trọng |
-| `CHECK (created_at <= now())` *(optional)* | Đảm bảo log không ghi nhận timestamp tương lai |
-| `FOREIGN KEY (tenant_id) REFERENCES tenants(id)` *(optional)* | Áp dụng nếu muốn enforce mối quan hệ tenant |
-
----
-
-### 📈 Cân nhắc thêm về Partition
-
-- Trong tương lai nếu số lượng log quá lớn (hàng chục triệu bản ghi mỗi tháng), có thể:
-  - **Chia partition theo tháng** (`created_at`)
-  - **Hoặc chia theo `tenant_id` (logical sharding)**
-
----
-
-### 📘 Gợi ý bổ sung
-
-- Các chỉ mục nên được theo dõi hiệu năng với `pg_stat_user_indexes`
-- Cần vacuum thường xuyên nếu tần suất ghi log cao
-- Với các trường có tính phân tán cao như `actor_email`, tránh tạo index trực tiếp
-
----
-
-## 7. ♻️ Retention & Data Lifecycle
-
-Dữ liệu log là dạng dữ liệu **append-only** nhưng có thể tăng rất nhanh theo thời gian. Để đảm bảo hiệu năng truy vấn, chi phí lưu trữ tối ưu, và tuân thủ chính sách bảo mật (theo [ADR-024 - Data Retention](../../ADR/adr-024-data-anonymization-retention.md)), Audit Logging Service áp dụng cơ chế **retention** và **lifecycle management** như sau:
-
----
-
-### 🎯 Mục tiêu chính
-
-- Giữ lại dữ liệu log trong thời gian đủ để phục vụ điều tra & kiểm tra tuân thủ (audit compliance)
-- Xoá dữ liệu log cũ theo định kỳ một cách an toàn và hiệu quả
-- Cho phép mở rộng retention riêng cho một số tenant đặc biệt (nếu có)
-
----
-
-### 🗓️ Thời gian lưu (Retention Window)
-
-| Loại log         | Retention mặc định | Ghi chú |
-|------------------|--------------------|--------|
-| Toàn bộ audit log| **180 ngày (6 tháng)** | Áp dụng cho tất cả tenant |
-
-> ⚠️ Có thể tăng lên 365 ngày cho các tenant yêu cầu compliance cao (trường quốc tế, yêu cầu ISO/IEC 27001).
-
----
-
-### 🔁 Cơ chế xóa dữ liệu (Data Deletion)
-
-- **Chiến lược:** Xoá theo lô (batch delete), chạy background job định kỳ.
-- **Công cụ:** Kết hợp `Cloud Scheduler` (GCP) + `Cloud Function` (hoặc cron job serverless).
-- **Tần suất:** Hàng ngày hoặc hàng tuần, tuỳ vào lượng dữ liệu.
-- **Logic:** Xoá tất cả bản ghi `WHERE created_at < now() - interval '180 days'`.
-
----
-
-### 🧪 Kịch bản kiểm thử Retention
-
-| Tình huống                               | Kỳ vọng |
-|------------------------------------------|--------|
-| Truy vấn log của hơn 180 ngày trước       | Không trả dữ liệu hoặc trả về empty |
-| Chạy script xoá thủ công với filter đúng  | Dữ liệu cũ bị xoá, dữ liệu mới còn nguyên |
-| Audit log bị xoá đúng nhưng log hệ thống không bị ảnh hưởng | ✔️ OK |
-
----
-
-### 🔒 An toàn khi xoá
-
-- Log được phân vùng theo `tenant_id`, tránh ảnh hưởng lẫn nhau.
-- Batch job sử dụng `LIMIT` để tránh full table scan và lock.
-- Có thể áp dụng soft delete nếu cần (hiện tại là hard delete do ghi log không cần khôi phục).
-
----
-
-### 📊 Lưu trữ lâu dài (Future Option)
-
-- Nếu cần giữ log > 1 năm:  
-  - Có thể đẩy vào `BigQuery` hoặc `Cloud Storage` ở định dạng Parquet.
-  - Hoặc xuất định kỳ (monthly export) từ PostgreSQL sang bucket archive.
-
----
-
-## 8. 📚 ENUMs
-
-Trong `audit_logs`, một số trường dạng văn bản (TEXT) thực chất là các **trường liệt kê (ENUM)** mang ý nghĩa định danh cố định. Việc tiêu chuẩn hoá giá trị enum giúp:
-
-- Truy vấn dễ dàng & chính xác
-- Hỗ trợ UI mapping label/màu/icon
-- Tránh lỗi chính tả hoặc thiếu thống nhất giữa các service
-- Chuẩn bị cho khả năng phân tích thống kê
-
-> 💡 Mặc dù hiện tại các giá trị enum được khai báo là `TEXT`, nhưng chúng cần được **quản lý nhất quán**, có thể tách riêng bảng phụ trợ nếu cần.
-
----
-
-### 1. `action` – Hành động thực hiện
-
-| Giá trị     | Mô tả                        | Loại hành vi |
-|-------------|-------------------------------|----------------|
-| `CREATE`    | Tạo mới bản ghi               | Thay đổi dữ liệu |
-| `UPDATE`    | Cập nhật dữ liệu              | Thay đổi dữ liệu |
-| `DELETE`    | Xoá dữ liệu                   | Thay đổi dữ liệu |
-| `LOGIN`     | Người dùng đăng nhập          | Hành vi truy cập |
-| `LOGOUT`    | Người dùng đăng xuất          | Hành vi truy cập |
-| `APPROVE`   | Duyệt hành động               | Thay đổi trạng thái |
-| `REJECT`    | Từ chối hành động             | Thay đổi trạng thái |
-| `IMPORT`    | Nhập dữ liệu                  | Hành vi hệ thống |
-| `EXPORT`    | Xuất dữ liệu                  | Hành vi hệ thống |
-| `ASSIGN_ROLE` | Gán vai trò cho người dùng  | Hành vi phân quyền |
-
-> Mỗi hành động có thể được map với biểu tượng UI (ví dụ: CREATE → 🟢➕, DELETE → 🔴🗑️)
-
----
-
-### 2. `actor_type` – Loại actor thực hiện hành động
-
-| Giá trị        | Mô tả                             |
-|----------------|------------------------------------|
-| `user`         | Người dùng hệ thống (giáo viên, admin) |
-| `parent`       | Phụ huynh                          |
-| `system`       | Hệ thống thực hiện tự động         |
-| `service_account` | Service hoặc script nội bộ       |
-| `superadmin`   | Quản trị hệ thống toàn cục         |
-
-> Giá trị này hỗ trợ xác định mức độ tin cậy, phân quyền, và phân tích hành vi theo nhóm người dùng.
-
----
-
-### 3. `module` – Module khởi phát hành vi
-
-| Giá trị        | Mô tả                      |
-|----------------|-----------------------------|
-| `auth`         | Module xác thực             |
-| `user`         | Module quản lý người dùng   |
-| `reporting`    | Module báo cáo              |
-| `notification` | Module gửi thông báo        |
-| `audit`        | Module audit nội bộ         |
-| `gateway`      | API Gateway                 |
-| `crm`          | Hệ quản trị khách hàng      |
-| `sis`          | Quản lý thông tin học sinh  |
-| `lms`          | Hệ thống quản lý học tập     |
-
-> Các service gửi audit cần thống nhất `module` này để phân tích truy vết dễ dàng.
-
----
-
-### 4. `target_type` – Loại đối tượng bị tác động
-
-| Giá trị        | Mô tả đối tượng             |
-|----------------|------------------------------|
-| `USER`         | Người dùng                   |
-| `STUDENT`      | Học sinh                     |
-| `PARENT`       | Phụ huynh                    |
-| `ROLE`         | Vai trò                      |
-| `PERMISSION`   | Quyền                        |
-| `TEMPLATE`     | Notification template        |
-| `SCHEDULE`     | Thời khoá biểu               |
-| `REPORT`       | Báo cáo                      |
-| `CONFIG`       | Cấu hình hệ thống            |
-
----
-
-### 5. `source` – Kênh thực hiện hành vi
-
-| Giá trị        | Mô tả                         |
-|----------------|--------------------------------|
-| `WebApp`       | Giao diện người dùng           |
-| `MobileApp`    | Ứng dụng di động               |
-| `API Gateway`  | Gateway chuyển tiếp request    |
-| `InternalJob`  | Job chạy tự động (batch, cron) |
-| `Script`       | Lệnh CLI nội bộ                |
-
----
-
-### 🧩 Khả năng mở rộng
-
-Trong tương lai:
-- Có thể tách thành bảng `enum_actions`, `enum_modules`, ... để hỗ trợ UI (label, icon, color)
-- Có thể tạo lookup table gắn `module + action → default permissions`
-
----
-
-## 9. 🔐 Data Access Control (RBAC & Multi-Tenant Security)
-
-Để đảm bảo tính bảo mật, riêng tư và phân quyền truy cập dữ liệu log, Audit Logging Service tuân thủ nghiêm ngặt mô hình **RBAC phân tầng** và kiểm soát truy cập theo **tenant** như đã nêu trong:
-
-- [ADR-007 - RBAC Strategy](../../ADR/adr-007-rbac.md)
-- [rbac-deep-dive.md](../../architecture/rbac-deep-dive.md)
-
----
-
-### 🎯 Mục tiêu Bảo vệ Dữ liệu
-
-- Người dùng chỉ được phép xem các log thuộc **tenant của họ**
-- Không thể truy cập log của **tenant khác**
-- Chỉ những người có permission phù hợp mới xem được log
-- Hạn chế truy cập trực tiếp database, chỉ thông qua API có kiểm tra RBAC
-
----
-
-### 🛡️ Cơ chế Bảo vệ
-
-| Cơ chế                             | Mô tả |
-|-----------------------------------|-------|
-| **Multi-tenant isolation**        | Mỗi bản ghi log gắn với `tenant_id` và chỉ truy vấn được nếu `JWT.token.tenant_id == log.tenant_id` |
-| **RBAC kiểm soát theo API**       | Mỗi API được gắn với `x-required-permission` để kiểm tra trong middleware |
-| **Header bắt buộc**               | Các request API đều cần có `Authorization` + `X-Tenant-ID` + `X-Request-ID` |
-| **Không truy cập DB trực tiếp**   | Truy vấn log chỉ thông qua service, không expose SQL hoặc dashboard nội bộ trực tiếp |
-
----
-
-### 🔐 Permission Mapping
-
-| Permission Code        | Mô tả                                           |
-|------------------------|--------------------------------------------------|
-| `audit.read.logs`      | Truy vấn danh sách hoặc chi tiết log (`GET`)     |
-| `audit.create.logs`    | Ghi log đơn lẻ (`POST /audit-logs`)              |
-| `audit.create.logs.bulk` | Ghi log hàng loạt (`POST /audit-logs/bulk`)   |
-
-> 🔍 Được validate từ JWT → gắn với user hoặc service account.
-
----
-
-### 🧠 Quy tắc RBAC theo tầng
-
-| Tầng                  | Kiểm soát                           |
-|------------------------|--------------------------------------|
-| Tầng API Gateway       | Forward headers đầy đủ cho audit-service |
-| Tầng Service Middleware| Kiểm tra permission, tenant, scope    |
-| Tầng Database          | Không truy cập trực tiếp – chỉ qua API đã kiểm tra |
-
----
-
-### 🧪 Kịch bản Kiểm thử
-
-| Tình huống                             | Kết quả mong đợi        |
-|----------------------------------------|--------------------------|
-| JWT thiếu permission `audit.read.logs` | 403 Forbidden            |
-| JWT không chứa `tenant_id`             | 400 Bad Request hoặc 403 |
-| User cố truy cập log của tenant khác   | Không có dữ liệu trả về  |
-| Service account ghi log không kèm tenant| Bị từ chối ghi           |
-
----
-
-### 🔍 Ví dụ cấu hình RBAC trong `openapi.yaml`
-
-```yaml
-paths:
-  /audit-logs:
-    get:
-      x-required-permission: audit.read.logs
-      ...
+```json
+{ "tenant_id": "{{X-Tenant-ID}}" }
 ```
 
----
-
-## 10. 📘 Phụ lục A – Chiến lược Kiểm thử (Testing Strategy)
-
-Audit Logging Service đóng vai trò ghi nhận hành vi hệ thống, nên cần đảm bảo tuyệt đối về tính đúng đắn, ổn định và khả năng truy vết trong mọi hoàn cảnh. Chiến lược kiểm thử cần bao phủ toàn bộ từ unit đến integration và behavior.
+Quản trị viên cấp tenant chỉ được thấy log trong phạm vi tenant của mình.
 
 ---
 
-### 🎯 Mục tiêu Kiểm thử
+### 8.4. Scope bắt buộc trong JWT
 
-- Đảm bảo mọi bản ghi log được ghi **chính xác, đầy đủ, không trùng lặp**
-- Đảm bảo **API hoạt động đúng** theo hợp đồng (`openapi.yaml`)
-- Đảm bảo **RBAC** và phân quyền được kiểm tra đầy đủ
-- Đảm bảo khả năng xử lý **bulk write**, **truy vấn phức tạp**, và **retention**
+| API                   | Scope yêu cầu                   |
+| --------------------- | ------------------------------- |
+| `GET /audit-log`      | `audit.read.log`                |
+| `GET /audit-log/{id}` | `audit.read.log`                |
+| `POST /audit-log`     | `audit.write` *(internal only)* |
 
----
-
-### 🧪 Các Cấp độ Kiểm thử
-
-| Cấp độ        | Mục tiêu                             | Công cụ            |
-|---------------|--------------------------------------|--------------------|
-| **Unit Test** | Kiểm tra từng hàm (validator, utils, factory) | `pytest`, `unittest`, `faker` |
-| **Contract Test** | So sánh API thực tế với `openapi.yaml` | `schemathesis`, `dredd`, `pytest-openapi` |
-| **Integration Test** | Ghi + đọc log thực trong DB test | `Postman`, `pytest + Docker` |
-| **RBAC Test** | Gửi request thiếu permission / sai tenant | `pytest + mock`, `insomnia` |
-| **Load Test** | Ghi log khối lượng lớn (`bulk`) | `locust`, `k6` |
-| **Migration Test** | Kiểm tra schema migrations | `alembic`, `pytest` |
+> ⚠️ Không bao giờ cấp `audit.write` cho ứng dụng người dùng (frontend/mobile).
 
 ---
 
-### 🔍 Kiểm thử API (theo Use Case)
+### 8.5. Policy triển khai trên API Gateway
 
-| API Endpoint                 | Test Case                                                 |
-|-----------------------------|------------------------------------------------------------|
-| `POST /audit-logs`          | Gửi 1 bản ghi hợp lệ / thiếu trường / sai định dạng       |
-| `POST /audit-logs/bulk`     | Gửi 50, 500, 1000 bản ghi cùng lúc                         |
-| `GET /audit-logs`           | Truy vấn theo `actor_id`, `target_type`, `module`         |
-| `GET /audit-logs/{id}`      | Truy cập log không tồn tại / khác tenant                  |
-
----
-
-### 🔐 Kiểm thử RBAC & Header
-
-| Header thiếu                | Kết quả mong đợi    |
-|----------------------------|---------------------|
-| Thiếu `Authorization`      | `401 Unauthorized`  |
-| Thiếu `X-Request-ID`       | `422 Unprocessable` |
-| Thiếu `X-Tenant-ID`        | `400 Bad Request` hoặc `403 Forbidden` |
-| JWT thiếu permission        | `403 Forbidden`     |
+| Thành phần       | Policy                                    |
+| ---------------- | ----------------------------------------- |
+| Gateway filter   | Kiểm tra `scope`, `tenant_id`             |
+| Middleware ALS   | Check RBAC theo role                      |
+| Query Layer (DB) | Gắn filter theo `tenant_id`, mask nếu cần |
 
 ---
 
-### 🔁 Kiểm thử Lifecycle & Retention
+## 9. Mở rộng trong Tương Lai
 
-- Ghi log cũ hơn 180 ngày, chạy batch xóa → log bị xoá khỏi DB
-- Log mới vẫn được giữ nguyên
-- Truy vấn trước và sau retention → xác thực đúng behavior
+Audit Logging Service (ALS) được thiết kế theo nguyên tắc modular & event-driven, sẵn sàng mở rộng trong các giai đoạn sau này. Dưới đây là các hướng mở rộng quan trọng đã được xác định:
 
 ---
 
-### 📦 Auto-generated Tests từ OpenAPI
+### 9.1. 🚀 Phát sự kiện thứ cấp `vas.audit.persisted.v1`
 
-Chúng ta sẽ:
+- Cho phép ALS phát Pub/Sub event mỗi khi một bản ghi log được lưu thành công.
+- Hữu ích cho:
+  - **Downstream processing** (ETL → Data Lake, Data Mart)
+  - **Phân tích AI behavior**
+  - **Realtime monitoring** (như suspicious behavior)
+- **Trạng thái hiện tại:** Đã thiết kế schema & flow (xem `design.md > 5.3`)  
+  🔒 **Chưa bật mặc định** – cần bật `emit_audit_event_enabled = true` theo môi trường
 
-1. Tự động sinh unit test khung từ `openapi.yaml` (dùng `schemathesis`)
-2. Kiểm tra response trả về đúng `ErrorEnvelope` (ADR-011)
-3. Kiểm tra các trường response `meta`, `data`, `errors` theo schema
-
----
-
-## 11. 📘 Phụ lục B – Sự kiện phát ra
-
-Không phát sinh sự kiện ra ngoài. Đây là service sink cuối cho hành vi nghiệp vụ (append-only log).
+> Xem thêm: [ADR-030 - Event Schema Governance](../../ADR/adr-030-event-schema-governance.md)
 
 ---
 
-## 12. 📚 Liên kết tài liệu
+### 9.2. 🧠 Tự động phát hiện hành vi bất thường (Anomaly Detection)
 
-* [`design.md`](./design.md)
-* [`interface-contract.md`](./interface-contract.md)
-* [`openapi.yaml`](./openapi.yaml)
-* [ADR - 008 Audit Logging](../../ADR/adr-008-audit-logging.md)
-* [ADR - 023 Schema Migration Strategy](../../ADR/adr-023-schema-migration-strategy.md)
-* [ADR - 024 Data Retention](../../ADR/adr-024-data-anonymization-retention.md)
+- Kết hợp ALS với AI pipeline để phát hiện:
+  - Truy cập bất thường vào dữ liệu học sinh
+  - Hành vi đăng nhập trái phép hoặc brute-force
+- Yêu cầu: tích hợp ALS log với Data Lake + hệ thống cảnh báo (ADR-021)
+
+---
+
+### 9.3. 📦 Hỗ trợ nhiều backend lưu trữ
+
+| Storage         | Trạng thái hiện tại | Ghi chú |
+|------------------|----------------------|---------|
+| BigQuery         | ✅ Production         | Phân tích & truy vấn |
+| Firestore        | 🅾 Optional            | Dùng cho dashboard nhỏ, backup |
+| PostgreSQL/Clickhouse | 🔜 Giai đoạn sau | Phù hợp self-hosted hoặc latency thấp |
+
+---
+
+### 9.4. 🧾 Truy vấn nâng cao cho báo cáo
+
+- Hỗ trợ các API nâng cao theo truy vấn:
+  - `GET /audit-log/by-trace/{trace_id}`
+  - `GET /audit-log/stats?group_by=action`
+- Phục vụ trực tiếp cho báo cáo bảo mật (`Reporting Service`) và dashboard.
+
+---
+
+### 9.5. 🔁 Retry cơ chế tiêu thụ Pub/Sub
+
+- Hiện tại: ALS **bỏ qua các event không valid schema**
+- Tương lai:
+  - Lưu các event lỗi vào hàng chờ tạm thời
+  - Cho phép debug & replay event lỗi
+  - Tích hợp với alerting system (Grafana Alert, Slack webhook...)
+
+---
+
+### 9.6. 🔒 Kiểm toán các truy vấn nhạy cảm
+
+- Ghi lại cả hành vi **truy vấn log** (ai truy cập log gì, khi nào) như một dạng “meta-audit”
+- Cho phép truy vấn theo `trace_id` của truy vấn
+- Cần triển khai song song trong Admin WebApp & ALS
+
+---
+
+### 9.7. 🛠 Admin Dashboard Mini
+
+- Tạo 1 dashboard nội bộ gọn nhẹ để:
+  - Xem log gần nhất theo trace/user
+  - Kiểm tra sự kiện nào đã được ghi vào ALS
+  - Xem trạng thái masking theo vai trò
+- Có thể dùng Firestore + Firebase Hosting + Tailwind CSS
+
+---
+
+📌 Các hướng mở rộng trên đều nằm trong tầm kiểm soát hiện tại nhờ thiết kế tuân thủ ADR, modular, và có thể bật/tắt theo môi trường bằng `feature flag`.
+
+📎 Gợi ý chi tiết cho triển khai sau này: xem [design.md > 11. Kiến trúc Service](./design.md#11-🧩-Kiến-trúc-Service)
+
+---
+
+## 10. ENUMs
+
+Danh sách các giá trị liệt kê (`enum`) được chuẩn hóa để đảm bảo tính nhất quán xuyên suốt hệ thống. Tất cả giá trị enum đều nên được quản lý tập trung trong schema và OpenAPI, có thể dùng cho codegen và tự động kiểm tra tính hợp lệ.
+
+---
+
+### 10.1. 📌 Trường `status`
+
+| Giá trị     | Mô tả                                                                 |
+|-------------|----------------------------------------------------------------------|
+| `success`   | Hành động hoàn tất thành công                                          |
+| `failure`   | Hành động bị lỗi hoặc không hoàn tất                                  |
+| `warning`   | Thành công một phần, hoặc có điều kiện cảnh báo (e.g. timeout, retry) |
+
+---
+
+### 10.2. 📌 Trường `resource_type`
+
+| Giá trị         | Mô tả                                  |
+|------------------|------------------------------------------|
+| `user`           | Người dùng hoặc tài khoản                |
+| `tenant`         | Tenant / trường / đơn vị                |
+| `role`           | Vai trò trong RBAC                      |
+| `permission`     | Quyền được gán hoặc thu hồi              |
+| `token`          | JWT hoặc OAuth token                     |
+| `report`         | Báo cáo sinh ra từ Reporting Service     |
+| `notification`   | Thông báo được gửi qua Notification Service |
+| `system`         | Các tác vụ hệ thống không thuộc thực thể cụ thể |
+
+> 📎 Danh sách này có thể mở rộng nhưng cần cập nhật đồng bộ OpenAPI và schema BQ
+
+---
+
+### 10.3. 📌 Trường `action`
+
+Hệ thống không giới hạn cố định `action`, nhưng có thể gợi ý các giá trị phổ biến dùng để thống kê và sinh báo cáo:
+
+| Giá trị mẫu              | Mô tả                                 |
+|--------------------------|----------------------------------------|
+| `user.login.success`     | Đăng nhập thành công                   |
+| `user.login.failed`      | Đăng nhập thất bại                     |
+| `user.created`           | Tạo người dùng                         |
+| `user.updated`           | Cập nhật thông tin                     |
+| `user.deleted`           | Xóa người dùng                         |
+| `role.assigned`          | Gán role cho người dùng                |
+| `token.exchanged`        | Đổi token qua refresh                  |
+| `report.viewed`          | Xem báo cáo                            |
+| `notification.sent`      | Gửi thông báo thành công               |
+| `notification.failed`    | Gửi thông báo thất bại                 |
+| `audit.anonymized`       | Log đã được ẩn danh hóa (batch masking) |
+
+---
+
+### 🔎 Ghi chú về quản lý ENUMs
+
+- Với các enum có **phạm vi giới hạn và dùng filter** (như `status`, `resource_type`), nên lưu trong schema và OpenAPI.
+- Với các giá trị **mở rộng linh hoạt** như `action`, nên quản lý theo `dictionary` nội bộ để hỗ trợ phân tích và báo cáo.
+- Các enum cần mô tả kỹ càng trong `event schema` nếu được sử dụng làm field trong Pub/Sub event.
+
+---
+
+## 11. 📚 Liên kết Tài liệu
+
+* [Interface Contract](./interface-contract.md)
+* [OpenAPI Spec](./openapi.yaml)
+* [Design](./design.md)
+* [`adr-023-schema-migration-strategy`](../../ADR/adr-023-schema-migration-strategy.md)
+* [`adr-024-data-anonymization-retention`](../../ADR/adr-024-data-anonymization-retention.md)
+* [`adr-026-hard-delete-policy`](../../ADR/adr-026-hard-delete-policy.md)
+* [`adr-030-event-schema-governance`](../../ADR/adr-030-event-schema-governance.md)
