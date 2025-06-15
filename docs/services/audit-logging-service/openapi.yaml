@@ -98,10 +98,19 @@ components:
         type: string
       example: "user.deleted"
 
-    ResourceID:
+    SourceService:
       name: resource_id
       in: query
       required: true
+      description: Tên service phát sinh source
+      schema:
+        type: string
+      example: "user-service"
+
+    ResourceID:
+      name: resource_id
+      in: query
+      required: false
       description: ID tài nguyên bị tác động
       schema:
         type: string
@@ -286,6 +295,10 @@ components:
           type: string
           description: Hành động được thực hiện (action type)
           example: "user.login.success"
+        source_service:
+          type: string
+          description: Tên service phát sinh source
+          example: "user-service"
         resource_type:
           $ref: '#/components/schemas/ResourceTypeEnum'
         resource_id:
@@ -322,7 +335,7 @@ components:
       required:
         - action
         - source_service
-        - actor_id
+        - actor_user_id
         - actor_type
         - resource_id
         - resource_type
@@ -336,7 +349,7 @@ components:
           type: string
           description: Tên service phát hành hành động
           example: "user-service"
-        actor_id:
+        actor_user_id:
           type: string
           format: uuid
           writeOnly: true
@@ -517,6 +530,7 @@ paths:
         - $ref: '#/components/parameters/ActorUserID'
         - $ref: '#/components/parameters/TraceID'
         - $ref: '#/components/parameters/Action'
+        - $ref: '#/components/parameters/SourceService'
         - $ref: '#/components/parameters/ResourceID'
         - $ref: '#/components/parameters/ResourceType'
         - $ref: '#/components/parameters/Status'

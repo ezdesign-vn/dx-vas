@@ -150,7 +150,7 @@ CREATE TABLE audit_logs (
     actor_user_id TEXT,
     action TEXT NOT NULL,
     source_service TEXT NOT NULL,
-    resource_id TEXT NOT NULL,
+    resource_id TEXT,
     resource_type TEXT NOT NULL,
     status TEXT CHECK (status IN ('success', 'failure', 'warning')) NOT NULL,
     input_parameters JSONB,
@@ -172,7 +172,7 @@ CREATE TABLE audit_logs (
 | `actor_user_id`    | TEXT         |               | User ID gây ra hành vi (nếu có)                         |
 | `action`           | TEXT         | NOT NULL      | Mã hành động (e.g. `user.login.success`)                |
 | `source_service`   | TEXT         | NOT NULL      | Tên service phát sinh hành động (e.g. `user-service`, `auth-service`) |
-| `resource_id`      | TEXT         | NOT NULL      | ID đối tượng bị tác động (e.g. `u_123`, `t_123`)        |
+| `resource_id`      | TEXT         |               | ID đối tượng bị tác động (e.g. `u_123`, `t_123`)        |
 | `resource_type`    | TEXT         | NOT NULL      | Loại đối tượng bị tác động (e.g. `user`, `tenant`)      |
 | `status`           | TEXT         | CHECK ENUM    | Trạng thái kết quả (`success`, `failure`, `warning`)    |
 | `input_parameters` | JSONB        |               | Payload ban đầu, có thể bị mask theo role               |

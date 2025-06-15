@@ -134,7 +134,7 @@ Audit Logging Service sử dụng mô hình dữ liệu dạng **append-only**, 
 
 ---
 
-### 3.1. 📌 Bảng chính: `audit_log_entries`
+### 3.1. 📌 Bảng chính: `audit_logs`
 
 #### 🔖 Mục đích
 
