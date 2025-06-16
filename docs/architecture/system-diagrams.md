@@ -52,12 +52,29 @@ flowchart TD
     NotifM(Notification Master)
     RedisRev[Redis<br/>revoked_tokens cache]
     ReportSvc(Reporting Service)
+    AuditLog(Audit Logging Service)
     PubSub((Pub / Sub))
   end
 
   %% ======= DATA PLATFORM =======
   subgraph db ["🔧 Data Platform"]
     BQ(Data Warehouse)
+  end
+
+  %% ======= MONITORING STACK =======
+  subgraph mon ["📈 Monitoring Stack"]
+    CloudLog(Cloud Logging)
+    CloudMon(Cloud Monitoring)
+    AlertSys(Alerting Rules)
+  end
+
+  %% ======= CI / CONTRACT TESTING =======
+  subgraph test ["🧪 CI / Contract Testing"]
+    CIPipeline(CI/CD Pipeline)
+    ContractEngine(Contract Test Engine)
+    MockUser(Mock: User Service)
+    MockNotif(Mock: Notif Service)
+    MockAuth(Mock: Auth Service)
   end
 
   %% ======= TENANT STACK EXAMPLE =======
@@ -91,6 +108,7 @@ flowchart TD
   APIGW ==> UserM
   APIGW ==> NotifM
   APIGW ==> ReportSvc
+  APIGW ==> AuditLog
 
   %% Tenant routing
   APIGW ==> AuthSub
@@ -106,6 +124,39 @@ flowchart TD
 
   %% ELT (simplified)
   SMS -- "ELT" --> BQ
+
+  %% Audit Logging
+  AuthM -->|log login| AuditLog
+  TokenSvc -->|log issue/revoke| AuditLog
+  UserM -->|log user change| AuditLog
+  NotifM -->|log notif trigger| AuditLog
+  ReportSvc -->|log report access| AuditLog
+  AuthSub -->|log local login| AuditLog
+  UserSub -->|log role update| AuditLog
+  NotifSub -->|log delivery| AuditLog
+
+  %% Monitoring Stack
+  APIGW --> CloudLog
+  AuthM --> CloudLog
+  TokenSvc --> CloudLog
+  UserM --> CloudLog
+  ReportSvc --> CloudLog
+  AuditLog --> CloudLog
+  AuthSub --> CloudLog
+  UserSub --> CloudLog
+  SMS --> CloudLog
+  NotifSub --> CloudLog
+  CloudLog --> CloudMon
+  CloudMon --> AlertSys
+
+  %% CI/CD & Contract Testing
+  CIPipeline --> ContractEngine
+  ContractEngine --> MockUser
+  ContractEngine --> MockNotif
+  ContractEngine --> MockAuth
+  MockUser -->|simulate calls| APIGW
+  MockNotif -->|simulate notif| APIGW
+  MockAuth -->|simulate login| APIGW
 ```
 
 ### 🗝️ Chú thích mũi tên & đường nét

@@ -50,9 +50,8 @@ Tài liệu này mô tả **toàn bộ kiến trúc và tiêu chuẩn kỹ thu�
 ## 2.1 Sơ đồ tổng quan (Mermaid) <sup><sub>*Khối màu nhạt = dịch&nbsp;vụ “per tenant”.*</sub></sup>
 
 ```mermaid
-%% =====================  GROUPS  =====================
 flowchart TD
-  %% External channels
+  %% ======= EXTERNAL =======
   subgraph ext ["🌐 External IdP & Channels"]
     GoogleOAuth(Google OAuth2)
     OTPProv(OTP Provider)
@@ -60,7 +59,7 @@ flowchart TD
     SMSSvc(SMS Gateway)
   end
 
-  %% Front-end apps
+  %% ======= FRONTEND =======
   subgraph fe ["💻 Frontend Apps"]
     AdminPortal(Admin Portal)
     TeacherPortal(Teacher Portal)
@@ -68,66 +67,120 @@ flowchart TD
     ParentPortal(Parent Portal)
   end
 
-  %% Core services (shared)
+  %% ======= CORE SERVICES =======
   subgraph core ["🔧 Core Services (Shared)"]
     APIGW(API Gateway)
     TokenSvc(Token Service)
     AuthM(Auth Master)
     UserM(User Master)
     NotifM(Notification Master)
+    RedisRev[Redis<br/>revoked_tokens cache]
     ReportSvc(Reporting Service)
-    R[Redis - Revoked<br/>Token Cache]
+    AuditLog(Audit Logging Service)
     PubSub((Pub / Sub))
-    DataWH[(Data Warehouse)]
   end
 
-  %% Tenant stack – ví dụ
-  subgraph tenant1 ["🏫 Tenant Stack • ABC School"]
+  %% ======= DATA PLATFORM =======
+  subgraph db ["🔧 Data Platform"]
+    BQ(Data Warehouse)
+  end
+
+  %% ======= MONITORING STACK =======
+  subgraph mon ["📈 Monitoring Stack"]
+    CloudLog(Cloud Logging)
+    CloudMon(Cloud Monitoring)
+    AlertSys(Alerting Rules)
+  end
+
+  %% ======= CI / CONTRACT TESTING =======
+  subgraph test ["🧪 CI / Contract Testing"]
+    CIPipeline(CI/CD Pipeline)
+    ContractEngine(Contract Test Engine)
+    MockUser(Mock: User Service)
+    MockNotif(Mock: Notif Service)
+    MockAuth(Mock: Auth Service)
+  end
+
+  %% ======= TENANT STACK EXAMPLE =======
+  subgraph tenantA ["🏫 Tenant Stack · ABC School"]
     subgraph smsgrp ["School Management System (SMS)"]
-      SMS(SMS Backend)
+      SMS(SMS Backend<br/>+ MariaDB)
     end
-    AuthSub(Auth Sub ABC)
-    UserSub(User Sub ABC)
-    NotifSub(Notif Sub ABC)
+    AuthSub(Auth Sub)
+    UserSub(User Sub)
+    NotifSub(Notif Sub)
   end
 
-%% =====================  FLOWS  =====================
-  %% 1) Public HTTPS calls
+  %% ======= FLOWS =======
+  %% Front-door
   AdminPortal -. https .-> APIGW
   TeacherPortal -. https .-> APIGW
   StudentPortal -. https .-> APIGW
   ParentPortal  -. https .-> APIGW
 
-  %% 2) Auth & Token (synchronous)
+  %% Auth & Token
   APIGW -->|/login| AuthM
-  AuthM  -->|/token/issue| TokenSvc
+  AuthM -->|/token/issue| TokenSvc
   AuthSub -->|/token/issue| TokenSvc
   TokenSvc -- JWKS --> APIGW
 
-  %% 3) Revoked-token path
-  APIGW -->|check revoked| R
-  TokenSvc -->|sync revoked| R
+  %% Revoked-token check
+  APIGW -->|check revoked| RedisRev
+  TokenSvc -->|sync revoked| RedisRev
 
-  %% 4) Core routing (sync API)
+  %% Core routing
   APIGW ==> UserM
   APIGW ==> NotifM
   APIGW ==> ReportSvc
+  APIGW ==> AuditLog
 
-  %% 5) Tenant routing (sync API)
+  %% Tenant routing
   APIGW ==> AuthSub
   APIGW ==> UserSub
   APIGW ==> NotifSub
   APIGW ==> SMS
 
-  %% 6) Master → Sub data sync (async Pub/Sub)
-  UserM -- "Async Event" --> PubSub
-  NotifM -- "Async Event" --> PubSub
-  PubSub -- "Async Event" --> UserSub
-  PubSub -- "Async Event" --> NotifSub
+  %% Event fan-out
+  UserM -- "user.*" --> PubSub
+  NotifM -- "notif.*" --> PubSub
+  PubSub -- "user.*" --> UserSub
+  PubSub -- "notif.*" --> NotifSub
 
-  %% 7) ELT pipeline
-  SMS -- "ELT Pipeline" --> DataWH
-  ReportSvc ==> DataWH
+  %% ELT (simplified)
+  SMS -- "ELT" --> BQ
+
+  %% Audit Logging
+  AuthM -->|log login| AuditLog
+  TokenSvc -->|log issue/revoke| AuditLog
+  UserM -->|log user change| AuditLog
+  NotifM -->|log notif trigger| AuditLog
+  ReportSvc -->|log report access| AuditLog
+  AuthSub -->|log local login| AuditLog
+  UserSub -->|log role update| AuditLog
+  NotifSub -->|log delivery| AuditLog
+
+  %% Monitoring Stack
+  APIGW --> CloudLog
+  AuthM --> CloudLog
+  TokenSvc --> CloudLog
+  UserM --> CloudLog
+  ReportSvc --> CloudLog
+  AuditLog --> CloudLog
+  AuthSub --> CloudLog
+  UserSub --> CloudLog
+  SMS --> CloudLog
+  NotifSub --> CloudLog
+  CloudLog --> CloudMon
+  CloudMon --> AlertSys
+
+  %% CI/CD & Contract Testing
+  CIPipeline --> ContractEngine
+  ContractEngine --> MockUser
+  ContractEngine --> MockNotif
+  ContractEngine --> MockAuth
+  MockUser -->|simulate calls| APIGW
+  MockNotif -->|simulate notif| APIGW
+  MockAuth -->|simulate login| APIGW
 ```
 
 #### 📝 Chú thích quan trọng
