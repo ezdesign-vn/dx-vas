@@ -43,10 +43,10 @@ describe('Token Service API Contract', () => {
 
   beforeAll(() => {
     provider = new PactV3({
-      consumer: 'APIGateway_And_AuthService',
+      consumer: 'APIGateway',
       provider: 'TokenService',
       log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-      dir: path.resolve(process.cwd(), 'pacts'),
+      dir: path.resolve(process.cwd(), 'pact'),
       logLevel: 'warn',
     });
   });
