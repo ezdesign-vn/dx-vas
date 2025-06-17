@@ -1,0 +1,83 @@
+{
+  "consumer": {
+    "name": "api-gateway"
+  },
+  "interactions": [
+    {
+      "description": "a valid token issue request",
+      "providerState": "user with email exists and OTP is valid",
+      "request": {
+        "body": {
+          "otp_code": "123456",
+          "roles": [
+            "teacher"
+          ],
+          "sub": "user-id-123"
+        },
+        "headers": {
+          "Authorization": "Bearer some-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "matchingRules": {
+          "$.body.otp_code": {
+            "match": "type"
+          },
+          "$.body.roles": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.sub": {
+            "match": "type"
+          },
+          "$.header.Authorization": {
+            "match": "regex",
+            "regex": "^Bearer\\s[a-zA-Z0-9\\-_\\.]+$"
+          },
+          "$.header['X-Tenant-ID']": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/token/issue"
+      },
+      "response": {
+        "body": {
+          "access_token": "jwt-access-token",
+          "meta": {},
+          "refresh_token": "jwt-refresh-token"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.access_token": {
+            "match": "type"
+          },
+          "$.body.meta": {
+            "match": "type"
+          },
+          "$.body.refresh_token": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "token-service"
+  }
+}

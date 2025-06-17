@@ -1,0 +1,387 @@
+{
+  "consumer": {
+    "name": "APIGateway_And_AuthService"
+  },
+  "interactions": [
+    {
+      "description": "a request for the JSON Web Key Set",
+      "providerState": "the token service has active public keys",
+      "request": {
+        "method": "GET",
+        "path": "/.well-known/jwks.json"
+      },
+      "response": {
+        "body": {
+          "keys": [
+            {
+              "alg": "RS256",
+              "e": "AQAB",
+              "kid": "key-id-1",
+              "kty": "RSA",
+              "n": "uA6kkl5e8fKNS3k0_4ZFnN...",
+              "use": "sig"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.keys": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.keys[*].kid": {
+            "match": "type"
+          },
+          "$.body.keys[*].n": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request from auth-service to issue tokens",
+      "providerState": "auth-service is authenticated and provides valid user data",
+      "request": {
+        "body": {
+          "login_method": "otp",
+          "permissions": [
+            "grade.read"
+          ],
+          "roles": [
+            "teacher"
+          ],
+          "session_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+          "sub": "user-123"
+        },
+        "headers": {
+          "Authorization": "Bearer internal-auth-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "matchingRules": {
+          "$.body.login_method": {
+            "match": "regex",
+            "regex": "^(google|otp|local)$"
+          },
+          "$.body.permissions": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.roles": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.session_id": {
+            "match": "regex",
+            "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+          },
+          "$.body.sub": {
+            "match": "type"
+          },
+          "$.header.Authorization": {
+            "match": "regex",
+            "regex": "^Bearer .+$"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/token/issue"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.abc",
+            "expires_in": 900,
+            "refresh_token": "refresh.token.string",
+            "token_type": "Bearer"
+          },
+          "meta": {
+            "timestamp": "2025-06-16T22:57:57.123Z",
+            "trace_id": "req-uuid-123"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body.data.access_token": {
+            "match": "type"
+          },
+          "$.body.data.expires_in": {
+            "match": "type"
+          },
+          "$.body.data.refresh_token": {
+            "match": "type"
+          },
+          "$.body.meta.timestamp": {
+            "match": "regex",
+            "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "$.body.meta.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request from auth-service to issue tokens for a successfully authenticated user",
+      "providerState": "auth-service is authenticated and provides valid user data",
+      "request": {
+        "body": {
+          "login_method": "otp",
+          "permissions": [
+            "grade.read"
+          ],
+          "roles": [
+            "teacher"
+          ],
+          "session_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+          "sub": "user-123"
+        },
+        "headers": {
+          "Authorization": "Bearer some-internal-service-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "matchingRules": {
+          "$.body.login_method": {
+            "match": "regex",
+            "regex": "^(google|otp|local)$"
+          },
+          "$.body.permissions": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.roles": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.session_id": {
+            "match": "regex",
+            "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+          },
+          "$.body.sub": {
+            "match": "type"
+          },
+          "$.header.Authorization": {
+            "match": "regex",
+            "regex": "^Bearer .+$"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/token/issue"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.abc",
+            "expires_in": 900,
+            "refresh_token": "refresh.token.string",
+            "token_type": "Bearer"
+          },
+          "meta": {
+            "timestamp": "2025-06-17T10:00:00.123Z",
+            "trace_id": "req-uuid-123"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body.data.access_token": {
+            "match": "type"
+          },
+          "$.body.data.expires_in": {
+            "match": "type"
+          },
+          "$.body.data.refresh_token": {
+            "match": "type"
+          },
+          "$.body.meta.timestamp": {
+            "match": "regex",
+            "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "$.body.meta.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to issue a token without a subject",
+      "providerState": "a token issue request is missing the sub field",
+      "request": {
+        "body": {
+          "roles": [
+            "teacher"
+          ],
+          "session_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        },
+        "headers": {
+          "Authorization": "Bearer some-internal-service-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "matchingRules": {
+          "$.header.Authorization": {
+            "match": "regex",
+            "regex": "^Bearer .+$"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/token/issue"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "common.validation_error",
+            "message": "Validation failed"
+          },
+          "meta": {
+            "timestamp": "2025-06-16T22:57:57.123Z",
+            "trace_id": "req-uuid-456"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body.error.message": {
+            "match": "type"
+          },
+          "$.body.meta.timestamp": {
+            "match": "regex",
+            "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "$.body.meta.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a request to issue tokens for an authenticated user",
+      "providerState": "a valid request to issue a token",
+      "request": {
+        "body": {
+          "login_method": "otp",
+          "permissions": [
+            "grade.read"
+          ],
+          "roles": [
+            "teacher"
+          ],
+          "session_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+          "sub": "user-123"
+        },
+        "headers": {
+          "Authorization": "Bearer some-internal-service-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "matchingRules": {
+          "$.body.login_method": {
+            "match": "regex",
+            "regex": "^(google|otp|local)$"
+          },
+          "$.body.permissions": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.roles": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.session_id": {
+            "match": "regex",
+            "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+          },
+          "$.body.sub": {
+            "match": "type"
+          },
+          "$.header.Authorization": {
+            "match": "regex",
+            "regex": "^Bearer .+$"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/token/issue"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.abc",
+            "expires_in": 900,
+            "refresh_token": "refresh.token.string",
+            "token_type": "Bearer"
+          },
+          "meta": {
+            "timestamp": "2025-06-16T22:57:57.123Z",
+            "trace_id": "req-uuid-123"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body.data.access_token": {
+            "match": "type"
+          },
+          "$.body.data.expires_in": {
+            "match": "type"
+          },
+          "$.body.data.refresh_token": {
+            "match": "type"
+          },
+          "$.body.meta.timestamp": {
+            "match": "regex",
+            "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "$.body.meta.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to revoke an active session",
+      "providerState": "a session with id sess-to-revoke exists",
+      "request": {
+        "body": {
+          "session_id": "sess-to-revoke"
+        },
+        "headers": {
+          "Authorization": "Bearer valid-access-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "method": "POST",
+        "path": "/v1/token/revoke"
+      },
+      "response": {
+        "status": 204
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "TokenService"
+  }
+}

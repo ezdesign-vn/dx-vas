@@ -17,4 +17,5 @@ docs/tmp/
 docs/templates/
 docs/standards/
 docs/requests/
-docs/dev-guide.plan.md
+docs/BA/
+tests/contract-tests/node_modules/

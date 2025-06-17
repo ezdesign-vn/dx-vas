@@ -1,0 +1,88 @@
+{
+  "consumer": {
+    "name": "DebugConsumer"
+  },
+  "interactions": [
+    {
+      "description": "a request to issue a token without a subject",
+      "providerState": "a token issue request is missing the sub field",
+      "request": {
+        "body": {
+          "roles": [
+            "teacher"
+          ],
+          "session_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        },
+        "headers": {
+          "Authorization": "Bearer some-internal-service-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "method": "POST",
+        "path": "/v1/token/issue"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "common.validation_error",
+            "message": "Validation failed"
+          },
+          "meta": {
+            "timestamp": "2025-06-16T22:57:57.123Z",
+            "trace_id": "req-uuid-456"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body.error.message": {
+            "match": "type"
+          },
+          "$.body.meta.timestamp": {
+            "match": "regex",
+            "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "$.body.meta.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a request to revoke an active session",
+      "providerState": "a session with id sess-to-revoke exists",
+      "request": {
+        "body": {
+          "session_id": "sess-to-revoke"
+        },
+        "headers": {
+          "Authorization": "Bearer valid-access-token",
+          "Content-Type": "application/json",
+          "X-Tenant-ID": "tenant-abc"
+        },
+        "method": "POST",
+        "path": "/v1/token/revoke"
+      },
+      "response": {
+        "status": 204
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "TokenService"
+  }
+}
