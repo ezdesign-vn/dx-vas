@@ -1,0 +1,1154 @@
+{
+  "consumer": {
+    "name": "API Gateway"
+  },
+  "interactions": [
+    {
+      "description": "a request to issue a token for a valid user",
+      "providerStates": [
+        {
+          "name": "a valid user exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "user@example.com",
+          "password": "password123"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.password": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {}
+        },
+        "method": "POST",
+        "path": "/token/issue"
+      },
+      "response": {
+        "body": {
+          "access_token": "abc123token",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to issue a token for a valid user (see token-service/interface-contract.md and token-service/openapi.yaml)",
+      "providerStates": [
+        {
+          "name": "a valid user exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "user@example.com",
+          "password": "password123"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.password": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {}
+        },
+        "method": "POST",
+        "path": "/token/issue"
+      },
+      "response": {
+        "body": {
+          "access_token": "abc123token",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to issue a token for a valid user - authentication and token issuance as per contract documentation (see docs/standards/5s.contract.testing.standard.md)",
+      "providerStates": [
+        {
+          "name": "a valid user exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "user@example.com",
+          "password": "password123"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.password": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {}
+        },
+        "method": "POST",
+        "path": "/token/issue"
+      },
+      "response": {
+        "body": {
+          "access_token": "abc123token",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to issue a token for a valid user - authentication and token issuance as per contract documentation (see token-service/interface-contract.md and token-service/openapi.yaml)",
+      "providerStates": [
+        {
+          "name": "a valid user exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "user@example.com",
+          "password": "password123"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.password": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {}
+        },
+        "method": "POST",
+        "path": "/token/issue"
+      },
+      "response": {
+        "body": {
+          "access_token": "abc123token",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to issue a token with valid credentials",
+      "providerStates": [
+        {
+          "name": "a valid user exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "user@example.com",
+          "password": "password123"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.password": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {}
+        },
+        "method": "POST",
+        "path": "/token/issue"
+      },
+      "response": {
+        "body": {
+          "access_token": "abc123token",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to issue token with invalid credentials",
+      "providerStates": [
+        {
+          "name": "invalid credentials provided"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "invalid@example.com",
+          "password": "wrongpassword"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.password": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {}
+        },
+        "method": "POST",
+        "path": "/token/issue"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "INVALID_CREDENTIALS",
+            "message": "Invalid email or password"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error.code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.error.message": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a request to refresh token with a valid refresh token",
+      "providerStates": [
+        {
+          "name": "a valid refresh token exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "refresh_token": "valid-refreshtoken"
+        },
+        "headers": {
+          "Authorization": "Bearer validRefToken",
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.refresh_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/refresh"
+      },
+      "response": {
+        "body": {
+          "access_token": "newAccessToken123",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to refresh token with a valid refresh token (see token-service/interface-contract.md)",
+      "providerStates": [
+        {
+          "name": "a valid refresh token exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "refresh_token": "valid-refreshtoken"
+        },
+        "headers": {
+          "Authorization": "Bearer validRefToken",
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.refresh_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/refresh"
+      },
+      "response": {
+        "body": {
+          "access_token": "newAccessToken123",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to refresh token with invalid refresh token",
+      "providerStates": [
+        {
+          "name": "an invalid refresh token is provided"
+        }
+      ],
+      "request": {
+        "body": {
+          "refresh_token": "invalid-refreshtoken"
+        },
+        "headers": {
+          "Authorization": "Bearer invalidToken",
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.refresh_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/refresh"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "INVALID_REFRESH",
+            "message": "Invalid refresh token"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error.code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.error.message": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a request to refresh token with valid refresh token",
+      "providerStates": [
+        {
+          "name": "a valid refresh token exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "refresh_token": "valid-refreshtoken"
+        },
+        "headers": {
+          "Authorization": "Bearer validRefToken",
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.refresh_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/refresh"
+      },
+      "response": {
+        "body": {
+          "access_token": "newAccessToken123",
+          "expires_in": 3600
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.expires_in": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to revoke a token with valid authorization headers",
+      "providerStates": [
+        {
+          "name": "a valid token exists for revocation"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer validAccessToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/revoke"
+      },
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "description": "a request to revoke a token with valid authorization headers (see token-service/interface-contract.md)",
+      "providerStates": [
+        {
+          "name": "a valid token exists for revocation"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer validAccessToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/revoke"
+      },
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "description": "a request to revoke a valid token",
+      "providerStates": [
+        {
+          "name": "a valid token exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer validToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/revoke"
+      },
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "description": "a request to revoke with invalid token",
+      "providerStates": [
+        {
+          "name": "an invalid token is provided"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer invalidToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/token/revoke"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "INVALID_TOKEN",
+            "message": "Token is invalid or expired"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error.code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.error.message": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a request to validate a valid token",
+      "providerStates": [
+        {
+          "name": "a valid token exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer validToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/token/validate"
+      },
+      "response": {
+        "body": {
+          "valid": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to validate token with valid authorization",
+      "providerStates": [
+        {
+          "name": "a valid token is provided"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer validAccessToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/token/validate"
+      },
+      "response": {
+        "body": {
+          "valid": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to validate token with valid authorization (see token-service/openapi.yaml)",
+      "providerStates": [
+        {
+          "name": "a valid token is provided"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer validAccessToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/token/validate"
+      },
+      "response": {
+        "body": {
+          "valid": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to validate with invalid token",
+      "providerStates": [
+        {
+          "name": "an invalid token is provided"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer invalidToken",
+          "X-Tenant-ID": "tenant123"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer\\s.+$"
+                }
+              ]
+            },
+            "X-Tenant-ID": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/token/validate"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "INVALID_TOKEN",
+            "message": "Token is invalid or expired"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error.code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.error.message": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 401
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "token-service"
+  }
+}
