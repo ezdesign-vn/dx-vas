@@ -15,7 +15,6 @@ site/
 templates
 docs/tmp/
 docs/templates/
-docs/standards/
 docs/requests/
 docs/BA/
 tests/contract-tests/node_modules/
