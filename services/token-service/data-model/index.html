@@ -1,0 +1,1812 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/token-service/data-model/" rel="canonical"/>
+<link href="../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Token Service - Data Model - DX VAS - Docs</title>
+<link href="../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#token-service-data-model">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Token Service - Data Model
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-pham-vi-du-lieu-quan-ly-scope">
+<span class="md-ellipsis">
+      1. Phạm vi Dữ liệu Quản lý (Scope)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-ngoai-pham-vi-out-of-scope">
+<span class="md-ellipsis">
+      2. Ngoài Phạm Vi (Out of Scope)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-muc-tieu-cua-tai-lieu-mo-hinh-du-lieu">
+<span class="md-ellipsis">
+      3. Mục tiêu của Tài liệu Mô hình Dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-so-o-erd-entity-relationship-diagram">
+<span class="md-ellipsis">
+      4. Sơ đồ ERD (Entity Relationship Diagram)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-chi-tiet-tung-bang">
+<span class="md-ellipsis">
+      5. Chi tiết Từng Bảng
+    </span>
+</a>
+<nav aria-label="5. Chi tiết Từng Bảng" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-bang-jwks_keys">
+<span class="md-ellipsis">
+      5.1 Bảng jwks_keys
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-bang-auth_sessions">
+<span class="md-ellipsis">
+      5.2 Bảng auth_sessions
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-bang-revoked_tokens">
+<span class="md-ellipsis">
+      5.3 Bảng revoked_tokens
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-bang-token_stats">
+<span class="md-ellipsis">
+      5.4 Bảng token_stats
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-indexes-constraints">
+<span class="md-ellipsis">
+      6. Indexes &amp; Constraints
+    </span>
+</a>
+<nav aria-label="6. Indexes &amp; Constraints" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chi-tiet-best-practices">
+<span class="md-ellipsis">
+      Chi tiết &amp; Best Practices
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-chinh-sach-luu-tru-xoa-du-lieu">
+<span class="md-ellipsis">
+      7. Chính sách Lưu trữ &amp; Xóa Dữ liệu
+    </span>
+</a>
+<nav aria-label="7. Chính sách Lưu trữ &amp; Xóa Dữ liệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-ttl-job-purge">
+<span class="md-ellipsis">
+      7.1 TTL &amp; Job Purge
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-audit-event-notification">
+<span class="md-ellipsis">
+      7.2 Audit &amp; Event Notification
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-hard-delete-rollback">
+<span class="md-ellipsis">
+      7.3 Hard-Delete &amp; Rollback
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-kiem-soat-giam-sat">
+<span class="md-ellipsis">
+      7.4 Kiểm soát &amp; Giám sát
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-data-synchronization-events">
+<span class="md-ellipsis">
+      8. Data Synchronization &amp; Events
+    </span>
+</a>
+<nav aria-label="8. Data Synchronization &amp; Events" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-pubsub-topic-event-names">
+<span class="md-ellipsis">
+      8.1 Pub/Sub Topic &amp; Event Names
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-json-schema-registry">
+<span class="md-ellipsis">
+      8.2 JSON Schema &amp; Registry
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-payload-examples">
+<span class="md-ellipsis">
+      8.3 Payload Examples
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-consumers-subscriptions">
+<span class="md-ellipsis">
+      8.4 Consumers &amp; Subscriptions
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-delivery-semantics-ordering">
+<span class="md-ellipsis">
+      8.5 Delivery Semantics &amp; Ordering
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#86-governance-versioning">
+<span class="md-ellipsis">
+      8.6 Governance &amp; Versioning
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-data-access-control">
+<span class="md-ellipsis">
+      9. Data Access Control
+    </span>
+</a>
+<nav aria-label="9. Data Access Control" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-authentication-database-users">
+<span class="md-ellipsis">
+      9.1 Authentication &amp; Database Users
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-network-encryption">
+<span class="md-ellipsis">
+      9.2 Network &amp; Encryption
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-privilege-matrix-least-privilege">
+<span class="md-ellipsis">
+      9.3 Privilege Matrix (Least Privilege)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-mo-rong-trong-tuong-lai">
+<span class="md-ellipsis">
+      10. Mở rộng trong Tương lai
+    </span>
+</a>
+<nav aria-label="10. Mở rộng trong Tương lai" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-embedded-rbac-claims">
+<span class="md-ellipsis">
+      10.1 Embedded RBAC Claims
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-key-usage-logging">
+<span class="md-ellipsis">
+      10.2 Key Usage Logging
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-partitioning-sharding">
+<span class="md-ellipsis">
+      10.3 Partitioning &amp; Sharding
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-cross-region-replication">
+<span class="md-ellipsis">
+      10.4 Cross-Region Replication
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#105-real-time-analytics-feed">
+<span class="md-ellipsis">
+      10.5 Real-time Analytics Feed
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#106-audit-history-versioning">
+<span class="md-ellipsis">
+      10.6 Audit History &amp; Versioning
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-enums">
+<span class="md-ellipsis">
+      11. ENUMs
+    </span>
+</a>
+<nav aria-label="11. ENUMs" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#111-reason-trong-revoked_tokens">
+<span class="md-ellipsis">
+      11.1 reason trong revoked_tokens
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#112-tuy-chon-event-trong-pubsub">
+<span class="md-ellipsis">
+      11.2 (Tùy chọn) event trong Pub/Sub
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#113-best-practices">
+<span class="md-ellipsis">
+      11.3 Best Practices
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-phu-luc-kiem-thu">
+<span class="md-ellipsis">
+      12. Phụ lục Kiểm thử
+    </span>
+</a>
+<nav aria-label="12. Phụ lục Kiểm thử" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#121-unit-tests">
+<span class="md-ellipsis">
+      12.1 Unit Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#122-integration-tests">
+<span class="md-ellipsis">
+      12.2 Integration Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#123-retention-purge-tests">
+<span class="md-ellipsis">
+      12.3 Retention &amp; Purge Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#124-performance-tests">
+<span class="md-ellipsis">
+      12.4 Performance Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#125-security-privilege-tests">
+<span class="md-ellipsis">
+      12.5 Security &amp; Privilege Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#126-concurrency-consistency">
+<span class="md-ellipsis">
+      12.6 Concurrency &amp; Consistency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#127-cicd-integration">
+<span class="md-ellipsis">
+      12.7 CI/CD Integration
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-lien-ket-tai-lieu">
+<span class="md-ellipsis">
+      13. 📚 Liên kết Tài liệu
+    </span>
+</a>
+<nav aria-label="13. 📚 Liên kết Tài liệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cac-quyet-inh-kien-truc-adr">
+<span class="md-ellipsis">
+      🔖 Các Quyết định Kiến trúc (ADR)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="token-service-data-model">🗃️ Token Service - Data Model<a class="headerlink" href="#token-service-data-model" title="Permanent link">¶</a></h1>
+<!-- toc -->
+<blockquote>
+<p><strong>Token Service</strong> là thành phần trung tâm trong kiến trúc DX-VAS, chịu trách nhiệm quản lý các dữ liệu sau:
+- <strong>JWKS keys</strong> (<code>jwks_keys</code>) – lưu metadata key để API Gateway xác thực JWT offline (RS256) theo ADR-006.<br/>
+- <strong>Auth sessions</strong> (<code>auth_sessions</code>) – session_id, user_id, tenant_id, TTL refresh token.<br/>
+- <strong>Revoked tokens</strong> (<code>revoked_tokens</code>) – jti, tenant_id, revoked_at, reason (CR-03).<br/>
+- <strong>Token stats</strong> (<code>token_stats</code>) – latency, ip_address, device, chỉ khi <code>enable_token_stats=true</code>.  </p>
+</blockquote>
+<hr/>
+<h2 id="1-pham-vi-du-lieu-quan-ly-scope">1. Phạm vi Dữ liệu Quản lý (Scope)<a class="headerlink" href="#1-pham-vi-du-lieu-quan-ly-scope" title="Permanent link">¶</a></h2>
+<p><strong>Token Service</strong> quản lý dữ liệu liên quan đến luồng phát hành, thu hồi và introspect JWT, bao gồm:
+- Cấu hình và metadata JWKS.
+- Lịch sử phiên (session) cho refresh token.
+- Danh sách token đã bị thu hồi để chặn offline.
+- Thống kê (tuỳ chọn) cho mỗi token (latency, IP, v.v.).</p>
+<h2 id="2-ngoai-pham-vi-out-of-scope">2. Ngoài Phạm Vi (Out of Scope)<a class="headerlink" href="#2-ngoai-pham-vi-out-of-scope" title="Permanent link">¶</a></h2>
+<p><strong>Token Service</strong> <strong>không</strong> quản lý:
+- ❌ Thông tin người dùng / role / permission (thuộc User Service).<br/>
+- ❌ Dữ liệu SMS / Email (thuộc Notification Service).<br/>
+- ❌ Lịch sử audit chi tiết ngoài các sự kiện token.*.v1 (đã publish Pub/Sub).</p>
+<h2 id="3-muc-tieu-cua-tai-lieu-mo-hinh-du-lieu">3. Mục tiêu của Tài liệu Mô hình Dữ liệu<a class="headerlink" href="#3-muc-tieu-cua-tai-lieu-mo-hinh-du-lieu" title="Permanent link">¶</a></h2>
+<ul>
+<li>Mô tả chi tiết cấu trúc bảng phục vụ Issuance, Revocation, Introspection.  </li>
+<li>Thể hiện rõ ràng ràng buộc PK/FK, index, ENUM (nếu có).  </li>
+<li>Đảm bảo tuân thủ các ADR quan trọng:  </li>
+<li>ADR-023 (Schema Migration Strategy)  </li>
+<li>ADR-024 (Data Anonymization &amp; Retention)  </li>
+<li>ADR-026 (Hard Delete Policy)  </li>
+</ul>
+<hr/>
+<h2 id="4-so-o-erd-entity-relationship-diagram">4. Sơ đồ ERD (Entity Relationship Diagram)<a class="headerlink" href="#4-so-o-erd-entity-relationship-diagram" title="Permanent link">¶</a></h2>
+<p><strong>Sơ đồ sơ bộ</strong></p>
+<pre class="mermaid"><code>erDiagram
+  jwks_keys {
+    UUID kid PK
+    JSON public_key
+    BOOLEAN active
+    TIMESTAMPTZ created_at
+    TIMESTAMPTZ rotated_at
+  }
+  auth_sessions {
+    UUID session_id PK
+    UUID user_id
+    TEXT tenant_id
+    TIMESTAMPTZ created_at
+    TIMESTAMPTZ last_active_at
+  }
+  revoked_tokens {
+    UUID jti PK
+    TEXT tenant_id
+    TIMESTAMPTZ revoked_at
+    TEXT reason
+    UUID revoked_by
+  }
+  token_stats {
+    UUID stat_id PK
+    UUID jti FK
+    INTEGER latency_ms
+    TEXT ip_address
+    JSON device_info
+    TIMESTAMPTZ recorded_at
+  }
+
+  jwks_keys ||--o{ auth_sessions : "signs sessions"
+  auth_sessions ||--o{ revoked_tokens : "may be revoked"
+  revoked_tokens ||--o| token_stats : "0..1 stats"
+</code></pre>
+<blockquote>
+<p><strong>Chú thích:</strong></p>
+<ul>
+<li><code>revoked_tokens → token_stats</code> là quan hệ 1-to-0..1 (một revoke có thể không có stat).</li>
+<li><code>jwks_keys.active</code> chỉ one-hot active key; các key cũ giữ để verify until TTL.</li>
+</ul>
+</blockquote>
+<p><strong>Sơ đồ ERD chi tiết</strong></p>
+<pre class="mermaid"><code>erDiagram
+  jwks_keys {
+    UUID    kid PK              "Key ID"
+    JSONB   public_key NOT_NULL JWK public key
+    BOOLEAN active DEFAULT FALSE
+    TIMESTAMPTZ created_at NOT_NULL DEFAULT now()
+    TIMESTAMPTZ rotated_at NOT_NULL
+  }
+  auth_sessions {
+    UUID        session_id PK           "Session ID (refresh token)"
+    UUID        user_id NOT_NULL        Global user_id
+    TEXT        tenant_id NOT_NULL      "Tenant context"
+    TIMESTAMPTZ created_at NOT_NULL DEFAULT now()
+    TIMESTAMPTZ last_active_at DEFAULT now() NOT_NULL
+  }
+  revoked_tokens {
+    UUID        jti PK                  "JWT ID"
+    TEXT        tenant_id NOT_NULL
+    TIMESTAMPTZ revoked_at NOT_NULL DEFAULT now()
+    TEXT        reason
+    UUID        revoked_by
+  }
+  token_stats {
+    UUID    stat_id PK                  "Stats record ID"
+    UUID    jti FK NOT_NULL             References "revoked_tokens.jti"
+    INT     latency_ms NOT_NULL
+    TEXT    ip_address
+    JSONB   device_info
+    TIMESTAMPTZ recorded_at NOT_NULL DEFAULT now()
+  }
+
+  jwks_keys   ||--o{ auth_sessions   : "signs sessions"
+  auth_sessions ||--o{ revoked_tokens  : "may be revoked"
+  revoked_tokens ||--o| token_stats    : "0..1 stats"
+</code></pre>
+<blockquote>
+<p><strong>Chú thích &amp; Best Practices</strong></p>
+<ul>
+<li>
+<p><strong>Cardinality</strong></p>
+</li>
+<li>
+<p><code>jwks_keys (1) → auth_sessions (0..*)</code> – một key có thể sign nhiều phiên.</p>
+</li>
+<li><code>auth_sessions (1) → revoked_tokens (0..*)</code> – không phải mọi session đều bị revoke.</li>
+<li><code>revoked_tokens (1) → token_stats (0..1)</code> – stats chỉ sinh khi <code>enable_token_stats=true</code>.</li>
+<li>
+<p><strong>Indexes</strong></p>
+</li>
+<li>
+<p><code>jwks_keys(active)</code> for fast lookup of current key.</p>
+</li>
+<li><code>auth_sessions(user_id, tenant_id)</code> for session validation.</li>
+<li><code>revoked_tokens(tenant_id)</code> để Gateway check revoked nhanh.</li>
+<li>
+<p><strong>Retention &amp; Delete</strong></p>
+</li>
+<li>
+<p><code>jwks_keys</code>: giữ 30 ngày sau rotation → Cron purge (ADR-024/026).</p>
+</li>
+<li><code>revoked_tokens</code>: TTL 30d → auto-purge (ADR-024/026).</li>
+<li><code>token_stats</code>: TTL 90d → anonymize &amp; delete (ADR-024).</li>
+</ul>
+</blockquote>
+<hr/>
+<h2 id="5-chi-tiet-tung-bang">5. Chi tiết Từng Bảng<a class="headerlink" href="#5-chi-tiet-tung-bang" title="Permanent link">¶</a></h2>
+<h3 id="51-bang-jwks_keys">5.1 Bảng <code>jwks_keys</code><a class="headerlink" href="#51-bang-jwks_keys" title="Permanent link">¶</a></h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">jwks_keys</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="n">kid</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="n">public_key</span><span class="w"> </span><span class="n">JSONB</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="n">active</span><span class="w"> </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">FALSE</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="n">rotated_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="p">);</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu dữ liệu</th>
+<th>Ràng buộc</th>
+<th>Default</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kid</code></td>
+<td><code>UUID</code></td>
+<td><code>PRIMARY KEY</code></td>
+<td></td>
+<td>Key ID, khớp JWT header <code>kid</code></td>
+</tr>
+<tr>
+<td><code>public_key</code></td>
+<td><code>JSONB</code></td>
+<td><code>NOT NULL</code></td>
+<td></td>
+<td>JWK Public Key</td>
+</tr>
+<tr>
+<td><code>active</code></td>
+<td><code>BOOLEAN</code></td>
+<td><code>NOT NULL</code></td>
+<td><code>FALSE</code></td>
+<td>True nếu đang dùng để verify</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>TIMESTAMPTZ</code></td>
+<td><code>NOT NULL</code></td>
+<td><code>now()</code></td>
+<td>Thời điểm tạo key</td>
+</tr>
+<tr>
+<td><code>rotated_at</code></td>
+<td><code>TIMESTAMPTZ</code></td>
+<td></td>
+<td></td>
+<td>Thời điểm key được rotate lần cuối</td>
+</tr>
+</tbody>
+</table>
+<h4 id="indexes-constraints">Indexes &amp; Constraints<a class="headerlink" href="#indexes-constraints" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Primary Key:</strong> <code>pk_jwks_keys</code> on <code>(kid)</code></li>
+<li><strong>Unique Constraint:</strong> <code>uq_jwks_keys_active</code> on <code>(active)</code> – chỉ một key được active tại một thời điểm</li>
+<li><strong>B-tree Index:</strong> <code>idx_jwks_created_at</code> on <code>(created_at)</code> – tối ưu truy vấn key mới nhất</li>
+</ul>
+<h3 id="52-bang-auth_sessions">5.2 Bảng <code>auth_sessions</code><a class="headerlink" href="#52-bang-auth_sessions" title="Permanent link">¶</a></h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">auth_sessions</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="n">session_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="n">user_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="n">tenant_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="n">last_active_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="p">);</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu dữ liệu</th>
+<th>Ràng buộc</th>
+<th>Default</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_id</code></td>
+<td><code>UUID</code></td>
+<td><code>PRIMARY KEY</code></td>
+<td></td>
+<td>ID phiên dùng cho refresh token</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>UUID</code></td>
+<td><code>NOT NULL</code></td>
+<td></td>
+<td><code>user_id_global</code> từ User Service</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td><code>TEXT</code></td>
+<td><code>NOT NULL</code></td>
+<td></td>
+<td>Tenant context</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>TIMESTAMPTZ</code></td>
+<td><code>NOT NULL</code></td>
+<td><code>now()</code></td>
+<td>Thời điểm phiên được tạo</td>
+</tr>
+<tr>
+<td><code>last_active_at</code></td>
+<td><code>TIMESTAMPTZ</code></td>
+<td><code>NOT NULL</code></td>
+<td><code>now()</code></td>
+<td>Thời điểm phiên hoạt động cuối cùng</td>
+</tr>
+</tbody>
+</table>
+<h4 id="indexes-constraints_1">Indexes &amp; Constraints<a class="headerlink" href="#indexes-constraints_1" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Primary Key:</strong> <code>pk_auth_sessions</code> trên (<code>session_id</code>)</li>
+<li><strong>B-tree Index:</strong> <code>idx_auth_sessions_user_tenant</code> trên (<code>user_id</code>, <code>tenant_id</code>) – tối ưu lookup session theo user &amp; tenant</li>
+<li><strong>B-tree Index:</strong> <code>idx_auth_sessions_last_active</code> trên (<code>last_active_at</code>) – hỗ trợ purge phiên cũ và thống kê session còn sống</li>
+</ul>
+<h3 id="53-bang-revoked_tokens">5.3 Bảng <code>revoked_tokens</code><a class="headerlink" href="#53-bang-revoked_tokens" title="Permanent link">¶</a></h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">revoked_tokens</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="n">jti</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="n">tenant_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="n">revoked_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="n">reason</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">  </span><span class="n">revoked_by</span><span class="w"> </span><span class="n">UUID</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="p">);</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu dữ liệu</th>
+<th>Ràng buộc</th>
+<th>Default</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jti</code></td>
+<td><code>UUID</code></td>
+<td><code>PRIMARY KEY</code></td>
+<td></td>
+<td>JWT ID để thu hồi (claim <code>jti</code>)</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td><code>TEXT</code></td>
+<td><code>NOT NULL</code></td>
+<td></td>
+<td>Tenant context</td>
+</tr>
+<tr>
+<td><code>revoked_at</code></td>
+<td><code>TIMESTAMPTZ</code></td>
+<td><code>NOT NULL</code></td>
+<td><code>now()</code></td>
+<td>Thời điểm token bị thu hồi</td>
+</tr>
+<tr>
+<td><code>reason</code></td>
+<td><code>TEXT</code></td>
+<td></td>
+<td></td>
+<td>Lý do (<code>logout</code>, <code>rotation</code>, v.v.)</td>
+</tr>
+<tr>
+<td><code>revoked_by</code></td>
+<td><code>UUID</code></td>
+<td></td>
+<td></td>
+<td>ID người/thực thể thực hiện revoke</td>
+</tr>
+</tbody>
+</table>
+<h4 id="indexes-constraints_2">Indexes &amp; Constraints<a class="headerlink" href="#indexes-constraints_2" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Primary Key:</strong> <code>pk_revoked_tokens</code> trên (<code>jti</code>)</li>
+<li><strong>B-tree Index:</strong> <code>idx_revoked_tokens_tenant_revoked_at</code> trên (<code>tenant_id</code>, <code>revoked_at</code>) – tối ưu truy vấn và purge theo tenant &amp; thời gian</li>
+<li><strong>Check Constraint:</strong> <code>chk_revoked_tokens_reason</code> CHECK (<code>reason</code> IN ('logout','rotation','breach','expired'))</li>
+</ul>
+<h3 id="54-bang-token_stats">5.4 Bảng <code>token_stats</code><a class="headerlink" href="#54-bang-token_stats" title="Permanent link">¶</a></h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">token_stats</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="n">stat_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="n">jti</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">revoked_tokens</span><span class="p">(</span><span class="n">jti</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="n">latency_ms</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="n">ip_address</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">  </span><span class="n">device_info</span><span class="w"> </span><span class="n">JSONB</span><span class="p">,</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">  </span><span class="n">recorded_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="p">);</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu dữ liệu</th>
+<th>Ràng buộc</th>
+<th>Default</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stat_id</code></td>
+<td><code>UUID</code></td>
+<td><code>PRIMARY KEY</code></td>
+<td></td>
+<td>ID bản ghi thống kê</td>
+</tr>
+<tr>
+<td><code>jti</code></td>
+<td><code>UUID</code></td>
+<td><code>NOT NULL</code>, FK → <code>revoked_tokens(jti)</code></td>
+<td></td>
+<td>Tham chiếu tới token đã bị thu hồi</td>
+</tr>
+<tr>
+<td><code>latency_ms</code></td>
+<td><code>INTEGER</code></td>
+<td><code>NOT NULL</code></td>
+<td></td>
+<td>Thời gian (ms) thực hiện issuance/revoke</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td><code>TEXT</code></td>
+<td></td>
+<td></td>
+<td>Địa chỉ IP client</td>
+</tr>
+<tr>
+<td><code>device_info</code></td>
+<td><code>JSONB</code></td>
+<td></td>
+<td></td>
+<td>Thông tin thiết bị (type, user_agent, phiên bản)</td>
+</tr>
+<tr>
+<td><code>recorded_at</code></td>
+<td><code>TIMESTAMPTZ</code></td>
+<td><code>NOT NULL</code></td>
+<td><code>now()</code></td>
+<td>Thời điểm ghi nhận thống kê</td>
+</tr>
+</tbody>
+</table>
+<h4 id="indexes-constraints_3">Indexes &amp; Constraints<a class="headerlink" href="#indexes-constraints_3" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Primary Key:</strong> <code>pk_token_stats</code> trên (<code>stat_id</code>)</li>
+<li><strong>Foreign Key:</strong> <code>fk_token_stats_revoked</code></li>
+</ul>
+<p><div class="language-sql highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">token_stats</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_token_stats_revoked</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">jti</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">revoked_tokens</span><span class="p">(</span><span class="n">jti</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">;</span>
+</span></code></pre></div>
+* <strong>B-tree Index:</strong> <code>idx_token_stats_jti_recorded</code> trên (<code>jti</code>, <code>recorded_at</code>) – tối ưu lookup stats cho mỗi token và purge theo thời gian</p>
+<hr/>
+<h2 id="6-indexes-constraints">6. Indexes &amp; Constraints<a class="headerlink" href="#6-indexes-constraints" title="Permanent link">¶</a></h2>
+<p>Để đảm bảo hiệu năng truy vấn và tính toàn vẹn dữ liệu, mỗi bảng trong Token Service được trang bị các chỉ mục (index) và ràng buộc (constraint) như sau:</p>
+<table>
+<thead>
+<tr>
+<th>Bảng</th>
+<th>Tên Index / Constraint</th>
+<th>Loại</th>
+<th>Định nghĩa</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>jwks_keys</strong></td>
+<td><code>pk_jwks_keys</code></td>
+<td>Primary Key</td>
+<td><code>(kid)</code></td>
+<td>Đảm bảo <code>kid</code> là duy nhất, dùng làm PK</td>
+</tr>
+<tr>
+<td></td>
+<td><code>uq_jwks_keys_active</code></td>
+<td>Unique Constraint</td>
+<td><code>(active)</code></td>
+<td>Chỉ một public key được đánh dấu <code>active = TRUE</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>idx_jwks_created_at</code></td>
+<td>B-tree Index</td>
+<td><code>(created_at)</code></td>
+<td>Tìm key mới nhất khi rotate</td>
+</tr>
+<tr>
+<td><strong>auth_sessions</strong></td>
+<td><code>pk_auth_sessions</code></td>
+<td>Primary Key</td>
+<td><code>(session_id)</code></td>
+<td>Định danh phiên</td>
+</tr>
+<tr>
+<td></td>
+<td><code>idx_auth_sessions_user_tenant</code></td>
+<td>B-tree Index</td>
+<td><code>(user_id, tenant_id)</code></td>
+<td>Lookup sessions theo người dùng &amp; tenant</td>
+</tr>
+<tr>
+<td></td>
+<td><code>idx_auth_sessions_last_active</code></td>
+<td>B-tree Index</td>
+<td><code>(last_active_at)</code></td>
+<td>Xóa session cũ, thống kê session còn “sống”</td>
+</tr>
+<tr>
+<td><strong>revoked_tokens</strong></td>
+<td><code>pk_revoked_tokens</code></td>
+<td>Primary Key</td>
+<td><code>(jti)</code></td>
+<td>Định danh token bị thu hồi</td>
+</tr>
+<tr>
+<td></td>
+<td><code>idx_revoked_tokens_tenant_at</code></td>
+<td>B-tree Index</td>
+<td><code>(tenant_id, revoked_at)</code></td>
+<td>Tìm tokens đã thu hồi theo tenant và thời gian, tối ưu purge job</td>
+</tr>
+<tr>
+<td></td>
+<td><code>chk_revoked_tokens_reason</code></td>
+<td>Check Constraint</td>
+<td><code>reason IN ('logout','rotation','breach','expired')</code></td>
+<td>Giới hạn giá trị <code>reason</code> theo ENUM</td>
+</tr>
+<tr>
+<td><strong>token_stats</strong></td>
+<td><code>pk_token_stats</code></td>
+<td>Primary Key</td>
+<td><code>(stat_id)</code></td>
+<td>Định danh record thống kê</td>
+</tr>
+<tr>
+<td></td>
+<td><code>fk_token_stats_revoked_tokens</code></td>
+<td>Foreign Key</td>
+<td><code>(jti) REFERENCES revoked_tokens(jti) ON DELETE CASCADE</code></td>
+<td>Đảm bảo mỗi stat liên kết tới một revoked token</td>
+</tr>
+<tr>
+<td></td>
+<td><code>idx_token_stats_jti_recorded</code></td>
+<td>B-tree Index</td>
+<td><code>(jti, recorded_at)</code></td>
+<td>Lookup stats cho một token và purge theo thời gian</td>
+</tr>
+</tbody>
+</table>
+<h3 id="chi-tiet-best-practices">Chi tiết &amp; Best Practices<a class="headerlink" href="#chi-tiet-best-practices" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Primary Key &amp; Unique</strong>:  </li>
+<li>PK đặt trên cột định danh duy nhất (<code>kid</code>, <code>session_id</code>, <code>jti</code>, <code>stat_id</code>).  </li>
+<li>
+<p>Unique cho <code>jwks_keys.active</code> để chỉ 1 key được active.</p>
+</li>
+<li>
+<p><strong>B-tree Index</strong>:  </p>
+</li>
+<li>Dùng cho cột thường xuyên filter/sort: <code>created_at</code>, <code>last_active_at</code>, <code>revoked_at</code>, <code>recorded_at</code>.  </li>
+<li>
+<p>Composite index <code>(user_id, tenant_id)</code> giúp tìm session theo tenant nhanh.</p>
+</li>
+<li>
+<p><strong>Check Constraint</strong>:  </p>
+</li>
+<li>
+<p>Sử dụng <code>CHECK</code> để validate ENUM-like (<code>reason</code>), không phụ thuộc ENUM type DB, giữ tính di động.</p>
+</li>
+<li>
+<p><strong>Foreign Key</strong>:  </p>
+</li>
+<li>
+<p><code>token_stats.jti</code> tham chiếu <code>revoked_tokens.jti</code> với <code>ON DELETE CASCADE</code> để tự cleanup stats khi token bị xóa.</p>
+</li>
+<li>
+<p><strong>Retention &amp; Purge</strong>:  </p>
+</li>
+<li>Các cron/job purge dựa trên chỉ mục <code>(tenant_id, revoked_at)</code> và <code>(jti, recorded_at)</code> để xóa dữ liệu quá hạn nhanh.</li>
+</ul>
+<blockquote>
+<p>Các tên index/constraint tuân chuẩn <strong>5★ Data Model Standard</strong>: có prefix tương ứng bảng, rõ ràng loại index, dễ tra cứu khi debugging và tuning.</p>
+</blockquote>
+<hr/>
+<h2 id="7-chinh-sach-luu-tru-xoa-du-lieu">7. Chính sách Lưu trữ &amp; Xóa Dữ liệu<a class="headerlink" href="#7-chinh-sach-luu-tru-xoa-du-lieu" title="Permanent link">¶</a></h2>
+<blockquote>
+<p>Tuân theo ADR-024 (Data Anonymization &amp; Retention) và ADR-026 (Hard-Delete Policy), mọi dữ liệu cũ đều được xóa hoặc ẩn danh theo TTL định sẵn.</p>
+</blockquote>
+<h3 id="71-ttl-job-purge">7.1 TTL &amp; Job Purge<a class="headerlink" href="#71-ttl-job-purge" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bảng</th>
+<th>TTL</th>
+<th>Job</th>
+<th>Tần suất</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jwks_keys</code></td>
+<td>30 ngày kể từ <code>rotated_at</code></td>
+<td><code>purge_jwks_keys</code></td>
+<td>Hàng ngày 02:00 UTC</td>
+<td><code>DELETE FROM jwks_keys WHERE rotated_at &lt; now() - INTERVAL '30 days';</code></td>
+</tr>
+<tr>
+<td><code>auth_sessions</code></td>
+<td>14 ngày kể từ <code>last_active_at</code></td>
+<td><code>purge_auth_sessions</code></td>
+<td>Hàng giờ</td>
+<td><code>DELETE FROM auth_sessions WHERE last_active_at &lt; now() - INTERVAL '14 days';</code></td>
+</tr>
+<tr>
+<td><code>revoked_tokens</code></td>
+<td>30 ngày kể từ <code>revoked_at</code></td>
+<td><code>purge_revoked_tokens</code></td>
+<td>Hàng ngày 03:00 UTC</td>
+<td><code>DELETE FROM revoked_tokens WHERE revoked_at &lt; now() - INTERVAL '30 days';</code></td>
+</tr>
+<tr>
+<td><code>token_stats</code></td>
+<td>90 ngày kể từ <code>recorded_at</code></td>
+<td><code>anonymize_token_stats</code> &amp; <code>purge_token_stats</code></td>
+<td>Hàng ngày 04:00 UTC</td>
+<td>1) <code>UPDATE token_stats SET ip_address = NULL, device_info = NULL WHERE recorded_at &lt; now() - INTERVAL '90 days';</code><br/>2) <code>DELETE FROM token_stats WHERE recorded_at &lt; now() - INTERVAL '90 days';</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-audit-event-notification">7.2 Audit &amp; Event Notification<a class="headerlink" href="#72-audit-event-notification" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mỗi job purge/anonymize ghi vào bảng <code>audit_log.purge_history</code> (schema v1: <code>resource</code>, <code>deleted_count</code>, <code>run_at</code>, <code>initiator='system'</code>).  </li>
+<li>Sau khi hoàn thành, phát sự kiện <strong><code>data.purged.v1</code></strong> lên Pub/Sub topic <code>data.v1</code> với payload:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"data.purged.v1"</span><span class="p">,</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">"resource"</span><span class="p">:</span><span class="w"> </span><span class="s2">"revoked_tokens"</span><span class="p">,</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="nt">"deleted_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">,</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-09T02:00:00Z"</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></li>
+</ul>
+<h3 id="73-hard-delete-rollback">7.3 Hard-Delete &amp; Rollback<a class="headerlink" href="#73-hard-delete-rollback" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Hard-Delete</strong>: Không có cơ chế soft-delete—dữ liệu vượt TTL bị xóa vĩnh viễn.</li>
+<li><strong>Undo Migration</strong>: Nếu cần khôi phục, sử dụng Flyway <code>U20250617__recreate_revoked_tokens.sql</code> (ADR-023).</li>
+</ul>
+<h3 id="74-kiem-soat-giam-sat">7.4 Kiểm soát &amp; Giám sát<a class="headerlink" href="#74-kiem-soat-giam-sat" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Job purge/anonymize phải log metric:</p>
+</li>
+<li>
+<p><code>purge_revoked_tokens_count</code></p>
+</li>
+<li><code>purge_auth_sessions_count</code></li>
+<li><code>anonymize_token_stats_count</code></li>
+<li>Alert nếu job thất bại hoặc <code>deleted_count = 0</code> bất thường (kịch bản dữ liệu quá nhiều hoặc quá ít).</li>
+</ul>
+<hr/>
+<h2 id="8-data-synchronization-events">8. Data Synchronization &amp; Events<a class="headerlink" href="#8-data-synchronization-events" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Phát hành <strong>sự kiện bất đồng bộ</strong> để các thành phần khác (API Gateway, Audit Service, Monitoring) nhận biết ngay thay đổi liên quan JWT, đồng thời đảm bảo <strong>đồng nhất</strong> và <strong>có thể mở rộng</strong> theo ADR-030.</p>
+</blockquote>
+<hr/>
+<h3 id="81-pubsub-topic-event-names">8.1 Pub/Sub Topic &amp; Event Names<a class="headerlink" href="#81-pubsub-topic-event-names" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Topic chung</strong>: <code>token.v1</code> </li>
+<li><strong>Tên sự kiện</strong> (theo ADR-030 – Event Schema Governance):  </li>
+<li><code>token.issued.v1</code> </li>
+<li><code>token.revoked.v1</code> </li>
+<li><code>token.introspect_fail.v1</code> </li>
+</ul>
+<blockquote>
+<p><em>Mỗi event có attribute <code>tenant_id</code>, dùng để </em><em>filter</em><em> fan-out tới các subscription.</em></p>
+</blockquote>
+<hr/>
+<h3 id="82-json-schema-registry">8.2 JSON Schema &amp; Registry<a class="headerlink" href="#82-json-schema-registry" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Schema ID</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token_issued_v1</code></td>
+<td><code>token_issued_v1</code></td>
+<td>Invariants: <code>jti</code>, <code>session_id</code></td>
+</tr>
+<tr>
+<td><code>token_revoked_v1</code></td>
+<td><code>token_revoked_v1</code></td>
+<td>Invariants: <code>jti</code>, <code>revoked_by</code></td>
+</tr>
+<tr>
+<td><code>token_introspect_fail_v1</code></td>
+<td><code>token_introspect_fail_v1</code></td>
+<td>Invariants: <code>token</code>, <code>error</code></td>
+</tr>
+</tbody>
+</table>
+<p>Schemas được lưu trong <strong>Schema Registry</strong> (backward-compatible ≥ 6 tháng).</p>
+<hr/>
+<h3 id="83-payload-examples">8.3 Payload Examples<a class="headerlink" href="#83-payload-examples" title="Permanent link">¶</a></h3>
+<h4 id="831-tokenissuedv1">8.3.1 <code>token.issued.v1</code><a class="headerlink" href="#831-tokenissuedv1" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="p">{</span>
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.issued.v1"</span><span class="p">,</span>
+</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-09T08:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"school-xyz"</span><span class="p">,</span>
+</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-123"</span><span class="p">,</span>
+</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">  </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid-abc-123"</span><span class="p">,</span>
+</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">  </span><span class="nt">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sess-456-def"</span><span class="p">,</span>
+</span><span id="__span-6-8"><a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"203.0.113.5"</span><span class="p">,</span>
+</span><span id="__span-6-9"><a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="w">  </span><span class="nt">"device"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-10"><a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span>
+</span><span id="__span-6-11"><a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="w">    </span><span class="nt">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0"</span>
+</span><span id="__span-6-12"><a href="#__codelineno-6-12" id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-13"><a href="#__codelineno-6-13" id="__codelineno-6-13" name="__codelineno-6-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="832-tokenrevokedv1">8.3.2 <code>token.revoked.v1</code><a class="headerlink" href="#832-tokenrevokedv1" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.revoked.v1"</span><span class="p">,</span>
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-09T09:15:30Z"</span><span class="p">,</span>
+</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"school-xyz"</span><span class="p">,</span>
+</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-123"</span><span class="p">,</span>
+</span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">  </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid-abc-123"</span><span class="p">,</span>
+</span><span id="__span-7-7"><a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">  </span><span class="nt">"revoked_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin-789"</span><span class="p">,</span>
+</span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">  </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"logout"</span><span class="p">,</span>
+</span><span id="__span-7-9"><a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"203.0.113.5"</span>
+</span><span id="__span-7-10"><a href="#__codelineno-7-10" id="__codelineno-7-10" name="__codelineno-7-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="833-tokenintrospect_failv1">8.3.3 <code>token.introspect_fail.v1</code><a class="headerlink" href="#833-tokenintrospect_failv1" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.introspect_fail.v1"</span><span class="p">,</span>
+</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-09T09:16:00Z"</span><span class="p">,</span>
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"school-xyz"</span><span class="p">,</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">  </span><span class="nt">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJSUzI1NiIs…"</span><span class="p">,</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.revoked"</span><span class="p">,</span>
+</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token đã bị thu hồi"</span>
+</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-10"><a href="#__codelineno-8-10" id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="84-consumers-subscriptions">8.4 Consumers &amp; Subscriptions<a class="headerlink" href="#84-consumers-subscriptions" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Subscriber</th>
+<th>Subscription ID</th>
+<th>Xử lý chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API Gateway</strong></td>
+<td><code>sub-token-revoked</code></td>
+<td>Xoá cache <code>revoked:{jti}</code> khi nhận <code>token.revoked.v1</code></td>
+</tr>
+<tr>
+<td><strong>Audit Logging</strong></td>
+<td><code>sub-token-audit</code></td>
+<td>Ghi log event vào bảng <code>audit_log.token_events</code></td>
+</tr>
+<tr>
+<td><strong>Monitoring Service</strong></td>
+<td><code>sub-token-monitor</code></td>
+<td>Tính metrics - hit/miss, latency, fail rates</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Filter</strong>: subscription lọc attribute <code>tenant_id</code> để phân vùng riêng cho mỗi tenant.</li>
+</ul>
+<hr/>
+<h3 id="85-delivery-semantics-ordering">8.5 Delivery Semantics &amp; Ordering<a class="headerlink" href="#85-delivery-semantics-ordering" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>At-least-once</strong> delivery, idempotent consumers.</li>
+<li><strong>Ordering</strong>: Pub/Sub đảm bảo ordering trong cùng <code>orderingKey=tenant_id</code>.</li>
+<li><strong>Retries</strong>: DLQ (Dead-Letter Queue) cho event thất bại sau 5 lần xử lý.</li>
+</ul>
+<hr/>
+<h3 id="86-governance-versioning">8.6 Governance &amp; Versioning<a class="headerlink" href="#86-governance-versioning" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mỗi event tích hợp field <code>schema_version</code> (mặc định = 1).</li>
+<li>Khi schema thay đổi, tăng suffix: <code>token.issued.v2</code>, giữ backward-compat trong ≥ 6 tháng.</li>
+<li>Theo ADR-030, mọi consumer phải kiểm tra <code>schema_version</code> trước khi deserialize.</li>
+</ul>
+<hr/>
+<h2 id="9-data-access-control">9. Data Access Control<a class="headerlink" href="#9-data-access-control" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Đảm bảo chỉ <strong>Token Service</strong> và các thành phần đã xác thực mới được phép truy cập dữ liệu, tuân <strong>principle of least privilege</strong> và tuân chuẩn bảo mật mạng/Dữ liệu.</p>
+</blockquote>
+<h3 id="91-authentication-database-users">9.1 Authentication &amp; Database Users<a class="headerlink" href="#91-authentication-database-users" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Cloud SQL IAM Authentication</strong> </li>
+<li>Admin sử dụng IAM role <code>cloudsql.admin</code> để kết nối với instance.  </li>
+<li><strong>Application user</strong> </li>
+<li>Tài khoản DB <code>token_service</code> (mapping Workload Identity <code>svc-token-db@dx-vas-core.iam.gserviceaccount.com</code>).  </li>
+<li>Không có quyền SUPERUSER.</li>
+</ul>
+<h3 id="92-network-encryption">9.2 Network &amp; Encryption<a class="headerlink" href="#92-network-encryption" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Kết nối Private IP</strong> qua VPC Peering (GKE ↔ Cloud SQL).  </li>
+<li><strong>SSL/TLS bắt buộc</strong>: <code>sslmode=require</code>, verify server cert.  </li>
+<li><strong>Firewall</strong> chỉ mở cổng 5432 cho subnet GKE core.</li>
+</ul>
+<h3 id="93-privilege-matrix-least-privilege">9.3 Privilege Matrix (Least Privilege)<a class="headerlink" href="#93-privilege-matrix-least-privilege" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>DB User</th>
+<th>Bảng / Schema</th>
+<th>Quyền</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token_service</code></td>
+<td><code>jwks_keys</code></td>
+<td>SELECT, INSERT, UPDATE</td>
+</tr>
+<tr>
+<td></td>
+<td><code>auth_sessions</code></td>
+<td>SELECT, INSERT, UPDATE, DELETE</td>
+</tr>
+<tr>
+<td></td>
+<td><code>revoked_tokens</code></td>
+<td>SELECT, INSERT, DELETE</td>
+</tr>
+<tr>
+<td></td>
+<td><code>token_stats</code></td>
+<td>SELECT, INSERT, DELETE</td>
+</tr>
+<tr>
+<td></td>
+<td><code>audit_log.*</code></td>
+<td>INSERT</td>
+</tr>
+<tr>
+<td><strong>DB Admin</strong></td>
+<td><strong>Tất cả</strong></td>
+<td>ALL PRIVILEGES</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1">-- Ví dụ GRANT trong migration</span>
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="p">,</span><span class="w"> </span><span class="k">INSERT</span><span class="p">,</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">jwks_keys</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">token_service</span><span class="p">;</span>
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="p">,</span><span class="w"> </span><span class="k">INSERT</span><span class="p">,</span><span class="w"> </span><span class="k">UPDATE</span><span class="p">,</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">auth_sessions</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">token_service</span><span class="p">;</span>
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="p">,</span><span class="w"> </span><span class="k">INSERT</span><span class="p">,</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">revoked_tokens</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">token_service</span><span class="p">;</span>
+</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="p">,</span><span class="w"> </span><span class="k">INSERT</span><span class="p">,</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">token_stats</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">token_service</span><span class="p">;</span>
+</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">INSERT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">audit_log</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">token_service</span><span class="p">;</span>
+</span></code></pre></div>
+<hr/>
+<h2 id="10-mo-rong-trong-tuong-lai">10. Mở rộng trong Tương lai<a class="headerlink" href="#10-mo-rong-trong-tuong-lai" title="Permanent link">¶</a></h2>
+<blockquote>
+<p>Định hướng các cải tiến tiếp theo nhằm tăng khả năng quan sát, hiệu suất và tuân thủ quy mô lớn hơn, đồng thời giữ vững tính mở rộng &amp; an toàn theo <strong>5★ Data Model Standard</strong> và các <strong>ADR</strong> liên quan.</p>
+</blockquote>
+<h3 id="101-embedded-rbac-claims">10.1 Embedded RBAC Claims<a class="headerlink" href="#101-embedded-rbac-claims" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Mục tiêu</strong>: Cho phép lưu trực tiếp bảng <code>rbac_claims</code> vào JWT để giảm truy vấn DB/Redis khi phân quyền.  </li>
+<li>
+<p><strong>Thiết kế</strong>:<br>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="w">  </span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">token_rbac_claims</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">    </span><span class="n">jti</span><span class="w">            </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">revoked_tokens</span><span class="p">(</span><span class="n">jti</span><span class="p">),</span>
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">    </span><span class="n">rbac_payload</span><span class="w">   </span><span class="n">JSONB</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">        </span><span class="c1">-- roles &amp; perms tại thời điểm issue</span>
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">    </span><span class="n">issued_at</span><span class="w">      </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">  </span><span class="p">);</span>
+</span></code></pre></div></br></p>
+</li>
+<li>
+<p><strong>Constraint &amp; Index</strong>:</p>
+</li>
+<li>
+<p><code>idx_token_rbac_claims_issued_at</code> on <code>(issued_at)</code> cho purge.</p>
+</li>
+<li><strong>Retention</strong>: TTL 2 phút (purge nhanh), theo ADR-024.</li>
+</ul>
+<h3 id="102-key-usage-logging">10.2 Key Usage Logging<a class="headerlink" href="#102-key-usage-logging" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Mục tiêu</strong>: Thu thập chi tiết mỗi lần JWKS key signing/verification để phân tích và audit.</li>
+<li><strong>Thiết kế</strong>:</li>
+</ul>
+<p><div class="language-sql highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">key_usage_log</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span><span class="n">log_id</span><span class="w">       </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="n">kid</span><span class="w">          </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">jwks_keys</span><span class="p">(</span><span class="n">kid</span><span class="p">),</span>
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">  </span><span class="k">operation</span><span class="w">    </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="k">operation</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'sign'</span><span class="p">,</span><span class="s1">'verify'</span><span class="p">)),</span>
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">  </span><span class="n">jti</span><span class="w">          </span><span class="n">UUID</span><span class="p">,</span><span class="w">                    </span><span class="c1">-- nếu operation='sign'</span>
+</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">  </span><span class="k">timestamp</span><span class="w">    </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">  </span><span class="n">tenant_id</span><span class="w">    </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">  </span><span class="k">result</span><span class="w">       </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="p">);</span>
+</span></code></pre></div>
+* <strong>Indexes</strong>:</p>
+<ul>
+<li>Composite <code>(kid, timestamp)</code> cho phân tích key hot-path.</li>
+<li><strong>Purge</strong>: TTL 7 ngày, job <code>purge_key_usage_log</code>.</li>
+</ul>
+<h3 id="103-partitioning-sharding">10.3 Partitioning &amp; Sharding<a class="headerlink" href="#103-partitioning-sharding" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Partitioned Tables</strong>:</p>
+</li>
+<li>
+<p><code>revoked_tokens</code> theo <code>tenant_id</code> hash → tăng tốc lookup.</p>
+</li>
+<li><code>token_stats</code> partition by date period (monthly) cho purge hiệu quả.</li>
+<li><strong>Shard Key</strong>: Sử dụng <code>tenant_id</code> + <code>jti</code> làm composite shard key khi mở rộng Multi-Region.</li>
+</ul>
+<h3 id="104-cross-region-replication">10.4 Cross-Region Replication<a class="headerlink" href="#104-cross-region-replication" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>JWKS Replicas</strong>:</p>
+</li>
+<li>
+<p>Tạo bảng <code>jwks_keys_replica</code> tại region phụ, sử dụng <strong>Logical Replication</strong> hoặc <strong>Cloud SQL read replicas</strong>.</p>
+</li>
+<li><strong>Failover</strong>: API Gateway có thể fallback verify từ replica nếu primary unreachable (theo ADR-004).</li>
+</ul>
+<h3 id="105-real-time-analytics-feed">10.5 Real-time Analytics Feed<a class="headerlink" href="#105-real-time-analytics-feed" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>CDC Stream</strong>: Dùng Debezium → Pub/Sub topic <code>dw.token_changes.v1</code> → Data Platform.</li>
+<li><strong>Mart Tables</strong>:</li>
+</ul>
+<p><div class="language-sql highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">fct_token_issuance</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">  </span><span class="n">tenant_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">  </span><span class="nb">date</span><span class="w"> </span><span class="nb">DATE</span><span class="p">,</span>
+</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">  </span><span class="n">issued_count</span><span class="w"> </span><span class="nb">BIGINT</span><span class="p">,</span>
+</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="w">  </span><span class="n">revoked_count</span><span class="w"> </span><span class="nb">BIGINT</span>
+</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="p">)</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="p">(</span><span class="nb">date</span><span class="p">);</span>
+</span></code></pre></div>
+* <strong>Use-case</strong>: Báo cáo issuance/revocation theo tenant, kết hợp BI Engine.</p>
+<h3 id="106-audit-history-versioning">10.6 Audit History &amp; Versioning<a class="headerlink" href="#106-audit-history-versioning" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Temporal Tables</strong>:</p>
+</li>
+<li>
+<p>Mở rộng <code>revoked_tokens</code> thành <code>revoked_tokens_history</code> lưu phiên bản trước khi xóa/ẩn danh.</p>
+</li>
+<li>
+<p><strong>Schema Versioning</strong>:</p>
+</li>
+<li>
+<p>Ghi <code>schema_version</code> vào setiap bản ghi để support ADR-023 khi migration tiếp theo.</p>
+</li>
+</ul>
+<blockquote>
+<p>Với khung mở rộng này, Token Service sẽ sẵn sàng đón đầu các yêu cầu mở rộng lớn (10k tenant), tuân chuẩn ADR-023, ADR-024, ADR-030 và giữ p95 latency &lt; 5 ms cho mọi truy vấn dữ liệu.</p>
+</blockquote>
+<hr/>
+<h2 id="11-enums">11. ENUMs<a class="headerlink" href="#11-enums" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục đích</strong> – Định nghĩa tập giá trị cố định để đảm bảo tính nhất quán và giảm lỗi đầu vào. Theo <strong>5★ Data Model Standard</strong>, chúng ta dùng <code>CHECK</code> constraints thay vì loại ENUM DB riêng để giữ tính di động giữa PostgreSQL và MariaDB.</p>
+</blockquote>
+<h3 id="111-reason-trong-revoked_tokens">11.1 <code>reason</code> trong <code>revoked_tokens</code><a class="headerlink" href="#111-reason-trong-revoked_tokens" title="Permanent link">¶</a></h3>
+<p>Token có thể bị thu hồi bởi các nguyên nhân sau:</p>
+<table>
+<thead>
+<tr>
+<th>Giá trị</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>logout</code></td>
+<td>Người dùng thực hiện đăng xuất</td>
+</tr>
+<tr>
+<td><code>rotation</code></td>
+<td>Token bị thu hồi do xoay khóa JWT</td>
+</tr>
+<tr>
+<td><code>breach</code></td>
+<td>Token bị thu hồi do phát hiện vi phạm bảo mật</td>
+</tr>
+<tr>
+<td><code>expired</code></td>
+<td>Token tự hết hạn</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SQL (PostgreSQL / MariaDB)</strong></p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">revoked_tokens</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">chk_revoked_tokens_reason</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">reason</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">      </span><span class="s1">'logout'</span><span class="p">,</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">      </span><span class="s1">'rotation'</span><span class="p">,</span>
+</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">      </span><span class="s1">'breach'</span><span class="p">,</span>
+</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">      </span><span class="s1">'expired'</span>
+</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">    </span><span class="p">));</span>
+</span></code></pre></div>
+<h3 id="112-tuy-chon-event-trong-pubsub">11.2 (Tùy chọn) <code>event</code> trong Pub/Sub<a class="headerlink" href="#112-tuy-chon-event-trong-pubsub" title="Permanent link">¶</a></h3>
+<p>Để đồng bộ với <strong>ADR-030</strong>, các tên event cũng là “enum” trên Pub/Sub:</p>
+<table>
+<thead>
+<tr>
+<th>Giá trị</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token.issued.v1</code></td>
+<td>Sự kiện khi JWT mới được phát hành</td>
+</tr>
+<tr>
+<td><code>token.revoked.v1</code></td>
+<td>Sự kiện khi JWT bị thu hồi</td>
+</tr>
+<tr>
+<td><code>token.introspect_fail.v1</code></td>
+<td>Sự kiện khi introspect trả kết quả không hợp lệ</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Lưu ý:</strong> Việc validate event name thường diễn ra ở <strong>Consumer</strong> (API Gateway, Audit Service) qua schema registry, không qua DB.</p>
+</blockquote>
+<h3 id="113-best-practices">11.3 Best Practices<a class="headerlink" href="#113-best-practices" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Không</strong> hard-code giá trị trong ứng dụng; tham chiếu qua <code>CHECK</code> hoặc enum type trong codegen.</li>
+<li>Khi mở rộng thêm lý do hoặc event mới, luôn <strong>update</strong> <code>CHECK</code> constraint và <strong>publish</strong> event schema mới (<code>v2</code>).</li>
+<li>Đảm bảo <strong>migration</strong> theo <strong>3-phase</strong> (ADR-023): Prepare → Transition → Cleanup khi thay đổi giá trị enum.</li>
+</ul>
+<hr/>
+<h2 id="12-phu-luc-kiem-thu">12. Phụ lục Kiểm thử<a class="headerlink" href="#12-phu-luc-kiem-thu" title="Permanent link">¶</a></h2>
+<blockquote>
+<p>Để đảm bảo <strong>tính toàn vẹn</strong>, <strong>tính đúng đắn</strong> và <strong>hiệu năng</strong> của Data Model, chúng ta áp dụng đa tầng kiểm thử theo 5★ Data Model Standard.</p>
+</blockquote>
+<h3 id="121-unit-tests">12.1 Unit Tests<a class="headerlink" href="#121-unit-tests" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Framework</strong>: pgTAP (PostgreSQL) / SQLUnit (MariaDB)</li>
+<li><strong>Các kịch bản</strong>:</li>
+<li><strong>Schema validation</strong> <ul>
+<li>Kiểm tra các bảng tồn tại với đúng cột, kiểu, NOT NULL.  </li>
+<li><code>SELECT column_name FROM information_schema.columns WHERE table_name='revoked_tokens'</code> → so với spec.</li>
+</ul>
+</li>
+<li><strong>Constraints</strong> <ul>
+<li>Thử chèn <code>revoked_tokens</code> với <code>reason='invalid'</code> → phải fail <code>CHECK chk_revoked_tokens_reason</code>.  </li>
+<li>Thử chèn hai bản ghi <code>jwks_keys</code> cùng <code>active=TRUE</code> → phải fail unique.</li>
+</ul>
+</li>
+<li><strong>Default values</strong> <ul>
+<li>Thử insert không cung cấp <code>created_at</code> → giá trị mặc định là <code>now()</code>.  </li>
+<li>Thử insert <code>auth_sessions</code> không cung cấp <code>last_active_at</code> → default <code>now()</code>.</li>
+</ul>
+</li>
+</ul>
+<h3 id="122-integration-tests">12.2 Integration Tests<a class="headerlink" href="#122-integration-tests" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Môi trường</strong>: Docker Compose với PostgreSQL và MariaDB, seed dữ liệu mẫu.</li>
+<li><strong>Các kịch bản</strong>:</li>
+<li><strong>Full Issuance → Revocation → Stats</strong> <ul>
+<li>Gọi API <code>/v1/token/issue</code> → kiểm tra <code>auth_sessions</code>, <code>jwks_keys</code> dùng đúng <code>kid</code>.  </li>
+<li>Gọi <code>/v1/token/revoke</code> → bản ghi <code>revoked_tokens</code> tồn tại → thử insert <code>token_stats</code>.  </li>
+<li>Xác nhận <code>token_stats.jti</code> FK → khi xóa <code>revoked_tokens</code>, <code>token_stats</code> tự cascade delete.</li>
+</ul>
+</li>
+<li><strong>Migration Script</strong> <ul>
+<li>Chạy Flyway từ v1.0 → v1.2 → v1.3 → v1.4 trong môi trường test.  </li>
+<li>Kiểm tra bảng <code>revoked_tokens_v2</code> tồn tại ở pha Prepare, sau Transition chỉ đọc từ v2, sau Cleanup chỉ còn v2.</li>
+</ul>
+</li>
+<li><strong>Event Publication</strong> <ul>
+<li>Sau each DML trên DB, theo dõi Pub/Sub mock → đảm bảo event <code>token.*.v1</code> được publish đúng payload.</li>
+</ul>
+</li>
+</ul>
+<h3 id="123-retention-purge-tests">12.3 Retention &amp; Purge Tests<a class="headerlink" href="#123-retention-purge-tests" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Framework</strong>: Scheduled job runner + test data expiration.</li>
+<li><strong>Các kịch bản</strong>:</li>
+<li><strong>TTL revoke</strong> <ul>
+<li>Insert <code>revoked_tokens.revoked_at = now() - '31 days'</code> → chạy <code>purge_revoked_tokens</code> → bản ghi bị xóa.  </li>
+<li>Bảo đảm <code>purge_revoked_tokens_count</code> metric tăng chính xác.</li>
+</ul>
+</li>
+<li><strong>Anonymize stats</strong> <ul>
+<li>Insert <code>token_stats.recorded_at = now() - '91 days'</code> với <code>ip_address</code>, <code>device_info</code>.  </li>
+<li>Chạy <code>anonymize_token_stats</code> → các trường PII phải null; sau đó chạy <code>purge_token_stats</code> → bản ghi bị xóa.</li>
+</ul>
+</li>
+</ul>
+<h3 id="124-performance-tests">12.4 Performance Tests<a class="headerlink" href="#124-performance-tests" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Công cụ</strong>: pgbench / sysbench / JMeter</li>
+<li><strong>Chỉ số mục tiêu</strong>:</li>
+<li><strong>p95 SELECT revoked_tokens</strong> ≤ 5 ms (with index).  </li>
+<li><strong>p95 INSERT auth_sessions</strong> ≤ 10 ms.  </li>
+<li><strong>Bulk purge</strong> 100k records in &lt; 30s.</li>
+<li><strong>Kịch bản</strong>:</li>
+<li>Thực hiện 10k concurrent selects <code>SELECT 1 FROM revoked_tokens WHERE jti=?</code>.  </li>
+<li>Thực hiện 1k inserts <code>auth_sessions</code>/s với batch size 50.  </li>
+<li>Chạy purge job trên 1M revoked_tokens.</li>
+</ul>
+<h3 id="125-security-privilege-tests">12.5 Security &amp; Privilege Tests<a class="headerlink" href="#125-security-privilege-tests" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Verify least privilege</strong>:</li>
+<li>Kết nối DB bằng role <code>token_service</code> → thử <code>DROP TABLE jwks_keys</code> → phải bị DENY.  </li>
+<li>Kết nối bằng <code>db_admin</code> → có quyền ALL.</li>
+<li><strong>SSL enforcement</strong>:</li>
+<li>Kết nối không dùng SSL → thất bại với <code>sslmode=require</code>.</li>
+<li><strong>Audit Logging</strong>:</li>
+<li>Khi purge hoặc rotation chạy, kiểm tra <code>audit_log.purge_history</code> có bản ghi.</li>
+</ul>
+<h3 id="126-concurrency-consistency">12.6 Concurrency &amp; Consistency<a class="headerlink" href="#126-concurrency-consistency" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Kịch bản</strong>:</li>
+<li><strong>Race Condition</strong>: 2 clients cùng revoke <code>jti</code> → chỉ một bản ghi được insert, không duplicate.  </li>
+<li><strong>Dual-write migration</strong>: Trong pha Prepare, record inserted vào cả bảng cũ &amp; bảng v2, sau phase Transition chỉ dùng v2.</li>
+</ul>
+<h3 id="127-cicd-integration">12.7 CI/CD Integration<a class="headerlink" href="#127-cicd-integration" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Pipeline</strong>:</li>
+<li>Stage <strong>Unit Test</strong> (pgTAP).  </li>
+<li>Stage <strong>Integration Test</strong> (Dockerized DB).  </li>
+<li>Stage <strong>Migration Test</strong> (Flyway).  </li>
+<li>Stage <strong>Performance Test</strong> (light load).  </li>
+<li><strong>Bảo đảm</strong>: 100 % test must pass before merge.</li>
+</ul>
+<hr/>
+<blockquote>
+<p>Với suite kiểm thử trên, Data Model của Token Service đảm bảo <strong>đúng</strong>, <strong>an toàn</strong>, <strong>hiệu năng</strong> và <strong>dễ mở rộng</strong>, đáp ứng toàn bộ ADR và 5★ Data Model Standard.  </p>
+</blockquote>
+<hr/>
+<h2 id="13-lien-ket-tai-lieu">13. 📚 Liên kết Tài liệu<a class="headerlink" href="#13-lien-ket-tai-lieu" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="./">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+</ul>
+<h3 id="cac-quyet-inh-kien-truc-adr">🔖 Các Quyết định Kiến trúc (ADR)<a class="headerlink" href="#cac-quyet-inh-kien-truc-adr" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="../../../ADR/adr-003-secrets/">ADR-003 Secrets Management</a>: Quy trình lưu trữ &amp; xoay khóa bí mật an toàn.  </li>
+<li><a href="../../../ADR/adr-004-security/">ADR-004 Security Policy</a>: Chính sách bảo mật tổng thể.  </li>
+<li><a href="../../../ADR/adr-005-env-config/">ADR-005 Environment Configuration Strategy</a>: Chuẩn tách cấu hình – <code>SERVICE__SECTION__KEY</code>.  </li>
+<li><a href="../../../ADR/adr-006-auth-strategy/">ADR-006 Auth Strategy</a>: Chiến lược xác thực người dùng và cấp phát token.  </li>
+<li><a href="../../../ADR/adr-009-api-governance/">ADR-009 API Governance</a>: Quy tắc versioning, naming và style REST.  </li>
+<li><a href="../../../ADR/adr-011-api-error-format/">ADR-011 API Error Format</a>: Quy ước mã lỗi &amp; thông điệp lỗi (<code>namespace.snake_case</code>).  </li>
+<li><a href="../../../ADR/adr-012-response-structure/">ADR-012 Response Structure</a>: Chuẩn hóa cấu trúc JSON response cho API.</li>
+<li><a href="../../../ADR/adr-018-release-approval-policy/">ADR-018 Release Approval Policy</a>: Quy trình phê duyệt phát hành.</li>
+<li><a href="../../../ADR/adr-022-sla-slo-monitoring/">ADR-022 SLA &amp; SLO Monitoring</a>: Khung giám sát &amp; định nghĩa SLO.</li>
+<li><a href="../../../ADR/adr-023-schema-migration-strategy/">ADR-023 Schema Migration Strategy</a>: 3-phase migration (Prepare → Transition → Cleanup).  </li>
+<li><a href="../../../ADR/adr-024-data-anonymization-retention/">ADR-024 Data Anonymization &amp; Retention</a>: Ẩn danh PII và TTL dữ liệu.  </li>
+<li><a href="../../../ADR/adr-026-hard-delete-policy/">ADR-026 Hard-Delete Policy</a>: Quy trình xoá vĩnh viễn &amp; purge log.  </li>
+<li><a href="../../../ADR/adr-030-event-schema-governance/">ADR-030 Event Schema Governance</a>: Đặt tên &amp; version sự kiện <code>*.v{n}</code>.</li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

@@ -1,0 +1,1491 @@
+
+<!doctype html>
+<html lang="vi" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh.">
+      
+      
+        <meta name="author" content="DX VAS Team">
+      
+      
+        <link rel="canonical" href="https://ezdesign-vn.github.io/dx-vas/services/api-gateway/interface-contract/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>API Gateway – Interface Contract - DX VAS - Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-gateway-interface-contract" class="md-skip">
+          Bỏ qua
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Đầu trang">
+    <a href="../../.." title="DX VAS - Docs" class="md-header__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Gateway – Interface Contract
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Tìm kiếm" placeholder="Tìm kiếm" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Tìm kiếm">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Xoá" aria-label="Xoá" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../architecture/system-diagrams/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../dev-guide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../ADR/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Thanh điều hướng" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DX VAS - Docs" class="md-nav__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    DX VAS - Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/system-diagrams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/rbac-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../ADR/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-nguyen-tac-chung-khi-su-dung-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 🔧 Nguyên tắc chung khi sử dụng API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 🔧 Nguyên tắc chung khi sử dụng API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-xac-thuc-va-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1. Xác thực và Trace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-header-forward-mac-inh-en-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2. Header forward mặc định đến backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-xu-ly-loi-thong-nhat-theo-adr-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3. Xử lý lỗi thống nhất theo ADR-011
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-ket-qua-thanh-cong" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4. Kết quả thành công
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-luu-y-ve-phan-quyen" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5. Lưu ý về phân quyền
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 📌 API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 📌 API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-cach-hoat-ong" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1. ✅ Cách hoạt động
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-endpoint-duy-nhat" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2. 🌐 Endpoint duy nhất
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-luong-xu-ly-inh-tuyen-route-evaluation-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3. 🔁 Luồng xử lý định tuyến (Route Evaluation Flow)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-chi-tiet-endpoint-all" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4. 📥 Chi tiết endpoint: ALL /
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-phu-luc-mau-cau-hinh-route-route_configjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 📌 Phụ lục: Mẫu cấu hình route (route_config.json)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 📌 Phụ lục: Mẫu cấu hình route (route_config.json)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-cau-truc-chung-cua-mot-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1. 🧩 Cấu trúc chung của một rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-vi-du-1-route-co-ban-co-kiem-tra-quyen" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2. 📘 Ví dụ 1: Route cơ bản có kiểm tra quyền
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-vi-du-2-route-yeu-cau-xac-minh-ieu-kien-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3. 📘 Ví dụ 2: Route yêu cầu xác minh điều kiện runtime
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-vi-du-3-route-cong-khai-khong-yeu-cau-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4. 📘 Ví dụ 3: Route công khai không yêu cầu JWT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-vi-du-4-route-co-fallback-khi-backend-chinh-bi-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5. 📘 Ví dụ 4: Route có fallback khi backend chính bị lỗi
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-nguyen-tac-trien-khai" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.6. 🛠️ Nguyên tắc triển khai
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-bang-permission-lien-quan" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 📎 Bảng Permission liên quan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 📎 Bảng Permission liên quan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-cau-truc-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1. 📋 Cấu trúc permission
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-danh-sach-permission-mau" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2. 📌 Danh sách permission mẫu
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-rbac-condition-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3. 🔐 RBAC Condition Permission
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-quan-ly-cap-nhat" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4. 📎 Quản lý &amp; cập nhật
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-tai-lieu-lien-ket" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. 📚 Tài liệu liên kết
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-gateway-interface-contract">📘 API Gateway – Interface Contract<a class="headerlink" href="#api-gateway-interface-contract" title="Permanent link">¶</a></h1>
+<p>Tài liệu này mô tả cách API Gateway xử lý request đến các backend service trong hệ sinh thái DX-VAS thông qua cơ chế định tuyến động, kiểm soát phân quyền (RBAC), xác thực JWT và chuẩn hóa lỗi.<br />
+Gateway không chứa logic nghiệp vụ nhưng đóng vai trò quan trọng trong việc bảo vệ, quan sát và kiểm soát toàn bộ luồng request.</p>
+<p>📌 <strong>Phạm vi:</strong>
+- Định tuyến và xác thực request từ frontend đến các service backend dựa trên route config.
+- Thực hiện kiểm tra phân quyền theo permission đã được resolve từ <code>user-sub</code>.
+- Chuẩn hóa toàn bộ lỗi theo <code>ADR-011</code> và phản hồi thành công theo <code>ADR-012</code>.</p>
+<p>👥 <strong>Đối tượng sử dụng:</strong><br />
+Superadmin Webapp, Admin Webapp, Customer Portal, các adapter và automation script nội bộ.</p>
+<hr />
+<h2 id="1-nguyen-tac-chung-khi-su-dung-api">1. 🔧 Nguyên tắc chung khi sử dụng API<a class="headerlink" href="#1-nguyen-tac-chung-khi-su-dung-api" title="Permanent link">¶</a></h2>
+<h3 id="11-xac-thuc-va-trace">1.1. Xác thực và Trace<a class="headerlink" href="#11-xac-thuc-va-trace" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mọi request đến Gateway (trừ các route <code>public</code>) đều yêu cầu header:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Authorization: Bearer &lt;JWT&gt;
+</span></code></pre></div></li>
+<li>Gateway sẽ xác thực JWT thông qua JWKS (do <code>token-service</code> cung cấp).</li>
+<li>Header <code>x-trace-id</code> là tùy chọn từ phía client; nếu không có, Gateway sẽ tự động sinh một UUID v4.</li>
+<li>Mỗi response (kể cả lỗi) sẽ bao gồm <code>meta.trace_id</code> để phục vụ trace toàn hệ thống.</li>
+</ul>
+<hr />
+<h3 id="12-header-forward-mac-inh-en-backend">1.2. Header forward mặc định đến backend<a class="headerlink" href="#12-header-forward-mac-inh-en-backend" title="Permanent link">¶</a></h3>
+<p>Gateway sẽ tự động thêm các header sau vào request gửi đến backend:</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Trace-ID</code></td>
+<td>Mã định danh trace xuyên suốt toàn hệ thống</td>
+</tr>
+<tr>
+<td><code>X-User-ID</code></td>
+<td>Định danh người dùng, lấy từ JWT claim</td>
+</tr>
+<tr>
+<td><code>X-Tenant-ID</code></td>
+<td>Tenant hiện hành, lấy từ JWT hoặc header gốc</td>
+</tr>
+<tr>
+<td><code>X-Permissions</code></td>
+<td>Danh sách quyền (nếu cần), resolved từ cache</td>
+</tr>
+<tr>
+<td><code>X-Service</code></td>
+<td>Tên backend được định tuyến (ghi log/tracing)</td>
+</tr>
+<tr>
+<td><code>X-Login-Method</code></td>
+<td>Phương thức đăng nhập: <code>otp</code>, <code>oauth2</code>, <code>password</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ Backend cần tin tưởng các header này là hợp lệ và đã được Gateway kiểm tra.</p>
+</blockquote>
+<hr />
+<h3 id="13-xu-ly-loi-thong-nhat-theo-adr-011">1.3. Xử lý lỗi thống nhất theo ADR-011<a class="headerlink" href="#13-xu-ly-loi-thong-nhat-theo-adr-011" title="Permanent link">¶</a></h3>
+<ul>
+<li>Các lỗi từ backend nếu không tuân <code>ErrorEnvelope</code> sẽ được Gateway chuẩn hóa lại.</li>
+<li>Gateway có thể tự sinh lỗi (403/401/500) nếu thất bại trong các bước kiểm tra token, RBAC, hoặc điều kiện <code>x-condition</code>.</li>
+</ul>
+<p>Ví dụ response lỗi chuẩn hóa:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">403</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORBIDDEN&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;error_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rbac.condition_failed&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc-123&quot;</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api-gateway&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-10T12:34:56Z&quot;</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">},</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Access denied due to condition mismatch&quot;</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="p">}</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="14-ket-qua-thanh-cong">1.4. Kết quả thành công<a class="headerlink" href="#14-ket-qua-thanh-cong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Nếu backend đã trả response theo chuẩn <code>ADR-012</code>, Gateway sẽ giữ nguyên.</li>
+<li>Nếu backend trả kiểu <code>raw</code>, Gateway vẫn bọc vào <code>meta + data</code> để frontend luôn xử lý thống nhất.</li>
+</ul>
+<hr />
+<h3 id="15-luu-y-ve-phan-quyen">1.5. Lưu ý về phân quyền<a class="headerlink" href="#15-luu-y-ve-phan-quyen" title="Permanent link">¶</a></h3>
+<ul>
+<li>Các permission được resolve theo Redis key <code>rbac:{user_id}:{tenant_id}</code>.</li>
+<li>Nếu không có trong cache → Gateway gọi <code>user-sub</code> để lấy quyền thật.</li>
+<li>Điều kiện <code>x-condition</code> trong route config (nếu có) sẽ được đánh giá tại thời điểm runtime.</li>
+</ul>
+<blockquote>
+<p>📌 Tất cả hành vi liên quan đến phân quyền đều được ghi log kèm trace_id và kết quả kiểm tra.</p>
+</blockquote>
+<hr />
+<h2 id="2-api">2. 📌 API<a class="headerlink" href="#2-api" title="Permanent link">¶</a></h2>
+<p>API Gateway không cung cấp các endpoint nghiệp vụ cố định như các service khác.<br />
+Thay vào đó, nó sử dụng <strong>cơ chế định tuyến động</strong> (dynamic routing) để chuyển tiếp mọi request từ client đến các backend service, dựa trên <strong>route configuration</strong> được nạp từ file JSON hoặc service discovery.</p>
+<h3 id="21-cach-hoat-ong">2.1. ✅ Cách hoạt động<a class="headerlink" href="#21-cach-hoat-ong" title="Permanent link">¶</a></h3>
+<p>Khi client gửi một request đến một path cụ thể (ví dụ <code>/users/{id}</code> hoặc <code>/auth/login</code>), Gateway sẽ:</p>
+<ol>
+<li><strong>Ánh xạ</strong> path và method với cấu hình định tuyến (route config).</li>
+<li><strong>Xác thực</strong> token JWT (nếu không phải route <code>public</code>).</li>
+<li><strong>Kiểm tra permission</strong> từ cache RBAC hoặc gọi <code>user-sub</code>.</li>
+<li><strong>Đánh giá điều kiện</strong> <code>x-condition</code> (nếu được định nghĩa).</li>
+<li><strong>Chuyển tiếp (proxy)</strong> request đến backend tương ứng.</li>
+<li><strong>Ghi log + trace + metrics</strong> tại mọi bước.</li>
+<li><strong>Trả về kết quả</strong> hoặc lỗi đã chuẩn hóa theo ADR-011/ADR-012.</li>
+</ol>
+<hr />
+<h3 id="22-endpoint-duy-nhat">2.2. 🌐 Endpoint duy nhất<a class="headerlink" href="#22-endpoint-duy-nhat" title="Permanent link">¶</a></h3>
+<ul>
+<li>Gateway chỉ expose một endpoint duy nhất xử lý mọi loại path và method:</li>
+</ul>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="err">ANY /&lt;path&gt;</span>
+</span></code></pre></div>
+<p>Ví dụ:</p>
+<ul>
+<li><code>GET /users</code> → proxy tới <code>user-service.master</code></li>
+<li><code>POST /auth/login</code> → proxy tới <code>auth-service.master</code></li>
+<li><code>GET /reports/summary</code> → proxy tới <code>report-service.master</code></li>
+</ul>
+<p>Mọi định tuyến, permission và backend mapping được điều khiển bởi file <code>route_config.json</code>.</p>
+<blockquote>
+<p>🔍 Chi tiết từng luồng định tuyến và điều kiện được mô tả trong mục tiếp theo.</p>
+</blockquote>
+<hr />
+<h3 id="23-luong-xu-ly-inh-tuyen-route-evaluation-flow">2.3. 🔁 Luồng xử lý định tuyến (Route Evaluation Flow)<a class="headerlink" href="#23-luong-xu-ly-inh-tuyen-route-evaluation-flow" title="Permanent link">¶</a></h3>
+<p>Khi một request đi qua API Gateway, hệ thống sẽ thực hiện một chuỗi các bước kiểm tra và định tuyến theo cấu hình động. Dưới đây là luồng xử lý chuẩn hoá cho mọi request:</p>
+<hr />
+<h4 id="cac-buoc-xu-ly">🧭 Các bước xử lý<a class="headerlink" href="#cac-buoc-xu-ly" title="Permanent link">¶</a></h4>
+<ol>
+<li><strong>Nhận request</strong></li>
+<li>Gateway tiếp nhận request từ client tại path bất kỳ.</li>
+<li>
+<p>Header <code>Authorization</code> và <code>x-trace-id</code> được ghi nhận (hoặc sinh mới nếu thiếu).</p>
+</li>
+<li>
+<p><strong>Tìm route tương ứng</strong></p>
+</li>
+<li>Dựa trên <code>path + method</code>, Gateway truy vấn route từ <code>route_config.json</code>.</li>
+<li>
+<p>Nếu không tìm thấy cấu hình phù hợp → trả lỗi <code>404 Not Found</code>.</p>
+</li>
+<li>
+<p><strong>Xác thực JWT</strong></p>
+</li>
+<li>
+<p>Nếu route không đánh dấu là <code>public</code>, Gateway sẽ xác thực JWT:</p>
+<ul>
+<li>Check chữ ký bằng JWKS từ <code>token-service</code></li>
+<li>Check token đã bị thu hồi qua Redis key <code>revoked:{jti}</code></li>
+<li>Nếu JWT hợp lệ, Gateway trích xuất các trường quan trọng như <code>sub</code>, <code>tenant</code>, và <code>login_method</code> để forward cho backend.</li>
+<li>Nếu không có trong cache → gọi <code>/token/introspect</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Phân quyền RBAC</strong></p>
+</li>
+<li>Nếu route yêu cầu permission (<code>x-required-permission</code>) → truy xuất permission từ Redis <code>rbac:{user_id}:{tenant_id}</code>.</li>
+<li>Nếu cache miss → gọi <code>user-sub</code> để resolve rồi cache lại.</li>
+<li>
+<p>Nếu permission không tồn tại → trả <code>403 Forbidden</code> với <code>error_type: rbac.permission_denied</code>.</p>
+</li>
+<li>
+<p><strong>Đánh giá điều kiện RBAC</strong></p>
+</li>
+<li>
+<p>Nếu route có <code>x-condition</code>, Gateway sẽ:</p>
+<ul>
+<li>Parse điều kiện dạng JSON (VD: <code>{"user_id": "{{X-User-ID}}"}</code>)</li>
+<li>Bind runtime từ request headers/path/body</li>
+<li>So sánh điều kiện → nếu không đạt → trả lỗi <code>403 Forbidden</code> với <code>error_type: rbac.condition_failed</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Gửi request đến backend</strong></p>
+</li>
+<li>Request được proxy tới <code>backend_service</code> đã định nghĩa trong route config.</li>
+<li>
+<p>Forward đầy đủ các headers chuẩn: <code>X-Trace-ID</code>, <code>X-User-ID</code>, <code>X-Tenant-ID</code>, <code>X-Service</code>, v.v.</p>
+</li>
+<li>
+<p><strong>Xử lý phản hồi</strong></p>
+</li>
+<li>Nếu backend trả lỗi không theo chuẩn ADR-011 → Gateway tự động map lỗi lại đúng format.</li>
+<li>
+<p>Mọi response (kể cả lỗi) đều có <code>meta.trace_id</code>, <code>meta.service</code>, <code>meta.timestamp</code>.</p>
+</li>
+<li>
+<p><strong>Ghi log và metrics</strong></p>
+</li>
+<li>Log hành vi RBAC (pass/fail), condition, backend response, duration.</li>
+<li>Tăng counter Prometheus tương ứng (vd: <code>api_gateway_permission_denied_total</code>, <code>api_gateway_request_duration_seconds</code>, ...)</li>
+</ol>
+<hr />
+<blockquote>
+<p>✅ Toàn bộ chuỗi xử lý này đảm bảo mọi request đi qua Gateway được trace, log và enforce chuẩn hoá tuyệt đối.</p>
+</blockquote>
+<hr />
+<h3 id="24-chi-tiet-endpoint-all">2.4. 📥 Chi tiết endpoint: ALL /<path><a class="headerlink" href="#24-chi-tiet-endpoint-all" title="Permanent link">¶</a></h3>
+<p>Đây là endpoint duy nhất và mặc định của API Gateway. Mọi request đến bất kỳ URL nào sẽ được xử lý và định tuyến thông qua endpoint này, dựa vào file <code>route_config.json</code>.</p>
+<hr />
+<h4 id="inh-dang">🧩 Định dạng<a class="headerlink" href="#inh-dang" title="Permanent link">¶</a></h4>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="err">ALL /&lt;path&gt;</span>
+</span></code></pre></div>
+<ul>
+<li><code>&lt;path&gt;</code>: là đường dẫn bất kỳ như <code>/users</code>, <code>/auth/login</code>, <code>/reports/summary</code>, v.v.</li>
+<li>Method: Hỗ trợ tất cả các HTTP methods (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, <code>PATCH</code>, <code>HEAD</code>, <code>OPTIONS</code>)</li>
+</ul>
+<hr />
+<h4 id="yeu-cau-ve-header">🔐 Yêu cầu về Header<a class="headerlink" href="#yeu-cau-ve-header" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Bắt buộc</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Authorization</code></td>
+<td>Có</td>
+<td>Với route không phải <code>public</code>; dạng <code>Bearer &lt;JWT&gt;</code></td>
+</tr>
+<tr>
+<td><code>x-trace-id</code></td>
+<td>Không</td>
+<td>Nếu không có, Gateway sẽ sinh tự động</td>
+</tr>
+<tr>
+<td><code>Content-Type</code></td>
+<td>Có</td>
+<td><code>application/json</code> nếu có body</td>
+</tr>
+<tr>
+<td>(auto forward)</td>
+<td>—</td>
+<td><code>X-User-ID</code>, <code>X-Tenant-ID</code>, <code>X-Service</code>, <code>X-Permissions</code> được Gateway tự thêm</td>
+</tr>
+<tr>
+<td><code>X-Login-Method</code></td>
+<td>Không</td>
+<td>Forward bởi Gateway nếu có, ví dụ: <code>otp</code>, <code>oauth2</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="hanh-vi-xu-ly">⚙️ Hành vi xử lý<a class="headerlink" href="#hanh-vi-xu-ly" title="Permanent link">¶</a></h4>
+<ol>
+<li>Ánh xạ path &amp; method sang cấu hình trong <code>route_config.json</code></li>
+<li>Nếu không có route phù hợp → 404 Not Found</li>
+<li>Xác thực token JWT nếu không phải route <code>public</code></li>
+<li>Kiểm tra revoked token → fallback <code>token-service/introspect</code> nếu cần</li>
+<li>Kiểm tra <code>x-required-permission</code> (nếu có)</li>
+<li>Đánh giá <code>x-condition</code> (nếu có)</li>
+<li>Proxy request tới backend service</li>
+<li>Chuẩn hóa response lỗi theo ADR-011 nếu backend không tuân</li>
+</ol>
+<hr />
+<h4 id="vi-du-route-config">📦 Ví dụ route config<a class="headerlink" href="#vi-du-route-config" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;/users/**&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">],</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service.master&quot;</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">&quot;x-required-permission&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user.read&quot;</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">&quot;x-condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">      </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{X-Tenant-ID}}&quot;</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nt">&quot;retry&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h4 id="response-thanh-cong-200">📤 Response thành công (200)<a class="headerlink" href="#response-thanh-cong-200" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SUCCESS&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc-123&quot;</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api-gateway&quot;</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-10T12:34:56Z&quot;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;u001&quot;</span><span class="p">,</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Alice&quot;</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h4 id="response-loi-chuan-hoa">❌ Response lỗi chuẩn hoá<a class="headerlink" href="#response-loi-chuan-hoa" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Token bị thu hồi</strong>:</li>
+</ul>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">401</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UNAUTHORIZED&quot;</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">&quot;error_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;auth.token_revoked&quot;</span><span class="p">,</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc-123&quot;</span><span class="p">,</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api-gateway&quot;</span><span class="p">,</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-10T12:34:56Z&quot;</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Token has been revoked&quot;</span><span class="p">,</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Không có quyền truy cập</strong>:</li>
+</ul>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">403</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORBIDDEN&quot;</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">&quot;error_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rbac.permission_denied&quot;</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc-123&quot;</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api-gateway&quot;</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-10T12:34:56Z&quot;</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Permission denied for route /users&quot;</span><span class="p">,</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Không thoả điều kiện</strong>:</li>
+</ul>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">403</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORBIDDEN&quot;</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">&quot;error_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rbac.condition_failed&quot;</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc-123&quot;</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api-gateway&quot;</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-10T12:34:56Z&quot;</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Condition &#39;user_id == self&#39; not satisfied&quot;</span><span class="p">,</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h4 id="ghi-chu">📘 Ghi chú<a class="headerlink" href="#ghi-chu" title="Permanent link">¶</a></h4>
+<blockquote>
+<ul>
+<li>Response từ backend sẽ giữ nguyên nếu backend đã dùng định dạng chuẩn (<code>ADR-012</code>)</li>
+<li>Các lỗi không chuẩn từ backend sẽ được Gateway bọc lại đúng format</li>
+<li>Tất cả request đều được log cùng <code>trace_id</code>, <code>user_id</code>, <code>tenant_id</code>, <code>permission_checked</code>, và <code>rbac_result</code></li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="3-phu-luc-mau-cau-hinh-route-route_configjson">3. 📌 Phụ lục: Mẫu cấu hình route (<code>route_config.json</code>)<a class="headerlink" href="#3-phu-luc-mau-cau-hinh-route-route_configjson" title="Permanent link">¶</a></h2>
+<p>File <code>route_config.json</code> định nghĩa toàn bộ hành vi định tuyến và kiểm soát truy cập của API Gateway. Mỗi entry tương ứng với một pattern path và method cụ thể, cho phép cấu hình:</p>
+<ul>
+<li>Tên backend service đích</li>
+<li>Phương thức HTTP hỗ trợ</li>
+<li>Quyền yêu cầu (RBAC)</li>
+<li>Điều kiện truy cập (<code>x-condition</code>)</li>
+<li>Thông số về timeout, retry</li>
+<li>Tùy chọn <code>public</code> hoặc fallback service</li>
+</ul>
+<hr />
+<h3 id="31-cau-truc-chung-cua-mot-rule">3.1. 🧩 Cấu trúc chung của một rule<a class="headerlink" href="#31-cau-truc-chung-cua-mot-rule" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">&quot;/&lt;pattern&gt;&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">],</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;service_name&gt;&quot;</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">&quot;x-required-permission&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;permission_code&gt;&quot;</span><span class="p">,</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="nt">&quot;x-condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nt">&quot;&lt;field&gt;&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{X-Header}}&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;{{PathParam}}&quot;</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">&quot;{{BodyField}}&quot;</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="nt">&quot;retry&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="nt">&quot;public&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="nt">&quot;fallback_backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;optional_service&gt;&quot;</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="32-vi-du-1-route-co-ban-co-kiem-tra-quyen">3.2. 📘 Ví dụ 1: Route cơ bản có kiểm tra quyền<a class="headerlink" href="#32-vi-du-1-route-co-ban-co-kiem-tra-quyen" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">&quot;/users/**&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">],</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service.master&quot;</span><span class="p">,</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">&quot;x-required-permission&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user.read&quot;</span><span class="p">,</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">&quot;retry&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="33-vi-du-2-route-yeu-cau-xac-minh-ieu-kien-runtime">3.3. 📘 Ví dụ 2: Route yêu cầu xác minh điều kiện runtime<a class="headerlink" href="#33-vi-du-2-route-yeu-cau-xac-minh-ieu-kien-runtime" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">&quot;/users/{id}&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PATCH&quot;</span><span class="p">],</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service.master&quot;</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;x-required-permission&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user.update&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">&quot;x-condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{X-User-ID}}&quot;</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nt">&quot;login_method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;otp&quot;</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>✅ Nếu <code>X-User-ID</code> khác với <code>user_id</code> trong request → trả lỗi <code>rbac.condition_failed</code></p>
+<hr />
+<h3 id="34-vi-du-3-route-cong-khai-khong-yeu-cau-jwt">3.4. 📘 Ví dụ 3: Route công khai không yêu cầu JWT<a class="headerlink" href="#34-vi-du-3-route-cong-khai-khong-yeu-cau-jwt" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">&quot;/auth/login&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">],</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;auth-service.master&quot;</span><span class="p">,</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">&quot;public&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="35-vi-du-4-route-co-fallback-khi-backend-chinh-bi-loi">3.5. 📘 Ví dụ 4: Route có fallback khi backend chính bị lỗi<a class="headerlink" href="#35-vi-du-4-route-co-fallback-khi-backend-chinh-bi-loi" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">&quot;/reports/summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;report-service.master&quot;</span><span class="p">,</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="nt">&quot;fallback_backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;report-service.cache&quot;</span><span class="p">,</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="nt">&quot;retry&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Nếu backend chính không phản hồi → thử lại với <code>report-service.cache</code></p>
+<hr />
+<h3 id="36-nguyen-tac-trien-khai">3.6. 🛠️ Nguyên tắc triển khai<a class="headerlink" href="#36-nguyen-tac-trien-khai" title="Permanent link">¶</a></h3>
+<ul>
+<li>Wildcard <code>**</code> được hỗ trợ để định nghĩa route tổng quát.</li>
+<li>
+<p>Các biến <code>{{...}}</code> trong <code>x-condition</code> sẽ được binding tự động từ:</p>
+</li>
+<li>
+<p><code>X-Header</code> → header có tên tương ứng</p>
+</li>
+<li><code>PathParam</code> → biến trong path (VD: <code>/users/{id}</code>)</li>
+<li><code>BodyField</code> → trường JSON trong body (với <code>Content-Type: application/json</code>)</li>
+</ul>
+<hr />
+<blockquote>
+<p>📌 File này có thể được đồng bộ từ GCS, Firestore hoặc service discovery và được cache tại Gateway theo TTL mặc định.</p>
+</blockquote>
+<hr />
+<h2 id="4-bang-permission-lien-quan">4. 📎 Bảng Permission liên quan<a class="headerlink" href="#4-bang-permission-lien-quan" title="Permanent link">¶</a></h2>
+<p>Bảng dưới đây tổng hợp một số permission phổ biến mà API Gateway sử dụng để kiểm soát truy cập thông qua trường <code>x-required-permission</code> trong <code>route_config.json</code>.<br />
+Các permission này được định nghĩa và quản lý bởi <strong>User Service Master</strong>, sau đó đồng bộ định kỳ hoặc cache tại Gateway.</p>
+<hr />
+<h3 id="41-cau-truc-permission">4.1. 📋 Cấu trúc permission<a class="headerlink" href="#41-cau-truc-permission" title="Permanent link">¶</a></h3>
+<p>Mỗi permission có dạng <code>resource.action</code>, theo cú pháp:
+```</p>
+<p>&lt;đối tượng&gt;.\<hành\_động></p>
+<p>````</p>
+<p>Ví dụ:
+- <code>user.read</code> – Xem thông tin người dùng
+- <code>report.view_summary</code> – Xem báo cáo tổng hợp
+- <code>user.update.self</code> – Cập nhật thông tin chính mình (RBAC condition)</p>
+<hr />
+<h3 id="42-danh-sach-permission-mau">4.2. 📌 Danh sách permission mẫu<a class="headerlink" href="#42-danh-sach-permission-mau" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>permission_code</code></th>
+<th>Mô tả quyền</th>
+<th>Áp dụng cho route</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user.read</code></td>
+<td>Xem thông tin người dùng</td>
+<td><code>GET /users/**</code></td>
+</tr>
+<tr>
+<td><code>user.create</code></td>
+<td>Tạo người dùng mới</td>
+<td><code>POST /users</code></td>
+</tr>
+<tr>
+<td><code>user.update</code></td>
+<td>Sửa thông tin người dùng</td>
+<td><code>PATCH /users/{id}</code></td>
+</tr>
+<tr>
+<td><code>user.delete</code></td>
+<td>Xoá người dùng</td>
+<td><code>DELETE /users/{id}</code></td>
+</tr>
+<tr>
+<td><code>user.update.self</code></td>
+<td>Sửa thông tin của chính mình</td>
+<td><code>PATCH /users/{id}</code> kèm <code>x-condition</code></td>
+</tr>
+<tr>
+<td><code>auth.manage</code></td>
+<td>Thay đổi cấu hình xác thực</td>
+<td><code>/auth/**</code></td>
+</tr>
+<tr>
+<td><code>report.view_summary</code></td>
+<td>Truy vấn báo cáo tổng quan</td>
+<td><code>GET /reports/summary</code></td>
+</tr>
+<tr>
+<td><code>report.export_detail</code></td>
+<td>Tải báo cáo chi tiết</td>
+<td><code>GET /reports/export</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-rbac-condition-permission">4.3. 🔐 RBAC Condition Permission<a class="headerlink" href="#43-rbac-condition-permission" title="Permanent link">¶</a></h3>
+<p>Một số quyền được khai báo kèm điều kiện runtime (x-condition).<br />
+Gateway sẽ enforce các điều kiện này tại thời điểm xử lý request.</p>
+<p>Ví dụ:
+```json
+"x-required-permission": "user.update.self",
+"x-condition": {
+  "user_id": "{{X-User-ID}}"
+}
+````</p>
+<blockquote>
+<p>Nếu điều kiện không thỏa → Gateway trả <code>403 Forbidden</code> với <code>error_type: rbac.condition_failed</code></p>
+</blockquote>
+<hr />
+<h3 id="44-quan-ly-cap-nhat">4.4. 📎 Quản lý &amp; cập nhật<a class="headerlink" href="#44-quan-ly-cap-nhat" title="Permanent link">¶</a></h3>
+<ul>
+<li>Gateway <strong>không tự định nghĩa permission</strong></li>
+<li>Tất cả permission được resolve từ <code>user-sub</code> thông qua Redis hoặc HTTP fallback</li>
+<li>TTL mặc định của cache permission: <code>300s</code></li>
+<li>Có thể được invalidate qua sự kiện <code>rbac.updated</code> (xem chi tiết trong thiết kế <code>design.md</code>)</li>
+</ul>
+<hr />
+<h2 id="5-tai-lieu-lien-ket">5. 📚 Tài liệu liên kết<a class="headerlink" href="#5-tai-lieu-lien-ket" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../data-model/">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+<li><a href="../design/">Design</a></li>
+<li><a href="../../../ADR/adr-011-api-error-format.md"><code>adr-011-api-error-format.md</code></a></li>
+<li><a href="../../../ADR/adr-012-response-structure.md"><code>adr-012-response-structure.md</code></a></li>
+<li><a href="../../../ADR/adr-007-rbac.md"><code>adr-007-rbac.md</code></a></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Trở lại mục lục
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

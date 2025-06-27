@@ -1,0 +1,1901 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/auth-service/sub/data-model/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Auth Service Sub - Data Model - DX VAS - Docs</title>
+<link href="../../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#auth-service-sub-data-model-v20">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Auth Service Sub - Data Model
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-muc-tieu-pham-vi">
+<span class="md-ellipsis">
+      1. 📘 Mục tiêu &amp; Phạm vi
+    </span>
+</a>
+<nav aria-label="1. 📘 Mục tiêu &amp; Phạm vi" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-tieu-cu-the">
+<span class="md-ellipsis">
+      🎯 Mục tiêu cụ thể
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pham-vi-du-lieu-uoc-quan-ly">
+<span class="md-ellipsis">
+      📦 Phạm vi dữ liệu được quản lý
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ngoai-pham-vi-out-of-scope">
+<span class="md-ellipsis">
+      🚫 Ngoài phạm vi (Out of Scope)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lien-he-kien-truc-tong-the">
+<span class="md-ellipsis">
+      🧭 Liên hệ kiến trúc tổng thể
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-tong-quan-du-lieu-moi-quan-he">
+<span class="md-ellipsis">
+      2. 🧩 Tổng Quan Dữ Liệu &amp; Mối Quan Hệ
+    </span>
+</a>
+<nav aria-label="2. 🧩 Tổng Quan Dữ Liệu &amp; Mối Quan Hệ" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-so-o-erd-entity-relationship-diagram">
+<span class="md-ellipsis">
+      2.1. Sơ đồ ERD (Entity Relationship Diagram)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-giai-thich-moi-quan-he">
+<span class="md-ellipsis">
+      2.2. Giải thích mối quan hệ
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-ky-hieu-conventions">
+<span class="md-ellipsis">
+      2.3. Ký hiệu &amp; conventions
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ghi-chu-thiet-ke">
+<span class="md-ellipsis">
+      🧠 Ghi chú thiết kế
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-bang-auth_sessions">
+<span class="md-ellipsis">
+      3. 📌 Bảng auth_sessions
+    </span>
+</a>
+<nav aria-label="3. 📌 Bảng auth_sessions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-muc-ich">
+<span class="md-ellipsis">
+      3.1. 🧾 Mục đích
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-cau-truc-sql-postgresql">
+<span class="md-ellipsis">
+      3.2. 📜 Cấu trúc SQL (PostgreSQL)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-mo-ta-cac-cot">
+<span class="md-ellipsis">
+      3.3. 📋 Mô tả các cột
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#34-rbac-bao-mat-theo-cot">
+<span class="md-ellipsis">
+      3.4. 🔐 RBAC &amp; Bảo mật theo cột
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#35-index-constraint">
+<span class="md-ellipsis">
+      3.5. ⚡ Index &amp; Constraint
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#36-vi-du-ban-ghi">
+<span class="md-ellipsis">
+      3.6. 💡 Ví dụ bản ghi
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-cache-revoked_tokens-redis">
+<span class="md-ellipsis">
+      4. 📌 Cache revoked_tokens (Redis)
+    </span>
+</a>
+<nav aria-label="4. 📌 Cache revoked_tokens (Redis)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-muc-ich">
+<span class="md-ellipsis">
+      4.1. 🧾 Mục đích
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-cau-truc-redis-key-value">
+<span class="md-ellipsis">
+      4.2. 🧩 Cấu trúc Redis Key-Value
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-ttl-va-chinh-sach-don-dep">
+<span class="md-ellipsis">
+      4.3. ♻️ TTL và chính sách dọn dẹp
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#44-tuong-tac-trong-lifecycle">
+<span class="md-ellipsis">
+      4.4. 🔁 Tương tác trong lifecycle
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#45-luu-y-trien-khai">
+<span class="md-ellipsis">
+      4.5. 🚨 Lưu ý triển khai
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-session-metadata">
+<span class="md-ellipsis">
+      5. 🧩 Session Metadata
+    </span>
+</a>
+<nav aria-label="5. 🧩 Session Metadata" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-danh-sach-cac-truong-metadata">
+<span class="md-ellipsis">
+      5.1. 📋 Danh sách các trường metadata
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-nguon-goc-du-lieu">
+<span class="md-ellipsis">
+      5.2. 🧠 Nguồn gốc dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-bao-mat-xu-ly-du-lieu-nhay-cam">
+<span class="md-ellipsis">
+      5.3. 🛡 Bảo mật &amp; xử lý dữ liệu nhạy cảm
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-su-dung-trong-he-thong">
+<span class="md-ellipsis">
+      5.4. 📈 Sử dụng trong hệ thống
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#55-goi-y-mo-rong-tuong-lai">
+<span class="md-ellipsis">
+      5.5. 💡 Gợi ý mở rộng tương lai
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-enums-constants">
+<span class="md-ellipsis">
+      6. 🧾 ENUMs &amp; Constants
+    </span>
+</a>
+<nav aria-label="6. 🧾 ENUMs &amp; Constants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-auth_method">
+<span class="md-ellipsis">
+      6.1. 📌 auth_method
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-device_type">
+<span class="md-ellipsis">
+      6.2. 📌 device_type
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-session_status">
+<span class="md-ellipsis">
+      6.3. 📌 session_status
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-errorcode">
+<span class="md-ellipsis">
+      6.4. 📌 error.code
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goi-y-mo-rong">
+<span class="md-ellipsis">
+      🧩 Gợi ý mở rộng
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-data-access-control-rbac">
+<span class="md-ellipsis">
+      7. 🔐 Data Access Control (RBAC)
+    </span>
+</a>
+<nav aria-label="7. 🔐 Data Access Control (RBAC)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-chinh-sach-rbac-ap-dung">
+<span class="md-ellipsis">
+      7.1. 🧩 Chính sách RBAC áp dụng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-kiem-tra-ieu-kien-x-condition">
+<span class="md-ellipsis">
+      7.2. 📌 Kiểm tra điều kiện (x-condition)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-ap-dung-vao-mo-hinh-du-lieu">
+<span class="md-ellipsis">
+      7.3. 🔒 Áp dụng vào mô hình dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-best-practices">
+<span class="md-ellipsis">
+      7.4. 🧠 Best Practices
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-data-lifecycle-retention-policy">
+<span class="md-ellipsis">
+      8. 🕒 Data Lifecycle &amp; Retention Policy
+    </span>
+</a>
+<nav aria-label="8. 🕒 Data Lifecycle &amp; Retention Policy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-retention-policy-theo-loai-du-lieu">
+<span class="md-ellipsis">
+      8.1. ♻️ Retention Policy theo loại dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-anonymization-theo-adr-024">
+<span class="md-ellipsis">
+      8.2. 🔐 Anonymization theo adr-024
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-chinh-sach-xoa-cung-hard-delete">
+<span class="md-ellipsis">
+      8.3. 🔥 Chính sách xóa cứng (Hard Delete)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-goi-y-van-hanh">
+<span class="md-ellipsis">
+      8.4. 🧠 Gợi ý vận hành
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-vi-du-bieu-o-lifecycle">
+<span class="md-ellipsis">
+      8.5. Ví dụ biểu đồ lifecycle
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-migration-schema-evolution">
+<span class="md-ellipsis">
+      9. 🔁 Migration &amp; Schema Evolution
+    </span>
+</a>
+<nav aria-label="9. 🔁 Migration &amp; Schema Evolution" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-tuan-theo-mo-hinh-3-phase-migration">
+<span class="md-ellipsis">
+      9.1. 📘 Tuân theo mô hình 3-phase migration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-cong-cu-best-practices">
+<span class="md-ellipsis">
+      9.2. 🧱 Công cụ &amp; best practices
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-kiem-thu-migration">
+<span class="md-ellipsis">
+      9.3. 🚧 Kiểm thử migration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#94-multi-tenant-considerations">
+<span class="md-ellipsis">
+      9.4. 🛠 Multi-Tenant Considerations
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#95-goi-y-mo-rong">
+<span class="md-ellipsis">
+      9.5. 🧠 Gợi ý mở rộng
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-kiem-thu-lien-quan-du-lieu">
+<span class="md-ellipsis">
+      10. ✅ Kiểm thử liên quan dữ liệu
+    </span>
+</a>
+<nav aria-label="10. ✅ Kiểm thử liên quan dữ liệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-unit-tests-database-layer">
+<span class="md-ellipsis">
+      10.1. 🧪 Unit Tests (Database Layer)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-integration-tests-service-logic-db">
+<span class="md-ellipsis">
+      10.2. 🔁 Integration Tests (Service Logic + DB)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-security-access-control-tests">
+<span class="md-ellipsis">
+      10.3. 🔐 Security &amp; Access Control Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-contract-testing-schema-api">
+<span class="md-ellipsis">
+      10.4. 🧾 Contract Testing (Schema &amp; API)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#105-migration-data-retention-tests">
+<span class="md-ellipsis">
+      10.5. 🧪 Migration &amp; Data Retention Tests
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-tai-lieu-lien-quan">
+<span class="md-ellipsis">
+      11. 📚 Tài liệu liên quan
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="auth-service-sub-data-model-v20">🗃️ Auth Service Sub - Data Model v2.0<a class="headerlink" href="#auth-service-sub-data-model-v20" title="Permanent link">¶</a></h1>
+<h2 id="1-muc-tieu-pham-vi">1. 📘 Mục tiêu &amp; Phạm vi<a class="headerlink" href="#1-muc-tieu-pham-vi" title="Permanent link">¶</a></h2>
+<p>Tài liệu này định nghĩa <strong>mô hình dữ liệu</strong> cho <code>auth-service/sub</code>, một service xác thực per-tenant trong hệ thống <code>dx-vas</code>. Việc thiết kế mô hình dữ liệu chuẩn xác là nền tảng để:</p>
+<ul>
+<li>Đảm bảo tính toàn vẹn, bảo mật và khả năng mở rộng của dữ liệu xác thực người dùng</li>
+<li>Phục vụ các thao tác xác thực OTP, Local Login, quản lý phiên đăng nhập, và thu hồi token</li>
+<li>Ghi nhận metadata cần thiết cho audit log, bảo vệ hệ thống khỏi gian lận</li>
+<li>Đảm bảo khả năng truy vết (traceability) và phân quyền truy cập theo chính sách RBAC</li>
+</ul>
+<hr/>
+<h3 id="muc-tieu-cu-the">🎯 Mục tiêu cụ thể<a class="headerlink" href="#muc-tieu-cu-the" title="Permanent link">¶</a></h3>
+<ul>
+<li>Thiết kế bảng dữ liệu <code>auth_sessions</code> chuẩn hóa, phản ánh đầy đủ vòng đời một phiên đăng nhập</li>
+<li>Định nghĩa cấu trúc cache <code>revoked_tokens</code> trên Redis dùng để thu hồi token chủ động</li>
+<li>Chuẩn hóa metadata gắn với session bao gồm <code>ip_address</code>, <code>user_agent</code>, <code>device_type</code>, <code>location</code></li>
+<li>Phân loại và mô tả các giá trị ENUM quan trọng trong logic xác thực (<code>auth_method</code>, <code>device_type</code>, v.v.)</li>
+<li>Thiết lập chiến lược Retention &amp; Anonymization nhất quán với toàn hệ thống</li>
+<li>Hỗ trợ kiểm thử và migration schema dễ dàng trên môi trường multi-tenant</li>
+</ul>
+<hr/>
+<h3 id="pham-vi-du-lieu-uoc-quan-ly">📦 Phạm vi dữ liệu được quản lý<a class="headerlink" href="#pham-vi-du-lieu-uoc-quan-ly" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại dữ liệu</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>auth_sessions</strong></td>
+<td>Ghi nhận mỗi phiên đăng nhập thành công của user</td>
+</tr>
+<tr>
+<td><strong>revoked_tokens</strong></td>
+<td>Lưu token bị thu hồi chủ động hoặc hết hiệu lực (Redis)</td>
+</tr>
+<tr>
+<td><strong>Session metadata</strong></td>
+<td>Thông tin môi trường xác thực: IP, thiết bị, trình duyệt</td>
+</tr>
+<tr>
+<td><strong>Login method</strong></td>
+<td>Phân biệt giữa OTP / Local login</td>
+</tr>
+<tr>
+<td><strong>Trạng thái phiên</strong></td>
+<td>Được duy trì để phục vụ giao diện quản trị hoặc phân tích</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="ngoai-pham-vi-out-of-scope">🚫 Ngoài phạm vi (Out of Scope)<a class="headerlink" href="#ngoai-pham-vi-out-of-scope" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OAuth2 / Social login (Google)</strong></td>
+<td>Được xử lý bởi <code>auth-service/master</code> theo <code>adr-006</code></td>
+</tr>
+<tr>
+<td><strong>Thông tin người dùng (user profile)</strong></td>
+<td>Được quản lý tại <code>user-service</code></td>
+</tr>
+<tr>
+<td><strong>Kiểm tra RBAC / quyền truy cập</strong></td>
+<td>Được thực hiện tại <code>api-gateway</code> và <code>rbac-cache</code></td>
+</tr>
+<tr>
+<td><strong>Refresh token storage</strong></td>
+<td>Không lưu refresh token, chỉ xử lý revoke qua <code>token-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="lien-he-kien-truc-tong-the">🧭 Liên hệ kiến trúc tổng thể<a class="headerlink" href="#lien-he-kien-truc-tong-the" title="Permanent link">¶</a></h3>
+<p>Mô hình dữ liệu được thiết kế để vận hành tốt trong kiến trúc:
+- Multi-tenant per-instance (mỗi tenant có DB riêng hoặc schema riêng)
+- Stateless microservice (tất cả trạng thái xác thực được externalized)
+- Token-based auth (không lưu trạng thái user đăng nhập trong RAM)
+- RBAC externalized (quản lý quyền ngoài auth-service/sub)</p>
+<hr/>
+<h2 id="2-tong-quan-du-lieu-moi-quan-he">2. 🧩 Tổng Quan Dữ Liệu &amp; Mối Quan Hệ<a class="headerlink" href="#2-tong-quan-du-lieu-moi-quan-he" title="Permanent link">¶</a></h2>
+<p>Mô hình dữ liệu của <code>auth-service/sub</code> được thiết kế tối giản và hiệu quả, tập trung vào việc quản lý <strong>vòng đời phiên đăng nhập</strong> và <strong>việc thu hồi token</strong>, đồng thời ghi nhận đầy đủ metadata phục vụ cho audit, phân tích bảo mật và giám sát hành vi người dùng.</p>
+<hr/>
+<h3 id="21-so-o-erd-entity-relationship-diagram">2.1. Sơ đồ ERD (Entity Relationship Diagram)<a class="headerlink" href="#21-so-o-erd-entity-relationship-diagram" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>erDiagram
+
+  AUTH_SESSIONS {
+    UUID id PK
+    UUID user_id
+    TEXT auth_method
+    TEXT device_type
+    TEXT ip_address
+    TEXT user_agent
+    TEXT location
+    TEXT session_status
+    TIMESTAMP created_at
+    TIMESTAMP expired_at
+    TIMESTAMP revoked_at
+    TEXT revoked_reason
+    UUID tenant_id
+  }
+
+  REVOKED_TOKENS {
+    TEXT jti PK
+    UUID session_id FK
+    UUID user_id
+    TIMESTAMP revoked_at
+    TEXT reason
+    UUID tenant_id
+  }
+
+  AUTH_SESSIONS ||--o{ REVOKED_TOKENS : has
+</code></pre>
+<hr/>
+<h3 id="22-giai-thich-moi-quan-he">2.2. Giải thích mối quan hệ<a class="headerlink" href="#22-giai-thich-moi-quan-he" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Quan hệ</th>
+<th>Loại</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth_sessions</code> → <code>revoked_tokens</code></td>
+<td>1:N</td>
+<td>Mỗi phiên có thể có nhiều token bị thu hồi liên quan (vd. refresh token, access token thứ cấp)</td>
+</tr>
+<tr>
+<td><code>user_id</code>, <code>tenant_id</code></td>
+<td>Chỉ định người dùng và tenant tương ứng với phiên</td>
+<td></td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>Được sử dụng để liên kết ngược từ cache hoặc revoke record đến phiên đăng nhập gốc</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>✅ Mọi bảng đều có khóa chính rõ ràng, hỗ trợ phân vùng theo <code>tenant_id</code> nếu cần.</p>
+<hr/>
+<h3 id="23-ky-hieu-conventions">2.3. Ký hiệu &amp; conventions<a class="headerlink" href="#23-ky-hieu-conventions" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>UUID</strong>: Toàn bộ các khoá chính và liên kết đều dùng UUID để đảm bảo tính toàn cục và dễ trace.</li>
+<li><strong>snake_case</strong>: Dùng thống nhất cho tên cột.</li>
+<li><strong>tenant_id</strong>: Có mặt ở mọi bảng để đảm bảo khả năng lọc, truy xuất và bảo vệ tenant isolation.</li>
+<li><strong>Timestamp</strong>: Luôn dùng timezone-aware timestamp (<code>TIMESTAMPTZ</code> nếu PostgreSQL).</li>
+<li><strong>Trạng thái logic</strong> (như <code>revoked_at</code>, <code>revoked_reason</code>, <code>session_status</code>) dùng nullable field thay vì boolean flag — đảm bảo mở rộng về sau.</li>
+</ul>
+<hr/>
+<h3 id="ghi-chu-thiet-ke">🧠 Ghi chú thiết kế<a class="headerlink" href="#ghi-chu-thiet-ke" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không có bảng <code>users</code> trong service này – mọi thông tin user được đồng bộ từ <code>user-service</code>.</li>
+<li>Cache <code>revoked_tokens</code> trên Redis có thể phản ánh một phần dữ liệu từ DB để tối ưu tra cứu runtime.</li>
+<li>Session metadata có thể phục vụ cho audit log, tracking đăng nhập bất thường, hoặc security scoring.</li>
+</ul>
+<hr/>
+<h2 id="3-bang-auth_sessions">3. 📌 Bảng <code>auth_sessions</code><a class="headerlink" href="#3-bang-auth_sessions" title="Permanent link">¶</a></h2>
+<p>Bảng <code>auth_sessions</code> ghi lại mọi phiên đăng nhập thành công của người dùng (qua OTP hoặc Local login), là cơ sở cho việc quản lý vòng đời xác thực, phục vụ kiểm tra bảo mật, thống kê hành vi người dùng và kiểm soát thu hồi token.</p>
+<hr/>
+<h3 id="31-muc-ich">3.1. 🧾 Mục đích<a class="headerlink" href="#31-muc-ich" title="Permanent link">¶</a></h3>
+<ul>
+<li>Lưu vết mỗi lần đăng nhập thành công</li>
+<li>Gắn metadata liên quan đến môi trường đăng nhập</li>
+<li>Liên kết với <code>revoked_tokens</code> để hỗ trợ revoke có mục tiêu</li>
+<li>Phục vụ thống kê đăng nhập và cảnh báo bảo mật</li>
+<li>Là nguồn dữ liệu chính cho hệ thống audit logging &amp; observability</li>
+</ul>
+<hr/>
+<h3 id="32-cau-truc-sql-postgresql">3.2. 📜 Cấu trúc SQL (PostgreSQL)<a class="headerlink" href="#32-cau-truc-sql-postgresql" title="Permanent link">¶</a></h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">auth_sessions</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">gen_random_uuid</span><span class="p">(),</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="n">user_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="n">tenant_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="n">auth_method</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">auth_method</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'otp'</span><span class="p">,</span><span class="w"> </span><span class="s1">'local'</span><span class="p">)),</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="n">session_status</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">'active'</span><span class="p">,</span><span class="w"> </span><span class="c1">-- optional UI status</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="n">ip_address</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="n">user_agent</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="n">device_type</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="k">location</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">  </span><span class="n">expired_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="p">,</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">  </span><span class="n">revoked_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="p">,</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="n">revoked_reason</span><span class="w"> </span><span class="nb">TEXT</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="p">);</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="33-mo-ta-cac-cot">3.3. 📋 Mô tả các cột<a class="headerlink" href="#33-mo-ta-cac-cot" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>ID phiên đăng nhập</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td>UUID</td>
+<td>ID người dùng đăng nhập</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>UUID</td>
+<td>Tenant sở hữu phiên này</td>
+</tr>
+<tr>
+<td><code>auth_method</code></td>
+<td>TEXT</td>
+<td><code>otp</code> hoặc <code>local</code></td>
+</tr>
+<tr>
+<td><code>session_status</code></td>
+<td>TEXT</td>
+<td>Optional UI tag (<code>active</code>, <code>revoked</code>, <code>expired</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td>TEXT</td>
+<td>Địa chỉ IP từ frontend/backend</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td>TEXT</td>
+<td>Trình duyệt/thiết bị truy cập</td>
+</tr>
+<tr>
+<td><code>device_type</code></td>
+<td>TEXT</td>
+<td>Phân loại thiết bị: <code>web</code>, <code>mobile</code>, <code>kiosk</code></td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td>TEXT</td>
+<td>Ước lượng địa lý nếu có (từ IP)</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>Thời điểm login thành công</td>
+</tr>
+<tr>
+<td><code>expired_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>Dự kiến thời điểm token hết hạn</td>
+</tr>
+<tr>
+<td><code>revoked_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>Nếu bị thu hồi thủ công hoặc logout</td>
+</tr>
+<tr>
+<td><code>revoked_reason</code></td>
+<td>TEXT</td>
+<td>Lý do bị thu hồi (nếu có)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="34-rbac-bao-mat-theo-cot">3.4. 🔐 RBAC &amp; Bảo mật theo cột<a class="headerlink" href="#34-rbac-bao-mat-theo-cot" title="Permanent link">¶</a></h3>
+<ul>
+<li>Chỉ <strong>chính user (<code>self</code>) hoặc admin nội bộ</strong> có quyền đọc</li>
+<li>Cột <code>ip_address</code>, <code>user_agent</code>, <code>location</code> được đánh dấu là <strong>dữ liệu nhạy cảm</strong> theo <code>adr-024</code></li>
+<li>Tất cả truy cập đọc phải đi qua lớp kiểm tra <code>x-condition</code> dựa trên <code>user_id</code> hoặc <code>tenant_id</code></li>
+</ul>
+<hr/>
+<h3 id="35-index-constraint">3.5. ⚡ Index &amp; Constraint<a class="headerlink" href="#35-index-constraint" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tên</th>
+<th>Kiểu</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>idx_auth_sessions_user</code></td>
+<td>B-tree</td>
+<td>Truy xuất nhanh theo <code>user_id</code></td>
+</tr>
+<tr>
+<td><code>idx_auth_sessions_tenant_created</code></td>
+<td>B-tree</td>
+<td>Truy xuất theo <code>tenant_id</code> và <code>created_at</code></td>
+</tr>
+<tr>
+<td><code>check_auth_method</code></td>
+<td>CHECK</td>
+<td>Ràng buộc <code>otp</code> hoặc <code>local</code></td>
+</tr>
+<tr>
+<td><code>check_not_future_created_at</code></td>
+<td>CHECK</td>
+<td><code>created_at</code> không được lớn hơn <code>now()</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="36-vi-du-ban-ghi">3.6. 💡 Ví dụ bản ghi<a class="headerlink" href="#36-vi-du-ban-ghi" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f2b9c6ae-4b78-4d99-b4ea-25db9c91a95c"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7b6d3f56-25b9-42cf-9c29-631f6fd43a90"</span><span class="p">,</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"school-abc"</span><span class="p">,</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="nt">"auth_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otp"</span><span class="p">,</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"118.70.84.12"</span><span class="p">,</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">  </span><span class="nt">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0 (iPhone; CPU iPhone OS 14_6)"</span><span class="p">,</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="nt">"device_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mobile"</span><span class="p">,</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">  </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ho Chi Minh, VN"</span><span class="p">,</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T10:32:20Z"</span><span class="p">,</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">  </span><span class="nt">"expired_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T12:32:20Z"</span><span class="p">,</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">  </span><span class="nt">"session_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<p>📌 Ghi chú:</p>
+<ul>
+<li>Trường <code>expired_at</code> thường được xác định bởi JWT TTL + policy</li>
+<li>Trường <code>revoked_at</code> có thể được gắn khi user logout hoặc bị revoke thủ công qua API</li>
+<li>Trường <code>location</code> là tuỳ chọn (nullable), thường được xác định từ IP phía frontend gửi về</li>
+</ul>
+<hr/>
+<h2 id="4-cache-revoked_tokens-redis">4. 📌 Cache <code>revoked_tokens</code> (Redis)<a class="headerlink" href="#4-cache-revoked_tokens-redis" title="Permanent link">¶</a></h2>
+<p>Hệ thống sử dụng Redis như một bộ nhớ đệm phân tán để lưu thông tin các token đã bị thu hồi (revoked), giúp <code>api-gateway</code> và các service liên quan kiểm tra nhanh tính hợp lệ của token khi nhận request.</p>
+<hr/>
+<h3 id="41-muc-ich">4.1. 🧾 Mục đích<a class="headerlink" href="#41-muc-ich" title="Permanent link">¶</a></h3>
+<ul>
+<li>Truy vấn nhanh token có bị thu hồi hay không mà không cần truy cập DB</li>
+<li>Hỗ trợ người dùng logout chủ động trên mọi thiết bị</li>
+<li>Hạn chế token reuse hoặc abuse khi xảy ra mất mát thiết bị</li>
+</ul>
+<hr/>
+<h3 id="42-cau-truc-redis-key-value">4.2. 🧩 Cấu trúc Redis Key-Value<a class="headerlink" href="#42-cau-truc-redis-key-value" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Key</strong></td>
+<td><code>revoked:&lt;jti&gt;</code> (VD: <code>revoked:1f2e3d4c</code>)</td>
+</tr>
+<tr>
+<td><strong>Value</strong> (JSON)</td>
+<td>Metadata về lý do và thời điểm bị thu hồi</td>
+</tr>
+<tr>
+<td><strong>TTL</strong></td>
+<td>Bằng hoặc lớn hơn TTL tối đa của token tương ứng</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Ví dụ giá trị Redis:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="nt">"revoked_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T10:40:00Z"</span><span class="p">,</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_logout"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="nt">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f2b9c6ae-4b78-4d99-b4ea-25db9c91a95c"</span><span class="p">,</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7b6d3f56-25b9-42cf-9c29-631f6fd43a90"</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="43-ttl-va-chinh-sach-don-dep">4.3. ♻️ TTL và chính sách dọn dẹp<a class="headerlink" href="#43-ttl-va-chinh-sach-don-dep" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mỗi token được lưu kèm <code>TTL = expiration_time - now</code></li>
+<li>Token đã hết hạn sẽ <strong>tự động bị Redis xoá</strong></li>
+<li>Không cần migration hay cleanup định kỳ</li>
+</ul>
+<p>📌 Nếu dùng <code>Sliding TTL</code> hoặc <code>Refresh token rotation</code>, phải bảo đảm TTL đủ dài để bao phủ thời gian kiểm tra replay.</p>
+<hr/>
+<h3 id="44-tuong-tac-trong-lifecycle">4.4. 🔁 Tương tác trong lifecycle<a class="headerlink" href="#44-tuong-tac-trong-lifecycle" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hành động</th>
+<th>Kết quả trên Redis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Logout thành công</strong></td>
+<td>Ghi <code>revoked:&lt;jti&gt;</code> kèm lý do</td>
+</tr>
+<tr>
+<td><strong>Token bị force revoke (Admin)</strong></td>
+<td>Ghi <code>revoked:&lt;jti&gt;</code> từ background job</td>
+</tr>
+<tr>
+<td><strong>Refresh token bị dùng lại</strong></td>
+<td>Ghi <code>revoked:&lt;jti&gt;</code> + cảnh báo audit</td>
+</tr>
+<tr>
+<td><strong>Login mới</strong></td>
+<td>Không ghi gì vào Redis (token hợp lệ)</td>
+</tr>
+</tbody>
+</table>
+<p>Tất cả service consumer (gateway, audit, CRM adapter…) phải <strong>check revoked cache trước khi xử lý logic</strong> nếu thấy token hợp lệ về mặt signature.</p>
+<hr/>
+<h3 id="45-luu-y-trien-khai">4.5. 🚨 Lưu ý triển khai<a class="headerlink" href="#45-luu-y-trien-khai" title="Permanent link">¶</a></h3>
+<ul>
+<li>Redis phải được cấu hình HA, persistence và TTL-aware eviction policy</li>
+<li>Thực hiện bằng Redis Cluster nếu có hơn 50k tenant/token active</li>
+<li>Mọi key đều phải được prefix <code>revoked:</code> để phân biệt namespace rõ ràng</li>
+<li>Redis sử dụng db-index riêng nếu chia cho nhiều dịch vụ</li>
+<li>Không dùng để backup token – chỉ để kiểm tra tính hợp lệ tức thời</li>
+</ul>
+<hr/>
+<p>📌 Ghi chú bảo mật:</p>
+<ul>
+<li>Thông tin lưu trong Redis <strong>không chứa JWT gốc</strong></li>
+<li>Dữ liệu nhạy cảm như <code>session_id</code> có thể được ẩn hoặc mã hóa nếu chia sẻ multi-tenant cluster</li>
+<li>Redis phải nằm sau firewall hoặc private subnet trong hạ tầng cloud</li>
+</ul>
+<hr/>
+<h2 id="5-session-metadata">5. 🧩 Session Metadata<a class="headerlink" href="#5-session-metadata" title="Permanent link">¶</a></h2>
+<p>Mỗi phiên đăng nhập (<code>auth_session</code>) được gắn kèm <strong>metadata</strong> phản ánh ngữ cảnh truy cập của người dùng. Những dữ liệu này giúp tăng cường bảo mật, hỗ trợ phân tích hành vi, và phục vụ cho các hệ thống quan sát (observability) &amp; kiểm toán (audit).</p>
+<hr/>
+<h3 id="51-danh-sach-cac-truong-metadata">5.1. 📋 Danh sách các trường metadata<a class="headerlink" href="#51-danh-sach-cac-truong-metadata" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip_address</code></td>
+<td>TEXT</td>
+<td>Địa chỉ IP gốc của client (có thể lấy từ header <code>X-Forwarded-For</code>)</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td>TEXT</td>
+<td>Chuỗi trình duyệt gửi kèm request</td>
+</tr>
+<tr>
+<td><code>device_type</code></td>
+<td>TEXT</td>
+<td>Phân loại thiết bị: <code>web</code>, <code>mobile</code>, <code>kiosk</code>, <code>tablet</code>…</td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td>TEXT</td>
+<td>Ước lượng địa lý (city/country) từ IP (nếu có)</td>
+</tr>
+<tr>
+<td><code>login_context</code></td>
+<td>JSONB <em>(optional)</em></td>
+<td>Ghi chú mở rộng như: app version, referral, login reason, MFA step</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="52-nguon-goc-du-lieu">5.2. 🧠 Nguồn gốc dữ liệu<a class="headerlink" href="#52-nguon-goc-du-lieu" title="Permanent link">¶</a></h3>
+<ul>
+<li>Các trường này được <strong>thu thập từ frontend hoặc middleware tại gateway</strong></li>
+<li>Sau đó đính kèm vào payload gửi đến <code>auth-service/sub</code> trong quá trình login</li>
+<li>Được ghi trực tiếp vào bảng <code>auth_sessions</code> hoặc lưu kèm audit log</li>
+</ul>
+<hr/>
+<h3 id="53-bao-mat-xu-ly-du-lieu-nhay-cam">5.3. 🛡 Bảo mật &amp; xử lý dữ liệu nhạy cảm<a class="headerlink" href="#53-bao-mat-xu-ly-du-lieu-nhay-cam" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dữ liệu</th>
+<th>Độ nhạy</th>
+<th>Hướng xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip_address</code>, <code>location</code></td>
+<td>Cao</td>
+<td>Có thể ẩn đi khi gửi đến audit log (theo <code>adr-024</code>)</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td>Trung bình</td>
+<td>Trích xuất thông tin chính (OS, trình duyệt) nếu cần</td>
+</tr>
+<tr>
+<td><code>login_context</code></td>
+<td>Tuỳ thuộc</td>
+<td>Cần xác định cụ thể schema &amp; xếp hạng độ nhạy</td>
+</tr>
+</tbody>
+</table>
+<p>Mọi metadata đều phải tuân theo chiến lược <strong>anonymization hoặc masking</strong> khi lưu lâu dài hoặc gửi sang hệ thống ngoài.</p>
+<hr/>
+<h3 id="54-su-dung-trong-he-thong">5.4. 📈 Sử dụng trong hệ thống<a class="headerlink" href="#54-su-dung-trong-he-thong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Được gắn vào mỗi bản ghi <code>auth_sessions</code></li>
+<li>Gửi lên Pub/Sub khi phát sinh sự kiện <code>auth.token.issued</code> hoặc <code>auth.token.revoked</code></li>
+<li>Làm chỉ số chính trong dashboard theo dõi đăng nhập (Prometheus/Grafana)</li>
+<li>Sử dụng để phát hiện đăng nhập bất thường, login từ quốc gia bất thường, thiết bị lạ</li>
+</ul>
+<hr/>
+<h3 id="55-goi-y-mo-rong-tuong-lai">5.5. 💡 Gợi ý mở rộng tương lai<a class="headerlink" href="#55-goi-y-mo-rong-tuong-lai" title="Permanent link">¶</a></h3>
+<ul>
+<li>Trích xuất fingerprint hoặc session hash để xác định danh tính thiết bị</li>
+<li>Liên kết với alert system khi đăng nhập từ IP blacklist hoặc bị nghi ngờ</li>
+</ul>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="nt">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0 (Windows NT 10.0; Win64; x64)"</span><span class="p">,</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"203.113.135.42"</span><span class="p">,</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="nt">"device_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ha Noi, VN"</span><span class="p">,</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">  </span><span class="nt">"login_context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">    </span><span class="nt">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="nt">"mfa_completed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<blockquote>
+<p>✅ Việc lưu metadata chính xác và bảo vệ đúng mức sẽ giúp hệ thống <code>auth-service/sub</code> vừa an toàn, vừa giàu khả năng quan sát mà không vi phạm quyền riêng tư người dùng.</p>
+</blockquote>
+<hr/>
+<h2 id="6-enums-constants">6. 🧾 ENUMs &amp; Constants<a class="headerlink" href="#6-enums-constants" title="Permanent link">¶</a></h2>
+<p>Các giá trị ENUM giúp chuẩn hóa và giới hạn phạm vi đầu vào hợp lệ trong quá trình xác thực, đồng thời hỗ trợ hiển thị trạng thái rõ ràng trong hệ thống quản trị hoặc giao diện frontend.</p>
+<hr/>
+<h3 id="61-auth_method">6.1. 📌 <code>auth_method</code><a class="headerlink" href="#61-auth_method" title="Permanent link">¶</a></h3>
+<p>Xác định phương thức xác thực mà người dùng sử dụng để đăng nhập.</p>
+<table>
+<thead>
+<tr>
+<th>Giá trị</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>otp</code></td>
+<td>Xác thực qua mã OTP gửi SMS/email</td>
+</tr>
+<tr>
+<td><code>local</code></td>
+<td>Xác thực bằng username/password nội bộ</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Sử dụng trong: bảng <code>auth_sessions</code>, OpenAPI schema <code>LoginRequest</code>.</p>
+<hr/>
+<h3 id="62-device_type">6.2. 📌 <code>device_type</code><a class="headerlink" href="#62-device_type" title="Permanent link">¶</a></h3>
+<p>Phân loại thiết bị từ frontend giúp phân tích hành vi và phát hiện đăng nhập bất thường.</p>
+<table>
+<thead>
+<tr>
+<th>Giá trị</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>web</code></td>
+<td>Trình duyệt desktop hoặc trình duyệt mobile</td>
+</tr>
+<tr>
+<td><code>mobile</code></td>
+<td>Ứng dụng mobile native</td>
+</tr>
+<tr>
+<td><code>tablet</code></td>
+<td>Thiết bị tablet (iPad, Android tablet…)</td>
+</tr>
+<tr>
+<td><code>kiosk</code></td>
+<td>Thiết bị truy cập cố định (máy điểm danh…)</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td>Không xác định được</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Sử dụng trong: <code>auth_sessions.device_type</code></p>
+<hr/>
+<h3 id="63-session_status">6.3. 📌 <code>session_status</code><a class="headerlink" href="#63-session_status" title="Permanent link">¶</a></h3>
+<p>Dùng nội bộ để hiển thị trạng thái phiên đăng nhập trong giao diện admin.</p>
+<table>
+<thead>
+<tr>
+<th>Giá trị</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>active</code></td>
+<td>Phiên đang hoạt động bình thường</td>
+</tr>
+<tr>
+<td><code>revoked</code></td>
+<td>Đã bị thu hồi thủ công</td>
+</tr>
+<tr>
+<td><code>expired</code></td>
+<td>Hết hạn tự động</td>
+</tr>
+<tr>
+<td><code>locked</code></td>
+<td>Bị khóa bởi quản trị viên hoặc hệ thống</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Không ảnh hưởng tới xác thực token – token validity được kiểm tra riêng.</p>
+<hr/>
+<h3 id="64-errorcode">6.4. 📌 <code>error.code</code><a class="headerlink" href="#64-errorcode" title="Permanent link">¶</a></h3>
+<p>Theo chuẩn <code>adr-011</code>, mọi response lỗi đều bao gồm <code>error.code</code> dạng định danh ngắn, giúp frontend hoặc hệ thống quản trị hiển thị và xử lý dễ dàng hơn.</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Mô tả</th>
+<th>HTTP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth.invalid_credentials</code></td>
+<td>Sai tên đăng nhập hoặc mật khẩu</td>
+<td>401</td>
+</tr>
+<tr>
+<td><code>auth.otp.expired</code></td>
+<td>Mã OTP đã hết hạn</td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>auth.otp.invalid</code></td>
+<td>Mã OTP không chính xác</td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>auth.session.revoked</code></td>
+<td>Phiên đã bị thu hồi</td>
+<td>403</td>
+</tr>
+<tr>
+<td><code>auth.token.reuse_detected</code></td>
+<td>Refresh token bị sử dụng lại</td>
+<td>401</td>
+</tr>
+<tr>
+<td><code>auth.rate_limited</code></td>
+<td>Gửi OTP quá nhiều lần</td>
+<td>429</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Tất cả mã lỗi phải nằm trong danh sách được định nghĩa trước (xem thêm <code>error-codes.md</code>).</p>
+<hr/>
+<h3 id="goi-y-mo-rong">🧩 Gợi ý mở rộng<a class="headerlink" href="#goi-y-mo-rong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Các enum nên được central hóa trong file <code>schemas/constants.py</code> (Python), <code>constants.ts</code> (TypeScript), hoặc đặt trong schema validator (OpenAPI/JSON Schema)</li>
+<li>Hỗ trợ tự động sinh document và kiểm thử dựa trên enum list (contract testing)</li>
+</ul>
+<hr/>
+<h2 id="7-data-access-control-rbac">7. 🔐 Data Access Control (RBAC)<a class="headerlink" href="#7-data-access-control-rbac" title="Permanent link">¶</a></h2>
+<p>Tất cả dữ liệu trong <code>auth-service/sub</code> đều được bảo vệ bởi cơ chế <strong>Role-Based Access Control (RBAC)</strong> động, với điều kiện (<code>x-condition</code>) được kiểm tra tại <code>api-gateway</code> hoặc middleware RBAC trước khi request đến được service.</p>
+<hr/>
+<h3 id="71-chinh-sach-rbac-ap-dung">7.1. 🧩 Chính sách RBAC áp dụng<a class="headerlink" href="#71-chinh-sach-rbac-ap-dung" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hành động</th>
+<th>Permission</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Xem phiên của chính mình</td>
+<td><code>session.read:self</code></td>
+<td>Cho phép user xem lịch sử login của chính họ</td>
+</tr>
+<tr>
+<td>Admin xem toàn bộ session</td>
+<td><code>session.read:any</code></td>
+<td>Dành cho quản trị viên nội bộ (per-tenant)</td>
+</tr>
+<tr>
+<td>Thu hồi phiên</td>
+<td><code>session.revoke:any</code></td>
+<td>Thường dùng cho giao diện quản lý hoặc bảo mật</td>
+</tr>
+<tr>
+<td>Liệt kê phiên theo user</td>
+<td><code>session.list:any</code></td>
+<td>Lọc theo <code>user_id</code> – cần admin quyền cao hơn</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="72-kiem-tra-ieu-kien-x-condition">7.2. 📌 Kiểm tra điều kiện (<code>x-condition</code>)<a class="headerlink" href="#72-kiem-tra-ieu-kien-x-condition" title="Permanent link">¶</a></h3>
+<p>Việc cấp quyền không chỉ phụ thuộc vào permission string mà còn phụ thuộc vào điều kiện kèm theo như sau:</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Ý nghĩa</th>
+<th>Ví dụ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id = {{current_user.id}}</code></td>
+<td>Chỉ xem được dữ liệu của chính mình</td>
+<td><code>session.read:self</code></td>
+</tr>
+<tr>
+<td><code>tenant_id = {{X-Tenant-ID}}</code></td>
+<td>Giới hạn trong tenant hiện hành</td>
+<td>Áp dụng cho mọi quyền admin</td>
+</tr>
+<tr>
+<td><code>ip_address LIKE "10.%"</code></td>
+<td>(Advanced) Filter theo vùng mạng nội bộ</td>
+<td>Không áp dụng mặc định</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Các <code>x-condition</code> được mô tả rõ trong <code>interface-contract.md</code> ở phần <code>x-condition</code> và được enforced tại <code>api-gateway</code>.</p>
+<hr/>
+<h3 id="73-ap-dung-vao-mo-hinh-du-lieu">7.3. 🔒 Áp dụng vào mô hình dữ liệu<a class="headerlink" href="#73-ap-dung-vao-mo-hinh-du-lieu" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bảng</th>
+<th>Quyền đọc</th>
+<th>Quyền ghi</th>
+<th>Trường nhạy cảm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth_sessions</code></td>
+<td><code>session.read</code></td>
+<td>Không cho sửa</td>
+<td><code>ip_address</code>, <code>user_agent</code>, <code>location</code></td>
+</tr>
+<tr>
+<td><code>revoked_tokens</code> (cache)</td>
+<td>Không cho đọc</td>
+<td>Chỉ <code>auth-sub</code> có thể ghi</td>
+<td><code>session_id</code>, <code>reason</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tất cả truy cập trực tiếp vào bảng cần đi qua lớp RBAC filter (hoặc được kiểm tra trước ở gateway).</p>
+<hr/>
+<h3 id="74-best-practices">7.4. 🧠 Best Practices<a class="headerlink" href="#74-best-practices" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Không trả session người khác</strong> kể cả admin nếu chưa kiểm RBAC kỹ</li>
+<li>Dùng <code>x-condition</code> trên cả tenant và user scope để giảm rủi ro rò rỉ chéo tenant</li>
+<li>Mọi sự kiện đọc/ghi nhạy cảm nên được ghi vào audit log kèm <code>actor_id</code>, <code>trace_id</code></li>
+</ul>
+<hr/>
+<p>📌 Ví dụ:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nt">"x-permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"session.read:self"</span><span class="p">],</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="nt">"x-condition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{current_user.id}}"</span><span class="p">,</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{X-Tenant-ID}}"</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<blockquote>
+<p>✅ Hệ thống RBAC động như vậy đảm bảo khả năng kiểm soát tinh vi nhưng vẫn linh hoạt để mở rộng, đặc biệt quan trọng trong hệ thống multi-tenant như <code>dx-vas</code>.</p>
+</blockquote>
+<hr/>
+<h2 id="8-data-lifecycle-retention-policy">8. 🕒 Data Lifecycle &amp; Retention Policy<a class="headerlink" href="#8-data-lifecycle-retention-policy" title="Permanent link">¶</a></h2>
+<p>Mọi dữ liệu liên quan đến xác thực trong <code>auth-service/sub</code> đều được gắn liền với vòng đời xác định rõ ràng và chính sách xử lý dữ liệu sau khi hết hạn. Điều này đảm bảo hệ thống vừa tuân thủ các quy định bảo mật (như GDPR), vừa tối ưu chi phí lưu trữ và hiệu năng.</p>
+<hr/>
+<h3 id="81-retention-policy-theo-loai-du-lieu">8.1. ♻️ Retention Policy theo loại dữ liệu<a class="headerlink" href="#81-retention-policy-theo-loai-du-lieu" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại dữ liệu</th>
+<th>Bảng</th>
+<th>TTL đề xuất</th>
+<th>Hành động sau TTL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phiên đăng nhập (<code>auth_sessions</code>)</td>
+<td>PostgreSQL</td>
+<td>180 ngày</td>
+<td>Ẩn hoặc xóa dữ liệu nhạy cảm (<code>anonymize</code>)</td>
+</tr>
+<tr>
+<td>Token thu hồi (<code>revoked_tokens</code>)</td>
+<td>Redis</td>
+<td>TTL = thời gian sống token</td>
+<td>Tự động xoá khi hết TTL</td>
+</tr>
+<tr>
+<td>Audit Log (<code>auth.token.*</code>)</td>
+<td>Pub/Sub / log</td>
+<td>≥ 365 ngày</td>
+<td>Lưu trữ dài hạn theo cấu hình hệ thống</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Lưu ý: TTL thực tế có thể được cấu hình theo tenant-level policy hoặc quy định hệ thống.</p>
+<hr/>
+<h3 id="82-anonymization-theo-adr-024">8.2. 🔐 Anonymization theo <code>adr-024</code><a class="headerlink" href="#82-anonymization-theo-adr-024" title="Permanent link">¶</a></h3>
+<p>Dữ liệu sau khi hết TTL sẽ được <strong>ẩn một phần (mask)</strong> hoặc <strong>ẩn toàn bộ</strong> như sau:</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Chiến lược anonymize</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip_address</code></td>
+<td>Xoá hoặc hash một chiều (<code>anonymize(ip)</code>)</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td>Xoá hoặc rút gọn (<code>browser:Chrome</code>, <code>device:Mobile</code>)</td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td>Xoá hoặc giảm độ chính xác (chỉ giữ country code)</td>
+</tr>
+<tr>
+<td><code>revoked_reason</code></td>
+<td>Optional: có thể giữ hoặc cắt bỏ tuỳ cấu hình</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Một job nền (<code>retention_worker</code>) sẽ thực hiện xoá hoặc làm mờ định kỳ.</p>
+<hr/>
+<h3 id="83-chinh-sach-xoa-cung-hard-delete">8.3. 🔥 Chính sách xóa cứng (Hard Delete)<a class="headerlink" href="#83-chinh-sach-xoa-cung-hard-delete" title="Permanent link">¶</a></h3>
+<p>Theo <code>adr-026</code>, hệ thống không cho phép xóa bản ghi session thủ công từ API. Xoá cứng chỉ được thực hiện:</p>
+<ul>
+<li>Tự động khi đạt TTL</li>
+<li>Qua job batch định kỳ có kiểm soát (background cron job)</li>
+<li>Không cho phép xóa bản ghi riêng lẻ từ phía người dùng</li>
+</ul>
+<hr/>
+<h3 id="84-goi-y-van-hanh">8.4. 🧠 Gợi ý vận hành<a class="headerlink" href="#84-goi-y-van-hanh" title="Permanent link">¶</a></h3>
+<ul>
+<li>Nên lưu phiên bản đã anonymize lâu hơn (ví dụ: giữ 12 tháng thay vì 6 nếu đã xoá nhạy cảm)</li>
+<li>Cho phép admin xem dữ liệu anonymized để phục vụ phân tích, thống kê</li>
+<li>Với tenant VIP có yêu cầu lưu lâu hơn, có thể cấu hình TTL riêng (cần mở rộng job)</li>
+</ul>
+<hr/>
+<h3 id="85-vi-du-bieu-o-lifecycle">8.5. Ví dụ biểu đồ lifecycle<a class="headerlink" href="#85-vi-du-bieu-o-lifecycle" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>graph LR
+  login[Phiên đăng nhập thành công] --&gt; alive[Trong 180 ngày]
+  alive --&gt; anonymized[Được làm mờ dữ liệu nhạy cảm]
+  anonymized --&gt; expired[Xoá khỏi DB sau 12 tháng]
+</code></pre>
+<blockquote>
+<p>✅ Chính sách vòng đời rõ ràng giúp hệ thống vừa tiết kiệm tài nguyên, vừa đảm bảo quyền riêng tư và kiểm soát dữ liệu tốt theo tiêu chuẩn cao nhất.</p>
+</blockquote>
+<hr/>
+<h2 id="9-migration-schema-evolution">9. 🔁 Migration &amp; Schema Evolution<a class="headerlink" href="#9-migration-schema-evolution" title="Permanent link">¶</a></h2>
+<p>Việc phát triển lâu dài của <code>auth-service/sub</code> yêu cầu khả năng mở rộng và cập nhật schema dữ liệu một cách <strong>an toàn, không gián đoạn</strong>, và <strong>tương thích với các tenant đang hoạt động</strong>. Tài liệu này định nghĩa chiến lược migration nhất quán theo ADR-023.</p>
+<hr/>
+<h3 id="91-tuan-theo-mo-hinh-3-phase-migration">9.1. 📘 Tuân theo mô hình 3-phase migration<a class="headerlink" href="#91-tuan-theo-mo-hinh-3-phase-migration" title="Permanent link">¶</a></h3>
+<p>Mọi thay đổi về schema (thêm/sửa/xóa cột, index…) phải tuân thủ mô hình migration an toàn:</p>
+<table>
+<thead>
+<tr>
+<th>Giai đoạn</th>
+<th>Mô tả</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Phase 1: Expand</strong></td>
+<td>Thêm cột mới (nullable), thêm bảng, thêm index</td>
+<td>Không ảnh hưởng production</td>
+</tr>
+<tr>
+<td><strong>Phase 2: Migrate</strong></td>
+<td>Viết dữ liệu cũ sang format mới, update logic backend</td>
+<td>Phải giữ song song format cũ &amp; mới</td>
+</tr>
+<tr>
+<td><strong>Phase 3: Contract</strong></td>
+<td>Xóa cột/bảng/index cũ sau khi không còn sử dụng</td>
+<td>Luôn có buffer ít nhất 1-2 tuần</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Không bao giờ combine DROP &amp; ADD trong cùng một migration nếu đang chạy trên nhiều tenant.</p>
+<hr/>
+<h3 id="92-cong-cu-best-practices">9.2. 🧱 Công cụ &amp; best practices<a class="headerlink" href="#92-cong-cu-best-practices" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Yếu tố</th>
+<th>Khuyến nghị</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Migration tool</strong></td>
+<td>Sử dụng Alembic (Python) hoặc Liquibase (SQL)</td>
+</tr>
+<tr>
+<td><strong>Version hóa</strong></td>
+<td>Mỗi schema change gắn version riêng (<code>v2.1_add_revoked_reason</code>)</td>
+</tr>
+<tr>
+<td><strong>Tenant isolation</strong></td>
+<td>Migration phải chạy riêng cho từng tenant</td>
+</tr>
+<tr>
+<td><strong>Idempotent</strong></td>
+<td>Mọi script có thể chạy lại mà không gây lỗi</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="93-kiem-thu-migration">9.3. 🚧 Kiểm thử migration<a class="headerlink" href="#93-kiem-thu-migration" title="Permanent link">¶</a></h3>
+<p>Mỗi thay đổi phải kèm checklist kiểm thử:</p>
+<ul>
+<li>✅ Unit test với schema mới</li>
+<li>✅ Chạy migration test trên sandbox với dữ liệu thật (một số tenant)</li>
+<li>✅ Snapshot schema trước &amp; sau để kiểm tra diff</li>
+<li>✅ So khớp rollback (nếu có) hoặc backup trước khi deploy</li>
+</ul>
+<p>📌 Các test nên được mô tả cụ thể tại <code>docs/tests/db-migration/</code></p>
+<hr/>
+<h3 id="94-multi-tenant-considerations">9.4. 🛠 Multi-Tenant Considerations<a class="headerlink" href="#94-multi-tenant-considerations" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tenant mới tạo</td>
+<td>Áp dụng schema mới ngay lập tức</td>
+</tr>
+<tr>
+<td>Tenant đang active</td>
+<td>Dùng background worker migration chạy dần</td>
+</tr>
+<tr>
+<td>Lỗi khi migrate</td>
+<td>Rollback từng tenant, không rollback toàn hệ thống</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="95-goi-y-mo-rong">9.5. 🧠 Gợi ý mở rộng<a class="headerlink" href="#95-goi-y-mo-rong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Áp dụng flag <code>db_version</code> theo tenant để kiểm soát trạng thái migration</li>
+<li>Xây dựng dashboard theo dõi migration status per tenant</li>
+<li>Dùng canary tenant để test trước với schema mới</li>
+</ul>
+<hr/>
+<blockquote>
+<p>✅ Với chiến lược migration bài bản như trên, hệ thống <code>auth-service/sub</code> có thể mở rộng và nâng cấp liên tục mà không gây downtime hay mất dữ liệu – đúng định hướng zero-downtime của toàn kiến trúc <code>dx-vas</code>.</p>
+</blockquote>
+<hr/>
+<h2 id="10-kiem-thu-lien-quan-du-lieu">10. ✅ Kiểm thử liên quan dữ liệu<a class="headerlink" href="#10-kiem-thu-lien-quan-du-lieu" title="Permanent link">¶</a></h2>
+<p>Việc kiểm thử toàn diện mô hình dữ liệu là yếu tố bắt buộc để đảm bảo độ ổn định, tính đúng đắn và khả năng mở rộng của <code>auth-service/sub</code>. Mục tiêu là đảm bảo mọi thay đổi đều được kiểm soát và phản ánh chính xác qua cả schema, API và hành vi runtime.</p>
+<hr/>
+<h3 id="101-unit-tests-database-layer">10.1. 🧪 Unit Tests (Database Layer)<a class="headerlink" href="#101-unit-tests-database-layer" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Models (<code>auth_sessions</code>)</td>
+<td>Tạo, đọc, lọc, sắp xếp, cập nhật trạng thái</td>
+</tr>
+<tr>
+<td>Constraints</td>
+<td>Vi phạm <code>CHECK</code>, <code>NOT NULL</code>, <code>FK</code> phải raise lỗi đúng</td>
+</tr>
+<tr>
+<td>Enum</td>
+<td>Chỉ nhận giá trị nằm trong danh sách hợp lệ</td>
+</tr>
+<tr>
+<td>Index hiệu quả</td>
+<td>Kiểm thử tốc độ truy vấn theo <code>user_id</code>, <code>tenant_id</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="102-integration-tests-service-logic-db">10.2. 🔁 Integration Tests (Service Logic + DB)<a class="headerlink" href="#102-integration-tests-service-logic-db" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Luồng nghiệp vụ</th>
+<th>Kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Đăng nhập thành công</td>
+<td>Tạo <code>auth_session</code>, gán metadata đúng</td>
+</tr>
+<tr>
+<td>Logout</td>
+<td>Cập nhật <code>revoked_at</code>, ghi vào Redis đúng TTL</td>
+</tr>
+<tr>
+<td>Token reuse</td>
+<td>Ghi log revoke, kiểm tra Redis key <code>revoked:&lt;jti&gt;</code></td>
+</tr>
+<tr>
+<td>Audit log</td>
+<td>Gửi đúng sự kiện <code>auth.token.issued</code>, <code>auth.token.revoked</code> kèm metadata</td>
+</tr>
+</tbody>
+</table>
+<p>📌 Cần có pre-seeded data test trên DB test riêng biệt cho các tenant giả lập.</p>
+<hr/>
+<h3 id="103-security-access-control-tests">10.3. 🔐 Security &amp; Access Control Tests<a class="headerlink" href="#103-security-access-control-tests" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kiểm thử</th>
+<th>Mục tiêu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session.read:self</code> vs <code>any</code></td>
+<td>Đảm bảo không lộ dữ liệu tenant khác</td>
+</tr>
+<tr>
+<td>Bypass RBAC</td>
+<td>Gửi request thiếu <code>x-condition</code> → bị từ chối</td>
+</tr>
+<tr>
+<td>Data masking</td>
+<td>Test endpoint khi trả về session bị <code>anonymize</code></td>
+</tr>
+<tr>
+<td>Rate limit OTP</td>
+<td>Test ghi log session không bị abuse / log quá nhiều</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="104-contract-testing-schema-api">10.4. 🧾 Contract Testing (Schema &amp; API)<a class="headerlink" href="#104-contract-testing-schema-api" title="Permanent link">¶</a></h3>
+<p>Theo <code>adr-010</code>, toàn bộ schema và API phải được kiểm thử bằng:</p>
+<ul>
+<li>✅ JSON Schema validation (OpenAPI → Test Generator)</li>
+<li>✅ <code>revoked_tokens</code> format đúng key prefix &amp; value</li>
+<li>✅ Các response luôn theo chuẩn <code>ErrorEnvelope</code>, <code>ResponseMeta</code></li>
+</ul>
+<p>📌 Test sử dụng tool như <code>Dredd</code>, <code>Schemathesis</code>, hoặc tích hợp Postman/Newman nếu cần.</p>
+<hr/>
+<h3 id="105-migration-data-retention-tests">10.5. 🧪 Migration &amp; Data Retention Tests<a class="headerlink" href="#105-migration-data-retention-tests" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kiểm thử</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Migration <code>auth_sessions</code></td>
+<td>Schema mới không ảnh hưởng dữ liệu cũ</td>
+</tr>
+<tr>
+<td>TTL Redis</td>
+<td>Redis xoá <code>revoked:&lt;jti&gt;</code> đúng thời điểm</td>
+</tr>
+<tr>
+<td>Anonymize job</td>
+<td>Mask <code>ip</code>, <code>location</code>, <code>user_agent</code> sau TTL</td>
+</tr>
+<tr>
+<td>Rollback safe</td>
+<td>Backup + restore nếu migration lỗi ở 1 tenant</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p>✅ Tất cả các test đều phải được tích hợp CI/CD (GitHub Actions hoặc GitLab CI), chạy tự động theo PR và giai đoạn release, giúp đảm bảo <strong>không ai có thể merge mà không qua kiểm thử dữ liệu đầy đủ</strong>.</p>
+<hr/>
+<h2 id="11-tai-lieu-lien-quan">11. 📚 Tài liệu liên quan<a class="headerlink" href="#11-tai-lieu-lien-quan" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+<li><a href="../design/">Design</a></li>
+<li><a href="../../../../ADR/adr-004-security/">ADR-004 - Security</a></li>
+<li><a href="../../../../ADR/adr-012-response-structure/">ADR-012 - Response Structure</a></li>
+<li><a href="../../../../ADR/adr-030-event-schema-governance/">ADR-030 - Event Schema Governance</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

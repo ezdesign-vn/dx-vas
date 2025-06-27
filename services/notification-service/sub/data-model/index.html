@@ -1,0 +1,1599 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/notification-service/sub/data-model/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Notification Sub Service – Data Model - DX VAS - Docs</title>
+<link href="../../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#notification-sub-service-data-model">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Notification Sub Service – Data Model
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-muc-tieu-pham-vi">
+<span class="md-ellipsis">
+      1. 🎯 Mục tiêu &amp; Phạm vi
+    </span>
+</a>
+<nav aria-label="1. 🎯 Mục tiêu &amp; Phạm vi" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-tieu">
+<span class="md-ellipsis">
+      🎯 Mục tiêu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pham-vi-du-lieu-uoc-quan-ly">
+<span class="md-ellipsis">
+      📦 Phạm vi dữ liệu được quản lý
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nguyen-tac-thiet-ke-du-lieu">
+<span class="md-ellipsis">
+      🔒 Nguyên tắc thiết kế dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#khong-nam-trong-pham-vi">
+<span class="md-ellipsis">
+      ⛔ Không nằm trong phạm vi
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-mo-hinh-du-lieu-tong-the">
+<span class="md-ellipsis">
+      2. 🔢 Mô hình dữ liệu tổng thể
+    </span>
+</a>
+<nav aria-label="2. 🔢 Mô hình dữ liệu tổng thể" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moi-quan-he-giua-cac-thuc-the">
+<span class="md-ellipsis">
+      🧭 Mối quan hệ giữa các thực thể
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#giai-thich-tong-quan-cac-bang">
+<span class="md-ellipsis">
+      📌 Giải thích tổng quan các bảng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thiet-ke-ho-tro">
+<span class="md-ellipsis">
+      🧩 Thiết kế hỗ trợ:
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-chi-tiet-cac-bang">
+<span class="md-ellipsis">
+      3. 📚 Chi tiết các bảng
+    </span>
+</a>
+<nav aria-label="3. 📚 Chi tiết các bảng" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-notificationtemplate">
+<span class="md-ellipsis">
+      3.1. NotificationTemplate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-notificationlog">
+<span class="md-ellipsis">
+      3.2. NotificationLog
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-notificationchannelcfg">
+<span class="md-ellipsis">
+      3.3. NotificationChannelCfg
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-chinh-sach-bao-mat-a-tenant">
+<span class="md-ellipsis">
+      4. 🔐 Chính sách bảo mật &amp; đa tenant
+    </span>
+</a>
+<nav aria-label="4. 🔐 Chính sách bảo mật &amp; đa tenant" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-tach-biet-theo-tenant-tenant-isolation">
+<span class="md-ellipsis">
+      4.1. 🧱 Tách biệt theo tenant (Tenant Isolation)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-bao-ve-du-lieu-ca-nhan">
+<span class="md-ellipsis">
+      4.2. 🛡️ Bảo vệ dữ liệu cá nhân
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-chinh-sach-giu-du-lieu-retention">
+<span class="md-ellipsis">
+      4.3. 🕓 Chính sách giữ dữ liệu (Retention)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#44-giam-sat-kiem-toan">
+<span class="md-ellipsis">
+      4.4. 🔍 Giám sát &amp; kiểm toán
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#45-checklist-tuan-thu-bao-mat-a-tenant">
+<span class="md-ellipsis">
+      4.5. ✅ Checklist tuân thủ bảo mật &amp; đa tenant
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-mapping-sang-cac-api">
+<span class="md-ellipsis">
+      5. 🧩 Mapping sang các API
+    </span>
+</a>
+<nav aria-label="5. 🧩 Mapping sang các API" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-chi-tiet-truy-xuat-ghi-du-lieu-theo-api">
+<span class="md-ellipsis">
+      5.1. 📌 Chi tiết truy xuất &amp; ghi dữ liệu theo API
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-rbac-mapping">
+<span class="md-ellipsis">
+      5.2. 🔐 RBAC Mapping
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-schema-versioning-kiem-thu-schema">
+<span class="md-ellipsis">
+      6. 📌 Schema versioning &amp; kiểm thử schema
+    </span>
+</a>
+<nav aria-label="6. 📌 Schema versioning &amp; kiểm thử schema" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-muc-tieu">
+<span class="md-ellipsis">
+      6.1. 🎯 Mục tiêu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-vi-tri-version-trong-he-thong">
+<span class="md-ellipsis">
+      6.2. 📚 Vị trí version trong hệ thống
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-co-che-kiem-thu-schema">
+<span class="md-ellipsis">
+      6.3. 🧪 Cơ chế kiểm thử schema
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-co-che-quan-ly-template-theo-version">
+<span class="md-ellipsis">
+      6.4. 🧩 Cơ chế quản lý template theo version
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#65-kiem-thu-schema-nen-bao-gom">
+<span class="md-ellipsis">
+      6.5. ✅ Kiểm thử schema nên bao gồm:
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-goi-y-kiem-thu-du-lieu">
+<span class="md-ellipsis">
+      7. 🧪 Gợi ý kiểm thử dữ liệu
+    </span>
+</a>
+<nav aria-label="7. 🧪 Gợi ý kiểm thử dữ liệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-kiem-thu-tao-truy-van-log-gui">
+<span class="md-ellipsis">
+      7.1. 🔄 Kiểm thử tạo &amp; truy vấn log gửi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-kiem-thu-template">
+<span class="md-ellipsis">
+      7.2. 📄 Kiểm thử template
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-kiem-thu-lien-quan-bao-mat-phan-vung-tenant">
+<span class="md-ellipsis">
+      7.3. 🔐 Kiểm thử liên quan bảo mật &amp; phân vùng tenant
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-kiem-thu-toan-ven-du-lieu">
+<span class="md-ellipsis">
+      7.4. 🧩 Kiểm thử toàn vẹn dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#75-checklist-xac-nhan-du-lieu">
+<span class="md-ellipsis">
+      7.5. ✅ Checklist xác nhận dữ liệu
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-tai-lieu-lien-quan">
+<span class="md-ellipsis">
+      8. 📚 Tài liệu liên quan
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="notification-sub-service-data-model">📦 Notification Sub Service – Data Model<a class="headerlink" href="#notification-sub-service-data-model" title="Permanent link">¶</a></h1>
+<p>Tài liệu này mô tả chi tiết các thực thể dữ liệu cốt lõi của Notification Sub Service, bao gồm schema, quan hệ, và các lưu ý về bảo mật, ẩn danh và chuẩn hóa schema theo chuẩn đa tenant.</p>
+<hr/>
+<h2 id="1-muc-tieu-pham-vi">1. 🎯 Mục tiêu &amp; Phạm vi<a class="headerlink" href="#1-muc-tieu-pham-vi" title="Permanent link">¶</a></h2>
+<p>Phần này xác định rõ phạm vi dữ liệu mà Notification Sub Service quản lý, đồng thời nhấn mạnh mục tiêu thiết kế dữ liệu đa tenant, có khả năng mở rộng, kiểm thử và truy vết.</p>
+<hr/>
+<h3 id="muc-tieu">🎯 Mục tiêu<a class="headerlink" href="#muc-tieu" title="Permanent link">¶</a></h3>
+<ul>
+<li>Cung cấp <strong>mô hình dữ liệu chuẩn hóa</strong> để lưu trữ các hoạt động gửi notification cho từng tenant.</li>
+<li>Hỗ trợ việc <strong>truy vấn hiệu quả</strong> thông tin log đã gửi theo nhiều tiêu chí: event, channel, trạng thái, người nhận.</li>
+<li>Cho phép <strong>mapping động giữa event_code + channel → template</strong> tùy theo tenant.</li>
+<li>Lưu trữ <strong>cấu hình kênh gửi riêng</strong> cho mỗi tenant với khả năng bật/tắt và fallback.</li>
+<li>Đảm bảo dữ liệu phù hợp với các yêu cầu:</li>
+<li><strong>Audit &amp; Compliance</strong> theo <code>ADR-008</code></li>
+<li><strong>Retention &amp; Anonymization</strong> theo <code>ADR-024</code></li>
+<li><strong>Multi-tenant Isolation</strong> theo CR-04 &amp; <code>ADR-025</code></li>
+</ul>
+<hr/>
+<h3 id="pham-vi-du-lieu-uoc-quan-ly">📦 Phạm vi dữ liệu được quản lý<a class="headerlink" href="#pham-vi-du-lieu-uoc-quan-ly" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nhóm dữ liệu</th>
+<th>Mô tả ngắn gọn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Notification Template</td>
+<td>Metadata và nội dung template notification per tenant + channel</td>
+</tr>
+<tr>
+<td>Notification Log</td>
+<td>Log gửi thực tế, bao gồm trace, status, lỗi, thời gian gửi</td>
+</tr>
+<tr>
+<td>Notification Channel Config</td>
+<td>Cấu hình kênh gửi động (SMTP, SMS Provider, …) cho mỗi tenant</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="nguyen-tac-thiet-ke-du-lieu">🔒 Nguyên tắc thiết kế dữ liệu<a class="headerlink" href="#nguyen-tac-thiet-ke-du-lieu" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>Giải thích cụ thể</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-Tenant Isolation</strong></td>
+<td>Mọi bản ghi đều bắt buộc có <code>tenant_id</code> và được truy vấn dưới điều kiện isolation</td>
+</tr>
+<tr>
+<td><strong>Traceability</strong></td>
+<td>Mỗi notification log gắn <code>trace_id</code> xuyên suốt hệ thống</td>
+</tr>
+<tr>
+<td><strong>Versioning</strong></td>
+<td>Template có <code>version</code>, log lưu <code>template_id</code> để đảm bảo tái hiện</td>
+</tr>
+<tr>
+<td><strong>Anonymization</strong> <em>(optional)</em></td>
+<td>Một số trường như <code>recipient</code>, <code>payload</code> có thể hash theo <code>ADR-024</code></td>
+</tr>
+<tr>
+<td><strong>Retention &amp; Deletion</strong></td>
+<td>Cho phép xóa mềm hoặc xóa vĩnh viễn sau thời gian theo policy</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="khong-nam-trong-pham-vi">⛔ Không nằm trong phạm vi<a class="headerlink" href="#khong-nam-trong-pham-vi" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không lưu trạng thái đọc / unread</li>
+<li>Không lưu trạng thái gửi real-time của client (client-side delivery)</li>
+<li>Không lưu full render HTML trừ khi cần audit (tuỳ cấu hình)</li>
+<li>Không quản lý luồng trigger gửi (thuộc về Notification Master)</li>
+</ul>
+<hr/>
+<h2 id="2-mo-hinh-du-lieu-tong-the">2. 🔢 Mô hình dữ liệu tổng thể<a class="headerlink" href="#2-mo-hinh-du-lieu-tong-the" title="Permanent link">¶</a></h2>
+<p>Hệ thống Notification Sub quản lý ba thực thể chính:</p>
+<ol>
+<li><strong>NotificationTemplate</strong> – Metadata template gắn với <code>event_code</code>, <code>channel</code>, và <code>tenant</code></li>
+<li><strong>NotificationLog</strong> – Lưu lại từng lần gửi thực tế, bao gồm trace, lỗi, người nhận</li>
+<li><strong>NotificationChannelCfg</strong> – Cấu hình kênh gửi cho mỗi <code>tenant</code> và <code>channel</code></li>
+</ol>
+<p>Mô hình tuân thủ chặt chẽ kiến trúc multi-tenant, hỗ trợ versioning, tracing và khả năng kiểm toán đầy đủ.</p>
+<hr/>
+<h3 id="moi-quan-he-giua-cac-thuc-the">🧭 Mối quan hệ giữa các thực thể<a class="headerlink" href="#moi-quan-he-giua-cac-thuc-the" title="Permanent link">¶</a></h3>
+<p>```mermaid
+erDiagram
+  NotificationTemplate ||--o{ NotificationLog : used_by
+  NotificationChannelCfg ||--o{ NotificationTemplate : configures</p>
+<p>NotificationTemplate {
+    UUID id PK
+    STRING event_code
+    STRING channel
+    TEXT template_body
+    JSONB default_params
+    BOOLEAN is_active
+    INTEGER version
+    STRING tenant_id
+    TIMESTAMPTZ updated_at
+  }</p>
+<p>NotificationLog {
+    UUID id PK
+    UUID template_id FK
+    STRING recipient
+    STRING status
+    TEXT error_message
+    JSONB payload
+    STRING tenant_id
+    TIMESTAMPTZ sent_at
+    STRING event_code
+    STRING channel
+    BOOLEAN retry
+    STRING trace_id
+  }</p>
+<p>NotificationChannelCfg {
+    STRING channel PK
+    STRING provider
+    JSONB config
+    BOOLEAN is_enabled
+    STRING tenant_id
+    TIMESTAMPTZ updated_at
+  }
+````</p>
+<hr/>
+<h3 id="giai-thich-tong-quan-cac-bang">📌 Giải thích tổng quan các bảng<a class="headerlink" href="#giai-thich-tong-quan-cac-bang" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bảng</th>
+<th>Vai trò chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NotificationTemplate</code></td>
+<td>Template chuẩn hoá mapping từ <code>event_code</code> + <code>channel</code> → body gửi</td>
+</tr>
+<tr>
+<td><code>NotificationLog</code></td>
+<td>Log từng lần gửi: trạng thái, lỗi, trace_id, thông tin người nhận</td>
+</tr>
+<tr>
+<td><code>NotificationChannelCfg</code></td>
+<td>Lưu thông tin SMTP, SMS API, push key của từng tenant + trạng thái kênh</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="thiet-ke-ho-tro">🧩 Thiết kế hỗ trợ:<a class="headerlink" href="#thiet-ke-ho-tro" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tính năng</th>
+<th>Cách thực hiện</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-tenant isolation</strong></td>
+<td>Trường <code>tenant_id</code> là bắt buộc trong tất cả các bảng</td>
+</tr>
+<tr>
+<td><strong>Traceability (X-Trace-ID)</strong></td>
+<td>Log gắn <code>trace_id</code>, audit event có thể liên kết được</td>
+</tr>
+<tr>
+<td><strong>Versioning Template</strong></td>
+<td>Template có trường <code>version</code>; log lưu <code>template_id</code> để tái hiện</td>
+</tr>
+<tr>
+<td><strong>Soft-delete hoặc TTL</strong></td>
+<td>Log có thể xóa mềm theo config hoặc dọn dẹp theo <code>retention_days</code></td>
+</tr>
+<tr>
+<td><strong>Anonymization (opt-in)</strong></td>
+<td>Các trường <code>recipient</code>, <code>payload</code> có thể được mã hóa/anonymize</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="3-chi-tiet-cac-bang">3. 📚 Chi tiết các bảng<a class="headerlink" href="#3-chi-tiet-cac-bang" title="Permanent link">¶</a></h2>
+<hr/>
+<h3 id="31-notificationtemplate">3.1. <code>NotificationTemplate</code><a class="headerlink" href="#31-notificationtemplate" title="Permanent link">¶</a></h3>
+<p>Lưu trữ metadata và nội dung template cho từng <code>event_code</code> và <code>channel</code>. Hỗ trợ versioning, ngôn ngữ, trạng thái bật/tắt và kiểm tra render (qua <code>POST /notifications/test</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>✅</td>
+<td>Mã định danh template (PK)</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Tenant sở hữu template</td>
+</tr>
+<tr>
+<td><code>event_code</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Mã sự kiện nghiệp vụ, ví dụ <code>user.welcome</code></td>
+</tr>
+<tr>
+<td><code>channel</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td><code>email</code>, <code>sms</code>, <code>push</code>,...</td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td>STRING</td>
+<td>⛔</td>
+<td>ISO code: <code>vi</code>, <code>en</code>,...</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>INTEGER</td>
+<td>✅</td>
+<td>Version template</td>
+</tr>
+<tr>
+<td><code>template_body</code></td>
+<td>TEXT</td>
+<td>✅</td>
+<td>Nội dung chứa biến (Jinja2 format)</td>
+</tr>
+<tr>
+<td><code>default_params</code></td>
+<td>JSONB</td>
+<td>⛔</td>
+<td>Giá trị mặc định nếu <code>params</code> không cung cấp</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>✅</td>
+<td>Template còn hiệu lực hay không</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>✅</td>
+<td>Thời điểm cập nhật gần nhất</td>
+</tr>
+</tbody>
+</table>
+<p>🔎 <strong>Ràng buộc quan trọng:</strong>
+- Unique constraint: <code>(tenant_id, event_code, channel, language, version)</code>
+- Có index trên <code>tenant_id</code>, <code>event_code</code>, <code>channel</code>, <code>is_active</code></p>
+<hr/>
+<h3 id="32-notificationlog">3.2. <code>NotificationLog</code><a class="headerlink" href="#32-notificationlog" title="Permanent link">¶</a></h3>
+<p>Lưu lại từng lần gửi notification (gửi thật hoặc test). Phục vụ audit, kiểm tra lỗi, thống kê.</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>✅</td>
+<td>Mã log gửi notification (PK)</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Tenant thực hiện gửi</td>
+</tr>
+<tr>
+<td><code>template_id</code></td>
+<td>UUID</td>
+<td>⛔</td>
+<td>Template sử dụng để gửi (nullable nếu gửi không qua template)</td>
+</tr>
+<tr>
+<td><code>event_code</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Ghi lại event_code ứng với log này</td>
+</tr>
+<tr>
+<td><code>channel</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td><code>email</code>, <code>sms</code>, <code>push</code>,...</td>
+</tr>
+<tr>
+<td><code>recipient</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Email/số điện thoại người nhận (có thể hash nếu config)</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td><code>sent</code>, <code>failed</code>, <code>queued</code>, <code>fallback</code></td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>TEXT</td>
+<td>⛔</td>
+<td>Thông báo lỗi (nếu thất bại)</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td>JSONB</td>
+<td>✅</td>
+<td>Nội dung notification đã render (hoặc thông tin đầu vào)</td>
+</tr>
+<tr>
+<td><code>retry</code></td>
+<td>BOOLEAN</td>
+<td>✅</td>
+<td>Gửi lại từ lần trước (retry hoặc fallback)</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Trace để liên kết với luồng Master</td>
+</tr>
+<tr>
+<td><code>sent_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>✅</td>
+<td>Thời gian gửi thực tế (hoặc giả lập nếu test)</td>
+</tr>
+</tbody>
+</table>
+<p>🔎 <strong>Lưu ý:</strong>
+- Có index trên <code>tenant_id</code>, <code>event_code</code>, <code>status</code>, <code>sent_at</code>, <code>recipient</code>
+- Có thể xóa mềm hoặc TTL 30 ngày theo <code>ADR-024</code></p>
+<hr/>
+<h3 id="33-notificationchannelcfg">3.3. <code>NotificationChannelCfg</code><a class="headerlink" href="#33-notificationchannelcfg" title="Permanent link">¶</a></h3>
+<p>Lưu cấu hình kênh gửi (SMTP, SMS provider...) riêng cho từng tenant. Hỗ trợ bật/tắt động, fallback hoặc dry-run.</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>channel</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Kênh gửi (<code>email</code>, <code>sms</code>, <code>push</code>)</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Tenant sở hữu cấu hình này</td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>STRING</td>
+<td>✅</td>
+<td>Tên provider (<code>smtp</code>, <code>twilio</code>,...)</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>JSONB</td>
+<td>✅</td>
+<td>Config tùy thuộc provider (host, port, api_key...)</td>
+</tr>
+<tr>
+<td><code>is_enabled</code></td>
+<td>BOOLEAN</td>
+<td>✅</td>
+<td>Cho phép bật/tắt kênh gửi</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>✅</td>
+<td>Lần cập nhật cuối cùng</td>
+</tr>
+</tbody>
+</table>
+<p>🔎 <strong>Best Practice:</strong>
+- Config được load từ cache, invalidate khi có cập nhật
+- Có thể có thêm trường <code>test_email</code>, <code>test_number</code> dùng cho <code>POST /notifications/test</code></p>
+<hr/>
+<p>📌 <strong>Gợi ý mở rộng tương lai (optional):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Trường gợi ý thêm</th>
+<th>Áp dụng cho</th>
+<th>Gợi ý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>archived_at</code></td>
+<td>All tables</td>
+<td>Hỗ trợ soft-delete có TTL tự động</td>
+</tr>
+<tr>
+<td><code>created_by</code></td>
+<td>Template</td>
+<td>Ghi lại ai tạo template</td>
+</tr>
+<tr>
+<td><code>rendered_preview</code></td>
+<td>Log</td>
+<td>Lưu bản HTML đã render (nếu bật audit nâng cao)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="4-chinh-sach-bao-mat-a-tenant">4. 🔐 Chính sách bảo mật &amp; đa tenant<a class="headerlink" href="#4-chinh-sach-bao-mat-a-tenant" title="Permanent link">¶</a></h2>
+<p>Thiết kế dữ liệu của Notification Sub Service đặt trọng tâm vào <strong>tách biệt dữ liệu tenant</strong>, <strong>bảo mật thông tin cá nhân</strong>, và <strong>tuân thủ chính sách kiểm toán &amp; lưu trữ</strong>.<br/>
+Các nguyên tắc sau được áp dụng ở mọi tầng: schema, query, API, log và pipeline event.</p>
+<hr/>
+<h3 id="41-tach-biet-theo-tenant-tenant-isolation">4.1. 🧱 Tách biệt theo tenant (Tenant Isolation)<a class="headerlink" href="#41-tach-biet-theo-tenant-tenant-isolation" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Biện pháp</th>
+<th>Giải thích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tenant_id</code> bắt buộc</td>
+<td>Mọi bảng dữ liệu đều bắt buộc có <code>tenant_id</code>, không có giá trị <code>NULL</code></td>
+</tr>
+<tr>
+<td>Ràng buộc truy vấn (<code>x-condition</code>)</td>
+<td>Tất cả API &amp; query đều sử dụng <code>WHERE tenant_id = {{X-Tenant-ID}}</code></td>
+</tr>
+<tr>
+<td>Index hóa theo <code>tenant_id</code></td>
+<td>Tối ưu hóa hiệu năng cho mô hình multi-tenant tách biệt</td>
+</tr>
+<tr>
+<td>Không chia sẻ cấu hình</td>
+<td>Mỗi tenant có <code>NotificationChannelCfg</code> độc lập, không kế thừa mặc định</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🔐 Tuân thủ <code>ADR-025 – Multi-Tenant Versioning</code>, <code>ADR-007 – RBAC</code>, <code>CR-04 – Phân vùng tenant vật lý/logic</code></p>
+</blockquote>
+<hr/>
+<h3 id="42-bao-ve-du-lieu-ca-nhan">4.2. 🛡️ Bảo vệ dữ liệu cá nhân<a class="headerlink" href="#42-bao-ve-du-lieu-ca-nhan" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trường nhạy cảm</th>
+<th>Biện pháp bảo vệ</th>
+<th>Tùy chỉnh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>recipient</code></td>
+<td>Có thể <strong>băm SHA256 + salt riêng theo tenant</strong></td>
+<td>Có cấu hình bật/tắt</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td>Có thể <strong>ẩn một số key nhạy cảm</strong></td>
+<td>Cấu hình whitelist field</td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td>Chỉ hiển thị nội bộ, không lộ cho người dùng</td>
+<td>Mặc định không expose qua UI</td>
+</tr>
+<tr>
+<td><code>config</code> trong channel</td>
+<td>Không trả qua API</td>
+<td>Chỉ dùng nội bộ khi gửi</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Tuân thủ <code>ADR-024 – Data Anonymization &amp; Retention</code></p>
+</blockquote>
+<hr/>
+<h3 id="43-chinh-sach-giu-du-lieu-retention">4.3. 🕓 Chính sách giữ dữ liệu (Retention)<a class="headerlink" href="#43-chinh-sach-giu-du-lieu-retention" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại dữ liệu</th>
+<th>Chính sách gợi ý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NotificationLog</code></td>
+<td>Xoá vĩnh viễn sau 30 ngày (<code>hard delete</code>)</td>
+</tr>
+<tr>
+<td><code>Template</code></td>
+<td>Không xoá – chỉ đánh dấu <code>is_active=false</code></td>
+</tr>
+<tr>
+<td><code>ChannelCfg</code></td>
+<td>Ghi đè theo tenant, giữ phiên bản cuối cùng</td>
+</tr>
+<tr>
+<td>Audit event</td>
+<td>Do <code>audit-logging-service</code> lưu, TTL = 90 ngày</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Nếu cần soft-delete (dùng <code>archived_at</code>), nên thêm theo <code>ADR-026 – Hard Delete Policy</code></p>
+</blockquote>
+<hr/>
+<h3 id="44-giam-sat-kiem-toan">4.4. 🔍 Giám sát &amp; kiểm toán<a class="headerlink" href="#44-giam-sat-kiem-toan" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mục tiêu</th>
+<th>Biện pháp triển khai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Truy vết hành vi người dùng</td>
+<td>Log <code>POST /notifications/test</code>, <code>GET /logs</code> vào audit</td>
+</tr>
+<tr>
+<td>Trace toàn hệ thống</td>
+<td>Gắn <code>trace_id</code> từ Master xuyên suốt qua log gửi</td>
+</tr>
+<tr>
+<td>Giám sát channel usage</td>
+<td>Mỗi gửi log sẽ emit counter theo channel + status</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="45-checklist-tuan-thu-bao-mat-a-tenant">4.5. ✅ Checklist tuân thủ bảo mật &amp; đa tenant<a class="headerlink" href="#45-checklist-tuan-thu-bao-mat-a-tenant" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>Trạng thái</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mọi bảng có <code>tenant_id</code>, có index phù hợp</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Không có API nào trả <code>config</code> hoặc <code>template_body</code> sai tenant</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Log không lộ thông tin cá nhân nếu cấu hình ẩn danh bật</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Dữ liệu nhạy cảm có thể xóa sau 30 ngày</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>RBAC tách biệt rõ từng permission cho từng API</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Sự kiện gửi thử được log lại phục vụ audit</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="5-mapping-sang-cac-api">5. 🧩 Mapping sang các API<a class="headerlink" href="#5-mapping-sang-cac-api" title="Permanent link">¶</a></h2>
+<p>Bảng dưới đây trình bày mối quan hệ giữa từng API và các bảng dữ liệu liên quan.<br/>
+Mục tiêu là đảm bảo tính nhất quán giữa luồng nghiệp vụ, dữ liệu lưu trữ, và hợp đồng giao tiếp (interface contract).</p>
+<table>
+<thead>
+<tr>
+<th>API Endpoint</th>
+<th>Method</th>
+<th>Thực thể liên quan</th>
+<th>Field truy cập/chỉnh sửa chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/notifications/logs</code></td>
+<td><code>GET</code></td>
+<td><code>NotificationLog</code></td>
+<td><code>status</code>, <code>recipient</code>, <code>event_code</code>, <code>channel</code>, <code>sent_at</code></td>
+</tr>
+<tr>
+<td><code>/notifications/test</code></td>
+<td><code>POST</code></td>
+<td><code>NotificationTemplate</code>, <code>NotificationChannelCfg</code></td>
+<td><code>template_body</code>, <code>channel</code>, <code>event_code</code>, <code>params</code>, <code>config</code>, <code>recipient</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>→ log test cũng ghi vào <code>NotificationLog</code> (loại: test)</td>
+<td><code>status=test</code>, <code>retry=false</code>, <code>trace_id</code>, <code>payload</code></td>
+</tr>
+<tr>
+<td><code>/notifications/templates</code></td>
+<td><code>GET</code></td>
+<td><code>NotificationTemplate</code></td>
+<td><code>event_code</code>, <code>channel</code>, <code>language</code>, <code>version</code>, <code>is_active</code>, <code>updated_at</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="51-chi-tiet-truy-xuat-ghi-du-lieu-theo-api">5.1. 📌 Chi tiết truy xuất &amp; ghi dữ liệu theo API<a class="headerlink" href="#51-chi-tiet-truy-xuat-ghi-du-lieu-theo-api" title="Permanent link">¶</a></h3>
+<h4 id="get-notificationslogs">🔍 <code>GET /notifications/logs</code><a class="headerlink" href="#get-notificationslogs" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Read-only</strong></li>
+<li>Truy vấn trên bảng <code>NotificationLog</code></li>
+<li>Dựa trên <code>tenant_id</code>, có thể filter theo <code>status</code>, <code>channel</code>, <code>event_code</code>, <code>recipient</code></li>
+</ul>
+<h4 id="post-notificationstest">🧪 <code>POST /notifications/test</code><a class="headerlink" href="#post-notificationstest" title="Permanent link">¶</a></h4>
+<ul>
+<li>Truy xuất <code>NotificationTemplate</code> để render</li>
+<li>Truy xuất <code>NotificationChannelCfg</code> để kiểm tra config kênh gửi</li>
+<li>Ghi log gửi thử vào <code>NotificationLog</code> (dạng test, không ảnh hưởng thống kê chính)</li>
+<li>Gắn <code>trace_id</code>, status: <code>sent</code>, <code>failed</code>, <code>test_only: true</code></li>
+</ul>
+<h4 id="get-notificationstemplates">📑 <code>GET /notifications/templates</code><a class="headerlink" href="#get-notificationstemplates" title="Permanent link">¶</a></h4>
+<ul>
+<li>Truy xuất từ <code>NotificationTemplate</code> với <code>tenant_id</code> tương ứng</li>
+<li>Không trả <code>template_body</code>, chỉ metadata để UI lựa chọn</li>
+</ul>
+<hr/>
+<h3 id="52-rbac-mapping">5.2. 🔐 RBAC Mapping<a class="headerlink" href="#52-rbac-mapping" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Permission Code</th>
+<th>Thực thể bảo vệ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /notifications/logs</code></td>
+<td><code>notif.read.log</code></td>
+<td><code>NotificationLog</code></td>
+</tr>
+<tr>
+<td><code>POST /notifications/test</code></td>
+<td><code>notif.send.test</code></td>
+<td><code>NotificationTemplate</code>, <code>ChannelCfg</code></td>
+</tr>
+<tr>
+<td><code>GET /notifications/templates</code></td>
+<td><code>notif.read.template</code></td>
+<td><code>NotificationTemplate</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="6-schema-versioning-kiem-thu-schema">6. 📌 Schema versioning &amp; kiểm thử schema<a class="headerlink" href="#6-schema-versioning-kiem-thu-schema" title="Permanent link">¶</a></h2>
+<hr/>
+<h3 id="61-muc-tieu">6.1. 🎯 Mục tiêu<a class="headerlink" href="#61-muc-tieu" title="Permanent link">¶</a></h3>
+<p>Việc version hóa schema giúp đảm bảo:
+- Tương thích ngược khi template thay đổi cấu trúc
+- Hỗ trợ A/B testing hoặc rollback khi cấu hình gửi thay đổi
+- Cho phép kiểm tra tính đúng đắn của schema trước khi gửi thực tế</p>
+<hr/>
+<h3 id="62-vi-tri-version-trong-he-thong">6.2. 📚 Vị trí version trong hệ thống<a class="headerlink" href="#62-vi-tri-version-trong-he-thong" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Cách version hóa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NotificationTemplate</code></td>
+<td>Trường <code>version</code> (số nguyên tăng dần)</td>
+</tr>
+<tr>
+<td><code>NotificationLog</code></td>
+<td>Trường <code>template_id</code> và <code>event_code</code> lưu theo thời điểm gửi</td>
+</tr>
+<tr>
+<td>API gửi thử (<code>/test</code>)</td>
+<td>Sử dụng <code>event_code</code>, hệ thống lấy template <code>is_active=true</code>, <code>version=max</code></td>
+</tr>
+<tr>
+<td>Event payload</td>
+<td>Schema validation thực hiện theo template tương ứng</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Hệ thống KHÔNG nhúng version vào <code>event_code</code> – theo khuyến nghị của <code>ADR-030</code>.</p>
+</blockquote>
+<hr/>
+<h3 id="63-co-che-kiem-thu-schema">6.3. 🧪 Cơ chế kiểm thử schema<a class="headerlink" href="#63-co-che-kiem-thu-schema" title="Permanent link">¶</a></h3>
+<p><strong>Gửi thử (<code>POST /notifications/test</code>) đóng vai trò là cơ chế kiểm thử schema động.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Bước</th>
+<th>Diễn giải</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1️⃣</td>
+<td>Người dùng chọn <code>event_code</code>, <code>channel</code>, nhập <code>recipient</code> và <code>params</code></td>
+</tr>
+<tr>
+<td>2️⃣</td>
+<td>Hệ thống lấy template đang <code>active</code> có <code>version = max</code> của tenant</td>
+</tr>
+<tr>
+<td>3️⃣</td>
+<td>Thực hiện render (Jinja2), nếu lỗi sẽ trả về <code>notif.render_failed</code></td>
+</tr>
+<tr>
+<td>4️⃣</td>
+<td>Nếu render thành công, thực hiện gửi thử (tùy kênh)</td>
+</tr>
+<tr>
+<td>5️⃣</td>
+<td>Trả về preview HTML + trạng thái gửi</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>❗ Các lỗi render, thiếu biến, sai kiểu sẽ được phát hiện tại bước 3 – không được phép đến bước gửi.</p>
+</blockquote>
+<hr/>
+<h3 id="64-co-che-quan-ly-template-theo-version">6.4. 🧩 Cơ chế quản lý template theo version<a class="headerlink" href="#64-co-che-quan-ly-template-theo-version" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>Được hệ thống auto tăng khi thêm template mới</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>Chỉ một bản active tại 1 thời điểm với <code>event_code + channel + language</code></td>
+</tr>
+<tr>
+<td><code>template_id</code></td>
+<td>Gắn vào mỗi <code>NotificationLog</code> để xác định nội dung đã dùng khi gửi</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>Phục vụ kiểm tra lịch sử và kiểm toán</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="65-kiem-thu-schema-nen-bao-gom">6.5. ✅ Kiểm thử schema nên bao gồm:<a class="headerlink" href="#65-kiem-thu-schema-nen-bao-gom" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại kiểm thử</th>
+<th>Mục tiêu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gửi test thiếu biến (<code>params</code>)</td>
+<td>Phát hiện lỗi render động</td>
+</tr>
+<tr>
+<td>Gửi test với biến sai kiểu</td>
+<td>Bắt lỗi schema không khớp</td>
+</tr>
+<tr>
+<td>Gửi test khi có version mới</td>
+<td>Đảm bảo lấy đúng version mới nhất</td>
+</tr>
+<tr>
+<td>So sánh version giữa các tenant</td>
+<td>Đảm bảo isolation, không xung đột</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="7-goi-y-kiem-thu-du-lieu">7. 🧪 Gợi ý kiểm thử dữ liệu<a class="headerlink" href="#7-goi-y-kiem-thu-du-lieu" title="Permanent link">¶</a></h2>
+<p>Các trường hợp kiểm thử dưới đây nhằm đảm bảo hệ thống lưu trữ dữ liệu đúng, phản ánh chính xác luồng nghiệp vụ, đồng thời hỗ trợ audit và phân tích sự cố dễ dàng.</p>
+<hr/>
+<h3 id="71-kiem-thu-tao-truy-van-log-gui">7.1. 🔄 Kiểm thử tạo &amp; truy vấn log gửi<a class="headerlink" href="#71-kiem-thu-tao-truy-van-log-gui" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống</th>
+<th>Mục tiêu kiểm thử</th>
+<th>Kết quả mong đợi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gửi thử một template thành công</td>
+<td>Log ghi nhận đầy đủ thông tin (trace, status, payload)</td>
+<td>Trạng thái <code>sent</code>, có trace_id</td>
+</tr>
+<tr>
+<td>Gửi thử template thiếu biến</td>
+<td>Kiểm tra lỗi render template</td>
+<td>Trạng thái <code>failed</code>, <code>error_message</code> rõ ràng</td>
+</tr>
+<tr>
+<td>Gửi test với <code>recipient</code> ẩn danh</td>
+<td>Kiểm tra cơ chế hash <code>recipient</code></td>
+<td>Recipient bị mã hóa theo cấu hình</td>
+</tr>
+<tr>
+<td>Truy vấn log với <code>status=sent</code></td>
+<td>Lọc log chính xác theo trạng thái</td>
+<td>Kết quả đúng, không chứa log <code>failed</code></td>
+</tr>
+<tr>
+<td>Truy vấn log theo <code>event_code</code> cụ thể</td>
+<td>Kiểm tra chỉ lấy log đúng loại sự kiện</td>
+<td><code>event_code</code> khớp toàn bộ trong response</td>
+</tr>
+<tr>
+<td>Truy vấn log sai tenant</td>
+<td>Đảm bảo isolation dữ liệu giữa tenants</td>
+<td>Kết quả rỗng, không có dữ liệu lộ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="72-kiem-thu-template">7.2. 📄 Kiểm thử template<a class="headerlink" href="#72-kiem-thu-template" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống</th>
+<th>Mục tiêu kiểm thử</th>
+<th>Kết quả mong đợi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gửi test với <code>event_code</code> không tồn tại</td>
+<td>Xử lý trường hợp template không hợp lệ</td>
+<td>400 + <code>notif.template_not_found</code></td>
+</tr>
+<tr>
+<td>Gửi test với template <code>is_active=false</code></td>
+<td>Không cho phép gửi test template đã tắt</td>
+<td>400 + <code>notif.template_inactive</code></td>
+</tr>
+<tr>
+<td>Truy vấn danh sách template</td>
+<td>Đảm bảo trả metadata đúng</td>
+<td>Có <code>event_code</code>, <code>channel</code>, <code>version</code></td>
+</tr>
+<tr>
+<td>Có nhiều version cùng <code>event_code</code></td>
+<td>Hệ thống chọn đúng <code>version=max</code> khi gửi test</td>
+<td>Gửi đúng template mới nhất</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="73-kiem-thu-lien-quan-bao-mat-phan-vung-tenant">7.3. 🔐 Kiểm thử liên quan bảo mật &amp; phân vùng tenant<a class="headerlink" href="#73-kiem-thu-lien-quan-bao-mat-phan-vung-tenant" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống</th>
+<th>Mục tiêu kiểm thử</th>
+<th>Kết quả mong đợi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Truy vấn log từ tenant khác</td>
+<td>Bảo vệ phân vùng dữ liệu giữa tenants</td>
+<td>403 hoặc 200 + <code>data=[]</code></td>
+</tr>
+<tr>
+<td>Cùng <code>event_code</code>, khác tenant</td>
+<td>Template độc lập, không bị lẫn nhau</td>
+<td>Kết quả đúng theo từng tenant</td>
+</tr>
+<tr>
+<td>Gửi thử với cấu hình channel bị tắt</td>
+<td>Không gửi, báo lỗi cấu hình</td>
+<td>400 + <code>notif.channel_disabled</code></td>
+</tr>
+<tr>
+<td>Thử cấu hình kênh không hợp lệ</td>
+<td>Phát hiện config sai (ví dụ thiếu SMTP host)</td>
+<td>500 + <code>notif.channel_config_invalid</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="74-kiem-thu-toan-ven-du-lieu">7.4. 🧩 Kiểm thử toàn vẹn dữ liệu<a class="headerlink" href="#74-kiem-thu-toan-ven-du-lieu" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống</th>
+<th>Mục tiêu kiểm thử</th>
+<th>Kết quả mong đợi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Log không có <code>template_id</code> (trường hợp test JSON thuần)</td>
+<td>Đảm bảo nullable hoạt động đúng</td>
+<td>Ghi log với <code>template_id = null</code></td>
+</tr>
+<tr>
+<td>Log có <code>trace_id</code> trùng với Master</td>
+<td>Cho phép liên kết xuyên trace</td>
+<td>Dữ liệu khớp trace</td>
+</tr>
+<tr>
+<td>TTL dọn log sau 30 ngày</td>
+<td>Dữ liệu được xóa định kỳ theo retention policy</td>
+<td>Không còn dữ liệu cũ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="75-checklist-xac-nhan-du-lieu">7.5. ✅ Checklist xác nhận dữ liệu<a class="headerlink" href="#75-checklist-xac-nhan-du-lieu" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>Trạng thái</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tenant_id</code> luôn được kiểm tra trong mọi truy vấn</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Các bản ghi log có <code>trace_id</code> hợp lệ</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Template không thể bị gửi nếu không active</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Dữ liệu test không được dùng cho thống kê thật</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Có thể kiểm tra lại dữ liệu từ log + trace</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="8-tai-lieu-lien-quan">8. 📚 Tài liệu liên quan<a class="headerlink" href="#8-tai-lieu-lien-quan" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../design/">Design.md</a></li>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+<li><a href="../../../../ADR/adr-030-event-schema-governance/">ADR-030 – Event Schema Governance</a></li>
+<li><a href="../../../../ADR/adr-024-data-anonymization-retention/">ADR-024 – Data Anonymization &amp; Retention</a></li>
+<li><a href="../../../../ADR/adr-025-multi-tenant-versioning/">ADR-025 – Multi-Tenant Versioning</a></li>
+<li><a href="../../../../ADR/adr-007-rbac/">ADR-007 – RBAC</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+</body>
+</html>

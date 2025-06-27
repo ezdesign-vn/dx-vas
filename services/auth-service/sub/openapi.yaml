@@ -1,0 +1,610 @@
+openapi: 3.0.3
+
+info:
+  title: Auth Service - Sub
+  version: 2.1.0
+  description: |
+    Auth Service - Sub chịu trách nhiệm xử lý đăng nhập OTP và Local login cho từng tenant.
+    Service này quản lý lifecycle của session, thu hồi token và cung cấp thông tin audit liên quan.
+    x-service: auth-service/master
+  
+  x-api-version: v1
+  x-last-updated: 2025-06-13
+  x-maintainer: dx-team@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    - adr-026-hard-delete-policy
+    - adr-027-data-management-strategy
+
+  contact:
+    name: DX-VAS Team
+    email: dx-team@truongvietanh.edu.vn
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/auth-sub/v1
+    description: Production
+  - url: https://staging-api.truongvietanh.edu.vn/auth-sub/v1
+    description: Staging
+  - url: http://localhost:8000/auth-sub/v1
+    description: Local Development
+
+tags:
+  - name: Authentication
+    description: Đăng nhập, đăng xuất và xử lý phiên người dùng
+  - name: Session Management
+    description: Truy vấn và thu hồi phiên đăng nhập
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  headers:
+    X-Request-ID:
+      description: |
+        Mã định danh duy nhất cho mỗi request, được sinh tự động bởi hệ thống gateway để phục vụ việc trace, debug và logging phân tán.
+        Client nên log lại giá trị này để hỗ trợ truy vết lỗi hoặc sự cố.
+      required: false
+      schema:
+        type: string
+      example: req_5e9c0c7f7f35449e8f3c0a9e
+
+  parameters:
+    XTenantID:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      schema:
+        type: string
+      description: Tenant ID hiện hành
+
+    UserIdQuery:
+      name: user_id
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: ID người dùng để lọc session (yêu cầu quyền cao hơn)
+
+    StatusQuery:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/SessionStatus"
+      description: Trạng thái phiên (active, revoked, expired, locked)
+
+    LimitQuery:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+      description: "Số phiên mỗi trang (default: 20)"
+
+    OffsetQuery:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 0
+      description: "Số phiên bỏ qua (phân trang)"
+
+    SessionIdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID phiên cần thu hồi
+
+  schemas:
+    # === ENUMs ===
+    AuthMethod:
+      type: string
+      enum: [otp, local]
+      description: Phương thức xác thực được sử dụng trong phiên đăng nhập
+      example: otp
+
+    SessionStatus:
+      type: string
+      enum: [active, revoked, expired, locked]
+      description: Trạng thái hiện tại của phiên người dùng
+      example: active
+
+    # === Meta ===
+    ResponseMeta:
+      type: object
+      description: Thông tin meta đi kèm mọi phản hồi từ hệ thống
+      properties:
+        request_id:
+          type: string
+          description: "Mã định danh duy nhất cho mỗi request (truy vết)"
+        timestamp:
+          type: string
+          format: date-time
+          description: Thời gian hệ thống phản hồi
+        pagination:
+          type: object
+          description: Thông tin phân trang (nếu có)
+          required: [total, limit, offset]
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            offset:
+              type: integer
+      example:
+        request_id: "req-5f2a0c"
+        timestamp: "2025-06-13T10:00:00Z"
+        pagination:
+          total: 45
+          limit: 20
+          offset: 0
+
+    # === Error ===
+    ErrorEnvelope:
+      type: object
+      description: Định dạng chuẩn lỗi trả về từ hệ thống
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Mã lỗi nội bộ hệ thống
+              example: auth.invalid_credentials
+            message:
+              type: string
+              description: Mô tả lỗi dành cho người dùng
+              example: Sai tên đăng nhập hoặc mật khẩu
+            data:
+              type: object
+              additionalProperties: true
+              description: Thông tin bổ sung (nếu có)
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+      example:
+        error:
+          code: auth.otp.expired
+          message: Mã OTP đã hết hạn
+          data: {}
+        meta:
+          request_id: "req-x1y2z3"
+          timestamp: "2025-06-13T10:05:00Z"
+
+    # === Request ===
+    LogoutRequest:
+      type: object
+      description: Payload cho thao tác thu hồi session hiện tại
+      properties:
+        reason:
+          type: string
+          description: Lý do thu hồi session
+          example: user_logout
+
+    LoginRequestOTP:
+      type: object
+      description: Payload xác thực bằng mã OTP
+      required: [login_type, phone_number, otp_code]
+      properties:
+        login_type:
+          type: string
+          enum: [otp]
+          description: Kiểu đăng nhập
+        phone_number:
+          type: string
+          description: Số điện thoại người dùng
+          example: "+84901234567"
+        otp_code:
+          type: string
+          description: Mã OTP
+          example: "123456"
+
+    LoginRequestLocal:
+      type: object
+      description: Payload xác thực bằng tài khoản nội bộ
+      required: [login_type, username, password]
+      properties:
+        login_type:
+          type: string
+          enum: [local]
+          description: Kiểu đăng nhập
+        username:
+          type: string
+          description: Tên đăng nhập
+          example: "admin"
+        password:
+          type: string
+          description: Mật khẩu
+          writeOnly: true
+          example: "mypassword"
+
+    LoginRequest:
+      oneOf:
+        - $ref: '#/components/schemas/LoginRequestOTP'
+        - $ref: '#/components/schemas/LoginRequestLocal'
+      discriminator:
+        propertyName: login_type
+      description: Payload tổng quát xác định cách đăng nhập
+
+    # === Response ===
+    TokenEnvelope:
+      type: object
+      description: Gói chứa token và thông tin session sau khi xác thực
+      properties:
+        access_token:
+          type: string
+          description: Token JWT dùng để xác thực truy cập
+        refresh_token:
+          type: string
+          description: Token làm mới JWT
+        expires_in:
+          type: integer
+          description: Thời gian sống của access token (giây)
+          example: 3600
+        session_id:
+          type: string
+          format: uuid
+          description: ID của session được sinh ra
+        token_type:
+          type: string
+          enum: [Bearer]
+          description: Loại token
+      example:
+        access_token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        expires_in: 3600
+        session_id: b38722ac-06b1-4a2e-b2a9-443299f2a712
+        token_type: Bearer
+
+    SessionOut:
+      type: object
+      description: Thông tin chi tiết của một phiên đăng nhập
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        auth_method:
+          $ref: '#/components/schemas/AuthMethod'
+        created_at:
+          type: string
+          format: date-time
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+        ip_address:
+          type: string
+        device_type:
+          type: string
+        user_agent:
+          type: string
+        location:
+          type: string
+        status:
+          $ref: '#/components/schemas/SessionStatus'
+      example:
+        session_id: "7f6b774c-8855-4370-9e4a-bc0ac5a32789"
+        user_id: "5e3cb46e-1cfc-4997-8b89-011d759b6c91"
+        auth_method: local
+        created_at: "2025-06-13T09:00:00Z"
+        revoked_at: null
+        ip_address: "203.113.123.12"
+        device_type: "desktop"
+        user_agent: "Chrome on Windows"
+        location: "Hà Nội"
+        status: active
+
+    PaginatedSessions:
+      type: object
+      description: Kết quả phân trang danh sách các phiên đăng nhập
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionOut'
+      example:
+        meta:
+          request_id: "req-abc"
+          timestamp: "2025-06-13T11:00:00Z"
+          pagination:
+            total: 2
+            limit: 20
+            offset: 0
+        data:
+          - session_id: "aaa-bbb"
+            user_id: "user1"
+            auth_method: otp
+            created_at: "2025-06-13T10:00:00Z"
+            revoked_at: null
+            ip_address: "192.168.1.1"
+            device_type: "mobile"
+            user_agent: "Safari on iOS"
+            location: "TP.HCM"
+            status: active
+          - session_id: "ccc-ddd"
+            user_id: "user2"
+            auth_method: local
+            created_at: "2025-06-13T09:30:00Z"
+            revoked_at: "2025-06-13T09:45:00Z"
+            ip_address: "10.0.0.1"
+            device_type: "desktop"
+            user_agent: "Firefox"
+            location: "Đà Nẵng"
+            status: revoked
+
+  responses:
+    200TokenEnvelope:
+      description: Đăng nhập thành công
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenEnvelope'
+          example:
+            access_token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+            refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            expires_in: 3600
+            session_id: 0c7e1e2a-1f10-437e-a1dc-4e6f5d51d4f7
+            token_type: Bearer
+
+    200SuccessBoolean:
+      description: Thành công
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/components/schemas/ResponseMeta'
+              data:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          example:
+            meta:
+              request_id: "abc123"
+              timestamp: "2025-06-13T12:00:00Z"
+            data:
+              success: true
+
+    200PaginatedSessions:
+      description: Danh sách phiên đăng nhập
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaginatedSessions'
+          example:
+            meta:
+              request_id: "abc456"
+              timestamp: "2025-06-13T12:01:00Z"
+              pagination:
+                total: 2
+                limit: 20
+                offset: 0
+            data:
+              - session_id: "e9120b2d-a1c7-4d71-8c0a-015fa5a8e92b"
+                user_id: "c1234567-abcd-4567-8901-def345678901"
+                auth_method: otp
+                created_at: "2025-06-13T10:00:00Z"
+                revoked_at: null
+                ip_address: "192.168.1.1"
+                device_type: "mobile"
+                user_agent: "iOS Safari"
+                location: "Ho Chi Minh City"
+                status: active
+
+    400BadRequest:
+      description: Dữ liệu không hợp lệ hoặc thiếu
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: auth.otp.invalid
+              message: Mã OTP không hợp lệ
+              data: {}
+            meta:
+              request_id: "req-789"
+              timestamp: "2025-06-13T12:02:00Z"
+
+    401Unauthorized:
+      description: Không có quyền truy cập hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: auth.token.invalid
+              message: Token không hợp lệ hoặc đã thu hồi
+              data: {}
+            meta:
+              request_id: "req-790"
+              timestamp: "2025-06-13T12:03:00Z"
+
+    403Forbidden:
+      description: Không đủ quyền thực hiện thao tác
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: auth.forbidden
+              message: Bạn không có quyền truy cập tài nguyên này
+              data: {}
+            meta:
+              request_id: "req-791"
+              timestamp: "2025-06-13T12:04:00Z"
+
+    404NotFound:
+      description: Không tìm thấy tài nguyên yêu cầu
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: session.not_found
+              message: Không tìm thấy phiên đăng nhập
+              data: {}
+            meta:
+              request_id: "req-792"
+              timestamp: "2025-06-13T12:05:00Z"
+
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Đăng nhập người dùng (OTP hoặc Local)
+      description: |
+        Cho phép người dùng xác thực bằng OTP hoặc tài khoản nội bộ.
+        Sau khi xác thực, JWT được phát từ token-service.
+      operationId: login
+      security: []
+      x-required-permission: auth.login
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      parameters:
+        - $ref: "#/components/parameters/XTenantID"      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/200TokenEnvelope'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/401Unauthorized'
+      x-emits-event: auth.token.issued.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + issue-token"
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Thu hồi token hiện tại
+      description: |
+        Thu hồi token hiện tại và session tương ứng. Token được đánh dấu revoked.
+      operationId: logout
+      security:
+        - bearerAuth: []
+      x-required-permission: auth.logout
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      parameters:
+        - $ref: "#/components/parameters/XTenantID"      
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+      responses:
+        '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/200SuccessBoolean'
+        '401':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/401Unauthorized'
+      x-emits-event: auth.token.revoked.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + revoke-token"
+
+  /auth/sessions:
+    get:
+      tags: [Session Management]
+      summary: Liệt kê các phiên đăng nhập
+      description: |
+        Truy vấn các phiên đăng nhập, hỗ trợ lọc theo user, trạng thái, phân trang.
+      operationId: listSessions
+      security:
+        - bearerAuth: []
+      x-required-permission: session.read:any
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      parameters:
+        - $ref: "#/components/parameters/XTenantID"
+        - $ref: "#/components/parameters/UserIdQuery"
+        - $ref: "#/components/parameters/StatusQuery"
+        - $ref: "#/components/parameters/LimitQuery"
+        - $ref: "#/components/parameters/OffsetQuery"
+      responses:
+        '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/200PaginatedSessions'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+      x-emits-event: audit.session.queried.v1      
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + paginate-query"
+
+  /auth/sessions/{id}/revoke:
+    post:
+      tags: [Session Management]
+      summary: Thu hồi một phiên cụ thể
+      description: |
+        Cho phép admin thu hồi một phiên cụ thể dựa trên session_id.
+      operationId: revokeSession
+      security:
+        - bearerAuth: []
+      x-required-permission: session.revoke:any
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      parameters:
+        - $ref: "#/components/parameters/XTenantID"
+        - $ref: "#/components/parameters/SessionIdPath"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+      responses:
+        '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/200SuccessBoolean'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/404NotFound'
+      x-emits-event: auth.token.revoked.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + revoke-session"

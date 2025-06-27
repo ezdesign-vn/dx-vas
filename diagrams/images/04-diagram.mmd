@@ -1,0 +1,25 @@
+sequenceDiagram
+  participant Client as Client App (PWA/SPA)
+  participant Gateway as API Gateway
+  participant Redis as Redis Cache
+  participant UserSvc as User Service
+  participant Backend as Backend Service
+
+  Client->>Gateway: Gửi request + JWT
+  Gateway->>Gateway: Giải mã + xác thực JWT
+  Gateway->>UserSvc: Kiểm tra is_active (optional)
+  Gateway->>Redis: Tra RBAC:{user_id} cache
+  alt Cache hit
+    Gateway->>Gateway: Lấy danh sách permission + condition
+  else Cache miss
+    Gateway->>UserSvc: GET /users/{id}/permissions
+    UserSvc-->>Gateway: Trả về danh sách role, permission, condition
+    Gateway->>Redis: Ghi lại cache
+  end
+
+  Gateway->>Gateway: Evaluate permission + condition theo context
+  alt Pass
+    Gateway->>Backend: Forward request + X-Permissions + X-User-ID
+  else Fail
+    Gateway-->>Client: 403 Forbidden
+  end

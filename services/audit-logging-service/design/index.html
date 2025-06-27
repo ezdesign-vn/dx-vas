@@ -1,0 +1,2022 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/audit-logging-service/design/" rel="canonical"/>
+<link href="../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Thiết kế chi tiết Audit Logging Service - DX VAS - Docs</title>
+<link href="../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#thiet-ke-chi-tiet-audit-logging-service">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Thiết kế chi tiết Audit Logging Service
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-pham-vi-va-trach-nhiem-scope-responsibilities">
+<span class="md-ellipsis">
+      1. 🧭 Phạm vi và Trách nhiệm (Scope &amp; Responsibilities)
+    </span>
+</a>
+<nav aria-label="1. 🧭 Phạm vi và Trách nhiệm (Scope &amp; Responsibilities)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-muc-tieu">
+<span class="md-ellipsis">
+      1.1. 🎯 Mục tiêu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-trach-nhiem-chinh">
+<span class="md-ellipsis">
+      1.2. 📌 Trách nhiệm chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-ngoai-pham-vi-out-of-scope">
+<span class="md-ellipsis">
+      1.3. ❌ Ngoài phạm vi (Out of Scope)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#14-nguoi-dung-va-client">
+<span class="md-ellipsis">
+      1.4. 👥 Người dùng và client
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-kien-truc-noi-bo-internal-architecture">
+<span class="md-ellipsis">
+      2. 🧱 Kiến trúc nội bộ (Internal Architecture)
+    </span>
+</a>
+<nav aria-label="2. 🧱 Kiến trúc nội bộ (Internal Architecture)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-tong-quan">
+<span class="md-ellipsis">
+      2.1. 🧠 Tổng quan
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-cac-thanh-phan-chinh">
+<span class="md-ellipsis">
+      2.2. 🏗️ Các thành phần chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-flow-xu-ly-tong-quat">
+<span class="md-ellipsis">
+      2.3. 🔁 Flow xử lý tổng quát
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#24-bao-mat-noi-bo">
+<span class="md-ellipsis">
+      2.4. 🔒 Bảo mật nội bộ
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#25-trien-khai-va-mo-rong">
+<span class="md-ellipsis">
+      2.5. ⚙️ Triển khai và Mở rộng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#26-lien-ket-adr-va-kien-truc">
+<span class="md-ellipsis">
+      2.6. 📌 Liên kết ADR và Kiến trúc
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-mo-hinh-du-lieu-data-model">
+<span class="md-ellipsis">
+      3. 🧩 Mô hình Dữ liệu (Data Model)
+    </span>
+</a>
+<nav aria-label="3. 🧩 Mô hình Dữ liệu (Data Model)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-bang-chinh-audit_logs">
+<span class="md-ellipsis">
+      3.1. 📌 Bảng chính: audit_logs
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-quy-tac-bao-mat-masking-du-lieu">
+<span class="md-ellipsis">
+      3.2. 🔒 Quy tắc Bảo mật &amp; Masking Dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-chinh-sach-luu-tru-va-phan-vung-bigquery">
+<span class="md-ellipsis">
+      3.3. ⏳ Chính sách lưu trữ và phân vùng (BigQuery)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#34-cac-chi-muc-va-truy-van-ien-hinh">
+<span class="md-ellipsis">
+      3.4. 🔍 Các chỉ mục và truy vấn điển hình
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-luong-nghiep-vu-chinh-main-flow">
+<span class="md-ellipsis">
+      4. 🔄 Luồng nghiệp vụ chính (Main Flow)
+    </span>
+</a>
+<nav aria-label="4. 🔄 Luồng nghiệp vụ chính (Main Flow)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-luong-1-nhan-su-kien-log-qua-pubsub-auditeventsv1">
+<span class="md-ellipsis">
+      4.1. 🔁 Luồng 1: Nhận sự kiện log qua Pub/Sub (audit.events.v1)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-luong-2-ghi-log-truc-tiep-qua-http-api-chi-noi-bo">
+<span class="md-ellipsis">
+      4.2. 🔁 Luồng 2: Ghi log trực tiếp qua HTTP API (chỉ nội bộ)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-luong-3-truy-van-audit-log-tu-webapp-hoac-devops">
+<span class="md-ellipsis">
+      4.3. 🧠 Luồng 3: Truy vấn Audit Log từ WebApp hoặc DevOps
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#44-cac-hanh-ong-pho-bien-uoc-log">
+<span class="md-ellipsis">
+      4.4. 🧩 Các hành động phổ biến được log
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-tuong-tac-voi-cac-service-khac-luong-su-kien">
+<span class="md-ellipsis">
+      5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện
+    </span>
+</a>
+<nav aria-label="5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-tuong-tac-ong-bo-http">
+<span class="md-ellipsis">
+      5.1. 🔁 Tương tác đồng bộ (HTTP)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-lang-nghe-su-kien-pubsub">
+<span class="md-ellipsis">
+      5.2. 📥 Lắng nghe sự kiện (Pub/Sub)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-phat-su-kien-thu-cap-tuy-chon">
+<span class="md-ellipsis">
+      5.3. 📤 Phát sự kiện thứ cấp (tùy chọn)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-bao-mat-phan-quyen">
+<span class="md-ellipsis">
+      6. 🔐 Bảo mật &amp; Phân quyền
+    </span>
+</a>
+<nav aria-label="6. 🔐 Bảo mật &amp; Phân quyền" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-xac-thuc-authentication">
+<span class="md-ellipsis">
+      6.1. 🔑 Xác thực (Authentication)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-phan-quyen-authorization-rbac">
+<span class="md-ellipsis">
+      6.2. 🧭 Phân quyền (Authorization – RBAC)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-bao-ve-du-lieu-data-protection">
+<span class="md-ellipsis">
+      6.3. 🔒 Bảo vệ dữ liệu (Data Protection)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-giam-sat-va-bao-ve-runtime">
+<span class="md-ellipsis">
+      6.4. 🚨 Giám sát và bảo vệ runtime
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cau-hinh-trien-khai-configuration-deployment">
+<span class="md-ellipsis">
+      7. ⚙️ Cấu hình &amp; Triển khai (Configuration &amp; Deployment)
+    </span>
+</a>
+<nav aria-label="7. ⚙️ Cấu hình &amp; Triển khai (Configuration &amp; Deployment)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-mo-hinh-trien-khai">
+<span class="md-ellipsis">
+      7.1. 🧱 Mô hình triển khai
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-bien-moi-truong-chinh-tuan-theo-adr-005">
+<span class="md-ellipsis">
+      7.2. ⚙️ Biến môi trường chính (Tuân theo ADR-005)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-trien-khai-cicd-tuan-thu-adr-001-adr-014">
+<span class="md-ellipsis">
+      7.3. 🚀 Triển khai CI/CD (Tuân thủ ADR-001 &amp; ADR-014)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-chien-luoc-autoscaling-adr-016">
+<span class="md-ellipsis">
+      7.4. 📈 Chiến lược Autoscaling (ADR-016)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#75-luu-tru-quan-ly-du-lieu-adr-027">
+<span class="md-ellipsis">
+      7.5. 📦 Lưu trữ &amp; Quản lý dữ liệu (ADR-027)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#76-chinh-sach-xoa-du-lieu-hard-delete">
+<span class="md-ellipsis">
+      7.6. 📌 Chính sách xoá dữ liệu (Hard Delete)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#77-cau-hinh-lien-quan-en-phat-su-kien">
+<span class="md-ellipsis">
+      7.7. Cấu hình liên quan đến phát sự kiện
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-chien-luoc-kiem-thu-testing-strategy">
+<span class="md-ellipsis">
+      8. 🧪 Chiến lược Kiểm thử (Testing Strategy)
+    </span>
+</a>
+<nav aria-label="8. 🧪 Chiến lược Kiểm thử (Testing Strategy)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-unit-tests">
+<span class="md-ellipsis">
+      8.1. ✅ Unit Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-integration-tests">
+<span class="md-ellipsis">
+      8.2. 🔁 Integration Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-contract-testing-adr-010">
+<span class="md-ellipsis">
+      8.3. 🤝 Contract Testing (ADR-010)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-load-testing-resilience">
+<span class="md-ellipsis">
+      8.4. 📊 Load Testing &amp; Resilience
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-security-testing">
+<span class="md-ellipsis">
+      8.5. 🔐 Security Testing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#86-regression-testing-ci-automation">
+<span class="md-ellipsis">
+      8.6. 🔁 Regression Testing &amp; CI Automation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-observability-monitoring">
+<span class="md-ellipsis">
+      9. 🔍 Observability &amp; Monitoring
+    </span>
+</a>
+<nav aria-label="9. 🔍 Observability &amp; Monitoring" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-logging-nhat-ky-dich-vu">
+<span class="md-ellipsis">
+      9.1. 📄 Logging (Nhật ký dịch vụ)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-metrics-giam-sat-hieu-nang-so-luong">
+<span class="md-ellipsis">
+      9.2. 📈 Metrics (Giám sát hiệu năng &amp; số lượng)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-tracing-theo-doi-hanh-trinh-request">
+<span class="md-ellipsis">
+      9.3. 🔍 Tracing (Theo dõi hành trình request)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#94-alerting-canh-bao-tu-ong">
+<span class="md-ellipsis">
+      9.4. 🚨 Alerting (Cảnh báo tự động)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-o-tin-cay-phuc-hoi-reliability-resilience">
+<span class="md-ellipsis">
+      10. 🚀 Độ tin cậy &amp; Phục hồi (Reliability &amp; Resilience)
+    </span>
+</a>
+<nav aria-label="10. 🚀 Độ tin cậy &amp; Phục hồi (Reliability &amp; Resilience)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-co-che-retry-thong-minh">
+<span class="md-ellipsis">
+      10.1. 🔁 Cơ chế Retry thông minh
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-bao-ve-idempotency-chong-log-trung">
+<span class="md-ellipsis">
+      10.2. 🧾 Bảo vệ idempotency (chống log trùng)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-phuc-hoi-sau-loi-he-thong">
+<span class="md-ellipsis">
+      10.3. 🧠 Phục hồi sau lỗi hệ thống
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-kiem-thu-resilience">
+<span class="md-ellipsis">
+      10.4. 🧪 Kiểm thử resilience
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-kien-truc-service-service-architecture-overview">
+<span class="md-ellipsis">
+      11. 🧩 Kiến trúc Service (Service Architecture Overview)
+    </span>
+</a>
+<nav aria-label="11. 🧩 Kiến trúc Service (Service Architecture Overview)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#111-so-o-kien-truc-tong-the">
+<span class="md-ellipsis">
+      11.1. 🖼 Sơ đồ Kiến trúc Tổng thể
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#112-ghi-chu-kien-truc">
+<span class="md-ellipsis">
+      11.2. 📌 Ghi chú Kiến trúc
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#113-trien-khai-dang-tach-lop">
+<span class="md-ellipsis">
+      11.3. 🌐 Triển khai dạng tách lớp
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-tai-lieu-lien-quan">
+<span class="md-ellipsis">
+      12. 📚 Tài liệu liên quan
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="thiet-ke-chi-tiet-audit-logging-service">📘 Thiết kế chi tiết Audit Logging Service<a class="headerlink" href="#thiet-ke-chi-tiet-audit-logging-service" title="Permanent link">¶</a></h1>
+<h2 id="1-pham-vi-va-trach-nhiem-scope-responsibilities">1. 🧭 Phạm vi và Trách nhiệm (Scope &amp; Responsibilities)<a class="headerlink" href="#1-pham-vi-va-trach-nhiem-scope-responsibilities" title="Permanent link">¶</a></h2>
+<h3 id="11-muc-tieu">1.1. 🎯 Mục tiêu<a class="headerlink" href="#11-muc-tieu" title="Permanent link">¶</a></h3>
+<p>Audit Logging Service (ALS) là một core service thuộc nhóm Platform Stack, chịu trách nhiệm <strong>ghi nhận toàn bộ hành vi có ảnh hưởng đến trạng thái hệ thống</strong>, bao gồm:</p>
+<ul>
+<li>Các thay đổi dữ liệu quan trọng (create/update/delete)</li>
+<li>Các hành động nhạy cảm (đăng nhập, phân quyền, thanh toán, xuất dữ liệu)</li>
+<li>Các thao tác quản trị (cấu hình hệ thống, phê duyệt yêu cầu, đăng ký tenant mới)</li>
+<li>Tương tác của người dùng thông qua các API có side-effect</li>
+</ul>
+<p>ALS đóng vai trò như “hộp đen” (blackbox) của hệ thống, giúp truy vết và điều tra các sự cố, đảm bảo tuân thủ chính sách bảo mật, và là nền tảng quan trọng cho phân tích hành vi người dùng hoặc điều tra vi phạm.</p>
+<hr/>
+<h3 id="12-trach-nhiem-chinh">1.2. 📌 Trách nhiệm chính<a class="headerlink" href="#12-trach-nhiem-chinh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nhóm chức năng</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ingest log</strong></td>
+<td>Nhận log từ các service khác qua HTTP hoặc Pub/Sub, xác thực nguồn và định dạng</td>
+</tr>
+<tr>
+<td><strong>Chuẩn hoá &amp; bảo vệ dữ liệu</strong></td>
+<td>Tuân thủ <code>ADR-008</code> về định dạng log và <code>ADR-024</code> về ẩn danh hóa dữ liệu PII</td>
+</tr>
+<tr>
+<td><strong>Lưu trữ dài hạn</strong></td>
+<td>Ghi dữ liệu vào BigQuery hoặc Firestore theo schema chuẩn, có partition theo thời gian và tenant</td>
+</tr>
+<tr>
+<td><strong>Hỗ trợ truy vấn</strong></td>
+<td>Cung cấp API để tra cứu audit log theo tiêu chí: thời gian, hành động, người dùng, tenant…</td>
+</tr>
+<tr>
+<td><strong>Tương thích đa tenant</strong></td>
+<td>Mỗi bản ghi log gắn <code>tenant_id</code> rõ ràng, đảm bảo phân quyền truy cập ở cấp tenant</td>
+</tr>
+<tr>
+<td><strong>Quan sát &amp; phân tích</strong></td>
+<td>Cung cấp metric, tracing, alerting theo <code>ADR-021</code> để giám sát chất lượng ghi log</td>
+</tr>
+<tr>
+<td><strong>Đảm bảo compliance</strong></td>
+<td>Hỗ trợ thời gian lưu trữ (retention), masking PII, export phục vụ audit nội bộ hoặc bên ngoài</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="13-ngoai-pham-vi-out-of-scope">1.3. ❌ Ngoài phạm vi (Out of Scope)<a class="headerlink" href="#13-ngoai-pham-vi-out-of-scope" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không lưu log hệ thống như stdout/stderr hoặc log ứng dụng thông thường</li>
+<li>Không thay thế hệ thống monitoring như Stackdriver, Prometheus</li>
+<li>Không thực hiện alerting, auto-block hay trigger xử lý từ log – các hệ thống khác có thể phân tích log để thực hiện hành động</li>
+</ul>
+<hr/>
+<h3 id="14-nguoi-dung-va-client">1.4. 👥 Người dùng và client<a class="headerlink" href="#14-nguoi-dung-va-client" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Vai trò</th>
+<th>Mục đích sử dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core Services (Auth, User, API Gateway, Notification...)</td>
+<td>Gửi audit log khi có hành động quan trọng</td>
+</tr>
+<tr>
+<td>DevOps / Security Team</td>
+<td>Tra cứu hành vi bất thường, điều tra sự cố bảo mật</td>
+</tr>
+<tr>
+<td>Tenant Admin</td>
+<td>Truy vấn log trong phạm vi tenant để kiểm tra hành động người dùng</td>
+</tr>
+<tr>
+<td>Auditor (nội bộ hoặc bên thứ ba)</td>
+<td>Tải export log phục vụ kiểm toán định kỳ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="2-kien-truc-noi-bo-internal-architecture">2. 🧱 Kiến trúc nội bộ (Internal Architecture)<a class="headerlink" href="#2-kien-truc-noi-bo-internal-architecture" title="Permanent link">¶</a></h2>
+<h3 id="21-tong-quan">2.1. 🧠 Tổng quan<a class="headerlink" href="#21-tong-quan" title="Permanent link">¶</a></h3>
+<p>Audit Logging Service (ALS) được thiết kế theo mô hình stateless microservice, vận hành trong Core Stack của hệ thống <code>dx-vas</code>. Service này tiếp nhận log thông qua cả hai cơ chế: HTTP API và Pub/Sub, xử lý và ghi nhận log vào hệ thống lưu trữ trung tâm, đồng thời cung cấp API để truy vấn log theo tenant và điều kiện lọc.</p>
+<hr/>
+<h3 id="22-cac-thanh-phan-chinh">2.2. 🏗️ Các thành phần chính<a class="headerlink" href="#22-cac-thanh-phan-chinh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ingestion API</strong></td>
+<td>HTTP endpoint nội bộ dùng để các service gọi trực tiếp gửi log. Xác thực bằng JWT, kiểm tra <code>x-tenant-id</code>, áp dụng RBAC (nếu cần)</td>
+</tr>
+<tr>
+<td><strong>Pub/Sub Consumer</strong></td>
+<td>Lắng nghe topic <code>audit.events.v1</code> (chuẩn hoá theo <code>ADR-030</code>). Dùng để xử lý log phát ra dưới dạng sự kiện từ các service khác</td>
+</tr>
+<tr>
+<td><strong>Parser &amp; Validator</strong></td>
+<td>Kiểm tra schema của audit event (theo <code>ADR-008</code>), lọc các trường không hợp lệ, kiểm tra backward compatibility nếu cần</td>
+</tr>
+<tr>
+<td><strong>PII Masker</strong></td>
+<td>Áp dụng chính sách ẩn danh hoá trước khi lưu log (xem <code>ADR-024</code>). Có thể cấu hình bật/tắt masking theo môi trường</td>
+</tr>
+<tr>
+<td><strong>Storage Layer</strong></td>
+<td>Ghi log vào BigQuery (mặc định). Có thể cấu hình lưu vào Firestore hoặc Cold Storage cho log lâu năm</td>
+</tr>
+<tr>
+<td><strong>Query API</strong></td>
+<td>Cung cấp REST API để truy vấn log theo <code>tenant_id</code>, <code>actor_user_id</code>, <code>resource</code>, <code>action</code>, <code>date_range</code>, <code>trace_id</code>...</td>
+</tr>
+<tr>
+<td><strong>Retention Cron</strong></td>
+<td>Tự động xóa log theo chính sách thời gian lưu trữ (<code>retention_days</code>) cấu hình trong biến môi trường hoặc metadata</td>
+</tr>
+<tr>
+<td><strong>Observability Hooks</strong></td>
+<td>Tích hợp logging, metrics (Prometheus), tracing (OpenTelemetry) và alerting (Stackdriver Alerting) theo <code>ADR-021</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="23-flow-xu-ly-tong-quat">2.3. 🔁 Flow xử lý tổng quát<a class="headerlink" href="#23-flow-xu-ly-tong-quat" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    subgraph Ingestion
+        A1[HTTP Request]
+        A2[Pub/Sub Message]
+    end
+    A1 --&gt; P[Parse &amp; Validate]
+    A2 --&gt; P
+    P --&gt; M[Mask Sensitive Fields (ADR-024)]
+    M --&gt; S[Store to BigQuery]
+    S --&gt; E[Emit audit_log_persisted.v1]
+</code></pre>
+<hr/>
+<h3 id="24-bao-mat-noi-bo">2.4. 🔒 Bảo mật nội bộ<a class="headerlink" href="#24-bao-mat-noi-bo" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mọi HTTP request phải đi qua API Gateway, có xác thực JWT và <code>x-tenant-id</code></li>
+<li>Consumer Pub/Sub chỉ nhận từ topic <code>audit.events.v1</code> đã đăng ký theo đúng schema (xác minh từ <code>event-registry</code>)</li>
+<li>Tất cả log được gắn <code>tenant_id</code>, không bao giờ có log “chung” không định danh tenant</li>
+<li>Truy cập log chỉ cho phép người dùng hoặc service có quyền <code>audit.read</code></li>
+</ul>
+<hr/>
+<h3 id="25-trien-khai-va-mo-rong">2.5. ⚙️ Triển khai và Mở rộng<a class="headerlink" href="#25-trien-khai-va-mo-rong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Service triển khai trên Google Cloud Run, autoscale theo load</li>
+<li>Mỗi bản ghi log lưu kèm <code>trace_id</code>, hỗ trợ liên kết với observability toàn hệ thống</li>
+<li>Trong tương lai có thể hỗ trợ dual storage (BigQuery realtime + Firestore archive)</li>
+</ul>
+<hr/>
+<h3 id="26-lien-ket-adr-va-kien-truc">2.6. 📌 Liên kết ADR và Kiến trúc<a class="headerlink" href="#26-lien-ket-adr-va-kien-truc" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>ADR liên quan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ingestion API</td>
+<td>ADR-008, ADR-006</td>
+</tr>
+<tr>
+<td>Pub/Sub Consumer</td>
+<td>ADR-030, ADR-008</td>
+</tr>
+<tr>
+<td>Masking</td>
+<td>ADR-024</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>ADR-027, ADR-020</td>
+</tr>
+<tr>
+<td>Tracing &amp; Metrics</td>
+<td>ADR-021</td>
+</tr>
+<tr>
+<td>Retention Policy</td>
+<td>ADR-026</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Chi tiết:</strong> <a href="../interface-contract/">Interface Contract</a> &amp; <a href="../openapi.yaml">OpenAPI</a></p>
+</blockquote>
+<hr/>
+<h2 id="3-mo-hinh-du-lieu-data-model">3. 🧩 Mô hình Dữ liệu (Data Model)<a class="headerlink" href="#3-mo-hinh-du-lieu-data-model" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service sử dụng mô hình dữ liệu dạng <strong>append-only</strong>, lưu trữ mỗi hành động (event) thành một bản ghi không sửa đổi. Dữ liệu được lưu trong <strong>BigQuery</strong> (mặc định) hoặc có thể cấu hình lưu trữ song song ở <strong>Firestore</strong> cho mục đích truy xuất nhanh theo ID.</p>
+<hr/>
+<h3 id="31-bang-chinh-audit_logs">3.1. 📌 Bảng chính: <code>audit_logs</code><a class="headerlink" href="#31-bang-chinh-audit_logs" title="Permanent link">¶</a></h3>
+<h4 id="muc-ich">🔖 Mục đích<a class="headerlink" href="#muc-ich" title="Permanent link">¶</a></h4>
+<p>Lưu trữ toàn bộ hành vi người dùng hoặc hệ thống có tác động đến trạng thái hoặc cấu hình hệ thống, được ghi nhận theo chuẩn schema sự kiện <code>*.audit.v1</code>.</p>
+<h4 id="cau-truc-bang">📐 Cấu trúc bảng<a class="headerlink" href="#cau-truc-bang" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu dữ liệu</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>STRING</code></td>
+<td>ID duy nhất của bản ghi (UUID v4)</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td><code>STRING</code></td>
+<td>Tenant nơi hành động xảy ra</td>
+</tr>
+<tr>
+<td><code>actor_user_id</code></td>
+<td><code>STRING</code></td>
+<td>ID người thực hiện hành động (có thể là system hoặc service)</td>
+</tr>
+<tr>
+<td><code>resource_type</code></td>
+<td><code>STRING</code></td>
+<td>Loại đối tượng bị tác động (e.g. <code>user</code>, <code>template</code>, <code>config</code>)</td>
+</tr>
+<tr>
+<td><code>resource_id</code></td>
+<td><code>STRING</code></td>
+<td>ID đối tượng bị tác động</td>
+</tr>
+<tr>
+<td><code>action</code></td>
+<td><code>STRING</code></td>
+<td>Loại hành động (<code>create</code>, <code>update</code>, <code>delete</code>, <code>login</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>action_scope</code></td>
+<td><code>STRING</code></td>
+<td>Phạm vi hành động (<code>global</code>, <code>tenant</code>, <code>internal</code>)</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td><code>TIMESTAMP</code></td>
+<td>Thời điểm xảy ra hành động (UTC)</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td><code>STRING</code></td>
+<td>Mã trace toàn cục để liên kết log giữa các service</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td><code>STRING</code></td>
+<td>IP của người thực hiện (có thể đã mask)</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td><code>STRING</code></td>
+<td>Trình duyệt hoặc công cụ thực hiện hành động</td>
+</tr>
+<tr>
+<td><code>payload_before</code></td>
+<td><code>JSON</code></td>
+<td>Trạng thái đối tượng trước khi thay đổi (nếu có)</td>
+</tr>
+<tr>
+<td><code>payload_after</code></td>
+<td><code>JSON</code></td>
+<td>Trạng thái đối tượng sau khi thay đổi (nếu có)</td>
+</tr>
+<tr>
+<td><code>input_parameters</code></td>
+<td><code>JSON</code></td>
+<td>Tham số đầu vào của API tại thời điểm hành động</td>
+</tr>
+<tr>
+<td><code>duration_ms</code></td>
+<td><code>INTEGER</code></td>
+<td>Thời gian thực hiện hành động (nếu có thể đo)</td>
+</tr>
+<tr>
+<td><code>source_service</code></td>
+<td><code>STRING</code></td>
+<td>Tên service phát sinh hành động (e.g. <code>user-service</code>, <code>auth-service</code>)</td>
+</tr>
+<tr>
+<td><code>event_version</code></td>
+<td><code>STRING</code></td>
+<td>Phiên bản schema sự kiện (e.g. <code>v1</code>, <code>v2</code>)</td>
+</tr>
+<tr>
+<td><code>is_masked</code></td>
+<td><code>BOOLEAN</code></td>
+<td>Cờ cho biết trường nhạy cảm đã được ẩn danh hóa chưa</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="32-quy-tac-bao-mat-masking-du-lieu">3.2. 🔒 Quy tắc Bảo mật &amp; Masking Dữ liệu<a class="headerlink" href="#32-quy-tac-bao-mat-masking-du-lieu" title="Permanent link">¶</a></h3>
+<p>Tuân thủ <code>ADR-024 - Data Anonymization &amp; Retention</code>:
+- Trường <code>ip_address</code> → được rút gọn <code>/24</code> hoặc SHA256 khi cần.
+- Trường <code>input_parameters</code>, <code>payload_*</code> → lọc theo whitelist field hoặc pattern-based masking.
+- Trường <code>actor_user_id</code> có thể được thay bằng dạng alias (e.g. <code>u_x7f8d123</code>) nếu xuất ra public logs.</p>
+<hr/>
+<h3 id="33-chinh-sach-luu-tru-va-phan-vung-bigquery">3.3. ⏳ Chính sách lưu trữ và phân vùng (BigQuery)<a class="headerlink" href="#33-chinh-sach-luu-tru-va-phan-vung-bigquery" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thuộc tính</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Partition</td>
+<td>Theo <code>timestamp</code></td>
+</tr>
+<tr>
+<td>Clustering</td>
+<td><code>tenant_id</code>, <code>source_service</code></td>
+</tr>
+<tr>
+<td>Retention mặc định</td>
+<td>365 ngày (cấu hình qua env)</td>
+</tr>
+<tr>
+<td>Policy xóa</td>
+<td>Tuân theo <code>ADR-026 - Hard Delete Policy</code> và <code>ADR-027 - Data Management Strategy</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="34-cac-chi-muc-va-truy-van-ien-hinh">3.4. 🔍 Các chỉ mục và truy vấn điển hình<a class="headerlink" href="#34-cac-chi-muc-va-truy-van-ien-hinh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Use case</th>
+<th>Field filter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Truy vết hành động của người dùng</td>
+<td><code>actor_user_id</code>, <code>tenant_id</code>, <code>timestamp</code></td>
+</tr>
+<tr>
+<td>Kiểm tra thay đổi config hệ thống</td>
+<td><code>resource_type = 'config'</code></td>
+</tr>
+<tr>
+<td>Xem toàn bộ hành động từ một service</td>
+<td><code>source_service</code>, <code>trace_id</code></td>
+</tr>
+<tr>
+<td>Truy xuất theo trace cho incident</td>
+<td><code>trace_id</code></td>
+</tr>
+</tbody>
+</table>
+<p>👉 <strong>Chi tiết sơ đồ ERD, định nghĩa bảng và chiến lược kiểm thử dữ liệu được trình bày tại</strong>:<br/>
+📂 <a href="../data-model/">Data Model</a></p>
+<hr/>
+<h2 id="4-luong-nghiep-vu-chinh-main-flow">4. 🔄 Luồng nghiệp vụ chính (Main Flow)<a class="headerlink" href="#4-luong-nghiep-vu-chinh-main-flow" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) hỗ trợ hai luồng chính để ghi nhận log một cách toàn diện và linh hoạt: (1) qua Pub/Sub theo cơ chế sự kiện bất đồng bộ, và (2) qua HTTP API dành cho các trường hợp cần ghi log tức thời hoặc nội bộ. Dữ liệu sau khi nhận được sẽ được chuẩn hoá, xử lý bảo mật và lưu trữ an toàn.</p>
+<hr/>
+<h3 id="41-luong-1-nhan-su-kien-log-qua-pubsub-auditeventsv1">4.1. 🔁 Luồng 1: Nhận sự kiện log qua Pub/Sub (<code>audit.events.v1</code>)<a class="headerlink" href="#41-luong-1-nhan-su-kien-log-qua-pubsub-auditeventsv1" title="Permanent link">¶</a></h3>
+<p>Luồng phổ biến và được khuyến nghị cho các core service phát hành log hành vi dưới dạng sự kiện chuẩn hóa.</p>
+<pre class="mermaid"><code>sequenceDiagram
+  participant ServiceX as Core Service (e.g. user-service)
+  participant PubSub as Pub/Sub Topic
+  participant ALS as Audit Logging Service
+  participant DB as BigQuery Storage
+
+  ServiceX-&gt;&gt;PubSub: Publish `audit.*.v1` JSON
+  PubSub--&gt;&gt;ALS: Consume &amp; parse event
+  ALS-&gt;&gt;ALS: Validate schema (ADR-008) + Mask sensitive fields (ADR-024)
+  ALS-&gt;&gt;DB: Persist log entry
+  ALS--&gt;&gt;PubSub: Emit `audit_log_persisted.v1`
+</code></pre>
+<p><strong>Đặc điểm</strong>:</p>
+<ul>
+<li><strong>Không blocking</strong> service phát.</li>
+<li>Đảm bảo loosely-coupled và resilient.</li>
+<li>Bắt buộc tuân theo schema trong <code>event-registry/</code>.</li>
+</ul>
+<hr/>
+<h3 id="42-luong-2-ghi-log-truc-tiep-qua-http-api-chi-noi-bo">4.2. 🔁 Luồng 2: Ghi log trực tiếp qua HTTP API (chỉ nội bộ)<a class="headerlink" href="#42-luong-2-ghi-log-truc-tiep-qua-http-api-chi-noi-bo" title="Permanent link">¶</a></h3>
+<p>Dành cho các service không tích hợp Pub/Sub hoặc muốn ghi log trong cùng transaction.</p>
+<pre class="mermaid"><code>sequenceDiagram
+  participant ServiceY as Internal Service
+  participant Gateway as API Gateway
+  participant ALS as Audit Logging Service
+  participant DB as BigQuery
+
+  ServiceY-&gt;&gt;Gateway: POST /audit-log (JWT + X-Tenant-ID)
+  Gateway-&gt;&gt;ALS: Forward request
+  ALS-&gt;&gt;ALS: Validate + Mask + Attach trace_id
+  ALS-&gt;&gt;DB: Store log
+  ALS--&gt;&gt;ServiceY: 204 No Content
+</code></pre>
+<p><strong>Đặc điểm</strong>:</p>
+<ul>
+<li>Yêu cầu JWT hợp lệ với scope <code>audit.write</code>.</li>
+<li>Dành cho log nội bộ hoặc dev tool (e.g. RBAC editor, import tools).</li>
+<li>Có thể bật/tắt per-environment qua config.</li>
+</ul>
+<hr/>
+<h3 id="43-luong-3-truy-van-audit-log-tu-webapp-hoac-devops">4.3. 🧠 Luồng 3: Truy vấn Audit Log từ WebApp hoặc DevOps<a class="headerlink" href="#43-luong-3-truy-van-audit-log-tu-webapp-hoac-devops" title="Permanent link">¶</a></h3>
+<p>Cho phép người dùng có vai trò phù hợp truy xuất log trong phạm vi tenant để kiểm tra hành vi.</p>
+<pre class="mermaid"><code>sequenceDiagram
+  participant Admin as Tenant Admin
+  participant WebApp as Superadmin UI
+  participant Gateway as API Gateway
+  participant ALS as Audit Logging Service
+  participant DB as BigQuery
+
+  Admin-&gt;&gt;WebApp: Chọn thời gian, hành động, user
+  WebApp-&gt;&gt;Gateway: GET /audit-log?filters... (JWT + Tenant)
+  Gateway-&gt;&gt;ALS: Forward request
+  ALS-&gt;&gt;DB: Query log with tenant + filters
+  ALS--&gt;&gt;WebApp: Paginated Result
+</code></pre>
+<p><strong>Đặc điểm</strong>:</p>
+<ul>
+<li>Yêu cầu scope <code>audit.read</code> + kiểm tra tenant ID.</li>
+<li>Kết quả được trả dưới dạng <code>AuditLogEnvelope</code> (tuân theo <code>ADR-012</code>).</li>
+</ul>
+<hr/>
+<h3 id="44-cac-hanh-ong-pho-bien-uoc-log">4.4. 🧩 Các hành động phổ biến được log<a class="headerlink" href="#44-cac-hanh-ong-pho-bien-uoc-log" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hành động</th>
+<th>Mô tả</th>
+<th>Nguồn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user.created</code></td>
+<td>Người dùng mới được tạo</td>
+<td>user-service</td>
+</tr>
+<tr>
+<td><code>user.login.success</code></td>
+<td>Đăng nhập thành công</td>
+<td>auth-service</td>
+</tr>
+<tr>
+<td><code>role.updated</code></td>
+<td>Thay đổi role hoặc permission</td>
+<td>user-service</td>
+</tr>
+<tr>
+<td><code>template.deleted</code></td>
+<td>Xoá mẫu báo cáo / cấu hình</td>
+<td>reporting-service</td>
+</tr>
+<tr>
+<td><code>notification.sent</code></td>
+<td>Gửi email/SMS thành công</td>
+<td>notification-service</td>
+</tr>
+<tr>
+<td><code>tenant.created</code></td>
+<td>Tạo mới tenant</td>
+<td>sms-service</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="5-tuong-tac-voi-cac-service-khac-luong-su-kien">5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện<a class="headerlink" href="#5-tuong-tac-voi-cac-service-khac-luong-su-kien" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) hoạt động như một <strong>dịch vụ thụ động (passive listener)</strong>, chủ yếu tiêu thụ sự kiện hoặc nhận lệnh ghi log từ các core service khác.</p>
+<p>Mặc định, ALS không phát sinh sự kiện thứ cấp, tuy nhiên trong các môi trường phân tích hoặc tích hợp nâng cao, nó <strong>có thể phát sự kiện</strong> <code>audit_log_persisted.v1</code> tới các topic nội bộ để phục vụ hệ thống downstream (e.g. thống kê realtime, xử lý batch).</p>
+<blockquote>
+<p>🧭 Mọi tương tác chính vẫn là <em>one-way ingestion</em> từ bên ngoài → ALS → BigQuery/Firestore.</p>
+</blockquote>
+<hr/>
+<h3 id="51-tuong-tac-ong-bo-http">5.1. 🔁 Tương tác đồng bộ (HTTP)<a class="headerlink" href="#51-tuong-tac-ong-bo-http" title="Permanent link">¶</a></h3>
+<h4 id="ingestion-noi-bo">✅ Ingestion nội bộ<a class="headerlink" href="#ingestion-noi-bo" title="Permanent link">¶</a></h4>
+<ul>
+<li>Các service có thể gọi trực tiếp endpoint <code>POST /audit-log</code> (nội bộ) khi muốn ghi log ngay lập tức, đi kèm trace ID.</li>
+<li>Cơ chế này thường dùng cho các admin tool, hệ thống batch import, hoặc khi không tích hợp Pub/Sub.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Service Gọi</th>
+<th>Endpoint</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user-service</code></td>
+<td><code>POST /audit-log</code></td>
+<td>Khi cập nhật role, xóa user</td>
+</tr>
+<tr>
+<td><code>auth-service/sub</code></td>
+<td><code>POST /audit-log</code></td>
+<td>Ghi nhận đăng nhập qua OTP</td>
+</tr>
+<tr>
+<td><code>reporting-service</code></td>
+<td><code>POST /audit-log</code></td>
+<td>Ghi nhận hành vi truy xuất báo cáo</td>
+</tr>
+</tbody>
+</table>
+<h4 id="bao-mat-http">🔐 Bảo mật HTTP<a class="headerlink" href="#bao-mat-http" title="Permanent link">¶</a></h4>
+<ul>
+<li>Tất cả request phải đi qua API Gateway.</li>
+<li>Yêu cầu JWT chứa scope <code>audit.write</code>.</li>
+<li>Kiểm tra <code>x-tenant-id</code> và RBAC (nếu cần).</li>
+</ul>
+<hr/>
+<h3 id="52-lang-nghe-su-kien-pubsub">5.2. 📥 Lắng nghe sự kiện (Pub/Sub)<a class="headerlink" href="#52-lang-nghe-su-kien-pubsub" title="Permanent link">¶</a></h3>
+<p>ALS là <strong>consumer chính</strong> của topic <code>audit.events.v1</code> trên Pub/Sub.</p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Schema</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>audit.events.v1</code></td>
+<td><code>vas.&lt;domain&gt;.&lt;event&gt;.v1</code></td>
+<td>Các sự kiện hành động do các service phát hành</td>
+</tr>
+</tbody>
+</table>
+<h4 id="vi-du-su-kien-tiep-nhan">Ví dụ sự kiện tiếp nhận:<a class="headerlink" href="#vi-du-su-kien-tiep-nhan" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas.user.updated.v1"</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"t_1234"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="nt">"actor_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"u_789"</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">"resource_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">"resource_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"u_456"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"update"</span><span class="p">,</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="nt">"payload_before"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="nt">"payload_after"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="err">...</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="service-phat-su-kien-audit">Service phát sự kiện audit:<a class="headerlink" href="#service-phat-su-kien-audit" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service Nguồn</th>
+<th>Sự kiện tiêu biểu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user-service</code></td>
+<td><code>vas.user.created.v1</code>, <code>vas.role.updated.v1</code></td>
+</tr>
+<tr>
+<td><code>auth-service/master</code></td>
+<td><code>vas.auth.login_success.v1</code></td>
+</tr>
+<tr>
+<td><code>notification-service/sub</code></td>
+<td><code>vas.notification.sent.v1</code></td>
+</tr>
+<tr>
+<td><code>reporting-service</code></td>
+<td><code>vas.report.query_executed.v1</code></td>
+</tr>
+<tr>
+<td><code>api-gateway</code></td>
+<td><code>vas.api.request.audit.v1</code> (nếu bật logging toàn cục)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="53-phat-su-kien-thu-cap-tuy-chon">5.3. 📤 Phát sự kiện thứ cấp (tùy chọn)<a class="headerlink" href="#53-phat-su-kien-thu-cap-tuy-chon" title="Permanent link">¶</a></h3>
+<p>Audit Logging Service có thể phát sự kiện <strong><code>vas.audit.persisted.v1</code></strong> sau khi một bản ghi log được lưu thành công, nhằm phục vụ các hệ thống downstream như:</p>
+<ul>
+<li><strong>ETL pipeline</strong> hoặc <strong>AI analytics</strong></li>
+<li><strong>Alerting / Data Lake indexing</strong></li>
+<li><strong>Realtime security event bus</strong></li>
+</ul>
+<p>🔒 <strong>Tính năng này hiện đang được tắt trong production.</strong>
+Phát sự kiện được điều khiển bởi cấu hình:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nt">emit_audit_event_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nt">audit_event_topic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audit.log.persisted.v1</span>
+</span></code></pre></div>
+<p>Việc phát sự kiện không ảnh hưởng luồng xử lý chính, không yêu cầu ACK từ phía downstream, và chỉ thực hiện nếu cấu hình bật.</p>
+<h4 id="vi-du-payload">📦 Ví dụ payload:<a class="headerlink" href="#vi-du-payload" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas.audit.persisted.v1"</span><span class="p">,</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"log_abc123"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-sch-01"</span><span class="p">,</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-14T08:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">  </span><span class="nt">"source_service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-service"</span><span class="p">,</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"delete"</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h2 id="6-bao-mat-phan-quyen">6. 🔐 Bảo mật &amp; Phân quyền<a class="headerlink" href="#6-bao-mat-phan-quyen" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service xử lý dữ liệu nhạy cảm và quan trọng, nên phải tuân thủ nghiêm ngặt các chiến lược xác thực, phân quyền và bảo vệ dữ liệu theo toàn hệ thống. Dưới đây là các lớp bảo mật chính:</p>
+<hr/>
+<h3 id="61-xac-thuc-authentication">6.1. 🔑 Xác thực (Authentication)<a class="headerlink" href="#61-xac-thuc-authentication" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tất cả các endpoint của ALS đều yêu cầu xác thực JWT hợp lệ.</li>
+<li>Token phải được phát hành bởi hệ thống <code>auth-service</code> (master hoặc sub), tuân thủ <code>ADR-006</code>.</li>
+<li>Token bắt buộc chứa các claims:</li>
+<li><code>sub</code>: định danh người dùng/service</li>
+<li><code>aud</code>: <code>api.truongvietanh.edu.vn</code></li>
+<li><code>x-tenant-id</code>: ID của tenant đang thao tác</li>
+<li>Đối với Pub/Sub consumer, xác thực được thực hiện qua <strong>IAM binding</strong> giữa ALS và Pub/Sub service account.</li>
+</ul>
+<hr/>
+<h3 id="62-phan-quyen-authorization-rbac">6.2. 🧭 Phân quyền (Authorization – RBAC)<a class="headerlink" href="#62-phan-quyen-authorization-rbac" title="Permanent link">¶</a></h3>
+<p>Audit Logging Service thực thi RBAC ở 2 mức:</p>
+<h4 id="khi-ghi-log-write">📥 Khi ghi log (write)<a class="headerlink" href="#khi-ghi-log-write" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Pub/Sub</strong>: chỉ xử lý log đến từ topic <code>audit.events.v1</code> đã đăng ký, không yêu cầu RBAC.</li>
+<li><strong>HTTP API</strong>: yêu cầu scope <code>audit.write</code>. Chỉ dành cho call nội bộ (có kiểm tra <code>x-internal-request: true</code>).</li>
+</ul>
+<h4 id="khi-truy-van-log-read">📤 Khi truy vấn log (read)<a class="headerlink" href="#khi-truy-van-log-read" title="Permanent link">¶</a></h4>
+<ul>
+<li>Bắt buộc có scope <code>audit.read</code>.</li>
+<li>Thực hiện phân quyền theo template RBAC như sau:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Action</th>
+<th>Điều kiện bắt buộc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>audit_log_entry</code></td>
+<td><code>read</code></td>
+<td><code>tenant_id == {{X-Tenant-ID}}</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Các field trong log như <code>actor_user_id</code>, <code>payload_*</code>, <code>input_parameters</code> sẽ được <strong>mask động</strong> nếu người gọi không có quyền cao (e.g. không phải Superadmin hoặc TenantAdmin).</li>
+</ul>
+<hr/>
+<h3 id="63-bao-ve-du-lieu-data-protection">6.3. 🔒 Bảo vệ dữ liệu (Data Protection)<a class="headerlink" href="#63-bao-ve-du-lieu-data-protection" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mọi bản ghi log đều được mã hoá ở trạng thái lưu trữ:</li>
+<li>BigQuery: sử dụng encryption mặc định hoặc CMEK theo <code>ADR-005</code></li>
+<li>Firestore (nếu dùng): tự động mã hoá theo GCP</li>
+<li>Dữ liệu truyền qua HTTP đều sử dụng HTTPS (TLS 1.3)</li>
+<li>Trường nhạy cảm (PII) như <code>ip_address</code>, <code>user_agent</code>, <code>payload_*</code> đều được xử lý theo <code>ADR-024</code>:</li>
+<li>Mask cố định hoặc bằng SHA256</li>
+<li>Xác định field cần ẩn bằng cấu hình hoặc pattern</li>
+</ul>
+<hr/>
+<h3 id="64-giam-sat-va-bao-ve-runtime">6.4. 🚨 Giám sát và bảo vệ runtime<a class="headerlink" href="#64-giam-sat-va-bao-ve-runtime" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tích hợp OpenTelemetry để trace toàn bộ request → ghi log → lưu trữ</li>
+<li>Ghi log mọi request bị từ chối truy cập hoặc vi phạm quyền</li>
+<li>Có cảnh báo nếu phát hiện truy vấn vượt giới hạn tenant, sai scope hoặc lặp lại bất thường</li>
+</ul>
+<hr/>
+<h2 id="7-cau-hinh-trien-khai-configuration-deployment">7. ⚙️ Cấu hình &amp; Triển khai (Configuration &amp; Deployment)<a class="headerlink" href="#7-cau-hinh-trien-khai-configuration-deployment" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) được triển khai như một dịch vụ độc lập trong <strong>Core Stack</strong> của hệ thống <code>dx-vas</code>. Mục tiêu là đảm bảo khả năng hoạt động ổn định, tách biệt tenant, bảo mật cao và dễ dàng mở rộng khi lượng log tăng.</p>
+<hr/>
+<h3 id="71-mo-hinh-trien-khai">7.1. 🧱 Mô hình triển khai<a class="headerlink" href="#71-mo-hinh-trien-khai" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Nền tảng</strong>: Google Cloud Run</li>
+<li><strong>Môi trường</strong>: <code>staging</code>, <code>production</code>, <code>sandbox</code> (tuân thủ <code>ADR-017</code>)</li>
+<li><strong>Vùng triển khai</strong>: <code>asia-southeast1</code> (mặc định), có thể mở rộng multi-region</li>
+<li><strong>IAM binding</strong>: chỉ cho phép service account từ <code>core</code> services gọi API hoặc push Pub/Sub</li>
+</ul>
+<hr/>
+<h3 id="72-bien-moi-truong-chinh-tuan-theo-adr-005">7.2. ⚙️ Biến môi trường chính (Tuân theo ADR-005)<a class="headerlink" href="#72-bien-moi-truong-chinh-tuan-theo-adr-005" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tên biến</th>
+<th>Mô tả</th>
+<th>Ví dụ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOG_RETENTION_DAYS</code></td>
+<td>Số ngày lưu log trước khi xoá (nếu bật auto-delete)</td>
+<td><code>365</code></td>
+</tr>
+<tr>
+<td><code>AUDIT_STORAGE_BACKEND</code></td>
+<td>Lựa chọn backend lưu log (<code>bigquery</code> / <code>firestore</code>)</td>
+<td><code>bigquery</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_PII_MASKING</code></td>
+<td>Bật/Tắt chức năng ẩn danh dữ liệu đầu vào</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>PUBSUB_SUBSCRIPTION_ID</code></td>
+<td>ID subscription của <code>audit.events.v1</code></td>
+<td><code>audit-events-sub</code></td>
+</tr>
+<tr>
+<td><code>PROJECT_ID</code></td>
+<td>GCP project code chứa BigQuery dataset</td>
+<td><code>vas-core</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="73-trien-khai-cicd-tuan-thu-adr-001-adr-014">7.3. 🚀 Triển khai CI/CD (Tuân thủ ADR-001 &amp; ADR-014)<a class="headerlink" href="#73-trien-khai-cicd-tuan-thu-adr-001-adr-014" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mỗi lần commit vào nhánh <code>main</code> sẽ trigger pipeline build và deploy (zero-downtime).</li>
+<li>Sử dụng <code>canary deployment</code> cho môi trường <code>staging</code>.</li>
+<li>Smoke test kiểm tra sau khi triển khai: gửi audit log mẫu, kiểm tra khả năng lưu và truy vấn.</li>
+</ul>
+<hr/>
+<h3 id="74-chien-luoc-autoscaling-adr-016">7.4. 📈 Chiến lược Autoscaling (ADR-016)<a class="headerlink" href="#74-chien-luoc-autoscaling-adr-016" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Min instances</strong>: <code>1</code> (đảm bảo cold start thấp)</li>
+<li><strong>Max instances</strong>: <code>10</code> (cấu hình ban đầu, có thể mở rộng)</li>
+<li><strong>Scaling policy</strong>: theo QPS hoặc CPU threshold &gt; 60%</li>
+<li>Pub/Sub consumer có thể tách container riêng nếu cần scale độc lập</li>
+</ul>
+<hr/>
+<h3 id="75-luu-tru-quan-ly-du-lieu-adr-027">7.5. 📦 Lưu trữ &amp; Quản lý dữ liệu (ADR-027)<a class="headerlink" href="#75-luu-tru-quan-ly-du-lieu-adr-027" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Primary storage</strong>: BigQuery, phân vùng theo <code>timestamp</code>, clustering theo <code>tenant_id</code></li>
+<li><strong>Backup / Archive</strong>: có thể bật lưu song song sang Firestore hoặc GCS coldline bucket</li>
+<li><strong>Retention</strong>: chạy cron job hàng ngày để xoá log cũ vượt <code>LOG_RETENTION_DAYS</code></li>
+</ul>
+<hr/>
+<h3 id="76-chinh-sach-xoa-du-lieu-hard-delete">7.6. 📌 Chính sách xoá dữ liệu (Hard Delete)<a class="headerlink" href="#76-chinh-sach-xoa-du-lieu-hard-delete" title="Permanent link">¶</a></h3>
+<p>Tuân thủ <code>ADR-026</code>, ALS sử dụng chính sách:
+- <strong>Hard delete</strong> dữ liệu khi vượt thời gian retention
+- Xoá theo batch nhỏ, ghi log mỗi lần xóa
+- Không hỗ trợ xoá selective thủ công (trừ khi có yêu cầu audit nội bộ với policy riêng)</p>
+<h3 id="77-cau-hinh-lien-quan-en-phat-su-kien">7.7. Cấu hình liên quan đến phát sự kiện<a class="headerlink" href="#77-cau-hinh-lien-quan-en-phat-su-kien" title="Permanent link">¶</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1"># config.yaml</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="nt">emit_audit_event_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">         </span><span class="c1"># Bật phát event thứ cấp `audit_log_persisted.v1`</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="nt">audit_event_topic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audit.log.persisted.v1</span><span class="w">  </span><span class="c1"># Tên topic phát sự kiện</span>
+</span></code></pre></div>
+<blockquote>
+<p>📌 <strong>Lưu ý:</strong> Tính năng phát sự kiện thứ cấp hiện <strong>chưa được bật trong môi trường production</strong>.
+  Chỉ nên kích hoạt khi đã có hệ thống downstream tiếp nhận và kiểm soát volume event phát sinh.</p>
+</blockquote>
+<hr/>
+<h2 id="8-chien-luoc-kiem-thu-testing-strategy">8. 🧪 Chiến lược Kiểm thử (Testing Strategy)<a class="headerlink" href="#8-chien-luoc-kiem-thu-testing-strategy" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service đóng vai trò trung tâm trong việc ghi nhận và bảo vệ hành vi của hệ thống. Do đó, chiến lược kiểm thử phải đảm bảo tính <strong>đúng đắn, an toàn, và tin cậy</strong> của mỗi bản ghi audit, trong mọi điều kiện tải và môi trường vận hành.</p>
+<hr/>
+<h3 id="81-unit-tests">8.1. ✅ Unit Tests<a class="headerlink" href="#81-unit-tests" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Nội dung kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Schema Validator</td>
+<td>Kiểm tra tính hợp lệ của payload theo <code>ADR-008</code></td>
+</tr>
+<tr>
+<td>PII Masker</td>
+<td>Xác minh dữ liệu nhạy cảm được ẩn đúng cách</td>
+</tr>
+<tr>
+<td>Query Filter Builder</td>
+<td>Kiểm tra logic lọc theo <code>actor_id</code>, <code>tenant_id</code>, <code>trace_id</code>, etc.</td>
+</tr>
+<tr>
+<td>JWT Claims Parser</td>
+<td>Kiểm tra các trường <code>sub</code>, <code>aud</code>, <code>tenant_id</code> được trích xuất chính xác</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>✅ Yêu cầu độ bao phủ test ≥ 90% cho core logic (<code>mask</code>, <code>validate</code>, <code>store</code>).</p>
+</blockquote>
+<hr/>
+<h3 id="82-integration-tests">8.2. 🔁 Integration Tests<a class="headerlink" href="#82-integration-tests" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Luồng</th>
+<th>Kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gửi log HTTP → lưu</td>
+<td>Gửi request ghi log, xác minh log tồn tại trong BigQuery</td>
+</tr>
+<tr>
+<td>Nhận log từ Pub/Sub → lưu</td>
+<td>Gửi message test vào topic <code>audit.events.v1</code>, xác minh lưu thành công</td>
+</tr>
+<tr>
+<td>Truy vấn log</td>
+<td>Gọi <code>GET /audit-log</code>, kiểm tra phân trang, lọc, và RBAC</td>
+</tr>
+<tr>
+<td>Truy cập sai scope</td>
+<td>Gửi request từ người dùng không có quyền, kiểm tra lỗi 403</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="83-contract-testing-adr-010">8.3. 🤝 Contract Testing (ADR-010)<a class="headerlink" href="#83-contract-testing-adr-010" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP API</td>
+<td>Kiểm tra bằng Pactflow để đảm bảo hợp đồng giữa ALS và các client (e.g. reporting-service, admin UI) không bị phá vỡ</td>
+</tr>
+<tr>
+<td>Pub/Sub Schema</td>
+<td>Dùng JSON Schema Registry hoặc Spectral để xác thực cấu trúc <code>audit.*.v1</code> theo <code>ADR-030</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>✅ Mỗi consumer service sẽ có bản hợp đồng riêng để mô phỏng dữ liệu gửi và assert kết quả mong đợi.</p>
+</blockquote>
+<hr/>
+<h3 id="84-load-testing-resilience">8.4. 📊 Load Testing &amp; Resilience<a class="headerlink" href="#84-load-testing-resilience" title="Permanent link">¶</a></h3>
+<ul>
+<li>Dùng Locust hoặc k6 để kiểm tra:</li>
+<li>Khả năng xử lý 1000–10000 log/giây (qua HTTP + Pub/Sub)</li>
+<li>Độ trễ trung bình và P95/P99 dưới 300ms</li>
+<li>Khả năng scale theo policy Cloud Run (<code>ADR-016</code>)</li>
+<li>Mô phỏng lỗi BigQuery tạm thời để kiểm tra fallback hoặc retry logic</li>
+</ul>
+<hr/>
+<h3 id="85-security-testing">8.5. 🔐 Security Testing<a class="headerlink" href="#85-security-testing" title="Permanent link">¶</a></h3>
+<ul>
+<li>Fuzz test trường <code>payload_*</code> để kiểm tra lỗ hổng xử lý JSON</li>
+<li>Kiểm tra bảo vệ field <code>tenant_id</code>, không để user truy cập chéo tenant</li>
+<li>Kiểm tra injection hoặc bypass thông qua trường <code>user_agent</code>, <code>trace_id</code></li>
+</ul>
+<hr/>
+<h3 id="86-regression-testing-ci-automation">8.6. 🔁 Regression Testing &amp; CI Automation<a class="headerlink" href="#86-regression-testing-ci-automation" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tích hợp toàn bộ test suite vào pipeline GitHub Actions</li>
+<li>Mỗi PR bắt buộc pass toàn bộ test trước khi deploy staging</li>
+<li>Truy vết lỗi và coverage với badge trong README repo</li>
+</ul>
+<hr/>
+<h2 id="9-observability-monitoring">9. 🔍 Observability &amp; Monitoring<a class="headerlink" href="#9-observability-monitoring" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) là thành phần trọng yếu về bảo mật và truy vết, do đó phải có khả năng quan sát và giám sát toàn diện ở cấp độ <strong>hệ thống, ứng dụng và hành vi dữ liệu</strong>. Thiết kế observability của ALS tuân thủ <code>ADR-021</code> và được triển khai theo 4 lớp: logging, metrics, tracing và alerting.</p>
+<hr/>
+<h3 id="91-logging-nhat-ky-dich-vu">9.1. 📄 Logging (Nhật ký dịch vụ)<a class="headerlink" href="#91-logging-nhat-ky-dich-vu" title="Permanent link">¶</a></h3>
+<ul>
+<li>Toàn bộ log hệ thống và ứng dụng đều được ghi ở định dạng <strong>structured JSON</strong>.</li>
+<li>Các trường bắt buộc trong mỗi dòng log:</li>
+<li><code>timestamp</code>, <code>trace_id</code>, <code>tenant_id</code>, <code>actor_user_id</code>, <code>action</code>, <code>status</code>, <code>duration_ms</code></li>
+<li>Các tình huống log:</li>
+<li>Log tiếp nhận thành công sự kiện audit</li>
+<li>Log từ chối do vi phạm RBAC hoặc thiếu JWT</li>
+<li>Log lỗi ghi dữ liệu xuống BigQuery</li>
+<li>Log masking trường PII (kèm các trường đã bị mask)</li>
+</ul>
+<blockquote>
+<p>✅ Tất cả log được gửi về Cloud Logging (Stackdriver) và có thể xuất sang BigQuery để phân tích sâu.</p>
+</blockquote>
+<hr/>
+<h3 id="92-metrics-giam-sat-hieu-nang-so-luong">9.2. 📈 Metrics (Giám sát hiệu năng &amp; số lượng)<a class="headerlink" href="#92-metrics-giam-sat-hieu-nang-so-luong" title="Permanent link">¶</a></h3>
+<p>Audit Logging Service xuất các chỉ số Prometheus tiêu chuẩn để theo dõi hiệu năng và độ ổn định:</p>
+<table>
+<thead>
+<tr>
+<th>Tên metric</th>
+<th>Nhãn</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auditlog_ingest_total</code></td>
+<td><code>source</code>, <code>status</code></td>
+<td>Số lượng log tiếp nhận theo nguồn và trạng thái</td>
+</tr>
+<tr>
+<td><code>auditlog_ingest_failed_total</code></td>
+<td><code>error_type</code></td>
+<td>Số log tiếp nhận thất bại (e.g. schema_invalid, rbac_denied)</td>
+</tr>
+<tr>
+<td><code>auditlog_latency_ms</code></td>
+<td><code>operation</code>, <code>status</code></td>
+<td>Thời gian xử lý ghi log và truy vấn log</td>
+</tr>
+<tr>
+<td><code>auditlog_query_count</code></td>
+<td><code>tenant_id</code>, <code>actor_user_id</code></td>
+<td>Số lượt truy vấn log qua API</td>
+</tr>
+<tr>
+<td><code>auditlog_mask_applied_total</code></td>
+<td><code>field</code></td>
+<td>Số lần áp dụng masking cho mỗi field nhạy cảm</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>✅ Metrics được scrape định kỳ và hiển thị qua Grafana dashboard chuyên biệt cho audit-log.</p>
+</blockquote>
+<hr/>
+<h3 id="93-tracing-theo-doi-hanh-trinh-request">9.3. 🔍 Tracing (Theo dõi hành trình request)<a class="headerlink" href="#93-tracing-theo-doi-hanh-trinh-request" title="Permanent link">¶</a></h3>
+<ul>
+<li>ALS tích hợp <strong>OpenTelemetry</strong> để trace toàn bộ hành trình từ khi nhận request đến khi ghi log thành công.</li>
+<li>Mỗi request phải có <code>trace_id</code>, và trace được gửi đến backend như Cloud Trace hoặc Jaeger.</li>
+<li>Các span chính:</li>
+<li><code>receive_event</code></li>
+<li><code>validate_and_mask</code></li>
+<li><code>write_to_storage</code></li>
+<li><code>emit_persisted_event</code></li>
+<li><code>serve_query_result</code></li>
+</ul>
+<blockquote>
+<p>✅ Dễ dàng truy vết các bottleneck khi hệ thống scale lớn hoặc khi có log ghi chậm.</p>
+</blockquote>
+<hr/>
+<h3 id="94-alerting-canh-bao-tu-ong">9.4. 🚨 Alerting (Cảnh báo tự động)<a class="headerlink" href="#94-alerting-canh-bao-tu-ong" title="Permanent link">¶</a></h3>
+<p>Định nghĩa cảnh báo chủ động để đảm bảo ALS vận hành ổn định và phát hiện sớm sự cố:</p>
+<table>
+<thead>
+<tr>
+<th>Cảnh báo</th>
+<th>Điều kiện</th>
+<th>Mức độ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lỗi ingest tăng bất thường</td>
+<td><code>auditlog_ingest_failed_total &gt; 100</code> trong 5 phút</td>
+<td>⚠️ Warning</td>
+</tr>
+<tr>
+<td>Latency tăng cao</td>
+<td><code>auditlog_latency_ms{operation="write"}</code> P95 &gt; 500ms</td>
+<td>🔥 Critical</td>
+</tr>
+<tr>
+<td>Không có log nào trong 10 phút</td>
+<td><code>auditlog_ingest_total</code> = 0</td>
+<td>❗ Warning</td>
+</tr>
+<tr>
+<td>Masking failed</td>
+<td>Không có metric <code>auditlog_mask_applied_total</code> &gt; 0 trong 1h</td>
+<td>🚨 Security</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>✅ Cảnh báo được cấu hình qua Cloud Monitoring Alerting hoặc Prometheus + Alertmanager tùy môi trường.</p>
+</blockquote>
+<hr/>
+<h2 id="10-o-tin-cay-phuc-hoi-reliability-resilience">10. 🚀 Độ tin cậy &amp; Phục hồi (Reliability &amp; Resilience)<a class="headerlink" href="#10-o-tin-cay-phuc-hoi-reliability-resilience" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) được thiết kế với mục tiêu <strong>không đánh mất bản ghi nào</strong>, ngay cả trong điều kiện mạng không ổn định, lỗi hệ thống tạm thời, hoặc tải cao bất ngờ. Khả năng phục hồi và tự động đảm bảo tính toàn vẹn dữ liệu là ưu tiên hàng đầu.</p>
+<hr/>
+<h3 id="101-co-che-retry-thong-minh">10.1. 🔁 Cơ chế Retry thông minh<a class="headerlink" href="#101-co-che-retry-thong-minh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Luồng</th>
+<th>Cơ chế Retry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP Ingestion</td>
+<td>Nếu ghi BigQuery thất bại (e.g. lỗi mạng, quota), retry tối đa 3 lần với backoff</td>
+</tr>
+<tr>
+<td>Pub/Sub Consumer</td>
+<td>Sử dụng ack deadline mở rộng, và chỉ ack khi ghi log thành công. Nếu thất bại → tự động redeliver sau 10s</td>
+</tr>
+<tr>
+<td>Emit sự kiện <code>audit_log_persisted.v1</code></td>
+<td>Gửi lại nếu thất bại tạm thời, log warning nếu fail vĩnh viễn</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>✅ Đảm bảo không mất log do lỗi tạm thời và không double-count nhờ <code>id</code> duy nhất.</p>
+</blockquote>
+<hr/>
+<h3 id="102-bao-ve-idempotency-chong-log-trung">10.2. 🧾 Bảo vệ idempotency (chống log trùng)<a class="headerlink" href="#102-bao-ve-idempotency-chong-log-trung" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mỗi log mang <code>id</code> duy nhất (UUID v4 hoặc hash(trace_id + action))</li>
+<li>Khi ghi xuống BigQuery/Firestore, ALS kiểm tra tồn tại <code>id</code> trước khi ghi</li>
+<li>Cơ chế này đảm bảo:</li>
+<li>Tránh trùng log do retry</li>
+<li>Cho phép các client <code>at-least-once</code> mà không ảnh hưởng tới tính toàn vẹn dữ liệu</li>
+</ul>
+<hr/>
+<h3 id="103-phuc-hoi-sau-loi-he-thong">10.3. 🧠 Phục hồi sau lỗi hệ thống<a class="headerlink" href="#103-phuc-hoi-sau-loi-he-thong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tất cả Pub/Sub consumer đều <strong>stateless</strong>, có thể restart không mất offset</li>
+<li>BigQuery và Firestore là <strong>managed storage</strong> với đảm bảo HA/DR bởi GCP</li>
+<li>Trong trường hợp mất kết nối BigQuery:</li>
+<li>Tạm thời ghi vào hàng đợi nội bộ (memory ring buffer hoặc Firestore cache)</li>
+<li>Log warning → gửi alert → retry sau</li>
+</ul>
+<hr/>
+<h3 id="104-kiem-thu-resilience">10.4. 🧪 Kiểm thử resilience<a class="headerlink" href="#104-kiem-thu-resilience" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kịch bản</th>
+<th>Mô phỏng kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BigQuery timeout</td>
+<td>Cắt mạng tới BigQuery trong 30s</td>
+</tr>
+<tr>
+<td>Pub/Sub redelivery</td>
+<td>Gửi duplicate event trong Pub/Sub</td>
+</tr>
+<tr>
+<td>Client retry</td>
+<td>Gửi 5 request ghi log giống nhau trong 1 giây</td>
+</tr>
+<tr>
+<td>Process crash</td>
+<td>Kill container giữa chừng khi đang ghi log</td>
+</tr>
+<tr>
+<td>High load burst</td>
+<td>Gửi 50k log trong 1 phút, quan sát P99 latency</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="11-kien-truc-service-service-architecture-overview">11. 🧩 Kiến trúc Service (Service Architecture Overview)<a class="headerlink" href="#11-kien-truc-service-service-architecture-overview" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) được triển khai dưới dạng <strong>stateless microservice</strong> và là một thành phần độc lập trong <code>core stack</code> của hệ thống <code>dx-vas</code>. Service này vận hành theo mô hình event-driven kết hợp REST, hỗ trợ ghi nhận log đa nguồn, đa hình thức và đảm bảo toàn vẹn trong môi trường multi-tenant.</p>
+<hr/>
+<h3 id="111-so-o-kien-truc-tong-the">11.1. 🖼 Sơ đồ Kiến trúc Tổng thể<a class="headerlink" href="#111-so-o-kien-truc-tong-the" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    subgraph Platform[Platform Core]
+      GW[API Gateway]
+    end
+
+    subgraph ExternalSources[External Sources]
+      UI[Admin WebApp]
+    end
+
+    subgraph CoreServices[Core Services]
+      US(UserService)
+      AS(AuthService)
+      RS(ReportingService)
+      NS(NotificationService)
+    end
+
+    subgraph ALS["Audit Logging Service"]
+      ALSAPI[HTTP Ingestion API]
+      ALSPS[Pub/Sub Consumer]
+      MASK[PII Masker]
+      STORE[Storage EngineBigQuery/Firestore]
+      QUERY[Query API]
+      METRIC[Metrics Exporter]
+      TRACER[OpenTelemetry Agent]
+    end
+
+    subgraph Infra
+      PUBSUB["Topic: audit.events.v1"]
+      BIGQUERY["BigQuery Dataset"]
+      FIRESTORE["Firestore (Optional)"]
+      PROM[Prometheus/Grafana]
+      TRACE[Cloud Trace / Jaeger]
+    end
+
+    %% Ingestion Paths
+    UI --&gt;|Gửi request| GW
+    GW --&gt;|POST /audit-log| ALSAPI
+    CoreServices --&gt;|Emit audit.*.v1| PUBSUB
+    PUBSUB --&gt; ALSPS
+    ALSAPI --&gt; MASK
+    ALSPS --&gt; MASK
+    MASK --&gt; STORE
+
+    %% Storage
+    STORE --&gt; BIGQUERY
+    STORE --&gt; FIRESTORE
+
+    %% Observability
+    ALS --&gt; METRIC --&gt; PROM
+    ALS --&gt; TRACER --&gt; TRACE
+
+    %% Query
+    UI --&gt;|GET /audit-log| GW
+    GW --&gt; QUERY
+    QUERY --&gt; BIGQUERY
+</code></pre>
+<hr/>
+<h3 id="112-ghi-chu-kien-truc">11.2. 📌 Ghi chú Kiến trúc<a class="headerlink" href="#112-ghi-chu-kien-truc" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HTTP Ingestion API</strong></td>
+<td>Nhận log từ các service nội bộ không dùng Pub/Sub</td>
+</tr>
+<tr>
+<td><strong>Pub/Sub Consumer</strong></td>
+<td>Xử lý sự kiện <code>audit.events.v1</code> phát từ core services</td>
+</tr>
+<tr>
+<td><strong>PII Masker</strong></td>
+<td>Áp dụng chính sách masking (ADR-024) trước khi lưu</td>
+</tr>
+<tr>
+<td><strong>Storage Engine</strong></td>
+<td>Ghi log vào BigQuery (mặc định) hoặc Firestore</td>
+</tr>
+<tr>
+<td><strong>Query API</strong></td>
+<td>Cho phép Admin, DevOps truy vấn log đa điều kiện</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Kết nối OpenTelemetry + Prometheus theo <code>ADR-021</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="113-trien-khai-dang-tach-lop">11.3. 🌐 Triển khai dạng tách lớp<a class="headerlink" href="#113-trien-khai-dang-tach-lop" title="Permanent link">¶</a></h3>
+<p>Để tối ưu hoá hiệu suất và khả năng mở rộng, các thành phần có thể được tách riêng:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Triển khai riêng?</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP API &amp; Query API</td>
+<td>✅</td>
+<td>Cùng một container</td>
+</tr>
+<tr>
+<td>Pub/Sub Consumer</td>
+<td>✅</td>
+<td>Có thể scale độc lập khi lượng log tăng</td>
+</tr>
+<tr>
+<td>Storage Adapter</td>
+<td>⛔</td>
+<td>Không cần tách (gọi sync từ masker)</td>
+</tr>
+<tr>
+<td>Metrics + Tracer</td>
+<td>⛔</td>
+<td>Dùng sidecar hoặc thư viện nhúng</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="12-tai-lieu-lien-quan">12. 📚 Tài liệu liên quan<a class="headerlink" href="#12-tai-lieu-lien-quan" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../data-model/">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+<li><a href="./">Design</a></li>
+<li><a href="../../../ADR/adr-001-ci-cd/">ADR-001 CI/CD Pipeline</a>: Quy trình build, test và deploy dịch vụ ALS theo pipeline tự động.</li>
+<li><a href="../../../ADR/adr-003-secrets/">ADR-003 Secrets Management</a>: Quy trình lưu trữ &amp; xoay khóa bí mật an toàn, áp dụng cho JWT signing và GCP credentials.</li>
+<li><a href="../../../ADR/adr-004-security/">ADR-004 Security Policy</a>: Chính sách bảo mật tổng thể cho hệ thống dx-vas.</li>
+<li><a href="../../../ADR/adr-005-env-config/">ADR-005 Environment Config</a>: Cấu hình môi trường và danh sách biến môi trường cần thiết cho ALS.</li>
+<li><a href="../../../ADR/adr-006-auth-strategy/">ADR-006 Auth Strategy</a>: Cách xác thực người dùng và service tương tác với Audit Logging API.</li>
+<li><a href="../../../ADR/adr-007-rbac/">ADR-007 RBAC Strategy</a>: Cơ chế kiểm soát quyền truy vấn log theo tenant và vai trò.</li>
+<li><a href="../../../ADR/adr-008-audit-logging/">ADR-008 Audit Logging</a>: Định nghĩa định dạng bản ghi, trace ID và hành vi logging chuẩn.</li>
+<li><a href="../../../ADR/adr-010-contract-testing/">ADR-010 Contract Testing</a>: Hướng dẫn kiểm thử hợp đồng API và Pub/Sub giữa ALS và các client.</li>
+<li><a href="../../../ADR/adr-014-zero-downtime/">ADR-014 Zero Downtime Deployment</a>: Cơ chế triển khai không gián đoạn cho các thay đổi dịch vụ audit.</li>
+<li><a href="../../../ADR/adr-015-deployment-strategy/">ADR-015 Deployment Strategy</a>: Chiến lược rollout, canary và rollback áp dụng cho ALS.</li>
+<li><a href="../../../ADR/adr-016-auto-scaling/">ADR-016 Auto Scaling</a>: Cấu hình autoscale Cloud Run dựa trên QPS và CPU threshold.</li>
+<li><a href="../../../ADR/adr-017-env-deploy-boundary/">ADR-017 Environment Deployment Boundary</a>: Phân tách môi trường audit giữa staging/production.</li>
+<li><a href="../../../ADR/adr-021-external-observability/">ADR-021 External Observability</a>: Chiến lược quan sát hệ thống audit từ bên ngoài.</li>
+<li><a href="../../../ADR/adr-024-data-anonymization-retention/">ADR-024 Data Anonymization &amp; Retention</a>: Masking PII và chính sách retention dữ liệu audit.</li>
+<li><a href="../../../ADR/adr-026-hard-delete-policy/">ADR-026 Hard Delete Policy</a>: Chính sách xóa vĩnh viễn dữ liệu log sau thời gian lưu trữ.</li>
+<li><a href="../../../ADR/adr-027-data-management-strategy/">ADR-027 Data Management Strategy</a>: Quản lý vòng đời dữ liệu log, phân vùng và clustering.</li>
+<li><a href="../../../ADR/adr-030-event-schema-governance/">ADR-030 Event Schema Governance</a>: Quản lý schema sự kiện <code>audit.events.v1</code> cho Pub/Sub.</li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

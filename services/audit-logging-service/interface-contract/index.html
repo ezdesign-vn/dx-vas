@@ -1,0 +1,1361 @@
+
+<!doctype html>
+<html lang="vi" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh.">
+      
+      
+        <meta name="author" content="DX VAS Team">
+      
+      
+        <link rel="canonical" href="https://ezdesign-vn.github.io/dx-vas/services/audit-logging-service/interface-contract/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Audit Logging Service - Interface Contract - DX VAS - Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#audit-logging-service-interface-contract" class="md-skip">
+          Bỏ qua
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Đầu trang">
+    <a href="../../.." title="DX VAS - Docs" class="md-header__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Audit Logging Service - Interface Contract
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Tìm kiếm" placeholder="Tìm kiếm" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Tìm kiếm">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Xoá" aria-label="Xoá" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../architecture/system-diagrams/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../dev-guide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../ADR/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Thanh điều hướng" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DX VAS - Docs" class="md-nav__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    DX VAS - Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/system-diagrams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/rbac-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../ADR/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-pham-vi-va-trach-nhiem" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 📌 Phạm vi và Trách nhiệm
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 📌 Phạm vi và Trách nhiệm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-als-khong-am-nhan-cac-nhiem-vu-sau" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1. ✅ ALS không đảm nhận các nhiệm vụ sau:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-moi-lien-he-chinh" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2. 🧭 Mối liên hệ chính
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-api-audit-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 📌 API: /audit-log
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 📌 API: /audit-log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-get-audit-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1. GET /audit-log
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-get-audit-logid" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2. GET /audit-log/{id}
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chu-thich-inh-dang-response-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      📌 Chú thích Định dạng Response &amp; Lỗi
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📌 Chú thích Định dạng Response &amp; Lỗi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thanh-cong-200-ok-204-no-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Thành công (200 OK / 204 No Content)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loi-4xx5xx" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Lỗi (4xx/5xx)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-giao-tiep-pubsub" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 📥 Giao tiếp Pub/Sub
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 📥 Giao tiếp Pub/Sub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-ingestion-tu-topic-auditeventsv1" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1. 📥 Ingestion từ topic audit.events.v1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-phat-su-kien-thu-cap-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2. 📤 Phát sự kiện thứ cấp (optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-phu-luc" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 📎 Phụ lục
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 📎 Phụ lục">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-cac-enum-su-dung-trong-audit-logging-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1. 📎 Các ENUM sử dụng trong Audit Logging Service
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-bang-permission-code-cho-audit-logging-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2. 📎 Bảng Permission Code cho Audit Logging Service
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-tai-lieu-lien-quan" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3. 📚 Tài liệu liên quan
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="audit-logging-service-interface-contract">📘 Audit Logging Service – Interface Contract<a class="headerlink" href="#audit-logging-service-interface-contract" title="Permanent link">¶</a></h1>
+<h2 id="1-pham-vi-va-trach-nhiem">1. 📌 Phạm vi và Trách nhiệm<a class="headerlink" href="#1-pham-vi-va-trach-nhiem" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service (ALS) là một thành phần nằm trong tầng <strong>Core Services</strong> của hệ thống dx-vas, có trách nhiệm:</p>
+<ul>
+<li><strong>Thu thập audit log</strong> từ các nguồn nội bộ thông qua 2 cơ chế:</li>
+<li>Giao tiếp <strong>event-driven</strong> qua Pub/Sub (<code>audit.events.v1</code>)</li>
+<li>Giao tiếp <strong>synchronous HTTP API</strong> dành cho các service không hỗ trợ emit event</li>
+<li><strong>Áp dụng chính sách bảo mật và masking</strong> trước khi lưu log, nhằm đảm bảo thông tin nhạy cảm không bị lộ (tuân theo <code>ADR-024</code>)</li>
+<li><strong>Lưu trữ bền vững</strong> các bản ghi log vào kho dữ liệu trung tâm (BigQuery hoặc Firestore), phục vụ truy vấn và kiểm toán</li>
+<li><strong>Cung cấp REST API phân quyền</strong> cho phép truy vấn lịch sử hành động theo <code>tenant</code>, <code>user</code>, <code>trace</code>, hoặc <code>resource</code></li>
+<li><strong>Hỗ trợ tracing xuyên suốt hệ thống</strong> bằng cách liên kết log với <code>trace_id</code> phát sinh từ gateway hoặc frontend</li>
+</ul>
+<hr />
+<h3 id="11-als-khong-am-nhan-cac-nhiem-vu-sau">1.1. ✅ ALS <strong>không đảm nhận</strong> các nhiệm vụ sau:<a class="headerlink" href="#11-als-khong-am-nhan-cac-nhiem-vu-sau" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không ghi nhận <strong>application logs</strong> (debug/error logs) – việc này thuộc trách nhiệm của runtime environment.</li>
+<li>Không lưu trữ <strong>metrics hoặc performance logs</strong> – các chỉ số này do Prometheus/Grafana xử lý.</li>
+<li>Không hiển thị giao diện người dùng – log được hiển thị qua Admin WebApp hoặc các dashboard khác.</li>
+<li>Không phục vụ mục đích alerting trực tiếp – nhưng có thể tích hợp gián tiếp qua Observability Platform (<code>ADR-021</code>).</li>
+</ul>
+<hr />
+<h3 id="12-moi-lien-he-chinh">1.2. 🧭 Mối liên hệ chính<a class="headerlink" href="#12-moi-lien-he-chinh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hệ thống</th>
+<th>Mục đích tương tác</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Gateway</td>
+<td>Gửi log qua HTTP Ingestion API (các hành vi người dùng qua web)</td>
+</tr>
+<tr>
+<td>Auth Service</td>
+<td>Phát event <code>auth.login.success</code>, <code>token.exchanged</code>, <code>otp.verified</code></td>
+</tr>
+<tr>
+<td>User Service</td>
+<td>Ghi nhận các hành động tạo, cập nhật người dùng</td>
+</tr>
+<tr>
+<td>Admin WebApp</td>
+<td>Truy vấn log thông qua API <code>/audit-log</code></td>
+</tr>
+<tr>
+<td>Reporting Service</td>
+<td>Truy vấn log theo <code>trace_id</code> để tạo báo cáo bảo mật</td>
+</tr>
+<tr>
+<td>Notification Service</td>
+<td>Gửi event khi gửi/thất bại notification (<code>notification.sent</code>, <code>failed</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-api-audit-log">2. 📌 API: <code>/audit-log</code><a class="headerlink" href="#2-api-audit-log" title="Permanent link">¶</a></h2>
+<p>Các API cho phép truy vấn các bản ghi hành vi đã lưu trữ trong hệ thống. Tất cả các API yêu cầu xác thực JWT, kiểm tra quyền RBAC và ràng buộc theo tenant (<code>X-Tenant-ID</code>).</p>
+<hr />
+<h3 id="21-get-audit-log">2.1. <code>GET /audit-log</code><a class="headerlink" href="#21-get-audit-log" title="Permanent link">¶</a></h3>
+<p>Truy vấn danh sách bản ghi audit log, với khả năng lọc theo nhiều tiêu chí (user, action, thời gian...) và phân trang.</p>
+<h4 id="request">📥 Request<a class="headerlink" href="#request" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Headers:</strong></li>
+<li><code>Authorization: Bearer &lt;JWT&gt;</code></li>
+<li>
+<p><code>X-Tenant-ID: string</code> – Tenant hiện tại</p>
+</li>
+<li>
+<p><strong>Query Parameters:</strong></p>
+</li>
+<li><code>actor_user_id</code>: string – lọc theo người thực hiện hành động</li>
+<li><code>trace_id</code>: string – lọc theo trace</li>
+<li><code>action</code>: string – lọc theo hành động</li>
+<li><code>resource_type</code>: string – loại tài nguyên liên quan (<code>user</code>, <code>tenant</code>, etc.)</li>
+<li><code>status</code>: <code>success</code> | <code>failure</code> | <code>warning</code></li>
+<li><code>from_time</code>, <code>to_time</code>: ISO 8601 timestamp</li>
+<li><code>page</code>, <code>page_size</code>: phân trang</li>
+</ul>
+<h4 id="response">📤 Response<a class="headerlink" href="#response" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;log-abc123&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vas-sch-01&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;trace-xyz&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="nt">&quot;actor_user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-01&quot;</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user.login.success&quot;</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="nt">&quot;resource_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:00Z&quot;</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="nt">&quot;page_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">      </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">125</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req-789&quot;</span><span class="p">,</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:01Z&quot;</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="phan-quyen-ieu-kien">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien" title="Permanent link">¶</a></h4>
+<ul>
+<li>Yêu cầu scope: <code>audit.read.log</code></li>
+<li>RBAC enforced theo condition:</li>
+</ul>
+<p><div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{X-Tenant-ID}}&quot;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+* Masking động theo role: các trường nhạy cảm như <code>input_parameters</code>, <code>ip_address</code>, <code>user_agent</code> sẽ bị che nếu không có quyền cao (e.g. <code>tenant_admin</code>)</p>
+<h4 id="su-kien-phat-ra">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra" title="Permanent link">¶</a></h4>
+<ul>
+<li>Không có</li>
+</ul>
+<h4 id="ma-loi-co-the-tra-ve">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>common.unauthorized</code></td>
+<td>Không gửi JWT hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td><code>common.forbidden</code></td>
+<td>Không có quyền <code>audit.read.log</code> hoặc sai tenant</td>
+</tr>
+<tr>
+<td><code>common.validation_failed</code></td>
+<td>Tham số query không hợp lệ (e.g. sai datetime)</td>
+</tr>
+<tr>
+<td><code>common.internal_error</code></td>
+<td>Lỗi truy vấn BigQuery hoặc hệ thống gián đoạn</td>
+</tr>
+</tbody>
+</table>
+<h4 id="goi-y-kiem-thu">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu" title="Permanent link">¶</a></h4>
+<ul>
+<li>Gửi truy vấn hợp lệ → nhận log đúng và có phân trang</li>
+<li>Gửi truy vấn thiếu <code>Authorization</code> → nhận lỗi <code>common.unauthorized</code></li>
+<li>Gửi truy vấn sai định dạng <code>from_time</code> → lỗi <code>common.validation_failed</code></li>
+<li>Dùng token đúng scope nhưng sai tenant → không thấy log hoặc lỗi <code>common.forbidden</code></li>
+<li>Gửi truy vấn khi backend lỗi BigQuery → nhận <code>common.internal_error</code></li>
+</ul>
+<hr />
+<h3 id="22-get-audit-logid">2.2. <code>GET /audit-log/{id}</code><a class="headerlink" href="#22-get-audit-logid" title="Permanent link">¶</a></h3>
+<p>Lấy chi tiết một bản ghi log cụ thể theo ID log.</p>
+<h4 id="request_1">📥 Request<a class="headerlink" href="#request_1" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Path parameter:</strong></p>
+</li>
+<li>
+<p><code>id</code>: string – UUID của bản ghi log</p>
+</li>
+<li>
+<p><strong>Headers:</strong></p>
+</li>
+<li>
+<p><code>Authorization: Bearer &lt;JWT&gt;</code></p>
+</li>
+<li><code>X-Tenant-ID: string</code></li>
+</ul>
+<h4 id="response_1">📤 Response<a class="headerlink" href="#response_1" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;log-abc123&quot;</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vas-sch-01&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;trace-xyz&quot;</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&quot;actor_user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-01&quot;</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user.login.success&quot;</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">&quot;resource_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="nt">&quot;input_parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">      </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;masked&quot;</span><span class="p">,</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;masked&quot;</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">&quot;ip_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;masked&quot;</span><span class="p">,</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">&quot;user_agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;masked&quot;</span><span class="p">,</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:00Z&quot;</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req-456&quot;</span><span class="p">,</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:01Z&quot;</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="phan-quyen-ieu-kien_1">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_1" title="Permanent link">¶</a></h4>
+<ul>
+<li>Scope bắt buộc: <code>audit.read.log</code></li>
+<li>Điều kiện RBAC:</li>
+</ul>
+<p><div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{X-Tenant-ID}}&quot;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+* Masking động áp dụng như trên</p>
+<h4 id="su-kien-phat-ra_1">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_1" title="Permanent link">¶</a></h4>
+<ul>
+<li>Không có</li>
+</ul>
+<h4 id="ma-loi-co-the-tra-ve_1">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_1" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>common.unauthorized</code></td>
+<td>Không có hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td><code>common.forbidden</code></td>
+<td>Không được truy cập log không thuộc tenant</td>
+</tr>
+<tr>
+<td><code>common.not_found</code></td>
+<td>Log không tồn tại hoặc không thuộc quyền xem</td>
+</tr>
+<tr>
+<td><code>common.internal_error</code></td>
+<td>Lỗi hệ thống khi truy xuất dữ liệu</td>
+</tr>
+</tbody>
+</table>
+<h4 id="goi-y-kiem-thu_1">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_1" title="Permanent link">¶</a></h4>
+<ul>
+<li>Lấy log hợp lệ với đúng tenant và quyền → thấy log đầy đủ</li>
+<li>Lấy log thuộc tenant khác → lỗi <code>common.forbidden</code> hoặc <code>common.not_found</code></li>
+<li>Lấy log với user không đủ quyền → bị che <code>input_parameters</code></li>
+<li>Lấy log không tồn tại → lỗi <code>common.not_found</code></li>
+<li>Gây lỗi backend (e.g. tạm ngưng BigQuery) → lỗi <code>common.internal_error</code></li>
+</ul>
+<hr />
+<h2 id="chu-thich-inh-dang-response-loi">📌 Chú thích Định dạng Response &amp; Lỗi<a class="headerlink" href="#chu-thich-inh-dang-response-loi" title="Permanent link">¶</a></h2>
+<p>Tất cả API tuân thủ định dạng chuẩn hóa của hệ thống (xem ADR-012 và ADR-011).</p>
+<h3 id="thanh-cong-200-ok-204-no-content">✅ Thành công (200 OK / 204 No Content)<a class="headerlink" href="#thanh-cong-200-ok-204-no-content" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req-xyz&quot;</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:00Z&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="loi-4xx5xx">❌ Lỗi (4xx/5xx)<a class="headerlink" href="#loi-4xx5xx" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req-xyz&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:00Z&quot;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORBIDDEN&quot;</span><span class="p">,</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bạn không có quyền xem log này.&quot;</span><span class="p">,</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="3-giao-tiep-pubsub">3. 📥 Giao tiếp Pub/Sub<a class="headerlink" href="#3-giao-tiep-pubsub" title="Permanent link">¶</a></h2>
+<p>Audit Logging Service hỗ trợ giao tiếp sự kiện qua Pub/Sub với hai vai trò:</p>
+<hr />
+<h3 id="31-ingestion-tu-topic-auditeventsv1">3.1. 📥 Ingestion từ topic <code>audit.events.v1</code><a class="headerlink" href="#31-ingestion-tu-topic-auditeventsv1" title="Permanent link">¶</a></h3>
+<p>ALS là <strong>consumer chính thức</strong> của topic Pub/Sub:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>projects/dx-vas/topics/audit.events.v1
+</span></code></pre></div>
+<p>Các service trong hệ thống sẽ phát các sự kiện hành vi người dùng, bảo mật, truy cập tài nguyên... lên topic này thay vì gọi HTTP API nội bộ.</p>
+<h4 id="inh-danh-su-kien">✅ Định danh sự kiện<a class="headerlink" href="#inh-danh-su-kien" title="Permanent link">¶</a></h4>
+<p>Tên sự kiện tuân theo quy ước:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vas.&lt;domain&gt;.&lt;event&gt;.v&lt;version&gt;
+</span></code></pre></div>
+<p>Ví dụ:
+- <code>vas.auth.login_success.v1</code>
+- <code>vas.user.updated.v1</code>
+- <code>vas.notification.sent.v1</code></p>
+<h4 id="inh-dang-payload-vi-du">📄 Định dạng payload (ví dụ)<a class="headerlink" href="#inh-dang-payload-vi-du" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vas.user.updated.v1&quot;</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vas-sch-01&quot;</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc-xyz-123&quot;</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;actor_user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;u_456&quot;</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;resource_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;resource_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;u_123&quot;</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;update&quot;</span><span class="p">,</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="nt">&quot;payload_before&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="nt">&quot;payload_after&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">  </span><span class="nt">&quot;source_service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service&quot;</span><span class="p">,</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:00Z&quot;</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="iam-cho-subscriber">🔐 IAM cho subscriber<a class="headerlink" href="#iam-cho-subscriber" title="Permanent link">¶</a></h4>
+<p>ALS sử dụng service account:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>als@dx-vas.iam.gserviceaccount.com
+</span></code></pre></div>
+<p>Cần được cấp quyền <code>roles/pubsub.subscriber</code> cho topic <code>audit.events.v1</code>. Việc binding IAM phải được cấu hình rõ ràng cho từng môi trường (staging/production).</p>
+<blockquote>
+<ul>
+<li>⚠️ ALS chỉ xử lý event có schema hợp lệ đã đăng ký theo ADR-030</li>
+<li>⚠️ Không cấp cho user-facing client</li>
+</ul>
+</blockquote>
+<hr />
+<h3 id="32-phat-su-kien-thu-cap-optional">3.2. 📤 Phát sự kiện thứ cấp (optional)<a class="headerlink" href="#32-phat-su-kien-thu-cap-optional" title="Permanent link">¶</a></h3>
+<p>⚠️ <strong>Tính năng này đang TẮT mặc định trong production</strong>. Chỉ bật nếu hệ thống downstream cần theo dõi tín hiệu log ghi thành công.</p>
+<p>Audit Logging Service hỗ trợ phát sự kiện thứ cấp <code>vas.audit.persisted.v1</code> khi một bản ghi được lưu vào BigQuery/Firestore.</p>
+<p>Mục đích:</p>
+<ul>
+<li>Đồng bộ ETL pipeline</li>
+<li>Trigger engine phân tích hành vi</li>
+<li>Hệ thống downstream cần xác nhận việc ghi log hoàn tất</li>
+</ul>
+<h4 id="cau-hinh-battat">⚙️ Cấu hình bật/tắt<a class="headerlink" href="#cau-hinh-battat" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">emit_audit_event_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">audit_event_topic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vas.audit.persisted.v1</span>
+</span></code></pre></div>
+<h4 id="cau-truc-su-kien">📄 Cấu trúc sự kiện<a class="headerlink" href="#cau-truc-su-kien" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vas.audit.persisted.v1&quot;</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;log-abc123&quot;</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vas-sch-01&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-06-14T12:00:00Z&quot;</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="nt">&quot;source_service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service&quot;</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;delete&quot;</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="luu-y">🔒 Lưu ý<a class="headerlink" href="#luu-y" title="Permanent link">¶</a></h4>
+<ul>
+<li>Không có consumer bắt buộc. Chỉ phát khi cấu hình <code>emit_audit_event_enabled: true</code></li>
+<li>Không đảm bảo delivery — không retry nếu downstream không subscribe đúng</li>
+</ul>
+<hr />
+<h2 id="4-phu-luc">4. 📎 Phụ lục<a class="headerlink" href="#4-phu-luc" title="Permanent link">¶</a></h2>
+<h3 id="41-cac-enum-su-dung-trong-audit-logging-service">4.1. 📎 Các ENUM sử dụng trong Audit Logging Service<a class="headerlink" href="#41-cac-enum-su-dung-trong-audit-logging-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tên trường</th>
+<th>Giá trị hợp lệ</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status</code></td>
+<td><code>success</code>, <code>failure</code>, <code>warning</code></td>
+<td>Trạng thái kết quả của hành động ghi log</td>
+</tr>
+<tr>
+<td><code>resource_type</code></td>
+<td><code>user</code>, <code>tenant</code>, <code>role</code>, <code>permission</code>, <code>token</code>, <code>report</code>, <code>notification</code>, <code>config</code>, <code>system</code></td>
+<td>Loại tài nguyên liên quan đến hành động được ghi nhận</td>
+</tr>
+<tr>
+<td><code>action</code></td>
+<td><code>create</code>, <code>read</code>, <code>update</code>, <code>delete</code>, <code>assign</code>, <code>login</code>, <code>logout</code>, <code>verify</code>, <code>exchange</code>, <code>send</code>, <code>generate</code></td>
+<td>Hành vi được thực hiện bởi actor</td>
+</tr>
+<tr>
+<td><code>source_service</code></td>
+<td><code>user-service</code>, <code>auth-service/master</code>, <code>auth-service/sub</code>, <code>notification-service</code>, <code>reporting-service</code>, <code>api-gateway</code>, <code>admin-webapp</code>, <code>external-adapter</code>, <code>system-task</code></td>
+<td>Tên service khởi phát hành động (được dùng trong Pub/Sub &amp; trace)</td>
+</tr>
+<tr>
+<td><code>log_channel</code> <em>(nội bộ)</em></td>
+<td><code>http</code>, <code>pubsub</code></td>
+<td>Kênh ghi nhận log – dùng để phân biệt luồng trigger</td>
+</tr>
+</tbody>
+</table>
+<p>📌 <strong>Ghi chú</strong>:</p>
+<ul>
+<li>Enum <code>action</code> được đồng bộ với <a href="../../../ADR/adr-008-audit-logging/">ADR-008 – Audit Format</a></li>
+<li>Enum <code>source_service</code> phải khớp với giá trị thực tế <code>service_name</code> trong trace &amp; event emitter</li>
+<li>Các enum này được dùng trong query param, schema Pub/Sub và bảng log</li>
+</ul>
+<hr />
+<h3 id="42-bang-permission-code-cho-audit-logging-service">4.2. 📎 Bảng Permission Code cho Audit Logging Service<a class="headerlink" href="#42-bang-permission-code-cho-audit-logging-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>permission_code</code></th>
+<th>Mô tả</th>
+<th>API sử dụng</th>
+<th><code>action</code></th>
+<th><code>resource</code></th>
+<th><code>default_condition</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>audit.read.log</code></td>
+<td>Đọc danh sách hoặc chi tiết log hành vi người dùng</td>
+<td><code>GET /audit-log</code>, <code>GET /audit-log/{id}</code></td>
+<td><code>read</code></td>
+<td><code>log</code></td>
+<td><code>{ "tenant_id": "{{X-Tenant-ID}}" }</code></td>
+</tr>
+<tr>
+<td><code>audit.write</code></td>
+<td>Ghi log (nội bộ, qua HTTP hoặc Pub/Sub)</td>
+<td><code>POST /audit-log</code> (nội bộ), Pub/Sub listener</td>
+<td><code>create</code></td>
+<td><code>log</code></td>
+<td><code>internal only, scope-based allowed</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="giai-thich">🎯 Giải thích:<a class="headerlink" href="#giai-thich" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>audit.read.log</code>:</li>
+<li>Áp dụng cho tất cả hành vi truy vấn log.</li>
+<li>Kiểm soát theo tenant hiện tại (<code>X-Tenant-ID</code>).</li>
+<li>
+<p>Hệ thống hỗ trợ <strong>masking động</strong> với các trường nhạy cảm như <code>input_parameters</code>, <code>ip_address</code>, <code>user_agent</code> nếu người dùng không có vai trò đủ cao (e.g. không phải <code>tenant_admin</code>).</p>
+</li>
+<li>
+<p><code>audit.write</code>:</p>
+</li>
+<li><strong>Không cấp cho người dùng cuối</strong> – chỉ sử dụng nội bộ service → cần xác thực bằng JWT + scope <code>audit.write</code>.</li>
+<li>Các hệ thống như <code>user-service</code>, <code>auth-service</code>, <code>api-gateway</code> có thể gọi <code>POST /audit-log</code> hoặc emit Pub/Sub event khi xảy ra hành vi cần ghi nhận.</li>
+</ul>
+<hr />
+<h3 id="43-tai-lieu-lien-quan">4.3. 📚 Tài liệu liên quan<a class="headerlink" href="#43-tai-lieu-lien-quan" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tài liệu</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../design/">design.md</a></td>
+<td>Thiết kế tổng thể của Audit Logging Service, bao gồm kiến trúc, mô hình dữ liệu và luồng nghiệp vụ</td>
+</tr>
+<tr>
+<td><a href="../data-model/">data-model.md</a></td>
+<td>Định nghĩa chi tiết cấu trúc bảng log, định dạng lưu trữ và masking</td>
+</tr>
+<tr>
+<td><a href="../../../ADR/adr-008-audit-logging/">ADR-008 - Audit Format</a></td>
+<td>Định dạng schema log chuẩn cho toàn hệ thống</td>
+</tr>
+<tr>
+<td><a href="../../../ADR/adr-030-event-schema-governance/">ADR-030 - Event Schema Governance</a></td>
+<td>Quy tắc định danh, versioning và quản lý schema sự kiện</td>
+</tr>
+<tr>
+<td><a href="../../../architecture/rbac-deep-dive/">rbac-deep-dive.md</a></td>
+<td>Phân tích sâu về RBAC, permission <code>audit.read.log</code> và masking theo role</td>
+</tr>
+<tr>
+<td><a href="../../../ADR/adr-024-data-anonymization-retention/">ADR-024 - Data Anonymization &amp; Retention</a></td>
+<td>Chiến lược ẩn danh và xóa dữ liệu nhạy cảm trong log</td>
+</tr>
+<tr>
+<td><a href="../../../ADR/adr-012-response-structure/">ADR-012 - Response Structure</a></td>
+<td>Định dạng phản hồi chuẩn của toàn hệ thống</td>
+</tr>
+<tr>
+<td><a href="../../../ADR/adr-011-api-error-format/">ADR-011 - Error Format</a></td>
+<td>Cấu trúc lỗi chuẩn (error envelope) dùng trong tất cả API</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Trở lại mục lục
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

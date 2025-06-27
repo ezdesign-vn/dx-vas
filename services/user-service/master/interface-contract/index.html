@@ -1,0 +1,2140 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Service Design Document cho SPA quản trị hệ thống VAS DX" name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/user-service/master/interface-contract/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>User Service Master – Interface Contract - DX VAS - Docs</title>
+<link href="../../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#user-service-master-interface-contract">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              User Service Master – Interface Contract
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-muc-ich">
+<span class="md-ellipsis">
+      1. 🎯 Mục đích
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-pham-vi-oi-tuong-su-dung">
+<span class="md-ellipsis">
+      2. 🧭 Phạm vi &amp; Đối tượng sử dụng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-phan-loai-api">
+<span class="md-ellipsis">
+      3. 📂 Phân loại API
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-danh-sach-endpoint-chinh">
+<span class="md-ellipsis">
+      4. 📋 Danh sách endpoint chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-chi-tiet-tung-api">
+<span class="md-ellipsis">
+      5. 📌 Chi tiết từng API
+    </span>
+</a>
+<nav aria-label="5. 📌 Chi tiết từng API" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-get-users-globalby-email">
+<span class="md-ellipsis">
+      5.1. GET /users-global/by-email
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-post-users-global">
+<span class="md-ellipsis">
+      5.2. POST /users-global
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-get-tenants">
+<span class="md-ellipsis">
+      5.3. GET /tenants
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-post-tenants">
+<span class="md-ellipsis">
+      5.4. POST /tenants
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#55-get-user-tenant-assignments">
+<span class="md-ellipsis">
+      5.5. GET /user-tenant-assignments
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#56-post-user-tenant-assignments">
+<span class="md-ellipsis">
+      5.6. POST /user-tenant-assignments
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#57-get-global-roles-templates">
+<span class="md-ellipsis">
+      5.7. GET /global-roles-templates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#58-post-global-roles-templates">
+<span class="md-ellipsis">
+      5.8. POST /global-roles-templates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#59-get-global-permissions-templates">
+<span class="md-ellipsis">
+      5.9. GET /global-permissions-templates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#510-post-global-permissions-templates">
+<span class="md-ellipsis">
+      5.10. POST /global-permissions-templates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#511-patch-global-roles-templatestemplate_key">
+<span class="md-ellipsis">
+      5.11. PATCH /global-roles-templates/{template_key}
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#512-patch-global-permissions-templatesperm_key">
+<span class="md-ellipsis">
+      5.12. PATCH /global-permissions-templates/{perm_key}
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-su-kien-phat-ra-pubsub">
+<span class="md-ellipsis">
+      6. 📡 Sự kiện phát ra (Pub/Sub)
+    </span>
+</a>
+<nav aria-label="6. 📡 Sự kiện phát ra (Pub/Sub)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-vi-du-su-kien-user_global_created">
+<span class="md-ellipsis">
+      6.1. 📦 Ví dụ: Sự kiện user_global_created
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-vi-du-su-kien-tenant_user_assigned">
+<span class="md-ellipsis">
+      6.2. 📦 Ví dụ: Sự kiện tenant_user_assigned
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cach-su-dung-pho-bien-business-flow">
+<span class="md-ellipsis">
+      7. 🧠 Cách sử dụng phổ biến (business flow)
+    </span>
+</a>
+<nav aria-label="7. 🧠 Cách sử dụng phổ biến (business flow)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-ang-nhap-lan-au-tao-user-toan-cuc-qua-auth-service">
+<span class="md-ellipsis">
+      7.1. 🌐 Đăng nhập lần đầu &amp; tạo user toàn cục (qua Auth Service)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-superadmin-tao-tenant-moi-phan-quyen">
+<span class="md-ellipsis">
+      7.2. 🏫 Superadmin tạo tenant mới &amp; phân quyền
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-quan-tri-rbac-toan-cuc">
+<span class="md-ellipsis">
+      7.3. 🔐 Quản trị RBAC toàn cục
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-ong-bo-user-cho-tenant-moi-qua-sub-service">
+<span class="md-ellipsis">
+      7.4. 🧩 Đồng bộ user cho tenant mới (qua Sub Service)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ghi-chu">
+<span class="md-ellipsis">
+      🔎 Ghi chú
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-phu-luc">
+<span class="md-ellipsis">
+      8. 📎 Phụ lục
+    </span>
+</a>
+<nav aria-label="8. 📎 Phụ lục" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-chuan-hoa-ma-loi-error-codes">
+<span class="md-ellipsis">
+      8.1. 📚 Chuẩn hóa mã lỗi (Error Codes)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-tai-lieu-lien-ket">
+<span class="md-ellipsis">
+      8.2. 📚 Tài liệu liên kết
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="user-service-master-interface-contract">📘 User Service Master – Interface Contract<a class="headerlink" href="#user-service-master-interface-contract" title="Permanent link">¶</a></h1>
+<p>Tài liệu này định nghĩa giao diện API của dịch vụ <code>user-service/master</code>, phục vụ cho các hệ thống sử dụng toàn cục như Superadmin Webapp, Auth Service, và các Sub Service. Dịch vụ này chịu trách nhiệm quản lý người dùng toàn cục, gán người dùng vào tenant, và điều phối RBAC template.</p>
+<hr/>
+<h2 id="1-muc-ich">1. 🎯 Mục đích<a class="headerlink" href="#1-muc-ich" title="Permanent link">¶</a></h2>
+<p>Cung cấp các API để:
+- Tra cứu hoặc tạo người dùng toàn cục theo từng provider.
+- Tạo và quản lý tenant (trường học).
+- Gán người dùng vào tenant cụ thể.
+- Quản lý hệ thống role/permission template toàn cục phục vụ RBAC phân tầng.
+- Phát sự kiện để đồng bộ hóa tới các Sub Service.</p>
+<hr/>
+<h2 id="2-pham-vi-oi-tuong-su-dung">2. 🧭 Phạm vi &amp; Đối tượng sử dụng<a class="headerlink" href="#2-pham-vi-oi-tuong-su-dung" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Đối tượng gọi API</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Superadmin Webapp</td>
+<td>Quản lý người dùng &amp; phân quyền toàn cục</td>
+</tr>
+<tr>
+<td>Auth Service</td>
+<td>Tra cứu hoặc tạo người dùng khi login</td>
+</tr>
+<tr>
+<td>Sub User Service</td>
+<td>Đồng bộ danh sách assignment, RBAC template</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="3-phan-loai-api">3. 📂 Phân loại API<a class="headerlink" href="#3-phan-loai-api" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Nhóm chức năng</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User Lookup</td>
+<td>Tra cứu người dùng toàn cục</td>
+</tr>
+<tr>
+<td>User Creation</td>
+<td>Tạo người dùng mới theo provider</td>
+</tr>
+<tr>
+<td>Tenant Mgmt</td>
+<td>Tạo và quản lý tenant</td>
+</tr>
+<tr>
+<td>Assignment</td>
+<td>Gán user vào tenant</td>
+</tr>
+<tr>
+<td>RBAC Template</td>
+<td>Quản lý role/permission mẫu toàn cục</td>
+</tr>
+<tr>
+<td>Event Emit</td>
+<td>Phát sự kiện Pub/Sub theo tiêu chuẩn ADR-030</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="4-danh-sach-endpoint-chinh">4. 📋 Danh sách endpoint chính<a class="headerlink" href="#4-danh-sach-endpoint-chinh" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Mô tả ngắn</th>
+<th>Quyền yêu cầu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/users-global/by-email</code></td>
+<td>Tra cứu người dùng toàn cục theo email + auth_provider</td>
+<td><code>user.read</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/users-global</code></td>
+<td>Tạo người dùng toàn cục nếu chưa tồn tại</td>
+<td><code>user.create</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/tenants</code></td>
+<td>Liệt kê các tenant hiện có</td>
+<td><code>tenant.read</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/tenants</code></td>
+<td>Tạo tenant mới (chỉ dùng cho Superadmin)</td>
+<td><code>tenant.create</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/user-tenant-assignments</code></td>
+<td>Liệt kê các tenant mà một user đã được gán</td>
+<td><code>tenant_user.read</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/user-tenant-assignments</code></td>
+<td>Gán người dùng vào tenant cụ thể</td>
+<td><code>tenant_user.assign</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/global-roles-templates</code></td>
+<td>Liệt kê các role template toàn cục</td>
+<td><code>rbac.template.read</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/global-roles-templates</code></td>
+<td>Tạo role template mới toàn cục</td>
+<td><code>rbac.template.create</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/global-permissions-templates</code></td>
+<td>Liệt kê các permission template toàn cục</td>
+<td><code>rbac.template.read</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/global-permissions-templates</code></td>
+<td>Tạo permission template mới toàn cục</td>
+<td><code>rbac.template.create</code></td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/global-roles-templates/{template_key}</code></td>
+<td>Cập nhật danh sách quyền trong một role template cụ thể</td>
+<td><code>rbac.template.update</code></td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/global-permissions-templates/{perm_key}</code></td>
+<td>Cập nhật mô tả hoặc scope của permission template</td>
+<td><code>rbac.template.update</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="5-chi-tiet-tung-api">5. 📌 Chi tiết từng API<a class="headerlink" href="#5-chi-tiet-tung-api" title="Permanent link">¶</a></h2>
+<h3 id="51-get-users-globalby-email">5.1. <code>GET /users-global/by-email</code><a class="headerlink" href="#51-get-users-globalby-email" title="Permanent link">¶</a></h3>
+<p>Tra cứu người dùng toàn cục theo <code>email</code> và <code>auth_provider</code>. Được sử dụng bởi Auth Service để kiểm tra người dùng đã tồn tại hay chưa trước khi tạo mới.</p>
+<hr/>
+<h4 id="request">📥 Request<a class="headerlink" href="#request" title="Permanent link">¶</a></h4>
+<p><strong>Query parameters:</strong>
+- <code>email</code> (string, bắt buộc) – email người dùng cần tra cứu
+- <code>auth_provider</code> (enum, bắt buộc) – nhà cung cấp xác thực<br/>
+  Giá trị hợp lệ: <code>"google"</code>, <code>"local"</code>, <code>"otp"</code></p>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<hr/>
+<h4 id="response">📤 Response<a class="headerlink" href="#response" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_abc123"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"alice@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="nt">"auth_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google"</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">    </span><span class="nt">"full_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice B"</span><span class="p">,</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-01T12:00:00Z"</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ (do Token Service phát hành)</li>
+<li><strong>Quyền:</strong> <code>user.read</code> (global scope)</li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>auth_provider</code> phải hợp lệ</p>
+</li>
+<li>Truy cập từ service được cấp quyền truy vấn toàn cục (ví dụ: Auth Master)</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không phát sự kiện.
+  Đây là thao tác tra cứu (read-only).</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu <code>email</code> hoặc <code>auth_provider</code>, sai định dạng</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Thiếu hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>user.read</code></td>
+</tr>
+<tr>
+<td>404</td>
+<td>Không tìm thấy người dùng phù hợp</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Giá trị <code>auth_provider</code> không hợp lệ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Truy vấn user hợp lệ → trả về thông tin chính xác</li>
+<li>❌ Truy vấn email không tồn tại → trả <code>404</code></li>
+<li>❌ Thiếu <code>auth_provider</code> → trả <code>400</code></li>
+<li>❌ Sử dụng JWT không có quyền <code>user.read</code> → trả <code>403</code></li>
+<li>✅ Log trace_id trong <code>meta</code> để đảm bảo observability</li>
+</ul>
+<hr/>
+<h3 id="52-post-users-global">5.2. <code>POST /users-global</code><a class="headerlink" href="#52-post-users-global" title="Permanent link">¶</a></h3>
+<p>Tạo người dùng toàn cục mới nếu chưa tồn tại, dựa trên <code>email</code> và <code>auth_provider</code>.<br/>
+Sử dụng bởi Auth Service hoặc Superadmin để khởi tạo người dùng global trong lần đăng nhập đầu tiên.</p>
+<hr/>
+<h4 id="request_1">📥 Request<a class="headerlink" href="#request_1" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"alice@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="nt">"auth_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google"</span><span class="p">,</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">"full_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice B"</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Field mô tả:</strong></p>
+<ul>
+<li><code>email</code> (string, bắt buộc): email người dùng, duy nhất theo <code>auth_provider</code></li>
+<li><code>auth_provider</code> (enum, bắt buộc): <code>"google"</code> | <code>"local"</code> | <code>"otp"</code></li>
+<li><code>full_name</code> (string, tùy chọn): tên đầy đủ</li>
+</ul>
+<hr/>
+<h4 id="response_1">📤 Response<a class="headerlink" href="#response_1" title="Permanent link">¶</a></h4>
+<p><strong>201 Created</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_xyz789"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"alice@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="nt">"auth_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google"</span><span class="p">,</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span><span class="nt">"full_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice B"</span><span class="p">,</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_1">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_1" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>user.create</code> (global scope)</li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p>Nếu user đã tồn tại → trả <code>409</code></p>
+</li>
+<li>Phải xác thực qua Auth Service có quyền global</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_1">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_1" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>user_global_created</code>
+  Schema: <code>vas.user.created.v1</code>
+  Nội dung chứa: <code>user_id</code>, <code>email</code>, <code>auth_provider</code>, <code>created_at</code></li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_1">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_1" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu field bắt buộc (<code>email</code>, <code>auth_provider</code>)</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Thiếu JWT hoặc không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>user.create</code></td>
+</tr>
+<tr>
+<td>409</td>
+<td>Người dùng đã tồn tại</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>auth_provider</code> không hợp lệ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_1">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_1" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Tạo user mới với email + provider hợp lệ → trả 201 + event</li>
+<li>❌ Tạo trùng user → trả 409</li>
+<li>❌ Thiếu <code>email</code> hoặc <code>auth_provider</code> → trả 400</li>
+<li>✅ Kiểm tra sự kiện <code>user_global_created</code> được phát đúng schema</li>
+<li>✅ Gọi 2 lần liên tiếp → chỉ 1 record được tạo (idempotency kiểm soát bằng unique key)</li>
+</ul>
+<hr/>
+<h3 id="53-get-tenants">5.3. <code>GET /tenants</code><a class="headerlink" href="#53-get-tenants" title="Permanent link">¶</a></h3>
+<p>Liệt kê danh sách tất cả các tenant (trường học) hiện có trong hệ thống.<br/>
+Endpoint này được sử dụng bởi Superadmin Webapp và các hệ thống đồng bộ (Sub Service, SMS) để tra cứu danh sách tenant toàn cục.</p>
+<hr/>
+<h4 id="request_2">📥 Request<a class="headerlink" href="#request_2" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Query parameters (tuỳ chọn):</strong>
+- <code>page</code>: số trang (default = 1)
+- <code>page_size</code>: số lượng bản ghi mỗi trang (default = 20, tối đa 100)
+- <code>search</code>: chuỗi tìm kiếm theo <code>name</code> hoặc <code>project_id</code> (optional)</p>
+<hr/>
+<h4 id="response_2">📤 Response<a class="headerlink" href="#response_2" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_abc123"</span><span class="p">,</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trường Việt Anh"</span><span class="p">,</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">      </span><span class="nt">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-tenant-001"</span><span class="p">,</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">      </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-01T12:00:00Z"</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="nt">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="nt">"page_size"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">    </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-3-15"><a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-16"><a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_2">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_2" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>tenant.read</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p>Chỉ có Superadmin hoặc hệ thống trung tâm mới được xem tất cả tenant</p>
+</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_2">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_2" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không phát sinh sự kiện – thao tác đọc dữ liệu</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_2">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_2" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401</td>
+<td>Không có hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>tenant.read</code></td>
+</tr>
+<tr>
+<td>422</td>
+<td>Tham số <code>page</code>, <code>page_size</code> không hợp lệ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_2">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_2" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Gọi với quyền <code>tenant.read</code> hợp lệ → trả danh sách tenant</li>
+<li>❌ Gọi không JWT hoặc quyền không đúng → trả 401 / 403</li>
+<li>✅ Kiểm tra paging hoạt động đúng (meta.total, meta.page)</li>
+<li>✅ Kiểm tra filter <code>search</code> trả về đúng tenant liên quan</li>
+<li>✅ Log trace_id trong mỗi phản hồi</li>
+</ul>
+<hr/>
+<h3 id="54-post-tenants">5.4. <code>POST /tenants</code><a class="headerlink" href="#54-post-tenants" title="Permanent link">¶</a></h3>
+<p>Tạo mới một tenant (trường học) trong hệ thống.<br/>
+Chỉ được sử dụng bởi Superadmin Webapp để khởi tạo môi trường độc lập cho một trường.<br/>
+Sau khi tạo, sẽ phát sự kiện <code>tenant_created</code> để các Sub Service (Auth, User, Notification, SMS...) khởi tạo stack tương ứng.</p>
+<hr/>
+<h4 id="request_3">📥 Request<a class="headerlink" href="#request_3" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trường Việt Anh"</span><span class="p">,</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="nt">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-tenant-001"</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Mô tả trường dữ liệu:</strong></p>
+<ul>
+<li><code>name</code> (string, bắt buộc): tên hiển thị của tenant (ví dụ: “Trường Việt Anh”)</li>
+<li><code>project_id</code> (string, bắt buộc): mã duy nhất dùng để cấu hình môi trường (cloud resource, codebase,...)</li>
+</ul>
+<hr/>
+<h4 id="response_3">📤 Response<a class="headerlink" href="#response_3" title="Permanent link">¶</a></h4>
+<p><strong>201 Created</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_xyz789"</span><span class="p">,</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trường Việt Anh"</span><span class="p">,</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="nt">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-tenant-001"</span><span class="p">,</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T08:00:00Z"</span>
+</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-9"><a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-5-10"><a href="#__codelineno-5-10" id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-11"><a href="#__codelineno-5-11" id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_3">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_3" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>tenant.create</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>project_id</code> phải duy nhất toàn hệ thống (unique index)</p>
+</li>
+<li>Chỉ Superadmin có quyền gọi</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_3">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_3" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>tenant_created</code>
+  Schema: <code>vas.tenant.created.v1</code>
+  Payload: <code>{ tenant_id, name, project_id, created_at }</code>
+  Consumer: tất cả các Sub Service khởi tạo schema, role mapping theo tenant mới</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_3">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_3" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu <code>name</code> hoặc <code>project_id</code></td>
+</tr>
+<tr>
+<td>401</td>
+<td>Thiếu hoặc sai JWT</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>tenant.create</code></td>
+</tr>
+<tr>
+<td>409</td>
+<td><code>project_id</code> đã tồn tại</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>project_id</code> sai định dạng (<code>snake-case</code> yêu cầu)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_3">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_3" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Tạo tenant với <code>project_id</code> hợp lệ → trả 201 + phát event</li>
+<li>❌ Gọi lặp lại với <code>project_id</code> đã tồn tại → trả 409</li>
+<li>❌ Thiếu JWT hoặc quyền → trả 401 / 403</li>
+<li>✅ Kiểm tra log trace_id trong meta</li>
+<li>✅ Kiểm tra Sub Service nhận event và tạo schema đúng</li>
+</ul>
+<hr/>
+<h3 id="55-get-user-tenant-assignments">5.5. <code>GET /user-tenant-assignments</code><a class="headerlink" href="#55-get-user-tenant-assignments" title="Permanent link">¶</a></h3>
+<p>Liệt kê tất cả các tenant mà một người dùng toàn cục đã được gán vào.<br/>
+Được sử dụng bởi Auth Service trong quá trình xác định “scope” khi login, hoặc bởi Superadmin để kiểm tra trạng thái phân quyền.</p>
+<hr/>
+<h4 id="request_4">📥 Request<a class="headerlink" href="#request_4" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Query parameters:</strong>
+- <code>user_global_id</code> (string, bắt buộc): ID người dùng toàn cục cần truy vấn
+- <code>status</code> (optional): <code>active</code> | <code>revoked</code></p>
+<hr/>
+<h4 id="response_4">📤 Response<a class="headerlink" href="#response_4" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="p">{</span>
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">      </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_abc123"</span><span class="p">,</span>
+</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">      </span><span class="nt">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-tenant-001"</span><span class="p">,</span>
+</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">      </span><span class="nt">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">      </span><span class="nt">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-01T10:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-6-8"><a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span>
+</span><span id="__span-6-9"><a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-10"><a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-6-11"><a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-12"><a href="#__codelineno-6-12" id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-6-13"><a href="#__codelineno-6-13" id="__codelineno-6-13" name="__codelineno-6-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-14"><a href="#__codelineno-6-14" id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_4">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_4" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>tenant_user.read</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>user_global_id</code> phải tồn tại</p>
+</li>
+<li>Gọi từ hệ thống trung tâm có quyền truy cập thông tin phân quyền toàn cục</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_4">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_4" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không phát sinh sự kiện – đây là thao tác chỉ đọc</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_4">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_4" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu <code>user_global_id</code> hoặc sai định dạng</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Thiếu hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>tenant_user.read</code></td>
+</tr>
+<tr>
+<td>404</td>
+<td>Không tìm thấy người dùng</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_4">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_4" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Gọi hợp lệ → trả danh sách tenant user đã được gán</li>
+<li>✅ Gọi với <code>status=revoked</code> → chỉ trả assignment đã bị thu hồi</li>
+<li>❌ Không có <code>user_global_id</code> → trả 400</li>
+<li>✅ Kiểm tra trace_id có trong phản hồi</li>
+<li>❌ Gọi với JWT không có quyền → trả 403</li>
+</ul>
+<hr/>
+<h3 id="56-post-user-tenant-assignments">5.6. <code>POST /user-tenant-assignments</code><a class="headerlink" href="#56-post-user-tenant-assignments" title="Permanent link">¶</a></h3>
+<p>Gán một người dùng toàn cục (<code>user_global_id</code>) vào một tenant cụ thể.<br/>
+Được sử dụng bởi Superadmin để phân người dùng (học sinh, giáo viên, nhân viên) vào trường.<br/>
+Sau khi gán, hệ thống sẽ phát sự kiện để các Sub Service tạo tài khoản tương ứng cho user trong môi trường tenant.</p>
+<hr/>
+<h4 id="request_5">📥 Request<a class="headerlink" href="#request_5" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="nt">"user_global_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_abc123"</span><span class="p">,</span>
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_xyz789"</span><span class="p">,</span>
+</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="nt">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@vas.edu.vn"</span>
+</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Mô tả field:</strong></p>
+<ul>
+<li><code>user_global_id</code> (string, bắt buộc): ID người dùng toàn cục</li>
+<li><code>tenant_id</code> (string, bắt buộc): ID tenant mà người dùng sẽ được gán vào</li>
+<li><code>assigned_by</code> (string, tùy chọn): email hoặc ID của người thực hiện thao tác</li>
+</ul>
+<hr/>
+<h4 id="response_5">📤 Response<a class="headerlink" href="#response_5" title="Permanent link">¶</a></h4>
+<p><strong>201 Created</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">"assignment_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assign_001"</span><span class="p">,</span>
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">    </span><span class="nt">"user_global_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_abc123"</span><span class="p">,</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">    </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_xyz789"</span><span class="p">,</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span>
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="w">    </span><span class="nt">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T08:30:00Z"</span>
+</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-10"><a href="#__codelineno-8-10" id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-8-11"><a href="#__codelineno-8-11" id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-12"><a href="#__codelineno-8-12" id="__codelineno-8-12" name="__codelineno-8-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_5">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_5" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>tenant_user.assign</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p>Gán trùng (<code>user_global_id</code> đã thuộc <code>tenant_id</code>) → trả <code>409</code></p>
+</li>
+<li>Sub Service chỉ đồng bộ khi trạng thái là <code>active</code></li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_5">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_5" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>tenant_user_assigned</code>
+  Schema: <code>vas.tenant_user.assigned.v1</code>
+  Payload: <code>{ user_global_id, tenant_id, assigned_by, assigned_at }</code>
+  Consumer: Sub User Service, Auth Sub, Notification Sub, LMS Sub...</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_5">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_5" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu field bắt buộc (<code>user_global_id</code>, <code>tenant_id</code>)</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Không có hoặc sai JWT</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>tenant_user.assign</code></td>
+</tr>
+<tr>
+<td>404</td>
+<td>Không tìm thấy user hoặc tenant</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Người dùng đã được gán vào tenant này</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_5">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_5" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Gán user chưa từng thuộc tenant → 201 Created + phát event</li>
+<li>❌ Gán lặp lại user vào cùng tenant → 409 Conflict</li>
+<li>✅ Kiểm tra sự kiện <code>tenant_user_assigned</code> được phát đúng schema</li>
+<li>❌ Gọi thiếu field → trả 400</li>
+<li>✅ Gọi sai tenant hoặc user không tồn tại → 404</li>
+<li>✅ Kiểm tra trace_id có trong meta phản hồi</li>
+</ul>
+<hr/>
+<h3 id="57-get-global-roles-templates">5.7. <code>GET /global-roles-templates</code><a class="headerlink" href="#57-get-global-roles-templates" title="Permanent link">¶</a></h3>
+<p>Liệt kê tất cả các role template toàn cục.<br/>
+Được sử dụng bởi Superadmin Webapp và các Sub Service để tham chiếu khi áp dụng RBAC template cho user trong từng tenant.</p>
+<hr/>
+<h4 id="request_6">📥 Request<a class="headerlink" href="#request_6" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Query parameters (optional):</strong>
+- <code>is_system</code> (boolean): lọc theo role mặc định hệ thống (<code>true</code>) hoặc do người dùng tạo (<code>false</code>)</p>
+<hr/>
+<h4 id="response_6">📤 Response<a class="headerlink" href="#response_6" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="p">{</span>
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">      </span><span class="nt">"template_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"student_basic"</span><span class="p">,</span>
+</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Học sinh cơ bản"</span><span class="p">,</span>
+</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="w">      </span><span class="nt">"is_system"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Quyền cơ bản cho học sinh"</span><span class="p">,</span>
+</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="w">      </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"report.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"notification.read"</span><span class="p">]</span>
+</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-10"><a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-9-11"><a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-12"><a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-9-13"><a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-9-14"><a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_6">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_6" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>rbac.template.read</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p>Được sử dụng trong context Superadmin hoặc hệ thống đồng bộ</p>
+</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_6">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_6" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không có sự kiện – thao tác đọc</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_6">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_6" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401</td>
+<td>Không có hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>rbac.template.read</code></td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>is_system</code> không hợp lệ (phải là true/false)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_6">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_6" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Gọi bình thường → trả danh sách role template toàn cục</li>
+<li>✅ Gọi với <code>is_system=true</code> → chỉ trả role mặc định hệ thống</li>
+<li>❌ Gọi không quyền → trả 403</li>
+<li>✅ Kiểm tra trace_id trong phản hồi</li>
+<li>✅ Dùng thông tin <code>template_key</code> để tra cứu permission tương ứng</li>
+</ul>
+<hr/>
+<h3 id="58-post-global-roles-templates">5.8. <code>POST /global-roles-templates</code><a class="headerlink" href="#58-post-global-roles-templates" title="Permanent link">¶</a></h3>
+<p>Tạo mới một role template toàn cục.<br/>
+Được sử dụng bởi Superadmin để định nghĩa các nhóm quyền chuẩn áp dụng cho user trong tenant.<br/>
+Khi template được tạo, Sub Service sẽ có thể tra cứu và áp dụng tương ứng khi cấu hình RBAC.</p>
+<hr/>
+<h4 id="request_7">📥 Request<a class="headerlink" href="#request_7" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="p">{</span>
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">  </span><span class="nt">"template_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teacher_advanced"</span><span class="p">,</span>
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Giáo viên nâng cao"</span><span class="p">,</span>
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Quyền đầy đủ cho giáo viên bộ môn"</span><span class="p">,</span>
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">  </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"report.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lms.grade.edit"</span><span class="p">]</span>
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Mô tả field:</strong></p>
+<ul>
+<li><code>template_key</code> (string, bắt buộc): định danh duy nhất cho template (snake_case)</li>
+<li><code>name</code> (string, bắt buộc): tên hiển thị</li>
+<li><code>description</code> (string, tùy chọn): mô tả chức năng của role</li>
+<li><code>permissions</code> (array string, bắt buộc): danh sách <code>permission_key</code> liên kết với role</li>
+</ul>
+<hr/>
+<h4 id="response_7">📤 Response<a class="headerlink" href="#response_7" title="Permanent link">¶</a></h4>
+<p><strong>201 Created</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="p">{</span>
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">    </span><span class="nt">"template_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teacher_advanced"</span><span class="p">,</span>
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Giáo viên nâng cao"</span><span class="p">,</span>
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"report.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lms.grade.edit"</span><span class="p">]</span>
+</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_7">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_7" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>rbac.template.create</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>template_key</code> duy nhất (unique)</p>
+</li>
+<li>Các <code>permission_key</code> phải tồn tại trong danh sách permission template toàn cục</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_7">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_7" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không phát sự kiện ngay.
+  Chỉ phát khi có cập nhật (<code>PATCH</code>) template (<code>rbac_template_updated</code>)</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_7">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_7" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu field bắt buộc hoặc định dạng sai</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Thiếu hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>rbac.template.create</code></td>
+</tr>
+<tr>
+<td>409</td>
+<td><code>template_key</code> đã tồn tại</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>permissions</code> chứa <code>permission_key</code> không hợp lệ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_7">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_7" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Tạo mới role template với <code>template_key</code> hợp lệ → trả 201</li>
+<li>❌ Tạo trùng <code>template_key</code> → trả 409</li>
+<li>✅ Kiểm tra <code>permission_key</code> hợp lệ → chấp nhận</li>
+<li>❌ Chèn <code>permission_key</code> không có → trả 422</li>
+<li>✅ Kiểm tra trace_id trong phản hồi</li>
+</ul>
+<hr/>
+<h3 id="59-get-global-permissions-templates">5.9. <code>GET /global-permissions-templates</code><a class="headerlink" href="#59-get-global-permissions-templates" title="Permanent link">¶</a></h3>
+<p>Liệt kê tất cả các permission template toàn cục.<br/>
+Được sử dụng để cấu hình role template hoặc để gợi ý quyền trong UI Superadmin Webapp.<br/>
+Là nguồn dữ liệu chuẩn để cấu trúc RBAC cho toàn hệ thống theo tầng dịch vụ.</p>
+<hr/>
+<h4 id="request_8">📥 Request<a class="headerlink" href="#request_8" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Query parameters (optional):</strong>
+- <code>service_scope</code> (string): lọc các permission theo tên service, ví dụ <code>"report"</code>, <code>"lms"</code><br/>
+- <code>keyword</code> (string): tìm kiếm theo <code>permission_key</code> hoặc mô tả</p>
+<hr/>
+<h4 id="response_8">📤 Response<a class="headerlink" href="#response_8" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="p">{</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">      </span><span class="nt">"permission_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"report.view"</span><span class="p">,</span>
+</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="w">      </span><span class="nt">"service_scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"report"</span><span class="p">,</span>
+</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Xem báo cáo học tập"</span>
+</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="w">      </span><span class="nt">"permission_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lms.grade.edit"</span><span class="p">,</span>
+</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="w">      </span><span class="nt">"service_scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lms"</span><span class="p">,</span>
+</span><span id="__span-12-11"><a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Chấm điểm học viên"</span>
+</span><span id="__span-12-12"><a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-13"><a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-12-14"><a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-15"><a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-12-16"><a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-12-17"><a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_8">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_8" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>rbac.template.read</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p>Gọi từ Superadmin Webapp hoặc hệ thống nội bộ trung tâm</p>
+</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_8">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_8" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không có – đây là thao tác tra cứu tĩnh</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_8">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_8" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401</td>
+<td>Không có hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>rbac.template.read</code></td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>service_scope</code> không hợp lệ (nếu validate)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_8">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_8" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Trả danh sách đầy đủ permission template nếu không có filter</li>
+<li>✅ Gọi với <code>service_scope=report</code> → chỉ trả các permission liên quan</li>
+<li>✅ Gọi với <code>keyword=grade</code> → trả các permission có liên quan</li>
+<li>❌ Gọi sai quyền hoặc JWT → trả 403 hoặc 401</li>
+<li>✅ Kiểm tra trace_id có trong phản hồi</li>
+</ul>
+<hr/>
+<h3 id="510-post-global-permissions-templates">5.10. <code>POST /global-permissions-templates</code><a class="headerlink" href="#510-post-global-permissions-templates" title="Permanent link">¶</a></h3>
+<p>Tạo một permission template mới ở cấp toàn cục.<br/>
+Được sử dụng bởi Superadmin để mở rộng hệ thống quyền theo từng dịch vụ (service_scope).<br/>
+Các permission này là đơn vị cơ bản để gán vào role template và áp dụng cho RBAC tenant.</p>
+<hr/>
+<h4 id="request_9">📥 Request<a class="headerlink" href="#request_9" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="p">{</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="nt">"permission_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"finance.invoice.view"</span><span class="p">,</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="nt">"service_scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"finance"</span><span class="p">,</span>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Xem hóa đơn học phí"</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Mô tả field:</strong></p>
+<ul>
+<li><code>permission_key</code> (string, bắt buộc): định danh quyền (theo định dạng <code>scope.action</code>, ví dụ: <code>report.view</code>)</li>
+<li><code>service_scope</code> (string, bắt buộc): tên dịch vụ liên quan (ví dụ: <code>report</code>, <code>lms</code>, <code>finance</code>)</li>
+<li><code>description</code> (string, tùy chọn): mô tả rõ hành vi gắn với quyền</li>
+</ul>
+<hr/>
+<h4 id="response_9">📤 Response<a class="headerlink" href="#response_9" title="Permanent link">¶</a></h4>
+<p><strong>201 Created</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="p">{</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="nt">"permission_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"finance.invoice.view"</span><span class="p">,</span>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">    </span><span class="nt">"service_scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"finance"</span><span class="p">,</span>
+</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Xem hóa đơn học phí"</span>
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-14-9"><a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-14-10"><a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_9">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_9" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>rbac.template.create</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>permission_key</code> phải duy nhất</p>
+</li>
+<li><code>permission_key</code> tuân định dạng <code>service_scope.action</code> (snake_case)</li>
+<li><code>service_scope</code> phải được định nghĩa hợp lệ trong hệ thống</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_9">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_9" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không phát – permission chỉ có hiệu lực khi gán vào role template</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_9">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_9" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu field hoặc sai định dạng</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Không có hoặc sai JWT</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>rbac.template.create</code></td>
+</tr>
+<tr>
+<td>409</td>
+<td><code>permission_key</code> đã tồn tại</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>permission_key</code> sai định dạng (<code>&lt;scope&gt;.&lt;action&gt;</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_9">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_9" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Tạo permission mới hợp lệ → trả 201</li>
+<li>❌ Tạo permission trùng <code>permission_key</code> → trả 409</li>
+<li>❌ <code>permission_key</code> thiếu dấu chấm hoặc sai kiểu → trả 422</li>
+<li>✅ Kiểm tra trace_id trong phản hồi</li>
+<li>✅ Dùng permission mới để gán vào role template và kiểm tra hiệu lực</li>
+</ul>
+<hr/>
+<h3 id="511-patch-global-roles-templatestemplate_key">5.11. <code>PATCH /global-roles-templates/{template_key}</code><a class="headerlink" href="#511-patch-global-roles-templatestemplate_key" title="Permanent link">¶</a></h3>
+<p>Cập nhật danh sách quyền (permissions) của một role template toàn cục.<br/>
+Sau khi cập nhật, hệ thống sẽ phát sự kiện <code>rbac_template_updated</code> để các Sub Service đồng bộ lại RBAC cache cho các tenant.</p>
+<hr/>
+<h4 id="request_10">📥 Request<a class="headerlink" href="#request_10" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Path parameters:</strong>
+- <code>template_key</code> (string, bắt buộc): định danh của role template cần cập nhật</p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="p">{</span>
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">  </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"report.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lms.grade.edit"</span><span class="p">]</span>
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Mô tả field:</strong></p>
+<ul>
+<li><code>permissions</code> (array string, bắt buộc): danh sách <code>permission_key</code> mới cho template này.
+  Danh sách cũ sẽ bị thay thế hoàn toàn.</li>
+</ul>
+<hr/>
+<h4 id="response_10">📤 Response<a class="headerlink" href="#response_10" title="Permanent link">¶</a></h4>
+<p><strong>200 OK</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="p">{</span>
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="w">    </span><span class="nt">"template_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teacher_advanced"</span><span class="p">,</span>
+</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">    </span><span class="nt">"updated_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"report.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lms.grade.edit"</span><span class="p">]</span>
+</span><span id="__span-16-5"><a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-16-8"><a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_10">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_10" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>rbac.template.update</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>template_key</code> phải tồn tại</p>
+</li>
+<li>Các <code>permission_key</code> cung cấp phải tồn tại trong global permissions template</li>
+<li>Không cho phép chỉnh sửa các template có <code>is_system = true</code> (nếu áp dụng)</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_10">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_10" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>rbac_template_updated</code>
+  Schema: <code>vas.rbac.template.updated.v1</code>
+  Payload: <code>{ template_key, updated_permissions, updated_at }</code>
+  Consumer: tất cả Sub Service sử dụng RBAC caching (User Sub, LMS Sub, CRM Sub...)</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_10">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_10" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Thiếu hoặc sai định dạng <code>permissions</code></td>
+</tr>
+<tr>
+<td>401</td>
+<td>Không có hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>rbac.template.update</code></td>
+</tr>
+<tr>
+<td>404</td>
+<td><code>template_key</code> không tồn tại</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Có <code>permission_key</code> không tồn tại trong hệ thống</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_10">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_10" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Cập nhật role template với quyền hợp lệ → trả 200 + phát event</li>
+<li>❌ Sử dụng <code>template_key</code> không tồn tại → trả 404</li>
+<li>❌ Chèn <code>permission_key</code> sai → trả 422</li>
+<li>✅ Kiểm tra event <code>rbac_template_updated</code> phát đúng schema</li>
+<li>✅ Kiểm tra trace_id có trong phản hồi</li>
+</ul>
+<hr/>
+<h3 id="512-patch-global-permissions-templatesperm_key">5.12. <code>PATCH /global-permissions-templates/{perm_key}</code><a class="headerlink" href="#512-patch-global-permissions-templatesperm_key" title="Permanent link">¶</a></h3>
+<p>Cập nhật thông tin mô tả hoặc <code>service_scope</code> của một permission template toàn cục.<br/>
+Sử dụng trong trường hợp cần điều chỉnh mô tả cho rõ ràng hơn, hoặc chuyển scope sang dịch vụ khác trong quá trình refactor hệ thống.</p>
+<hr/>
+<h4 id="request_11">📥 Request<a class="headerlink" href="#request_11" title="Permanent link">¶</a></h4>
+<p><strong>Headers:</strong>
+- <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+<p><strong>Path parameters:</strong>
+- <code>perm_key</code> (string, bắt buộc): định danh của permission cần cập nhật</p>
+<p><strong>Request body (JSON):</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="p">{</span>
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Quyền xem hóa đơn học phí"</span><span class="p">,</span>
+</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="nt">"service_scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span>
+</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Mô tả field:</strong></p>
+<ul>
+<li><code>description</code> (string, optional): mô tả cập nhật</li>
+<li><code>service_scope</code> (string, optional): tên service mới (nếu cần đổi)</li>
+</ul>
+<hr/>
+<h4 id="response_11">📤 Response<a class="headerlink" href="#response_11" title="Permanent link">¶</a></h4>
+<p><strong>200 OK</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="p">{</span>
+</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">    </span><span class="nt">"permission_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"finance.invoice.view"</span><span class="p">,</span>
+</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Quyền xem hóa đơn học phí"</span><span class="p">,</span>
+</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="nt">"service_scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span>
+</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="w">    </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz"</span>
+</span><span id="__span-18-9"><a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-18-10"><a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="phan-quyen-ieu-kien_11">🔐 Phân quyền &amp; Điều kiện<a class="headerlink" href="#phan-quyen-ieu-kien_11" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Yêu cầu:</strong> Bearer JWT hợp lệ</li>
+<li><strong>Quyền:</strong> <code>rbac.template.update</code></li>
+<li>
+<p><strong>Điều kiện:</strong></p>
+</li>
+<li>
+<p><code>perm_key</code> phải tồn tại</p>
+</li>
+<li>Không cho phép đổi <code>permission_key</code> (immutable)</li>
+<li>Nếu cập nhật <code>service_scope</code>, giá trị mới phải hợp lệ theo quy ước hệ thống</li>
+</ul>
+<hr/>
+<h4 id="su-kien-phat-ra_11">📣 Sự kiện phát ra<a class="headerlink" href="#su-kien-phat-ra_11" title="Permanent link">¶</a></h4>
+<ul>
+<li>❌ Không phát sự kiện – vì không ảnh hưởng logic phân quyền runtime
+  (permission được áp dụng thông qua role template đã cache riêng)</li>
+</ul>
+<hr/>
+<h4 id="ma-loi-co-the-tra-ve_11">❌ Mã lỗi có thể trả về<a class="headerlink" href="#ma-loi-co-the-tra-ve_11" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mã lỗi</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Body rỗng hoặc không có field hợp lệ để cập nhật</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Thiếu hoặc JWT không hợp lệ</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Không có quyền <code>rbac.template.update</code></td>
+</tr>
+<tr>
+<td>404</td>
+<td><code>perm_key</code> không tồn tại</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>service_scope</code> mới không hợp lệ</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu_11">🧪 Gợi ý kiểm thử<a class="headerlink" href="#goi-y-kiem-thu_11" title="Permanent link">¶</a></h4>
+<ul>
+<li>✅ Cập nhật mô tả permission → trả 200</li>
+<li>✅ Cập nhật <code>service_scope</code> → trả 200, kiểm tra hiển thị đúng nơi dùng</li>
+<li>❌ Gọi với <code>perm_key</code> sai → trả 404</li>
+<li>❌ Body rỗng hoặc không hợp lệ → trả 400</li>
+<li>✅ Kiểm tra trace_id trong phản hồi</li>
+</ul>
+<hr/>
+<h2 id="6-su-kien-phat-ra-pubsub">6. 📡 Sự kiện phát ra (Pub/Sub)<a class="headerlink" href="#6-su-kien-phat-ra-pubsub" title="Permanent link">¶</a></h2>
+<p><code>user-service/master</code> là nguồn phát sinh một số sự kiện quan trọng phục vụ cho quá trình đồng bộ dữ liệu người dùng và RBAC phân tầng trong toàn bộ hệ thống.<br/>
+Các sự kiện đều tuân theo chuẩn định danh <code>vas.&lt;domain&gt;.&lt;action&gt;.v1</code> theo <code>adr-030-event-schema-governance.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Event Name</th>
+<th>Trigger</th>
+<th>Schema</th>
+<th>Consumer (ví dụ)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_global_created</code></td>
+<td>Khi tạo user toàn cục (<code>POST /users-global</code>)</td>
+<td><code>vas.user.created.v1</code></td>
+<td><code>user-service/sub</code>, <code>audit-log</code></td>
+</tr>
+<tr>
+<td><code>tenant_created</code></td>
+<td>Khi tạo tenant mới (<code>POST /tenants</code>)</td>
+<td><code>vas.tenant.created.v1</code></td>
+<td><code>user-service/sub</code>, <code>sms-service</code></td>
+</tr>
+<tr>
+<td><code>tenant_user_assigned</code></td>
+<td>Khi gán user vào tenant (<code>POST /user-tenant-assignments</code>)</td>
+<td><code>vas.tenant_user.assigned.v1</code></td>
+<td><code>user-service/sub</code>, <code>auth-service/sub</code></td>
+</tr>
+<tr>
+<td><code>rbac_template_updated</code></td>
+<td>Khi cập nhật role template (<code>PATCH /global-roles-templates/{template_key}</code>)</td>
+<td><code>vas.rbac.template.updated.v1</code></td>
+<td><code>user-service/sub</code>, <code>lms-service/sub</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p><strong>Lưu ý:</strong>
+- Mỗi sự kiện đều kèm <code>trace_id</code> để phục vụ cho audit và trace liên dịch vụ.
+- Toàn bộ schema được định nghĩa rõ trong <code>event-schema.yaml</code> của <code>eventing standard</code> (tham khảo <code>adr-030</code>).
+- Các Sub Service sẽ dùng consumer riêng biệt để xử lý sự kiện theo <code>tenant_id</code>.</p>
+<hr/>
+<h3 id="61-vi-du-su-kien-user_global_created">6.1. 📦 Ví dụ: Sự kiện <code>user_global_created</code><a class="headerlink" href="#61-vi-du-su-kien-user_global_created" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Được phát bởi:</strong> <code>POST /users-global</code></li>
+<li><strong>Tiêu chuẩn định danh:</strong> <code>vas.user.created.v1</code></li>
+<li><strong>Mục đích:</strong> Đồng bộ tạo user tới các Sub Service (User Sub, Notification, LMS, Audit...)</li>
+</ul>
+<hr/>
+<h4 id="payload-mau">📤 Payload mẫu<a class="headerlink" href="#payload-mau" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="p">{</span>
+</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="w">  </span><span class="nt">"event_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas.user.created.v1"</span><span class="p">,</span>
+</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">  </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-xyz-123"</span><span class="p">,</span>
+</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">  </span><span class="nt">"emitted_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T08:35:00Z"</span><span class="p">,</span>
+</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">    </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_xyz789"</span><span class="p">,</span>
+</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"alice@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="w">    </span><span class="nt">"auth_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google"</span><span class="p">,</span>
+</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">    </span><span class="nt">"full_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice B"</span><span class="p">,</span>
+</span><span id="__span-19-10"><a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span>
+</span><span id="__span-19-11"><a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="w">    </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T08:30:00Z"</span>
+</span><span id="__span-19-12"><a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-19-13"><a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="mo-ta-schema">🧾 Mô tả schema<a class="headerlink" href="#mo-ta-schema" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event_name</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Định danh sự kiện theo chuẩn ADR-030</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>ID trace phục vụ observability</td>
+</tr>
+<tr>
+<td><code>emitted_at</code></td>
+<td>datetime</td>
+<td>✅</td>
+<td>Thời điểm sự kiện được phát</td>
+</tr>
+<tr>
+<td><code>data.user_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>ID người dùng toàn cục</td>
+</tr>
+<tr>
+<td><code>data.email</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Email đăng nhập</td>
+</tr>
+<tr>
+<td><code>data.auth_provider</code></td>
+<td>enum (<code>google</code>, <code>local</code>, <code>otp</code>)</td>
+<td>✅</td>
+<td>Nhà cung cấp xác thực</td>
+</tr>
+<tr>
+<td><code>data.full_name</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Họ tên người dùng</td>
+</tr>
+<tr>
+<td><code>data.status</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Trạng thái ban đầu (<code>active</code>, <code>inactive</code>)</td>
+</tr>
+<tr>
+<td><code>data.created_at</code></td>
+<td>datetime</td>
+<td>✅</td>
+<td>Thời điểm khởi tạo</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu-su-kien">✅ Gợi ý kiểm thử sự kiện<a class="headerlink" href="#goi-y-kiem-thu-su-kien" title="Permanent link">¶</a></h4>
+<ul>
+<li>Tạo user mới → kiểm tra message được đẩy vào message broker (Kafka, NATS...)</li>
+<li>Kiểm tra trace_id có mặt ở cả phía caller lẫn message</li>
+<li>Sub Service nhận đúng schema và xử lý đúng logic khởi tạo user nội bộ</li>
+</ul>
+<hr/>
+<h3 id="62-vi-du-su-kien-tenant_user_assigned">6.2. 📦 Ví dụ: Sự kiện <code>tenant_user_assigned</code><a class="headerlink" href="#62-vi-du-su-kien-tenant_user_assigned" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Được phát bởi:</strong> <code>POST /user-tenant-assignments</code></li>
+<li><strong>Tiêu chuẩn định danh:</strong> <code>vas.tenant_user.assigned.v1</code></li>
+<li><strong>Mục đích:</strong> Đồng bộ việc gán user vào tenant tới các Sub Service để khởi tạo user nội bộ trong tenant context.</li>
+</ul>
+<hr/>
+<h4 id="payload-mau_1">📤 Payload mẫu<a class="headerlink" href="#payload-mau_1" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="p">{</span>
+</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="w">  </span><span class="nt">"event_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas.tenant_user.assigned.v1"</span><span class="p">,</span>
+</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">  </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trace-xyz-456"</span><span class="p">,</span>
+</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">  </span><span class="nt">"emitted_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T09:15:00Z"</span><span class="p">,</span>
+</span><span id="__span-20-5"><a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-6"><a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">    </span><span class="nt">"user_global_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_abc123"</span><span class="p">,</span>
+</span><span id="__span-20-7"><a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">    </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_vas001"</span><span class="p">,</span>
+</span><span id="__span-20-8"><a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="w">    </span><span class="nt">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-tenant-001"</span><span class="p">,</span>
+</span><span id="__span-20-9"><a href="#__codelineno-20-9" id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="w">    </span><span class="nt">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-20-10"><a href="#__codelineno-20-10" id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="w">    </span><span class="nt">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-13T09:14:00Z"</span>
+</span><span id="__span-20-11"><a href="#__codelineno-20-11" id="__codelineno-20-11" name="__codelineno-20-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-20-12"><a href="#__codelineno-20-12" id="__codelineno-20-12" name="__codelineno-20-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h4 id="mo-ta-schema_1">🧾 Mô tả schema<a class="headerlink" href="#mo-ta-schema_1" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event_name</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Định danh sự kiện (theo ADR-030)</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Trace ID liên kết với luồng tương tác</td>
+</tr>
+<tr>
+<td><code>emitted_at</code></td>
+<td>datetime</td>
+<td>✅</td>
+<td>Thời điểm phát sự kiện</td>
+</tr>
+<tr>
+<td><code>data.user_global_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>ID người dùng toàn cục</td>
+</tr>
+<tr>
+<td><code>data.tenant_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>ID tenant đích</td>
+</tr>
+<tr>
+<td><code>data.project_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Mã định danh duy nhất của tenant (dùng cho context isolation)</td>
+</tr>
+<tr>
+<td><code>data.assigned_by</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Người thực hiện thao tác gán (email hoặc ID)</td>
+</tr>
+<tr>
+<td><code>data.assigned_at</code></td>
+<td>datetime</td>
+<td>✅</td>
+<td>Thời điểm thao tác gán được thực hiện</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="goi-y-kiem-thu-su-kien_1">✅ Gợi ý kiểm thử sự kiện<a class="headerlink" href="#goi-y-kiem-thu-su-kien_1" title="Permanent link">¶</a></h4>
+<ul>
+<li>Thực hiện <code>POST /user-tenant-assignments</code> → kiểm tra event được đẩy đúng định dạng</li>
+<li>Sub Service kiểm tra context <code>tenant_id + project_id</code> để tạo schema hoặc account nội bộ</li>
+<li>Audit Service ghi nhận <code>assigned_by</code> + <code>trace_id</code> để phục vụ tra soát</li>
+<li>Kiểm tra event không phát trùng khi gán lại user cũ</li>
+</ul>
+<hr/>
+<h2 id="7-cach-su-dung-pho-bien-business-flow">7. 🧠 Cách sử dụng phổ biến (business flow)<a class="headerlink" href="#7-cach-su-dung-pho-bien-business-flow" title="Permanent link">¶</a></h2>
+<p>Dưới đây là các luồng nghiệp vụ chính có sự tham gia của <code>user-service/master</code>, đóng vai trò trung tâm trong quản lý định danh toàn cục, RBAC phân tầng, và đồng bộ user đến từng tenant.</p>
+<hr/>
+<h3 id="71-ang-nhap-lan-au-tao-user-toan-cuc-qua-auth-service">7.1. 🌐 Đăng nhập lần đầu &amp; tạo user toàn cục (qua Auth Service)<a class="headerlink" href="#71-ang-nhap-lan-au-tao-user-toan-cuc-qua-auth-service" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant FE as Frontend
+    participant Auth as Auth Service
+    participant UserMaster as User Service Master
+
+    FE-&gt;&gt;Auth: Gửi mã OAuth (code)
+    Auth-&gt;&gt;UserMaster: GET /users-global/by-email
+    alt User chưa tồn tại
+        Auth-&gt;&gt;UserMaster: POST /users-global
+    end
+    UserMaster--&gt;&gt;Auth: Trả thông tin user toàn cục
+    Auth--&gt;&gt;FE: Trả JWT + profile
+</code></pre>
+<hr/>
+<h3 id="72-superadmin-tao-tenant-moi-phan-quyen">7.2. 🏫 Superadmin tạo tenant mới &amp; phân quyền<a class="headerlink" href="#72-superadmin-tao-tenant-moi-phan-quyen" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Superadmin
+    participant UserMaster as User Service Master
+    participant AllSubs as Sub Services
+
+    Superadmin-&gt;&gt;UserMaster: POST /tenants
+    UserMaster--&gt;&gt;AllSubs: Emit `tenant_created`
+
+    Superadmin-&gt;&gt;UserMaster: POST /user-tenant-assignments
+    UserMaster--&gt;&gt;AllSubs: Emit `tenant_user_assigned`
+</code></pre>
+<hr/>
+<h3 id="73-quan-tri-rbac-toan-cuc">7.3. 🔐 Quản trị RBAC toàn cục<a class="headerlink" href="#73-quan-tri-rbac-toan-cuc" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Admin
+    participant UserMaster as User Service Master
+    participant LMSSub as LMS Sub Service
+
+    Admin-&gt;&gt;UserMaster: POST /global-roles-templates
+    Admin-&gt;&gt;UserMaster: POST /global-permissions-templates
+    Admin-&gt;&gt;UserMaster: PATCH /global-roles-templates/{template_key}
+    UserMaster--&gt;&gt;LMSSub: Emit `rbac_template_updated`
+</code></pre>
+<hr/>
+<h3 id="74-ong-bo-user-cho-tenant-moi-qua-sub-service">7.4. 🧩 Đồng bộ user cho tenant mới (qua Sub Service)<a class="headerlink" href="#74-ong-bo-user-cho-tenant-moi-qua-sub-service" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant TenantFE as Tenant Webapp
+    participant AuthSub as Auth Sub
+    participant UserSub as User Sub
+    participant UserMaster as User Service Master
+
+    TenantFE-&gt;&gt;AuthSub: Đăng nhập
+    AuthSub-&gt;&gt;UserMaster: GET /users-global/by-email
+    AuthSub-&gt;&gt;UserMaster: GET /user-tenant-assignments
+    alt Nếu chưa được gán
+        AuthSub-&gt;&gt;UserMaster: POST /user-tenant-assignments
+        UserMaster--&gt;&gt;UserSub: Emit `tenant_user_assigned`
+    end
+    UserSub--&gt;&gt;AuthSub: Sync thông tin user tenant
+    AuthSub--&gt;&gt;TenantFE: Trả JWT theo context tenant
+</code></pre>
+<hr/>
+<h3 id="ghi-chu">🔎 Ghi chú<a class="headerlink" href="#ghi-chu" title="Permanent link">¶</a></h3>
+<ul>
+<li>Mỗi luồng đều gắn chặt với các API đã định nghĩa và sự kiện phát ra tương ứng trong mục 5–6.</li>
+<li>Trace ID luôn được truyền theo toàn luồng, phục vụ audit và debug.</li>
+<li>Các luồng luôn đi từ dịch vụ trung tâm (<code>master</code>) xuống dịch vụ con (<code>sub</code>), đúng với kiến trúc phân tầng multi-tenant đã định nghĩa trong <code>system-diagrams.md</code>.</li>
+</ul>
+<hr/>
+<h2 id="8-phu-luc">8. 📎 Phụ lục<a class="headerlink" href="#8-phu-luc" title="Permanent link">¶</a></h2>
+<h3 id="81-chuan-hoa-ma-loi-error-codes">8.1. 📚 Chuẩn hóa mã lỗi (Error Codes)<a class="headerlink" href="#81-chuan-hoa-ma-loi-error-codes" title="Permanent link">¶</a></h3>
+<p>Tất cả các mã lỗi (<code>error.code</code>) trong response phải tuân thủ theo chuẩn định danh namespace được mô tả tại:</p>
+<ul>
+<li><a href="../../../../standards/error-codes/">Error Codes</a></li>
+<li><a href="../../../../ADR/adr-011-api-error-format/">ADR-011 Error Format</a></li>
+</ul>
+<p><strong>Yêu cầu bắt buộc:</strong></p>
+<ul>
+<li>
+<p>Mã lỗi phải viết theo dạng <strong>snake_case</strong>, có <strong>namespace phân tách rõ ràng</strong>, ví dụ:</p>
+</li>
+<li>
+<p><code>user.user_not_found</code></p>
+</li>
+<li><code>auth.invalid_token</code></li>
+<li><code>common.validation_failed</code></li>
+<li>
+<p>Mỗi response lỗi (401, 403, 404, 422...) phải trả về đối tượng <code>ErrorEnvelope</code>, gồm 2 phần:</p>
+</li>
+<li>
+<p><code>error</code> – chứa <code>code</code>, <code>message</code>, <code>details</code></p>
+</li>
+<li><code>meta</code> – chứa <code>trace_id</code>, <code>timestamp</code></li>
+</ul>
+<p><strong>Gợi ý thực hành:</strong></p>
+<ul>
+<li>Không dùng các mã lỗi chung chung như <code>"BAD_REQUEST"</code>, <code>"NOT_FOUND"</code>, <code>"FORBIDDEN"</code></li>
+<li>Luôn khai báo ví dụ cụ thể (ví dụ trong <code>components/examples/</code> hoặc inline OpenAPI) để giúp dev hiểu nhanh</li>
+<li>Tái sử dụng error namespace có sẵn từ <code>error-codes.md</code> hoặc khai báo namespace mới nếu cần</li>
+</ul>
+<h3 id="82-tai-lieu-lien-ket">8.2. 📚 Tài liệu liên kết<a class="headerlink" href="#82-tai-lieu-lien-ket" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="../design/">Design</a></li>
+<li><a href="../data-model/">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI</a></li>
+<li><a href="../../../../ADR/adr-030-event-schema-governance/">ADR-030 – Event Schema Governance</a></li>
+<li><a href="../../../../ADR/adr-011-api-error-format/">ADR-011 Error Format</a></li>
+<li><a href="../../../../ADR/adr-027-data-management-strategy/">ADR-027 Data Management Strategy</a></li>
+<li><a href="../../../../standards/error-codes/">Error Codes</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

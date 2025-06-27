@@ -1,0 +1,801 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/user-service/sub/data-model/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Data Model – User Service Sub - DX VAS - Docs</title>
+<link href="../../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#user-service-sub-data-model">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Data Model – User Service Sub
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gioi-thieu">
+<span class="md-ellipsis">
+      📘 Giới thiệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-so-o-erd-entity-relationship-diagram">
+<span class="md-ellipsis">
+      1. Sơ đồ ERD (Entity Relationship Diagram)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-chi-tiet-bang">
+<span class="md-ellipsis">
+      2. Chi tiết Bảng
+    </span>
+</a>
+<nav aria-label="2. Chi tiết Bảng" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#userlocal">
+<span class="md-ellipsis">
+      📌 UserLocal
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usertenantrole">
+<span class="md-ellipsis">
+      📌 UserTenantRole
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#roletemplatelite">
+<span class="md-ellipsis">
+      📌 RoleTemplateLite
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#permissiontemplatelite">
+<span class="md-ellipsis">
+      📌 PermissionTemplateLite
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-rang-buoc-chi-muc-hanh-vi-cascade">
+<span class="md-ellipsis">
+      3. Ràng buộc, Chỉ mục &amp; Hành vi Cascade
+    </span>
+</a>
+<nav aria-label="3. Ràng buộc, Chỉ mục &amp; Hành vi Cascade" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rang-buoc-hanh-vi-cascade">
+<span class="md-ellipsis">
+      🔐 Ràng buộc &amp; Hành vi Cascade
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chi-muc-indexes">
+<span class="md-ellipsis">
+      📌 Chỉ mục (Indexes)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-enum-su-dung">
+<span class="md-ellipsis">
+      4. Enum sử dụng
+    </span>
+</a>
+<nav aria-label="4. Enum sử dụng" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#auth_provider">
+<span class="md-ellipsis">
+      auth_provider
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#status">
+<span class="md-ellipsis">
+      status
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-tuan-thu-adr-chinh-sach">
+<span class="md-ellipsis">
+      5. Tuân thủ ADR &amp; Chính sách
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-lien-ket-tai-lieu">
+<span class="md-ellipsis">
+      6. Liên kết tài liệu
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="user-service-sub-data-model">🗃️ User Service Sub - Data Model<a class="headerlink" href="#user-service-sub-data-model" title="Permanent link">¶</a></h1>
+<h2 id="gioi-thieu">📘 Giới thiệu<a class="headerlink" href="#gioi-thieu" title="Permanent link">¶</a></h2>
+<p><code>user-service/sub/</code> là một service chỉ đọc (read-only) theo kiến trúc master/sub. Service này quản lý dữ liệu người dùng trong phạm vi một tenant cụ thể. Dữ liệu được đồng bộ một chiều từ <code>user-service/master</code> thông qua các sự kiện Pub/Sub, không cho phép ghi trực tiếp từ phía client.</p>
+<p>Tài liệu này mô tả toàn bộ mô hình dữ liệu nội bộ của Sub Service, bao gồm các bảng: <code>UserLocal</code>, <code>UserTenantRole</code>, <code>RoleTemplateLite</code>, và <code>PermissionTemplateLite</code>.<br/>
+Dữ liệu này không bao gồm thông tin xác thực (auth), cũng không quản lý RBAC template gốc (chỉ giữ bản sao).</p>
+<hr/>
+<h2 id="1-so-o-erd-entity-relationship-diagram">1. Sơ đồ ERD (Entity Relationship Diagram)<a class="headerlink" href="#1-so-o-erd-entity-relationship-diagram" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>erDiagram
+  UserLocal ||--o{ UserTenantRole : has
+  UserTenantRole }o--|| RoleTemplateLite : references
+  RoleTemplateLite ||--o{ PermissionTemplateLite : includes
+
+  UserLocal {
+    UUID user_id PK
+    STRING email
+    STRING full_name
+    STRING auth_provider
+    STRING status
+    BOOLEAN is_active_in_tenant
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  UserTenantRole {
+    UUID user_id FK
+    STRING role_code FK
+    STRING[] permissions
+  }
+
+  RoleTemplateLite {
+    STRING role_code PK
+    STRING name
+    STRING description
+  }
+
+  PermissionTemplateLite {
+    STRING code PK
+    STRING resource
+    STRING action
+    STRING description
+  }
+</code></pre>
+<blockquote>
+<p>💡 <strong>Ghi chú:</strong>
+Mối quan hệ <code>RoleTemplateLite → PermissionTemplateLite</code> là <strong>logic</strong>, thể hiện việc một role "bao gồm" các permissions. RBACResolver sẽ tự động "expand" quyền dựa trên cache template – không có bảng join vật lý giữa 2 bảng này.</p>
+</blockquote>
+<hr/>
+<h2 id="2-chi-tiet-bang">2. Chi tiết Bảng<a class="headerlink" href="#2-chi-tiet-bang" title="Permanent link">¶</a></h2>
+<h3 id="userlocal">📌 <code>UserLocal</code><a class="headerlink" href="#userlocal" title="Permanent link">¶</a></h3>
+<blockquote>
+<p>Bảng này chứa thông tin người dùng nội bộ đã được đồng bộ từ Master. Dùng để truy xuất dữ liệu user và trạng thái kích hoạt trong tenant hiện tại.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Tên cột</th>
+<th>Kiểu</th>
+<th>Ràng buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>ID người dùng nội bộ, mirror từ Master</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>string</td>
+<td>NOT NULL</td>
+<td>Email của người dùng</td>
+</tr>
+<tr>
+<td><code>full_name</code></td>
+<td>string</td>
+<td></td>
+<td>Họ tên đầy đủ</td>
+</tr>
+<tr>
+<td><code>auth_provider</code></td>
+<td>enum</td>
+<td>NOT NULL</td>
+<td><code>local</code> hoặc <code>google</code></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>enum</td>
+<td>NOT NULL</td>
+<td><code>active</code>, <code>suspended</code>, <code>invited</code>, <code>deleted</code>, mirror từ UserGlobal</td>
+</tr>
+<tr>
+<td><code>is_active_in_tenant</code></td>
+<td>boolean</td>
+<td>NOT NULL</td>
+<td>Trạng thái assignment còn hiệu lực trong tenant</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>datetime</td>
+<td>DEFAULT NOW()</td>
+<td>Ngày tạo bản ghi</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>datetime</td>
+<td></td>
+<td>Ngày cập nhật gần nhất</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">user_local</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="n">user_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="n">email</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="n">full_name</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="n">auth_provider</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="n">status</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="n">is_active_in_tenant</span><span class="w"> </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">TRUE</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="n">updated_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="p">);</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="usertenantrole">📌 <code>UserTenantRole</code><a class="headerlink" href="#usertenantrole" title="Permanent link">¶</a></h3>
+<blockquote>
+<p>Liên kết người dùng với các role trong tenant, dùng để expand quyền của user trong RBACResolver.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Tên cột</th>
+<th>Kiểu</th>
+<th>Ràng buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>UUID</td>
+<td>FK → <code>UserLocal.user_id</code></td>
+<td>Người dùng được gán</td>
+</tr>
+<tr>
+<td><code>role_code</code></td>
+<td>string</td>
+<td>FK → <code>RoleTemplateLite.role_code</code></td>
+<td>Mã role được gán</td>
+</tr>
+<tr>
+<td><code>permissions</code></td>
+<td>string[]</td>
+<td></td>
+<td>Danh sách quyền mở rộng từ role_code (cache local)</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">user_tenant_role</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="n">user_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">user_local</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="n">role_code</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">role_template_lite</span><span class="p">(</span><span class="n">role_code</span><span class="p">),</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="n">permissions</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">[],</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">role_code</span><span class="p">)</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="p">);</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="roletemplatelite">📌 <code>RoleTemplateLite</code><a class="headerlink" href="#roletemplatelite" title="Permanent link">¶</a></h3>
+<blockquote>
+<p>Bản sao role template đã đồng bộ từ Master. Không chỉnh sửa tại Sub.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Tên cột</th>
+<th>Kiểu</th>
+<th>Ràng buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>role_code</code></td>
+<td>string</td>
+<td>PK</td>
+<td>Mã định danh role (duy nhất trong hệ thống)</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td></td>
+<td>Tên hiển thị của role</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td></td>
+<td>Mô tả chi tiết role</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">role_template_lite</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="n">role_code</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="n">description</span><span class="w"> </span><span class="nb">TEXT</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="p">);</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="permissiontemplatelite">📌 <code>PermissionTemplateLite</code><a class="headerlink" href="#permissiontemplatelite" title="Permanent link">¶</a></h3>
+<blockquote>
+<p>Danh sách các quyền có thể sử dụng tại tenant, được đồng bộ từ Master.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Tên cột</th>
+<th>Kiểu</th>
+<th>Ràng buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>string</td>
+<td>PK</td>
+<td>Mã permission</td>
+</tr>
+<tr>
+<td><code>resource</code></td>
+<td>string</td>
+<td></td>
+<td>Tài nguyên áp dụng (VD: <code>student</code>, <code>gradebook</code>)</td>
+</tr>
+<tr>
+<td><code>action</code></td>
+<td>string</td>
+<td></td>
+<td>Hành động được phép (VD: <code>view</code>, <code>edit</code>)</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td></td>
+<td>Mô tả quyền này cho mục đích UI/Admin</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">permission_template_lite</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="n">code</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="n">resource</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="n">action</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="n">description</span><span class="w"> </span><span class="nb">TEXT</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="p">);</span>
+</span></code></pre></div>
+<hr/>
+<h2 id="3-rang-buoc-chi-muc-hanh-vi-cascade">3. Ràng buộc, Chỉ mục &amp; Hành vi Cascade<a class="headerlink" href="#3-rang-buoc-chi-muc-hanh-vi-cascade" title="Permanent link">¶</a></h2>
+<h3 id="rang-buoc-hanh-vi-cascade">🔐 Ràng buộc &amp; Hành vi Cascade<a class="headerlink" href="#rang-buoc-hanh-vi-cascade" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>UserTenantRole.user_id</code> có <code>ON DELETE CASCADE</code> → nếu user bị purge, các vai trò sẽ tự động bị xóa.</li>
+<li><code>UserTenantRole.role_code</code> dùng <code>ON DELETE RESTRICT</code> → tránh lỗi do mất role đồng bộ.</li>
+<li>Không có bảng join giữa role và permission – mapping logic nằm trong memory (RBACResolver cache).</li>
+</ul>
+<h3 id="chi-muc-indexes">📌 Chỉ mục (Indexes)<a class="headerlink" href="#chi-muc-indexes" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bảng</th>
+<th>Cột được index</th>
+<th>Loại index</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserLocal</code></td>
+<td><code>user_id</code></td>
+<td>PK (UUID)</td>
+<td>Lookup chính</td>
+</tr>
+<tr>
+<td><code>UserTenantRole</code></td>
+<td><code>(user_id, role_code)</code></td>
+<td>Composite PK</td>
+<td>Truy vấn theo cặp user-role</td>
+</tr>
+<tr>
+<td><code>UserTenantRole</code></td>
+<td><code>user_id</code></td>
+<td>Index</td>
+<td>Giúp truy vấn nhanh vai trò của một user</td>
+</tr>
+<tr>
+<td><code>RoleTemplateLite</code></td>
+<td><code>role_code</code></td>
+<td>PK</td>
+<td>Lookup duy nhất theo mã role</td>
+</tr>
+<tr>
+<td><code>PermissionTemplateLite</code></td>
+<td><code>code</code></td>
+<td>PK</td>
+<td>Lookup duy nhất theo mã permission</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 Các bảng template là dữ liệu tĩnh chỉ đọc, thường không cần index bổ sung ngoài khóa chính.</p>
+</blockquote>
+<hr/>
+<h2 id="4-enum-su-dung">4. Enum sử dụng<a class="headerlink" href="#4-enum-su-dung" title="Permanent link">¶</a></h2>
+<h3 id="auth_provider"><code>auth_provider</code><a class="headerlink" href="#auth_provider" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>local</code></li>
+<li><code>google</code></li>
+</ul>
+<h3 id="status"><code>status</code><a class="headerlink" href="#status" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>active</code></li>
+<li><code>invited</code></li>
+<li><code>suspended</code></li>
+<li><code>deleted</code></li>
+</ul>
+<hr/>
+<h2 id="5-tuan-thu-adr-chinh-sach">5. Tuân thủ ADR &amp; Chính sách<a class="headerlink" href="#5-tuan-thu-adr-chinh-sach" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>ADR</th>
+<th>Mô tả liên quan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../../../ADR/adr-024-data-anonymization-retention/">ADR-024</a></td>
+<td>TTL dữ liệu nếu user không còn hoạt động</td>
+</tr>
+<tr>
+<td><a href="../../../../ADR/adr-026-hard-delete-policy/">ADR-026</a></td>
+<td>Quy tắc xử lý <code>purge</code> user</td>
+</tr>
+<tr>
+<td><a href="../../../../ADR/adr-027-data-management-strategy/">ADR-027</a></td>
+<td>Phân quyền đọc/ghi theo master/sub</td>
+</tr>
+<tr>
+<td><a href="../../../../ADR/adr-023-schema-migration-strategy/">ADR-023</a></td>
+<td>Chiến lược migration schema</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="6-lien-ket-tai-lieu">6. Liên kết tài liệu<a class="headerlink" href="#6-lien-ket-tai-lieu" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../design/">Design Document</a></li>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

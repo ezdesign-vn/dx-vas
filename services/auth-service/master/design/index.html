@@ -1,0 +1,2262 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/auth-service/master/design/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Thiết kế chi tiết auth-service/master - DX VAS - Docs</title>
+<link href="../../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#thiet-ke-chi-tiet-auth-servicemaster">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Thiết kế chi tiết auth-service/master
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-pham-vi-trach-nhiem">
+<span class="md-ellipsis">
+      1. 🧭 Phạm vi &amp; Trách nhiệm
+    </span>
+</a>
+<nav aria-label="1. 🧭 Phạm vi &amp; Trách nhiệm" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-muc-ich">
+<span class="md-ellipsis">
+      1.1. 🎯 Mục đích
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-nam-trong-pham-vi">
+<span class="md-ellipsis">
+      1.2. ✅ Nằm trong phạm vi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-ngoai-pham-vi">
+<span class="md-ellipsis">
+      1.3. 🚫 Ngoài phạm vi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#14-nguoi-su-dung-chinh">
+<span class="md-ellipsis">
+      1.4. 👥 Người sử dụng chính
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-thiet-ke-api-chi-tiet">
+<span class="md-ellipsis">
+      2. 🌐 Thiết kế API chi tiết
+    </span>
+</a>
+<nav aria-label="2. 🌐 Thiết kế API chi tiết" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-nhom-oauth2-authentication">
+<span class="md-ellipsis">
+      2.1. 🔐 Nhóm: OAuth2 Authentication
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-nhom-user-identity">
+<span class="md-ellipsis">
+      2.2. 🙋 Nhóm: User Identity
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-nhom-internal-testing">
+<span class="md-ellipsis">
+      2.3. 🧪 Nhóm: Internal &amp; Testing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#24-ghi-chu-chung">
+<span class="md-ellipsis">
+      2.4. 📌 Ghi chú chung
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-mo-hinh-du-lieu">
+<span class="md-ellipsis">
+      3. 📃 Mô hình dữ liệu
+    </span>
+</a>
+<nav aria-label="3. 📃 Mô hình dữ liệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-bang-auth_provider_config">
+<span class="md-ellipsis">
+      3.1. Bảng auth_provider_config
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-payload-goi-token-service">
+<span class="md-ellipsis">
+      3.2. Payload gọi token-service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-audit-logging">
+<span class="md-ellipsis">
+      3.3. Audit Logging
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-luong-xu-ly-nghiep-vu-chinh">
+<span class="md-ellipsis">
+      4. 🔄 Luồng xử lý nghiệp vụ chính
+    </span>
+</a>
+<nav aria-label="4. 🔄 Luồng xử lý nghiệp vụ chính" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-muc-tieu">
+<span class="md-ellipsis">
+      4.1. 🎯 Mục tiêu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-luong-google-oauth2-login-token-issue">
+<span class="md-ellipsis">
+      4.2. 🔁 Luồng: Google OAuth2 Login &amp; Token Issue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-dien-giai-chi-tiet">
+<span class="md-ellipsis">
+      4.3. 🧠 Diễn giải chi tiết
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#44-luu-y-ac-biet">
+<span class="md-ellipsis">
+      4.4. ⚠️ Lưu ý đặc biệt
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-tuong-tac-giua-cac-service">
+<span class="md-ellipsis">
+      5. 📣 Tương tác giữa các service
+    </span>
+</a>
+<nav aria-label="5. 📣 Tương tác giữa các service" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-google-oauth2-provider">
+<span class="md-ellipsis">
+      🔗 5.1. Google OAuth2 Provider
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-user-service">
+<span class="md-ellipsis">
+      🔗 5.2. user-service
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tat-ca-cac-phuong-thuc-xac-thuc-oauth2-otp-local-eu-goi-user-service-e-tim-hoac-tao-user">
+<span class="md-ellipsis">
+      &gt; 🔁 Tất cả các phương thức xác thực (OAuth2, OTP, Local) đều gọi user-service để tìm hoặc tạo user.
+    </span>
+</a>
+<nav aria-label="&gt; 🔁 Tất cả các phương thức xác thực (OAuth2, OTP, Local) đều gọi user-service để tìm hoặc tạo user." class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-token-service">
+<span class="md-ellipsis">
+      🔗 5.3. token-service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-audit-service">
+<span class="md-ellipsis">
+      🔗 5.4. audit-service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#55-api-gateway">
+<span class="md-ellipsis">
+      🔗 5.5. api-gateway
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-bao-mat-phan-quyen">
+<span class="md-ellipsis">
+      6. 🔐 Bảo mật &amp; Phân quyền
+    </span>
+</a>
+<nav aria-label="6. 🔐 Bảo mật &amp; Phân quyền" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-co-che-bao-mat-tong-the">
+<span class="md-ellipsis">
+      🔐 6.1. Cơ chế bảo mật tổng thể
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-kiem-soat-truy-cap-phan-quyen">
+<span class="md-ellipsis">
+      🧩 6.2. Kiểm soát truy cập &amp; Phân quyền
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-header-kiem-soat-trace">
+<span class="md-ellipsis">
+      🧾 6.3. Header kiểm soát &amp; Trace
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-chinh-sach-jwt">
+<span class="md-ellipsis">
+      📜 6.4. Chính sách JWT
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#65-bien-phap-chong-gia-mao">
+<span class="md-ellipsis">
+      ⚠️ 6.5. Biện pháp chống giả mạo
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cau-hinh-phu-thuoc">
+<span class="md-ellipsis">
+      7. ⚙️ Cấu hình &amp; Phụ thuộc
+    </span>
+</a>
+<nav aria-label="7. ⚙️ Cấu hình &amp; Phụ thuộc" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-cau-hinh-moi-truong-environment-variables">
+<span class="md-ellipsis">
+      🔧 7.1. Cấu hình môi trường (Environment Variables)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-phu-thuoc-he-thong">
+<span class="md-ellipsis">
+      📦 7.2. Phụ thuộc hệ thống
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-khong-phu-thuoc">
+<span class="md-ellipsis">
+      🧱 7.3. Không phụ thuộc
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-tich-hop-trien-khai-devops">
+<span class="md-ellipsis">
+      ☁️ 7.4. Tích hợp triển khai (DevOps)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-testing">
+<span class="md-ellipsis">
+      8. 🧪 Testing
+    </span>
+</a>
+<nav aria-label="8. 🧪 Testing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-unit-test">
+<span class="md-ellipsis">
+      ✅ 8.1. Unit Test
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-integration-test">
+<span class="md-ellipsis">
+      🧪 8.2. Integration Test
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-end-to-end-test-e2e">
+<span class="md-ellipsis">
+      🌐 8.3. End-to-End Test (E2E)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-bo-test-ac-biet">
+<span class="md-ellipsis">
+      📋 8.4. Bộ test đặc biệt
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-cicd-check">
+<span class="md-ellipsis">
+      📦 8.5. CI/CD Check
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-observability">
+<span class="md-ellipsis">
+      9. 📈 Observability
+    </span>
+</a>
+<nav aria-label="9. 📈 Observability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-logging">
+<span class="md-ellipsis">
+      📍 9.1. Logging
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-metrics-prometheus">
+<span class="md-ellipsis">
+      📊 9.2. Metrics (Prometheus)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-audit-logging">
+<span class="md-ellipsis">
+      📝 9.3. Audit Logging
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#94-trace-opentelemetry">
+<span class="md-ellipsis">
+      📈 9.4. Trace (OpenTelemetry)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#95-alert-rule-goi-y">
+<span class="md-ellipsis">
+      🔎 9.5. Alert Rule gợi ý
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-reliability">
+<span class="md-ellipsis">
+      10. 🔁 Reliability
+    </span>
+</a>
+<nav aria-label="10. 🔁 Reliability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-stateless-by-design">
+<span class="md-ellipsis">
+      💡 10.1. Stateless by Design
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-co-che-retry-timeout">
+<span class="md-ellipsis">
+      🔄 10.2. Cơ chế Retry &amp; Timeout
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-fail-fast-strategy">
+<span class="md-ellipsis">
+      🧱 10.3. Fail-Fast Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-graceful-fallback">
+<span class="md-ellipsis">
+      ⛑ 10.4. Graceful Fallback
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#105-circuit-breaker-tuy-chon">
+<span class="md-ellipsis">
+      🛡 10.5. Circuit Breaker (Tùy chọn)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#106-chaos-testing-khuyen-nghi">
+<span class="md-ellipsis">
+      🧪 10.6. Chaos Testing (khuyến nghị)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#107-sla-goi-y">
+<span class="md-ellipsis">
+      🧮 10.7. SLA gợi ý
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-hieu-nang-scale">
+<span class="md-ellipsis">
+      11. ⚡️ Hiệu năng &amp; Scale
+    </span>
+</a>
+<nav aria-label="11. ⚡️ Hiệu năng &amp; Scale" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#111-ac-iem-hieu-nang">
+<span class="md-ellipsis">
+      🚀 11.1. Đặc điểm hiệu năng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#112-uoc-luong-hieu-nang">
+<span class="md-ellipsis">
+      🧮 11.2. Ước lượng hiệu năng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#113-benchmark-co-ban-tham-khao">
+<span class="md-ellipsis">
+      📏 11.3. Benchmark cơ bản (tham khảo)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#114-chien-luoc-scale">
+<span class="md-ellipsis">
+      📈 11.4. Chiến lược scale
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#115-toi-uu-cu-the">
+<span class="md-ellipsis">
+      📉 11.5. Tối ưu cụ thể
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-trien-khai-migration">
+<span class="md-ellipsis">
+      12. 🧩 Triển khai &amp; Migration
+    </span>
+</a>
+<nav aria-label="12. 🧩 Triển khai &amp; Migration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#121-chien-luoc-trien-khai">
+<span class="md-ellipsis">
+      🚀 12.1. Chiến lược triển khai
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#122-zero-downtime-strategy">
+<span class="md-ellipsis">
+      ⛳ 12.2. Zero Downtime Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#123-migration-strategy-du-lieu-cau-hinh">
+<span class="md-ellipsis">
+      🔄 12.3. Migration Strategy (Dữ liệu &amp; Cấu hình)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#124-chuan-bi-cho-production">
+<span class="md-ellipsis">
+      🧪 12.4. Chuẩn bị cho production
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-tai-lieu-lien-quan">
+<span class="md-ellipsis">
+      13. 📚 Tài liệu liên quan
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="thiet-ke-chi-tiet-auth-servicemaster">📘 Thiết kế chi tiết auth-service/master<a class="headerlink" href="#thiet-ke-chi-tiet-auth-servicemaster" title="Permanent link">¶</a></h1>
+<h2 id="1-pham-vi-trach-nhiem">1. 🧭 Phạm vi &amp; Trách nhiệm<a class="headerlink" href="#1-pham-vi-trach-nhiem" title="Permanent link">¶</a></h2>
+<h3 id="11-muc-ich">1.1. 🎯 Mục đích<a class="headerlink" href="#11-muc-ich" title="Permanent link">¶</a></h3>
+<p><code>auth-service/master</code> đóng vai trò là <strong>"Nhà Điều Phối Xác Thực" (Authentication Orchestrator)</strong> trong hệ sinh thái DX-VAS.<br/>
+Nó chịu trách nhiệm xác minh danh tính người dùng qua các phương thức được hỗ trợ (Google OAuth2, OTP, Local) và điều phối các thành phần liên quan để hoàn tất quá trình đăng nhập.</p>
+<h3 id="12-nam-trong-pham-vi">1.2. ✅ Nằm trong phạm vi<a class="headerlink" href="#12-nam-trong-pham-vi" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Xác thực danh tính người dùng</strong> qua các phương thức được hỗ trợ:</li>
+<li>✅ Google OAuth2</li>
+<li>✅ OTP (One-Time Password)</li>
+<li>✅ Local (username/password)</li>
+<li><strong>Lấy thông tin người dùng</strong> (email, name, avatar, user_id...) từ Google và đồng bộ với <code>user-service</code>.</li>
+<li><strong>Gửi yêu cầu sinh token</strong> tới <code>token-service</code> thông qua API <code>POST /v1/token/issue</code>.</li>
+<li><strong>Lưu audit log đăng nhập</strong> qua <code>audit-service</code>.</li>
+<li><strong>Trả lại phản hồi chuẩn hóa (<code>SuccessEnvelope</code>, <code>ErrorEnvelope</code>)</strong> cho frontend hoặc API Gateway.</li>
+</ul>
+<h3 id="13-ngoai-pham-vi">1.3. 🚫 Ngoài phạm vi<a class="headerlink" href="#13-ngoai-pham-vi" title="Permanent link">¶</a></h3>
+<ul>
+<li>❌ Không tự tạo JWT token (ủy quyền cho <code>token-service</code>).</li>
+<li>❌ Không lưu trữ session/token.</li>
+<li>❌ Không quản lý RBAC hay introspect permission.</li>
+<li>❌ Không xử lý logic liên quan đến magic link, OTP, hoặc xác thực 2 bước (2FA).</li>
+</ul>
+<h3 id="14-nguoi-su-dung-chinh">1.4. 👥 Người sử dụng chính<a class="headerlink" href="#14-nguoi-su-dung-chinh" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Frontend client</strong> (qua OAuth2 redirect flow)</li>
+<li><strong>API Gateway</strong> (gọi <code>/me</code>, <code>/verify</code>)</li>
+<li><strong>token-service</strong> (được gọi tới từ đây)</li>
+<li><strong>user-service</strong> (được truy vấn hoặc ghi đè user nếu chưa tồn tại)</li>
+</ul>
+<hr/>
+<h2 id="2-thiet-ke-api-chi-tiet">2. 🌐 Thiết kế API chi tiết<a class="headerlink" href="#2-thiet-ke-api-chi-tiet" title="Permanent link">¶</a></h2>
+<h3 id="21-nhom-oauth2-authentication">2.1. 🔐 Nhóm: OAuth2 Authentication<a class="headerlink" href="#21-nhom-oauth2-authentication" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phương thức</th>
+<th>Endpoint</th>
+<th>Mô tả ngắn</th>
+<th>Auth</th>
+<th>Permission</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>/oauth2/login</td>
+<td>Bắt đầu luồng xác thực với Google OAuth2</td>
+<td>❌</td>
+<td>❌</td>
+<td>Redirect đến Google</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/oauth2/callback</td>
+<td>Nhận mã <code>code</code> từ Google, xử lý lấy access token</td>
+<td>❌</td>
+<td>❌</td>
+<td>Internal callback endpoint</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/auth/exchange</td>
+<td>Xử lý luồng login hoàn chỉnh và cấp JWT token</td>
+<td>❌</td>
+<td>❌</td>
+<td>Gọi Google, đồng bộ user, gọi <code>token-service</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/auth/otp</td>
+<td>Gửi mã OTP đến số điện thoại/email</td>
+<td>❌</td>
+<td>❌</td>
+<td>Cho phép public truy cập</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/auth/verify-otp</td>
+<td>Xác minh mã OTP và cấp token nếu hợp lệ</td>
+<td>❌</td>
+<td>❌</td>
+<td>Gọi <code>token-service</code> sau xác thực</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/auth/login</td>
+<td>Đăng nhập bằng username/password</td>
+<td>❌</td>
+<td>❌</td>
+<td>Gọi <code>user-service</code> xác minh, sau đó gọi <code>token-service</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🔄 Trong luồng <code>POST /auth/exchange</code>, sau khi xác thực thành công từ Google:
+1. Gọi <code>user-service</code> để tra cứu/đồng bộ user.
+2. Gọi <code>token-service</code> để phát hành access &amp; refresh token.</p>
+</blockquote>
+<hr/>
+<h3 id="22-nhom-user-identity">2.2. 🙋 Nhóm: User Identity<a class="headerlink" href="#22-nhom-user-identity" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phương thức</th>
+<th>Endpoint</th>
+<th>Mô tả ngắn</th>
+<th>Auth</th>
+<th>Permission</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>/me</td>
+<td>Lấy thông tin user hiện tại (từ access token)</td>
+<td>✅</td>
+<td><code>user.read.self</code></td>
+<td>Trích xuất từ token</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/verify</td>
+<td>Xác thực chữ ký và nội dung của access token</td>
+<td>✅</td>
+<td><code>auth.verify.token</code></td>
+<td>Dành cho API Gateway</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="23-nhom-internal-testing">2.3. 🧪 Nhóm: Internal &amp; Testing<a class="headerlink" href="#23-nhom-internal-testing" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phương thức</th>
+<th>Endpoint</th>
+<th>Mô tả ngắn</th>
+<th>Auth</th>
+<th>Permission</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/dev/mimic</td>
+<td>Giả lập user login (dành cho dev only)</td>
+<td>❌</td>
+<td><code>auth.mimic.dev</code></td>
+<td>Chỉ bật ở <code>debug_mode</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/oauth2/debug</td>
+<td>In ra thông tin access token từ Google</td>
+<td>❌</td>
+<td><code>auth.oauth.debug</code></td>
+<td>Internal</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="24-ghi-chu-chung">2.4. 📌 Ghi chú chung<a class="headerlink" href="#24-ghi-chu-chung" title="Permanent link">¶</a></h3>
+<ul>
+<li>Các API chính đều tuân theo chuẩn <code>SuccessEnvelope</code> và <code>ErrorEnvelope</code> như mô tả trong <code>ADR-011</code>, <code>ADR-012</code>.</li>
+<li>Việc sinh token <strong>không nằm trong auth-service</strong> – thay vào đó, API <code>/auth/exchange</code> sẽ gọi <code>token-service</code> để lấy JWT và <code>session_id</code>.</li>
+<li>Các API <code>/me</code> và <code>/verify</code> phục vụ frontend và Gateway kiểm tra token.</li>
+</ul>
+<blockquote>
+<p><strong>Chi tiết:</strong> <a href="../interface-contract/">Interface Contract</a> &amp; <a href="../openapi.yaml">OpenAPI</a></p>
+</blockquote>
+<hr/>
+<p>Dưới đây là phần đã viết lại cho mục <code>## 3. 📃 Mô hình dữ liệu</code> trong <code>auth-service/master/design.md</code>, phản ánh đúng vai trò "điều phối xác thực", và tuân thủ chỉ thị là <strong>không mô tả session/token nội bộ</strong>, vì phần đó thuộc <code>token-service</code>.</p>
+<hr/>
+<h2 id="3-mo-hinh-du-lieu">3. 📃 Mô hình dữ liệu<a class="headerlink" href="#3-mo-hinh-du-lieu" title="Permanent link">¶</a></h2>
+<h3 id="31-bang-auth_provider_config">3.1. Bảng <code>auth_provider_config</code><a class="headerlink" href="#31-bang-auth_provider_config" title="Permanent link">¶</a></h3>
+<p>Đây là bảng duy nhất <code>auth-service/master</code> thực sự quản lý trong DB nội bộ. Nó lưu thông tin cấu hình OAuth2 theo từng tenant, cho phép hệ thống mở rộng hỗ trợ nhiều nhà cung cấp xác thực trong tương lai.</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu dữ liệu</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>Khóa chính</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>TEXT</td>
+<td>Mã tenant liên kết</td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>TEXT</td>
+<td>Hiện tại là <code>"google"</code></td>
+</tr>
+<tr>
+<td><code>client_id</code></td>
+<td>TEXT</td>
+<td>Google OAuth2 Client ID</td>
+</tr>
+<tr>
+<td><code>client_secret</code></td>
+<td>TEXT</td>
+<td>Google OAuth2 Secret (mã hóa)</td>
+</tr>
+<tr>
+<td><code>redirect_uri</code></td>
+<td>TEXT</td>
+<td>Redirect URI khớp với Google config</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td>TEXT[]</td>
+<td>Mảng scopes yêu cầu từ Google</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>Provider này có đang được kích hoạt không</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>Mặc định <code>now()</code></td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>Tự động cập nhật</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🛡 Mọi access_token của Google sẽ chỉ được lấy nếu provider đó <code>is_active</code>.</p>
+</blockquote>
+<hr/>
+<h3 id="32-payload-goi-token-service">3.2. Payload gọi <code>token-service</code><a class="headerlink" href="#32-payload-goi-token-service" title="Permanent link">¶</a></h3>
+<p>Khi xác thực thành công và cần phát hành token, <code>auth-service/master</code> sẽ gửi payload sau đến <code>token-service</code> qua API <code>POST /v1/token/issue</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"u123"</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-primary"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user@example.com"</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nguyễn Văn A"</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">"avatar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/avatar.png"</span><span class="p">,</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">"grant_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="nt">"client_ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3.4"</span><span class="p">,</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="nt">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Chrome/117"</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>📌 Đây là payload chuẩn hóa giữa các dịch vụ. <code>token-service</code> sẽ xử lý logic RBAC, sinh JWT, lưu session và trả lại <code>access_token</code>, <code>refresh_token</code>, <code>expires_in</code>, <code>session_id</code>.</p>
+<ul>
+<li><code>grant_type</code>: là phương thức xác thực ban đầu của người dùng. Một trong:</li>
+<li><code>google</code></li>
+<li><code>otp</code></li>
+<li><code>local</code></li>
+</ul>
+<hr/>
+<h3 id="33-audit-logging">3.3. Audit Logging<a class="headerlink" href="#33-audit-logging" title="Permanent link">¶</a></h3>
+<p>Mọi lần login thành công sẽ gửi event tới <code>audit-service</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auth.login.success"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"u123"</span><span class="p">,</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-primary"</span><span class="p">,</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google_oauth2"</span><span class="p">,</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-10T12:00:00Z"</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<p>📌 <strong>Lưu ý:</strong>
+Auth Service <strong>không chứa bảng <code>users</code></strong>, không lưu token, không truy cập trực tiếp Redis. Các dữ liệu đó thuộc trách nhiệm của <code>user-service</code> và <code>token-service</code>.</p>
+<p>👉 <strong>Chi tiết sơ đồ ERD, định nghĩa bảng và chiến lược kiểm thử dữ liệu được trình bày tại</strong>:<br/>
+📂 <a href="../data-model/">Data Model</a></p>
+<hr/>
+<p>Dưới đây là nội dung chi tiết cho mục <code>## 4. 🔄 Luồng xử lý nghiệp vụ chính</code> của <code>auth-service/master/design.md</code>, được viết lại theo mô hình điều phối xác thực hiện tại.</p>
+<hr/>
+<h2 id="4-luong-xu-ly-nghiep-vu-chinh">4. 🔄 Luồng xử lý nghiệp vụ chính<a class="headerlink" href="#4-luong-xu-ly-nghiep-vu-chinh" title="Permanent link">¶</a></h2>
+<h3 id="41-muc-tieu">4.1. 🎯 Mục tiêu<a class="headerlink" href="#41-muc-tieu" title="Permanent link">¶</a></h3>
+<p>Luồng xử lý tập trung vào việc xác thực danh tính người dùng qua Google OAuth2 và điều phối các dịch vụ liên quan để:
+- Đồng bộ thông tin người dùng vào <code>user-service</code>
+- Phát hành token thông qua <code>token-service</code>
+- Gửi log sự kiện xác thực tới <code>audit-service</code></p>
+<hr/>
+<h3 id="42-luong-google-oauth2-login-token-issue">4.2. 🔁 Luồng: Google OAuth2 Login &amp; Token Issue<a class="headerlink" href="#42-luong-google-oauth2-login-token-issue" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Client
+    participant AuthService
+    participant Google
+    participant UserService
+    participant TokenService
+    participant AuditService
+
+    Client-&gt;&gt;AuthService: GET /oauth2/login
+    AuthService-&gt;&gt;Google: Redirect đến Google OAuth2
+
+    Google-&gt;&gt;Client: Redirect callback + ?code
+    Client-&gt;&gt;AuthService: GET /oauth2/callback?code=...
+
+    AuthService-&gt;&gt;Google: Trao đổi access_token
+    Google--&gt;&gt;AuthService: Trả userinfo
+
+    AuthService-&gt;&gt;UserService: POST /v1/users/global/sync
+    UserService--&gt;&gt;AuthService: user_id
+
+    AuthService-&gt;&gt;TokenService: POST /v1/token/issue
+    TokenService--&gt;&gt;AuthService: access_token, refresh_token, session_id
+
+    AuthService-&gt;&gt;AuditService: POST /v1/audit/event (auth.login.success)
+
+    AuthService--&gt;&gt;Client: 200 OK + SuccessEnvelope
+</code></pre>
+<blockquote>
+<p>👉 Các luồng xác thực khác như <code>OTP</code>, <code>Local login</code> cũng tuân theo quy trình tương tự:<br/>
+Xác minh → đồng bộ user → gọi <code>token-service</code> → gửi audit log.</p>
+</blockquote>
+<hr/>
+<h3 id="43-dien-giai-chi-tiet">4.3. 🧠 Diễn giải chi tiết<a class="headerlink" href="#43-dien-giai-chi-tiet" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p><strong>Bắt đầu OAuth2</strong>:
+   <code>Client</code> gọi <code>GET /oauth2/login</code> → redirect đến Google.</p>
+</li>
+<li>
+<p><strong>Nhận mã xác thực</strong>:
+   Google redirect về <code>/oauth2/callback?code=...</code>
+<code>AuthService</code> dùng <code>code</code> để lấy access_token và userinfo.</p>
+</li>
+<li>
+<p><strong>Đồng bộ thông tin người dùng</strong>:
+   Gửi thông tin Google profile đến <code>user-service</code> để tìm hoặc tạo user (<code>/v1/users/global/sync</code>).</p>
+</li>
+<li>
+<p><strong>Yêu cầu phát hành token</strong>:
+   Gửi <code>user_id</code>, <code>tenant_id</code>, và metadata đến <code>token-service</code> để sinh token.</p>
+</li>
+<li>
+<p><strong>Ghi log audit</strong>:
+   Gửi event <code>auth.login.success</code> kèm <code>user_id</code>, <code>method</code>, <code>tenant_id</code>.</p>
+</li>
+<li>
+<p><strong>Trả kết quả cho client</strong>:
+   Phản hồi gồm <code>access_token</code>, <code>refresh_token</code>, <code>expires_in</code>, <code>session_id</code> trong <code>SuccessEnvelope</code>.</p>
+</li>
+</ol>
+<hr/>
+<h3 id="44-luu-y-ac-biet">4.4. ⚠️ Lưu ý đặc biệt<a class="headerlink" href="#44-luu-y-ac-biet" title="Permanent link">¶</a></h3>
+<ul>
+<li>Luồng này <strong>không sử dụng cookie session</strong>, chỉ hoạt động bằng JWT.</li>
+<li>Tất cả token và session đều được phát hành và quản lý bởi <code>token-service</code>.</li>
+<li><code>auth-service/master</code> đóng vai trò điều phối thông minh, không giữ state.</li>
+</ul>
+<hr/>
+<h2 id="5-tuong-tac-giua-cac-service">5. 📣 Tương tác giữa các service<a class="headerlink" href="#5-tuong-tac-giua-cac-service" title="Permanent link">¶</a></h2>
+<p><code>auth-service/master</code> không hoạt động độc lập, mà là một trung tâm điều phối các tương tác xác thực với các dịch vụ lõi của hệ thống DX-VAS.</p>
+<hr/>
+<h3 id="51-google-oauth2-provider">🔗 5.1. <code>Google OAuth2 Provider</code><a class="headerlink" href="#51-google-oauth2-provider" title="Permanent link">¶</a></h3>
+<ul>
+<li>Dùng để xác thực danh tính người dùng bằng OAuth2 Authorization Code Flow.</li>
+<li>Giao tiếp thông qua 2 bước:</li>
+<li>Redirect đến URL xác thực của Google (<code>/oauth2/login</code>)</li>
+<li>Gọi Google API để lấy access token và thông tin người dùng (<code>/oauth2/callback</code>)</li>
+</ul>
+<hr/>
+<h3 id="52-user-service">🔗 5.2. <code>user-service</code><a class="headerlink" href="#52-user-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /v1/users/global/sync</code></td>
+<td>Tìm hoặc tạo người dùng từ thông tin Google profile.</td>
+</tr>
+<tr>
+<td>Trả về <code>user_id</code>, <code>tenant_id</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Đây là bước đảm bảo mọi người dùng đều có bản ghi đầy đủ trong hệ thống.</li>
+<li>Thao tác này là <strong>idempotent</strong> – có thể gọi nhiều lần mà không sinh bản ghi trùng.</li>
+</ul>
+<h2 id="tat-ca-cac-phuong-thuc-xac-thuc-oauth2-otp-local-eu-goi-user-service-e-tim-hoac-tao-user">&gt; 🔁 Tất cả các phương thức xác thực (OAuth2, OTP, Local) đều gọi <code>user-service</code> để tìm hoặc tạo user.<a class="headerlink" href="#tat-ca-cac-phuong-thuc-xac-thuc-oauth2-otp-local-eu-goi-user-service-e-tim-hoac-tao-user" title="Permanent link">¶</a></h2>
+<h3 id="53-token-service">🔗 5.3. <code>token-service</code><a class="headerlink" href="#53-token-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /v1/token/issue</code></td>
+<td>Phát hành JWT token (access + refresh) và session_id.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Nhận vào: <code>user_id</code>, <code>tenant_id</code>, <code>client_ip</code>, <code>user_agent</code>, <code>grant_type</code>.</li>
+<li>Trả ra: <code>access_token</code>, <code>refresh_token</code>, <code>session_id</code>, <code>expires_in</code>.</li>
+</ul>
+<p>✅ Token chỉ được sinh nếu xác thực danh tính thành công và có <code>user_id</code> hợp lệ.</p>
+<hr/>
+<h3 id="54-audit-service">🔗 5.4. <code>audit-service</code><a class="headerlink" href="#54-audit-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /v1/audit/event</code></td>
+<td>Ghi nhận sự kiện xác thực: <code>auth.login.success</code>, <code>auth.login.failed</code>...</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Gửi kèm: <code>user_id</code>, <code>tenant_id</code>, <code>timestamp</code>, <code>grant_type</code>, <code>client_ip</code>.</li>
+</ul>
+<hr/>
+<h3 id="55-api-gateway">🔗 5.5. <code>api-gateway</code><a class="headerlink" href="#55-api-gateway" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API gọi tới</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /me</code></td>
+<td>Lấy thông tin người dùng hiện tại</td>
+</tr>
+<tr>
+<td><code>POST /verify</code></td>
+<td>Kiểm tra tính hợp lệ và chữ ký của JWT</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Hai API này giúp Gateway introspect token một cách nhẹ, không cần decode hoặc gọi đến <code>token-service</code>.</li>
+</ul>
+<hr/>
+<p>📌 <strong>Tóm lại</strong>, auth-service/master:
+- <strong>Không giữ trạng thái</strong>, nhưng <strong>điều phối trạng thái</strong> qua các service khác.
+- Là điểm giao tiếp chính giữa thế giới ngoài (Google) và hệ thống nội bộ.</p>
+<hr/>
+<h2 id="6-bao-mat-phan-quyen">6. 🔐 Bảo mật &amp; Phân quyền<a class="headerlink" href="#6-bao-mat-phan-quyen" title="Permanent link">¶</a></h2>
+<h3 id="61-co-che-bao-mat-tong-the">🔐 6.1. Cơ chế bảo mật tổng thể<a class="headerlink" href="#61-co-che-bao-mat-tong-the" title="Permanent link">¶</a></h3>
+<p><code>auth-service/master</code> áp dụng mô hình bảo mật theo chuẩn zero-trust:</p>
+<ul>
+<li>✅ <strong>OAuth2 redirect flow</strong>: sử dụng Google làm Identity Provider.</li>
+<li>✅ <strong>JWT-based authentication</strong>: mọi truy cập từ frontend hoặc gateway đều dùng <code>Authorization: Bearer</code>.</li>
+<li>✅ <strong>HTTPS-only</strong>: mọi endpoint đều được truy cập qua HTTPS, kể cả redirect và callback.</li>
+<li>✅ <strong>Không giữ state người dùng</strong>: không dùng session hoặc cookie – mọi thông tin xác thực được kiểm chứng qua JWT.</li>
+</ul>
+<hr/>
+<h3 id="62-kiem-soat-truy-cap-phan-quyen">🧩 6.2. Kiểm soát truy cập &amp; Phân quyền<a class="headerlink" href="#62-kiem-soat-truy-cap-phan-quyen" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Yêu cầu Auth</th>
+<th>Permission yêu cầu</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/oauth2/*</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>Cho phép public truy cập</td>
+</tr>
+<tr>
+<td><code>/auth/exchange</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>Luồng cấp token được bảo vệ bằng OAuth2 code</td>
+</tr>
+<tr>
+<td><code>/me</code></td>
+<td>✅</td>
+<td><code>user.read.self</code></td>
+<td>Phân quyền nội tại trong token</td>
+</tr>
+<tr>
+<td><code>/verify</code></td>
+<td>✅</td>
+<td><code>auth.verify.token</code></td>
+<td>Chỉ gọi được nếu token hợp lệ</td>
+</tr>
+<tr>
+<td><code>/dev/mimic</code></td>
+<td>❌ (nếu debug mode)</td>
+<td><code>auth.mimic.dev</code></td>
+<td>Chỉ bật trong môi trường dev</td>
+</tr>
+<tr>
+<td><code>/auth/login</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>Local login</td>
+</tr>
+<tr>
+<td><code>/auth/otp</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>Gửi mã OTP</td>
+</tr>
+<tr>
+<td><code>/auth/verify-otp</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>Xác minh OTP</td>
+</tr>
+</tbody>
+</table>
+<p>✅ Tất cả phân quyền động đều được kiểm soát ở cấp <code>api-gateway</code>. Auth service <strong>không cần</strong> tự tra quyền.</p>
+<hr/>
+<h3 id="63-header-kiem-soat-trace">🧾 6.3. Header kiểm soát &amp; Trace<a class="headerlink" href="#63-header-kiem-soat-trace" title="Permanent link">¶</a></h3>
+<p>Auth service xử lý và forward các header sau:</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Authorization</code></td>
+<td>Bearer token để xác thực người dùng</td>
+</tr>
+<tr>
+<td><code>X-Tenant-ID</code></td>
+<td>Mã tenant được trích xuất từ token</td>
+</tr>
+<tr>
+<td><code>X-Trace-ID</code></td>
+<td>Dùng để trace toàn bộ luồng xử lý</td>
+</tr>
+<tr>
+<td><code>X-User-ID</code></td>
+<td>Inject vào response (ở <code>/me</code>, <code>/verify</code>)</td>
+</tr>
+<tr>
+<td><code>X-Login-Method</code></td>
+<td>Phương thức đăng nhập (<code>google</code>, <code>otp</code>, <code>local</code>) – được decode từ JWT, hỗ trợ logging &amp; conditional logic phía backend</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="64-chinh-sach-jwt">📜 6.4. Chính sách JWT<a class="headerlink" href="#64-chinh-sach-jwt" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>issuer (<code>iss</code>)</strong>: <code>https://auth.truongvietanh.edu.vn</code></li>
+<li><strong>audience (<code>aud</code>)</strong>: <code>dx-vas</code></li>
+<li><strong>scope</strong>: chưa sử dụng, có thể mở rộng</li>
+<li><strong>exp</strong>: được thiết lập bởi <code>token-service</code>, không can thiệp</li>
+<li><strong>signature</strong>: sử dụng HS256 hoặc RS256, cấu hình tại <code>token-service</code></li>
+</ul>
+<hr/>
+<h3 id="65-bien-phap-chong-gia-mao">⚠️ 6.5. Biện pháp chống giả mạo<a class="headerlink" href="#65-bien-phap-chong-gia-mao" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không chấp nhận bất kỳ request có <code>code</code> hoặc <code>token</code> từ Google nếu không được xác thực trực tiếp qua callback URL hợp lệ.</li>
+<li>Callback URL phải match 100% <code>redirect_uri</code> đã đăng ký trong bảng <code>auth_provider_config</code>.</li>
+<li>Tự động kiểm tra <code>nonce</code> nếu triển khai OIDC.</li>
+</ul>
+<hr/>
+<p>✅ Bảo mật hệ thống không nằm ở auth-service riêng lẻ, mà ở <strong>sự phối hợp chuẩn hóa giữa auth-service, token-service và api-gateway</strong>.</p>
+<hr/>
+<h2 id="7-cau-hinh-phu-thuoc">7. ⚙️ Cấu hình &amp; Phụ thuộc<a class="headerlink" href="#7-cau-hinh-phu-thuoc" title="Permanent link">¶</a></h2>
+<h3 id="71-cau-hinh-moi-truong-environment-variables">🔧 7.1. Cấu hình môi trường (Environment Variables)<a class="headerlink" href="#71-cau-hinh-moi-truong-environment-variables" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Biến</th>
+<th>Mô tả</th>
+<th>Ví dụ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENV</code></td>
+<td>Môi trường vận hành</td>
+<td><code>production</code> / <code>staging</code> / <code>dev</code></td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td>Cổng service lắng nghe</td>
+<td><code>8080</code></td>
+</tr>
+<tr>
+<td><code>OAUTH_CLIENT_ID</code></td>
+<td>Google OAuth2 client ID</td>
+<td><code>abc123.apps.googleusercontent.com</code></td>
+</tr>
+<tr>
+<td><code>OAUTH_CLIENT_SECRET</code></td>
+<td>Google OAuth2 client secret (mã hóa)</td>
+<td><code>secretXYZ</code></td>
+</tr>
+<tr>
+<td><code>OAUTH_REDIRECT_URI</code></td>
+<td>Redirect URI sau khi xác thực Google</td>
+<td><code>https://auth.truongvietanh.edu.vn/oauth2/callback</code></td>
+</tr>
+<tr>
+<td><code>AUDIT_SERVICE_URL</code></td>
+<td>Endpoint để gửi log tới <code>audit-service</code></td>
+<td><code>http://audit-service/v1/audit/event</code></td>
+</tr>
+<tr>
+<td><code>USER_SERVICE_URL</code></td>
+<td>Endpoint để đồng bộ user</td>
+<td><code>http://user-service/v1/users/global/sync</code></td>
+</tr>
+<tr>
+<td><code>TOKEN_SERVICE_URL</code></td>
+<td>Endpoint để yêu cầu cấp token</td>
+<td><code>http://token-service/v1/token/issue</code></td>
+</tr>
+<tr>
+<td><code>DEBUG_MODE</code></td>
+<td>Bật các API dành cho môi trường phát triển</td>
+<td><code>true</code> / <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="72-phu-thuoc-he-thong">📦 7.2. Phụ thuộc hệ thống<a class="headerlink" href="#72-phu-thuoc-he-thong" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Vai trò chính</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Google OAuth2</code></td>
+<td>Xác thực người dùng</td>
+<td>OAuth2 flow</td>
+</tr>
+<tr>
+<td><code>user-service</code></td>
+<td>Tra cứu/đồng bộ user</td>
+<td>Đồng bộ user_id theo email</td>
+</tr>
+<tr>
+<td><code>token-service</code></td>
+<td>Cấp token &amp; quản lý session</td>
+<td>Service này giữ trạng thái</td>
+</tr>
+<tr>
+<td><code>audit-service</code></td>
+<td>Ghi nhận log xác thực</td>
+<td>Gửi sự kiện đăng nhập, debug</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="73-khong-phu-thuoc">🧱 7.3. Không phụ thuộc<a class="headerlink" href="#73-khong-phu-thuoc" title="Permanent link">¶</a></h3>
+<blockquote>
+<p>Auth Service <strong>không phụ thuộc</strong> vào:</p>
+</blockquote>
+<ul>
+<li>Database quan hệ cho logic xác thực (chỉ dùng 1 bảng <code>auth_provider_config</code>)</li>
+<li>Redis (session và revoked token lưu ở <code>token-service</code>)</li>
+<li>Các công cụ 2FA, CAPTCHA (chưa tích hợp)</li>
+</ul>
+<hr/>
+<h3 id="74-tich-hop-trien-khai-devops">☁️ 7.4. Tích hợp triển khai (DevOps)<a class="headerlink" href="#74-tich-hop-trien-khai-devops" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dockerfile</td>
+<td>Có sẵn, dùng Python + Uvicorn</td>
+</tr>
+<tr>
+<td>Helm chart</td>
+<td>Tùy chọn, dùng để triển khai trong Kubernetes</td>
+</tr>
+<tr>
+<td>Liveness Probe</td>
+<td><code>/healthz</code></td>
+</tr>
+<tr>
+<td>Logging</td>
+<td>Định dạng JSON theo chuẩn chung</td>
+</tr>
+<tr>
+<td>Metrics</td>
+<td><code>/metrics</code> nếu bật Prometheus exporter</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p>📌 Tất cả cấu hình nhạy cảm nên được inject thông qua Secret Manager hoặc môi trường CI/CD (GitHub Actions, GitLab, v.v.).</p>
+<hr/>
+<h2 id="8-testing">8. 🧪 Testing<a class="headerlink" href="#8-testing" title="Permanent link">¶</a></h2>
+<p>Việc kiểm thử <code>auth-service/master</code> cần đảm bảo 3 tiêu chí:
+1. Xác thực OAuth2 đúng chuẩn
+2. Tích hợp đúng với <code>user-service</code>, <code>token-service</code>
+3. Trả lỗi đúng chuẩn <code>ErrorEnvelope</code>, đúng <code>trace_id</code></p>
+<hr/>
+<h3 id="81-unit-test">✅ 8.1. Unit Test<a class="headerlink" href="#81-unit-test" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Mục tiêu kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OAuth2 flow redirect</td>
+<td>Kiểm tra URL redirect Google đúng cấu hình</td>
+</tr>
+<tr>
+<td>Callback exchange</td>
+<td>Mã hóa/decode <code>code</code>, mock Google API</td>
+</tr>
+<tr>
+<td>Payload gửi user-service</td>
+<td>Đúng định dạng, chứa đủ field</td>
+</tr>
+<tr>
+<td>Payload gửi token-service</td>
+<td>Chuẩn hóa theo contract</td>
+</tr>
+<tr>
+<td>Response formatter</td>
+<td>Bao bọc <code>SuccessEnvelope</code>, <code>ErrorEnvelope</code></td>
+</tr>
+<tr>
+<td>Logging &amp; Trace</td>
+<td>Log <code>trace_id</code>, gọi đúng logger</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Sử dụng: <code>pytest</code>, <code>pytest-mock</code></li>
+<li>Coverage khuyến nghị: ≥ 90% core logic</li>
+</ul>
+<hr/>
+<h3 id="82-integration-test">🧪 8.2. Integration Test<a class="headerlink" href="#82-integration-test" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống</th>
+<th>Kiểm thử tích hợp với</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Login Google thành công</td>
+<td>mock Google + user-service + token-service</td>
+</tr>
+<tr>
+<td>Login thất bại (token không hợp lệ)</td>
+<td><code>400 Bad Request</code></td>
+</tr>
+<tr>
+<td>Token-service trả lỗi</td>
+<td>Đảm bảo lỗi được wrap đúng format</td>
+</tr>
+<tr>
+<td>user-service timeout</td>
+<td>Trả lỗi <code>503 Service Unavailable</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Có thể mock bằng <code>httpx.MockTransport</code>, <code>requests-mock</code>, hoặc <code>wiremock</code> cho local.</li>
+</ul>
+<hr/>
+<h3 id="83-end-to-end-test-e2e">🌐 8.3. End-to-End Test (E2E)<a class="headerlink" href="#83-end-to-end-test-e2e" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Môi trường</th>
+<th>Test scenario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Staging</td>
+<td>Full OAuth2 login with real Google credentials</td>
+</tr>
+<tr>
+<td>CI Pipeline</td>
+<td>Run với service mock hoặc stub containers</td>
+</tr>
+<tr>
+<td>Debug mode</td>
+<td>Test <code>/dev/mimic</code> trả token giả lập</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Khuyến khích dùng tool như <code>Playwright</code>, <code>Postman</code>, hoặc <code>k6</code> để test tự động.</li>
+</ul>
+<hr/>
+<h3 id="84-bo-test-ac-biet">📋 8.4. Bộ test đặc biệt<a class="headerlink" href="#84-bo-test-ac-biet" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/verify</code></td>
+<td>Trả lỗi đúng nếu token sai chữ ký, hoặc expired</td>
+</tr>
+<tr>
+<td><code>/me</code></td>
+<td>Trả đúng thông tin người dùng từ token payload</td>
+</tr>
+<tr>
+<td><code>/auth/exchange</code></td>
+<td>Response chứa đủ <code>access_token</code>, <code>session_id</code>, <code>expires_in</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="85-cicd-check">📦 8.5. CI/CD Check<a class="headerlink" href="#85-cicd-check" title="Permanent link">¶</a></h3>
+<ul>
+<li>✅ Format chuẩn hóa theo <code>black</code>, <code>flake8</code></li>
+<li>✅ Test chạy qua <code>pytest</code> với coverage</li>
+<li>✅ Swagger linter: <code>spectral lint openapi.yaml</code></li>
+</ul>
+<hr/>
+<h2 id="9-observability">9. 📈 Observability<a class="headerlink" href="#9-observability" title="Permanent link">¶</a></h2>
+<p><code>auth-service/master</code> được thiết kế để dễ dàng giám sát, debug và truy vết lỗi, đảm bảo có thể quan sát toàn bộ luồng xác thực từ đầu đến cuối trong môi trường production.</p>
+<hr/>
+<h3 id="91-logging">📍 9.1. Logging<a class="headerlink" href="#91-logging" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Format</td>
+<td>JSON log chuẩn hóa</td>
+</tr>
+<tr>
+<td>Bắt buộc</td>
+<td><code>trace_id</code>, <code>tenant_id</code>, <code>user_id</code>, <code>grant_type</code></td>
+</tr>
+<tr>
+<td>Level</td>
+<td><code>INFO</code> cho flow, <code>ERROR</code> cho exception</td>
+</tr>
+<tr>
+<td>Logger</td>
+<td>Sử dụng <code>structlog</code> hoặc <code>loguru</code> để có cấu trúc log tốt</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Mỗi request đều gắn <code>trace_id</code> (từ header hoặc sinh mới) và ghi log theo luồng.</p>
+</blockquote>
+<hr/>
+<h3 id="92-metrics-prometheus">📊 9.2. Metrics (Prometheus)<a class="headerlink" href="#92-metrics-prometheus" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth_requests_total</code></td>
+<td>Tổng số request vào <code>auth-service</code> (label theo <code>endpoint</code>, <code>status_code</code>)</td>
+</tr>
+<tr>
+<td><code>auth_login_success_total</code></td>
+<td>Số lần login thành công</td>
+</tr>
+<tr>
+<td><code>auth_login_failed_total</code></td>
+<td>Số lần login thất bại</td>
+</tr>
+<tr>
+<td><code>auth_google_latency_seconds</code></td>
+<td>Đo thời gian phản hồi của Google OAuth2</td>
+</tr>
+<tr>
+<td><code>auth_token_issue_latency_seconds</code></td>
+<td>Latency khi gọi <code>token-service</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Có thể export metrics qua <code>/metrics</code> (tuỳ chọn bật qua config <code>ENABLE_METRICS=true</code>).</p>
+</blockquote>
+<hr/>
+<h3 id="93-audit-logging">📝 9.3. Audit Logging<a class="headerlink" href="#93-audit-logging" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Gửi tới <code>audit-service</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth.login.success</code></td>
+<td>Khi login thành công (kèm user_id, tenant_id, ip)</td>
+</tr>
+<tr>
+<td><code>auth.login.failed</code></td>
+<td>Khi login thất bại (lý do: google_error, user_sync_failed…)</td>
+</tr>
+<tr>
+<td><code>auth.token.issue_error</code></td>
+<td>Khi gọi <code>token-service</code> thất bại</td>
+</tr>
+<tr>
+<td><code>auth.login.otp.success</code></td>
+<td>Khi OTP login thành công</td>
+</tr>
+<tr>
+<td><code>auth.login.local.success</code></td>
+<td>Khi Local login thành công</td>
+</tr>
+<tr>
+<td><code>auth.login.otp.failed</code></td>
+<td>Khi OTP không đúng hoặc hết hạn</td>
+</tr>
+<tr>
+<td><code>auth.login.local.failed</code></td>
+<td>Khi username/password sai</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Audit log giúp điều tra post-mortem, phân tích hành vi người dùng và tuân thủ.</p>
+</blockquote>
+<hr/>
+<h3 id="94-trace-opentelemetry">📈 9.4. Trace (OpenTelemetry)<a class="headerlink" href="#94-trace-opentelemetry" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trạng thái</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ Hỗ trợ <code>X-Trace-ID</code> xuyên suốt các service</td>
+<td></td>
+</tr>
+<tr>
+<td>✅ Tích hợp <code>OTEL_EXPORTER_OTLP_ENDPOINT</code> để gửi trace ra hệ thống ngoài (tempo/jaeger)</td>
+<td></td>
+</tr>
+<tr>
+<td>✅ Tag custom: <code>grant_type</code>, <code>user_email</code>, <code>provider</code>, <code>step=google_exchange/token_issue</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Trace giúp hình dung được toàn bộ pipeline login: từ Google → user → token → audit</p>
+</blockquote>
+<hr/>
+<h3 id="95-alert-rule-goi-y">🔎 9.5. Alert Rule gợi ý<a class="headerlink" href="#95-alert-rule-goi-y" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>login_success_rate &lt; 80% trong 5 phút</code></td>
+<td>Cảnh báo login bất thường</td>
+</tr>
+<tr>
+<td><code>auth_google_latency_seconds &gt; 2s</code></td>
+<td>Google chậm</td>
+</tr>
+<tr>
+<td><code>auth_token_issue_latency_seconds &gt; 1s</code></td>
+<td>Token-service chậm hoặc lỗi</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p>📌 Tất cả các log, metrics và trace cần phải được gắn <code>trace_id</code> để correlate đa chiều.</p>
+<hr/>
+<h2 id="10-reliability">10. 🔁 Reliability<a class="headerlink" href="#10-reliability" title="Permanent link">¶</a></h2>
+<p><code>auth-service/master</code> được thiết kế với triết lý <strong>stateless + fail-fast</strong>, nhằm đảm bảo khả năng phục hồi cao trong mọi tình huống xác thực:</p>
+<hr/>
+<h3 id="101-stateless-by-design">💡 10.1. Stateless by Design<a class="headerlink" href="#101-stateless-by-design" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không lưu token, session hay user state.</li>
+<li>Mọi trạng thái được delegate tới <code>token-service</code>, <code>user-service</code>.</li>
+<li>Có thể scale ngang (<code>horizontal scaling</code>) dễ dàng.</li>
+</ul>
+<hr/>
+<h3 id="102-co-che-retry-timeout">🔄 10.2. Cơ chế Retry &amp; Timeout<a class="headerlink" href="#102-co-che-retry-timeout" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Đối tượng</th>
+<th>Timeout</th>
+<th>Retry</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google OAuth2</td>
+<td>5s</td>
+<td>❌</td>
+<td>Chỉ retry thủ công từ phía client</td>
+</tr>
+<tr>
+<td>user-service</td>
+<td>3s</td>
+<td>✅ (1 lần)</td>
+<td>Retry soft trên lỗi 5xx hoặc timeout</td>
+</tr>
+<tr>
+<td>token-service</td>
+<td>3s</td>
+<td>✅ (1 lần)</td>
+<td>Retry nếu <code>ECONNREFUSED</code> hoặc timeout</td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td>2s</td>
+<td>❌ (fire-and-forget)</td>
+<td>Log lỗi nếu gửi thất bại, không ảnh hưởng user flow</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>❗ Mọi retry đều phải gắn <code>trace_id</code> để đảm bảo idempotency và debug chính xác.</p>
+</blockquote>
+<hr/>
+<h3 id="103-fail-fast-strategy">🧱 10.3. Fail-Fast Strategy<a class="headerlink" href="#103-fail-fast-strategy" title="Permanent link">¶</a></h3>
+<ul>
+<li>Nếu bất kỳ service backend nào trả về lỗi không recover được (Google, token, user), Auth Service sẽ trả lỗi ngay lập tức kèm <code>ErrorEnvelope</code>.</li>
+<li>Tránh “hấp hối” nhiều tầng – mọi failure đều rõ ràng.</li>
+</ul>
+<hr/>
+<h3 id="104-graceful-fallback">⛑ 10.4. Graceful Fallback<a class="headerlink" href="#104-graceful-fallback" title="Permanent link">¶</a></h3>
+<ul>
+<li>Nếu <code>audit-service</code> không khả dụng → ghi log <code>audit_event_failed</code> để retry sau (async hoặc batch).</li>
+<li>Nếu <code>user-service</code> mất kết nối → trả lỗi rõ ràng <code>user.sync.failed</code> với chi tiết trong <code>error.details</code>.</li>
+</ul>
+<hr/>
+<h3 id="105-circuit-breaker-tuy-chon">🛡 10.5. Circuit Breaker (Tùy chọn)<a class="headerlink" href="#105-circuit-breaker-tuy-chon" title="Permanent link">¶</a></h3>
+<ul>
+<li>Có thể bật <code>circuit-breaker</code> bằng <code>fastapi_circuitbreaker</code> hoặc <code>pybreaker</code> cho từng service critical.</li>
+<li>Ví dụ: nếu <code>token-service</code> thất bại &gt; 5 lần liên tục trong 30s → tạm thời ngắt luồng login để giảm tải.</li>
+</ul>
+<hr/>
+<h3 id="106-chaos-testing-khuyen-nghi">🧪 10.6. Chaos Testing (khuyến nghị)<a class="headerlink" href="#106-chaos-testing-khuyen-nghi" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kịch bản</th>
+<th>Mục tiêu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mô phỏng Google timeout</td>
+<td>Kiểm tra khả năng fallback và logging</td>
+</tr>
+<tr>
+<td>Đứt kết nối tới user-service</td>
+<td>Kiểm tra lỗi có rõ ràng không</td>
+</tr>
+<tr>
+<td>Trả lỗi giả từ token-service</td>
+<td>Kiểm tra retry và message chính xác</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="107-sla-goi-y">🧮 10.7. SLA gợi ý<a class="headerlink" href="#107-sla-goi-y" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>SLA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/exchange</code></td>
+<td>≥ 99.95%</td>
+</tr>
+<tr>
+<td><code>/me</code>, <code>/verify</code></td>
+<td>≥ 99.99%</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p>Dưới đây là nội dung chi tiết cho mục <code>## 11. ⚡️ Hiệu năng &amp; Scale</code> trong <code>auth-service/master/design.md</code>, tập trung vào đặc thù xử lý nhanh, stateless và khả năng scale ngang dễ dàng:</p>
+<hr/>
+<h2 id="11-hieu-nang-scale">11. ⚡️ Hiệu năng &amp; Scale<a class="headerlink" href="#11-hieu-nang-scale" title="Permanent link">¶</a></h2>
+<p><code>auth-service/master</code> là một trong những dịch vụ nhạy cảm nhất về hiệu năng do:
+- Tham gia trực tiếp vào luồng đăng nhập
+- Gọi nhiều dịch vụ backend (Google, user, token, audit)
+- Phải phản hồi gần như real-time</p>
+<hr/>
+<h3 id="111-ac-iem-hieu-nang">🚀 11.1. Đặc điểm hiệu năng<a class="headerlink" href="#111-ac-iem-hieu-nang" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thuộc tính</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stateless</td>
+<td>Không lưu session, cache hay user context</td>
+</tr>
+<tr>
+<td>I/O bound</td>
+<td>Hầu hết thời gian là chờ HTTP response từ bên ngoài</td>
+</tr>
+<tr>
+<td>CPU-light</td>
+<td>Chủ yếu xử lý JSON, không cần CPU mạnh</td>
+</tr>
+<tr>
+<td>Memory-light</td>
+<td>Không giữ nhiều context/lifecycle dài</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Đây là service lý tưởng để scale theo chiều ngang (horizontal scaling).</p>
+</blockquote>
+<hr/>
+<h3 id="112-uoc-luong-hieu-nang">🧮 11.2. Ước lượng hiệu năng<a class="headerlink" href="#112-uoc-luong-hieu-nang" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại request</th>
+<th>Thời gian xử lý ước tính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/exchange</code> (full login)</td>
+<td>~400–600ms</td>
+</tr>
+<tr>
+<td><code>/me</code>, <code>/verify</code></td>
+<td>~5–20ms (decode token + enrich + log)</td>
+</tr>
+<tr>
+<td><code>/oauth2/callback</code></td>
+<td>~200ms (Google + prepare payload)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Trong môi trường production, thời gian xử lý 99 percentile nên dưới 800ms cho full login.</p>
+</blockquote>
+<hr/>
+<h3 id="113-benchmark-co-ban-tham-khao">📏 11.3. Benchmark cơ bản (tham khảo)<a class="headerlink" href="#113-benchmark-co-ban-tham-khao" title="Permanent link">¶</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>500 concurrent requests
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>1000 RPS tổng
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>99.5% success rate
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>Average latency: ~650ms
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>Memory usage: ~60MB / instance
+</span></code></pre></div>
+<hr/>
+<h3 id="114-chien-luoc-scale">📈 11.4. Chiến lược scale<a class="headerlink" href="#114-chien-luoc-scale" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kỹ thuật</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auto-scaling theo CPU hoặc RPS</td>
+<td>Khuyến nghị scale từ 2 → 6 instance</td>
+</tr>
+<tr>
+<td>Zero-downtime deploy</td>
+<td>Sử dụng rolling update trong Kubernetes</td>
+</tr>
+<tr>
+<td>Multi-zone deployment</td>
+<td>Dùng multi-AZ trong GKE / EKS để đảm bảo HA</td>
+</tr>
+<tr>
+<td>Readiness probe</td>
+<td>Đảm bảo chỉ route traffic khi service đã warm-up (Google client ready)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="115-toi-uu-cu-the">📉 11.5. Tối ưu cụ thể<a class="headerlink" href="#115-toi-uu-cu-the" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mục tiêu</th>
+<th>Biện pháp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Giảm độ trễ Google</td>
+<td>Cache metadata Google OAuth2 discovery</td>
+</tr>
+<tr>
+<td>Giảm tải <code>token-service</code></td>
+<td>Chỉ gọi khi user + tenant hợp lệ (pre-validation)</td>
+</tr>
+<tr>
+<td>Giảm cost audit</td>
+<td>Gửi async hoặc batch log login</td>
+</tr>
+<tr>
+<td>Tối ưu <code>/me</code>, <code>/verify</code></td>
+<td>Tách riêng route nhẹ không phụ thuộc dịch vụ ngoài</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p>Dưới đây là phần <code>## 12. 🧩 Triển khai &amp; Migration</code> dành cho <code>auth-service/master/design.md</code>, tập trung vào quy trình triển khai an toàn, không downtime và hỗ trợ nâng cấp cấu hình OAuth2 theo tenant.</p>
+<hr/>
+<h2 id="12-trien-khai-migration">12. 🧩 Triển khai &amp; Migration<a class="headerlink" href="#12-trien-khai-migration" title="Permanent link">¶</a></h2>
+<h3 id="121-chien-luoc-trien-khai">🚀 12.1. Chiến lược triển khai<a class="headerlink" href="#121-chien-luoc-trien-khai" title="Permanent link">¶</a></h3>
+<p><code>auth-service/master</code> được thiết kế để:
+- Dễ dàng triển khai theo mô hình microservice
+- Tách biệt rõ môi trường (<code>staging</code>, <code>production</code>)
+- Hạn chế downtime bằng rolling update</p>
+<h4 id="cach-trien-khai-tieu-chuan">📦 Cách triển khai tiêu chuẩn:<a class="headerlink" href="#cach-trien-khai-tieu-chuan" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Công nghệ đề xuất</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Containerization</td>
+<td>Docker</td>
+</tr>
+<tr>
+<td>Orchestrator</td>
+<td>Kubernetes (GKE / EKS / self-hosted)</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions / GitLab CI</td>
+</tr>
+<tr>
+<td>Config</td>
+<td>Environment variables + Secret Manager</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>Ingress Gateway / API Gateway</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="122-zero-downtime-strategy">⛳ 12.2. Zero Downtime Strategy<a class="headerlink" href="#122-zero-downtime-strategy" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kỹ thuật</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>readinessProbe</code></td>
+<td>Trả <code>200 OK</code> khi OAuth2 config đã load xong</td>
+</tr>
+<tr>
+<td><code>livenessProbe</code></td>
+<td><code>/healthz</code> để kiểm tra vòng lặp xử lý</td>
+</tr>
+<tr>
+<td>Rolling Update</td>
+<td>Thay thế từng instance 1 cách an toàn</td>
+</tr>
+<tr>
+<td>Sessionless</td>
+<td>Không mất context khi instance bị restart</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="123-migration-strategy-du-lieu-cau-hinh">🔄 12.3. Migration Strategy (Dữ liệu &amp; Cấu hình)<a class="headerlink" href="#123-migration-strategy-du-lieu-cau-hinh" title="Permanent link">¶</a></h3>
+<h4 id="bang-auth_provider_config">✅ Bảng <code>auth_provider_config</code>:<a class="headerlink" href="#bang-auth_provider_config" title="Permanent link">¶</a></h4>
+<ul>
+<li>Có thể được khởi tạo qua script SQL hoặc Alembic.</li>
+<li>Hỗ trợ nhiều tenant: mỗi tenant có cấu hình OAuth riêng.</li>
+</ul>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">auth_provider_config</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="n">tenant_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">    </span><span class="n">provider</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">'google'</span><span class="p">,</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">    </span><span class="n">client_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">    </span><span class="n">client_secret</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">    </span><span class="n">redirect_uri</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="n">scopes</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">[]</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="nb">ARRAY</span><span class="p">[</span><span class="s1">'email'</span><span class="p">,</span><span class="w"> </span><span class="s1">'profile'</span><span class="p">],</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">    </span><span class="n">is_active</span><span class="w"> </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">TRUE</span><span class="p">,</span>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="p">);</span>
+</span></code></pre></div>
+<h4 id="goi-y-migration-buoc-au">📌 Gợi ý Migration bước đầu:<a class="headerlink" href="#goi-y-migration-buoc-au" title="Permanent link">¶</a></h4>
+<ol>
+<li>Tạo record mặc định cho tenant <code>vas-primary</code> từ file <code>seeds/init_google_oauth.sql</code></li>
+<li>Load config OAuth từ bảng khi service start</li>
+<li>Dùng cache nội bộ để giảm truy vấn DB (TTL 5 phút)</li>
+</ol>
+<hr/>
+<h3 id="124-chuan-bi-cho-production">🧪 12.4. Chuẩn bị cho production<a class="headerlink" href="#124-chuan-bi-cho-production" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hạng mục</th>
+<th>Trạng thái</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google OAuth Client đã đăng ký?</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>redirect_uri</code> có khớp với config?</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Config OAuth được mã hóa an toàn?</td>
+<td>✅ (qua Secret Manager)</td>
+</tr>
+<tr>
+<td>Có kiểm thử <code>/auth/exchange</code> thật?</td>
+<td>✅ staging</td>
+</tr>
+<tr>
+<td>Truy vết đầy đủ (<code>trace_id</code>, <code>audit-service</code>)?</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="13-tai-lieu-lien-quan">13. 📚 Tài liệu liên quan<a class="headerlink" href="#13-tai-lieu-lien-quan" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../data-model/">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+<li><a href="../../../../ADR/adr-006-auth-strategy/">ADR-006 - Auth Strategy</a></li>
+<li><a href="../../../../ADR/adr-012-response-structure/">ADR-012 - Response Structure</a></li>
+<li><a href="../../../../ADR/adr-011-api-error-format/">ADR-011 - API Error Format</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

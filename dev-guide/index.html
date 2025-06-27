@@ -1,0 +1,957 @@
+
+<!doctype html>
+<html lang="vi" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh.">
+      
+      
+        <meta name="author" content="DX VAS Team">
+      
+      
+        <link rel="canonical" href="https://ezdesign-vn.github.io/dx-vas/dev-guide/">
+      
+      
+        <link rel="prev" href="../architecture/rbac-deep-dive/">
+      
+      
+        <link rel="next" href="../services/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Hướng dẫn Phát triển - DX VAS - Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#huong-dan-phat-trien-developer-guide-du-an-dx-vas" class="md-skip">
+          Bỏ qua
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Đầu trang">
+    <a href=".." title="DX VAS - Docs" class="md-header__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Hướng dẫn Phát triển
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Tìm kiếm" placeholder="Tìm kiếm" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Tìm kiếm">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Xoá" aria-label="Xoá" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/system-diagrams/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../services/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ADR/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Thanh điều hướng" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="DX VAS - Docs" class="md-nav__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../assets/images/logo.png" alt="logo">
+
+    </a>
+    DX VAS - Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/system-diagrams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/rbac-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#muc-luc" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Mục lục
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Mục lục">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phan-1-nen-tang-quy-trinh-foundation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 1: Nền tảng &amp; Quy trình (Foundation &amp; Process)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-2-huong-dan-ky-thuat-cot-loi-core-technical-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 2: Hướng dẫn Kỹ thuật Cốt lõi (Core Technical Guides)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-3-huong-dan-chuyen-biet-specialized-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 3: Hướng dẫn Chuyên biệt (Specialized Guides)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-4-am-bao-chat-luong-van-hanh-quality-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 4: Đảm bảo Chất lượng &amp; Vận hành (Quality &amp; Operations)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-5-nang-suat-cong-cu-productivity-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 5: Năng suất &amp; Công cụ (Productivity &amp; Tools)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../ADR/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#muc-luc" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Mục lục
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Mục lục">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phan-1-nen-tang-quy-trinh-foundation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 1: Nền tảng &amp; Quy trình (Foundation &amp; Process)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-2-huong-dan-ky-thuat-cot-loi-core-technical-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 2: Hướng dẫn Kỹ thuật Cốt lõi (Core Technical Guides)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-3-huong-dan-chuyen-biet-specialized-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 3: Hướng dẫn Chuyên biệt (Specialized Guides)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-4-am-bao-chat-luong-van-hanh-quality-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 4: Đảm bảo Chất lượng &amp; Vận hành (Quality &amp; Operations)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phan-5-nang-suat-cong-cu-productivity-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phần 5: Năng suất &amp; Công cụ (Productivity &amp; Tools)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="huong-dan-phat-trien-developer-guide-du-an-dx-vas">🛠️ Hướng dẫn Phát triển (Developer Guide) - Dự án DX-VAS<a class="headerlink" href="#huong-dan-phat-trien-developer-guide-du-an-dx-vas" title="Permanent link">¶</a></h1>
+<p>Chào mừng đến với dự án DX-VAS!</p>
+<p>Tài liệu này là "nguồn chân lý" dành cho tất cả các lập trình viên khi tham gia phát triển hệ thống. Mục tiêu của bộ hướng dẫn này là đảm bảo chúng ta xây dựng nên một sản phẩm có chất lượng cao, nhất quán, dễ bảo trì và có khả năng mở rộng.</p>
+<p>Mọi thành viên, dù là từ đội ngũ DX-VAS hay từ đối tác Hoàng Vũ, đều phải tuân thủ các quy tắc và hướng dẫn được nêu trong đây.</p>
+<blockquote>
+<p>"Code giỏi không chỉ là viết cho máy hiểu, mà còn là viết cho những người sẽ kế thừa và phát triển nó trong 5 năm tới." - Stephen Le</p>
+</blockquote>
+<hr />
+<h2 id="muc-luc">📚 Mục lục<a class="headerlink" href="#muc-luc" title="Permanent link">¶</a></h2>
+<p><strong>Cây thư mục</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/docs
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>|-- ... (ADR, architecture, etc.)
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>|-- /dev-guide/
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>|   |-- README.md
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>|   |-- 01-getting-started.md
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>|   |-- 02-core-principles.md
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>|   |-- 03-workflow-and-process.md
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>|   |-- /technical-guides/
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>|   |   |-- 04-api-development.md
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>|   |   |-- 05-database-and-migrations.md
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>|   |   |-- 06-event-driven-development.md
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>|   |   |-- 07-logging-and-tracing.md
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>|   |   |-- 08-error-handling.md
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>|   |   |-- 09-configuration-and-secrets.md
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>|   |-- /specialized-guides/
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>|   |   |-- 10-frontend-guide.md
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>|   |-- /quality-and-operations/
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>|   |   |-- 11-testing-guide.md
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>|   |   |-- 12-security-checklist.md
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>|   |   |-- 13-ci-cd-pipeline.md
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>|   |   |-- 14-debugging-guide.md
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>|   |   |-- 15-troubleshooting-guide.md
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>|   |   |-- 16-incident-response.md
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>|   |   |-- 17-release-versioning.md
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>|   |-- /productivity-and-tools/
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>|   |   |-- 18-local-dev-productivity.md
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>|   |   |-- 19-tooling-cheatsheet.md
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>|-- /process/
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>|   |-- ONBOARDING.md
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>|   |-- OFFBOARDING.md
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>|
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>|-- CONTRIBUTING.md
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>|-- README.md
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>...
+</span></code></pre></div></p>
+<hr />
+<h3 id="phan-1-nen-tang-quy-trinh-foundation-process"><strong>Phần 1: Nền tảng &amp; Quy trình (Foundation &amp; Process)</strong><a class="headerlink" href="#phan-1-nen-tang-quy-trinh-foundation-process" title="Permanent link">¶</a></h3>
+<p><em>Đây là những tài liệu bắt buộc phải đọc đối với mọi thành viên mới.</em></p>
+<ol>
+<li><a href="01-getting-started/"><strong>01 - Getting Started</strong></a>: Hướng dẫn cài đặt môi trường và chạy dự án.</li>
+<li><a href="02-core-principles/"><strong>02 - Core Principles</strong></a>: Các nguyên tắc vàng và tư duy kiến trúc cần tuân thủ.</li>
+<li><a href="03-workflow-and-process/"><strong>03 - Workflow &amp; Process</strong></a>: Quy trình làm việc với Git, Pull Request.</li>
+</ol>
+<h3 id="phan-2-huong-dan-ky-thuat-cot-loi-core-technical-guides"><strong>Phần 2: Hướng dẫn Kỹ thuật Cốt lõi (Core Technical Guides)</strong><a class="headerlink" href="#phan-2-huong-dan-ky-thuat-cot-loi-core-technical-guides" title="Permanent link">¶</a></h3>
+<p><em>Đây là các "bộ luật" chi tiết cho việc phát triển backend service.</em></p>
+<ul>
+<li><a href="technical-guides/04-api-development/"><strong>04 - API Development</strong></a>: Cách thiết kế và triển khai API.</li>
+<li><a href="technical-guides/05-database-and-migrations/"><strong>05 - Database &amp; Migrations</strong></a>: Quy trình làm việc với CSDL và schema migration.</li>
+<li><a href="technical-guides/06-event-driven-development/"><strong>06 - Event-Driven Development</strong></a>: Cách phát và tiêu thụ sự kiện qua Pub/Sub.</li>
+<li><a href="technical-guides/07-logging-and-tracing/"><strong>07 - Logging &amp; Tracing</strong></a>: Quy chuẩn về ghi log và truy vết.</li>
+<li><a href="technical-guides/08-error-handling/"><strong>08 - Error Handling</strong></a>: Cách xử lý và trả về lỗi.</li>
+<li><a href="technical-guides/09-configuration-and-secrets/"><strong>09 - Configuration &amp; Secrets</strong></a>: Cách quản lý cấu hình và biến môi trường.</li>
+</ul>
+<h3 id="phan-3-huong-dan-chuyen-biet-specialized-guides"><strong>Phần 3: Hướng dẫn Chuyên biệt (Specialized Guides)</strong><a class="headerlink" href="#phan-3-huong-dan-chuyen-biet-specialized-guides" title="Permanent link">¶</a></h3>
+<p><em>Các hướng dẫn dành cho các lĩnh vực phát triển cụ thể.</em></p>
+<ul>
+<li><a href="specialized-guides/10-frontend-guide/"><strong>10 - Frontend Development Guide</strong></a>: Các quy ước riêng cho việc phát triển Frontend.</li>
+</ul>
+<h3 id="phan-4-am-bao-chat-luong-van-hanh-quality-operations"><strong>Phần 4: Đảm bảo Chất lượng &amp; Vận hành (Quality &amp; Operations)</strong><a class="headerlink" href="#phan-4-am-bao-chat-luong-van-hanh-quality-operations" title="Permanent link">¶</a></h3>
+<p><em>Các quy trình và hướng dẫn để đảm bảo hệ thống ổn định và đáng tin cậy.</em></p>
+<ul>
+<li><a href="quality-and-operations/11-testing-guide/"><strong>11 - Testing Guide</strong></a>: Chiến lược và hướng dẫn viết các loại test.</li>
+<li><a href="quality-and-operations/12-security-checklist/"><strong>12 - Security Checklist</strong></a>: Danh sách kiểm tra bảo mật cho lập trình viên.</li>
+<li><a href="quality-and-operations/13-ci-cd-pipeline/"><strong>13 - CI/CD Pipeline &amp; Operations</strong></a>: Hướng dẫn tương tác với pipeline và các môi trường.</li>
+<li><a href="quality-and-operations/14-debugging-guide/"><strong>14 - Debugging Guide</strong></a>: Hướng dẫn gỡ lỗi các vấn đề đã biết.</li>
+<li><a href="./quality-and-operations/15-troubleshooting-guide.md"><strong>15 - Troubleshooting Guide</strong></a>: Phương pháp luận xử lý sự cố có hệ thống.</li>
+<li><a href="quality-and-operations/16-incident-response/"><strong>16 - Incident Response Guide</strong></a>: Quy trình phản ứng khi có sự cố nghiêm trọng.</li>
+<li><a href="quality-and-operations/17-release-versioning/"><strong>17 - Release &amp; Versioning Guide</strong></a>: Chiến lược đánh số phiên bản và quản lý release.</li>
+</ul>
+<h3 id="phan-5-nang-suat-cong-cu-productivity-tools"><strong>Phần 5: Năng suất &amp; Công cụ (Productivity &amp; Tools)</strong><a class="headerlink" href="#phan-5-nang-suat-cong-cu-productivity-tools" title="Permanent link">¶</a></h3>
+<p><em>Các tài liệu tham khảo nhanh giúp tăng tốc độ làm việc.</em></p>
+<ul>
+<li><a href="productivity-and-tools/18-local-dev-productivity/"><strong>18 - Local Dev Productivity Tips</strong></a>: Các mẹo để tăng năng suất khi phát triển local.</li>
+<li><a href="productivity-and-tools/19-tooling-cheatsheet/"><strong>19 - Tooling Cheatsheet</strong></a>: Tổng hợp các lệnh và công cụ thường dùng.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Trở lại mục lục
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

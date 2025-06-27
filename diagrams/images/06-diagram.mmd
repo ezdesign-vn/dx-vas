@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant ServiceA as Notification Service
+  participant Gateway as API Gateway
+  participant UserSvc as User Service
+
+  ServiceA->>Gateway: POST /users/{id}/status + Internal Auth Header
+  Gateway->>Gateway: Xác thực token nội bộ / mTLS
+  Gateway->>UserSvc: Forward request + X-Service-Name + X-Signature
+  UserSvc->>UserSvc: Kiểm tra định danh service gọi
+  UserSvc-->>Gateway: Response
+  Gateway-->>ServiceA: Response

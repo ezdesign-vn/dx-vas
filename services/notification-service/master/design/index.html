@@ -1,0 +1,888 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/notification-service/master/design/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Thiết kế chi tiết Notification Service (Master) - DX VAS - Docs</title>
+<link href="../../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#thiet-ke-chi-tiet-notification-service-master">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Thiết kế chi tiết Notification Service (Master)
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-pham-vi-va-trach-nhiem-scope-responsibilities">
+<span class="md-ellipsis">
+      1. 🧭 Phạm vi và Trách nhiệm (Scope &amp; Responsibilities)
+    </span>
+</a>
+<nav aria-label="1. 🧭 Phạm vi và Trách nhiệm (Scope &amp; Responsibilities)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-tieu">
+<span class="md-ellipsis">
+      🎯 Mục tiêu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cac-thuc-the-du-lieu-quan-ly">
+<span class="md-ellipsis">
+      📦 Các thực thể dữ liệu quản lý
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ngoai-pham-vi-out-of-scope">
+<span class="md-ellipsis">
+      🔒 Ngoài Phạm Vi (Out of Scope)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-thiet-ke-api-chi-tiet-interface-contract">
+<span class="md-ellipsis">
+      2. 🌐 Thiết kế API chi tiết (Interface Contract)
+    </span>
+</a>
+<nav aria-label="2. 🌐 Thiết kế API chi tiết (Interface Contract)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vi-du-response-post-send">
+<span class="md-ellipsis">
+      📦 Ví dụ response POST /send
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-mo-hinh-du-lieu-chi-tiet-data-model">
+<span class="md-ellipsis">
+      3. 🗃️ Mô hình dữ liệu chi tiết (Data Model)
+    </span>
+</a>
+<nav aria-label="3. 🗃️ Mô hình dữ liệu chi tiết (Data Model)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#so-o-erd-mermaid">
+<span class="md-ellipsis">
+      🗺️ Sơ đồ ERD (Mermaid)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-luong-xu-ly-nghiep-vu-chinh-business-logic-flows">
+<span class="md-ellipsis">
+      4. 🔄 Luồng xử lý nghiệp vụ chính (Business Logic Flows)
+    </span>
+</a>
+<nav aria-label="4. 🔄 Luồng xử lý nghiệp vụ chính (Business Logic Flows)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-gui-thong-bao-qua-su-kien-noi-bo">
+<span class="md-ellipsis">
+      Luồng: Gửi thông báo qua sự kiện nội bộ
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-cac-su-kien-pubsub-events">
+<span class="md-ellipsis">
+      5. 📣 Các sự kiện Pub/Sub (Events)
+    </span>
+</a>
+<nav aria-label="5. 📣 Các sự kiện Pub/Sub (Events)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#payload-mau-usercreated">
+<span class="md-ellipsis">
+      📦 Payload mẫu user.created
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-bao-mat-phan-quyen-security-authorization">
+<span class="md-ellipsis">
+      6. 🔐 Bảo mật &amp; Phân quyền (Security &amp; Authorization)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cau-hinh-phu-thuoc">
+<span class="md-ellipsis">
+      7. ⚙️ Cấu hình &amp; Phụ thuộc
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-testing">
+<span class="md-ellipsis">
+      8. 🧪 Testing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-kha-nang-giam-sat-observability">
+<span class="md-ellipsis">
+      9. 📈 Khả năng Giám sát (Observability)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-o-tin-cay-phuc-hoi">
+<span class="md-ellipsis">
+      10. 🔁 Độ tin cậy &amp; Phục hồi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-hieu-nang-kha-nang-mo-rong">
+<span class="md-ellipsis">
+      11. ⚡️ Hiệu năng &amp; Khả năng mở rộng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-kien-truc-service">
+<span class="md-ellipsis">
+      12. 🧩 Kiến trúc Service
+    </span>
+</a>
+<nav aria-label="12. 🧩 Kiến trúc Service" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thanh-phan-chinh">
+<span class="md-ellipsis">
+      🧱 Thành phần chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#so-o-kien-truc-noi-bo-mermaid">
+<span class="md-ellipsis">
+      🧭 Sơ đồ kiến trúc nội bộ (Mermaid)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tuong-tac-chinh">
+<span class="md-ellipsis">
+      🔗 Tương tác chính
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-tai-lieu-lien-ket">
+<span class="md-ellipsis">
+      13. 📚 Tài liệu liên kết
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="thiet-ke-chi-tiet-notification-service-master">📘 Thiết kế chi tiết Notification Service (Master)<a class="headerlink" href="#thiet-ke-chi-tiet-notification-service-master" title="Permanent link">¶</a></h1>
+<h2 id="1-pham-vi-va-trach-nhiem-scope-responsibilities">1. 🧭 Phạm vi và Trách nhiệm (Scope &amp; Responsibilities)<a class="headerlink" href="#1-pham-vi-va-trach-nhiem-scope-responsibilities" title="Permanent link">¶</a></h2>
+<h3 id="muc-tieu">🎯 Mục tiêu<a class="headerlink" href="#muc-tieu" title="Permanent link">¶</a></h3>
+<ul>
+<li>Gửi thông báo đa kênh (email, SMS, push) theo cấu hình template.</li>
+<li>Cho phép quản trị hệ thống tạo và cập nhật template thông báo theo loại sự kiện.</li>
+<li>Cung cấp API và Pub/Sub để các service khác sử dụng gửi thông báo thông qua cấu hình chuẩn hóa.</li>
+</ul>
+<h3 id="cac-thuc-the-du-lieu-quan-ly">📦 Các thực thể dữ liệu quản lý<a class="headerlink" href="#cac-thuc-the-du-lieu-quan-ly" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thực thể</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NotificationTemplate</td>
+<td>Định nghĩa các mẫu thông báo (template) theo loại kênh và loại sự kiện.</td>
+</tr>
+<tr>
+<td>NotificationLog</td>
+<td>Ghi nhận lịch sử gửi thông báo thành công/thất bại.</td>
+</tr>
+<tr>
+<td>NotificationChannelCfg</td>
+<td>Cấu hình gửi theo kênh: SMTP, SMS provider, push gateway.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ngoai-pham-vi-out-of-scope">🔒 Ngoài Phạm Vi (Out of Scope)<a class="headerlink" href="#ngoai-pham-vi-out-of-scope" title="Permanent link">¶</a></h3>
+<ul>
+<li>❌ Không quản lý người dùng nhận thông báo (do User Service đảm nhiệm).</li>
+<li>❌ Không thực hiện xử lý nội dung cá nhân hóa ngoài các placeholder đã được backend đổ vào.</li>
+<li>❌ Không lưu trữ nội dung email đầy đủ (chỉ metadata và status).</li>
+<li>❌ Không phát hành/sinh sự kiện nghiệp vụ (chỉ nhận và gửi).</li>
+<li>❌ Không thực hiện retry phân tán – retry nằm trong queue hoặc xử lý lỗi riêng biệt.</li>
+</ul>
+<hr/>
+<h2 id="2-thiet-ke-api-chi-tiet-interface-contract">2. 🌐 Thiết kế API chi tiết (Interface Contract)<a class="headerlink" href="#2-thiet-ke-api-chi-tiet-interface-contract" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Tác vụ</th>
+<th>Yêu cầu permission</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>/templates</td>
+<td>Lấy danh sách template hiện có</td>
+<td>✅ <code>notif.read_template</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/templates</td>
+<td>Tạo template mới</td>
+<td>✅ <code>notif.write_template</code></td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>/templates/{id}</td>
+<td>Cập nhật nội dung template</td>
+<td>✅ <code>notif.write_template</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/send</td>
+<td>Gửi một thông báo thủ công (manual)</td>
+<td>✅ <code>notif.send_manual</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Tuân thủ:
+- <code>ADR-011</code> – định dạng lỗi chuẩn.
+- <code>ADR-012</code> – chuẩn cấu trúc response.
+- <code>ADR-030</code> – quản lý schema event gửi đi.</p>
+</blockquote>
+<h3 id="vi-du-response-post-send">📦 Ví dụ response <code>POST /send</code><a class="headerlink" href="#vi-du-response-post-send" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"queued"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">"notification_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"notif-123"</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="nt">"request_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req-xyz-789"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-05T13:20:00Z"</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<blockquote>
+<p><strong>Chi tiết</strong> tại <a href="../interface-contract/">Interface Contract</a> &amp; <a href="../openapi.yaml">OpenAPI Spec</a></p>
+</blockquote>
+<hr/>
+<h2 id="3-mo-hinh-du-lieu-chi-tiet-data-model">3. 🗃️ Mô hình dữ liệu chi tiết (Data Model)<a class="headerlink" href="#3-mo-hinh-du-lieu-chi-tiet-data-model" title="Permanent link">¶</a></h2>
+<h3 id="so-o-erd-mermaid">🗺️ Sơ đồ ERD (Mermaid)<a class="headerlink" href="#so-o-erd-mermaid" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>erDiagram
+  NotificationTemplate ||--o{ NotificationLog : uses
+  NotificationChannelCfg ||--o{ NotificationTemplate : configures
+
+  NotificationTemplate {
+    UUID id PK
+    STRING name
+    STRING type  // email, sms, push
+    TEXT content
+    STRING language
+    STRING trigger_event
+  }
+
+  NotificationLog {
+    UUID id PK
+    UUID template_id FK
+    STRING recipient
+    STRING status // success, failed
+    TEXT error_message
+    DATETIME sent_at
+  }
+
+  NotificationChannelCfg {
+    STRING channel_type PK // email, sms, push
+    STRING provider
+    JSON config
+  }
+</code></pre>
+<blockquote>
+<p><strong>Chi tiết</strong> tại <a href="../data-model/">Data Model</a></p>
+</blockquote>
+<hr/>
+<h2 id="4-luong-xu-ly-nghiep-vu-chinh-business-logic-flows">4. 🔄 Luồng xử lý nghiệp vụ chính (Business Logic Flows)<a class="headerlink" href="#4-luong-xu-ly-nghiep-vu-chinh-business-logic-flows" title="Permanent link">¶</a></h2>
+<h3 id="luong-gui-thong-bao-qua-su-kien-noi-bo">Luồng: Gửi thông báo qua sự kiện nội bộ<a class="headerlink" href="#luong-gui-thong-bao-qua-su-kien-noi-bo" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+  participant SourceService
+  participant NotificationService
+  participant Queue
+  participant ChannelProvider
+
+  SourceService-&gt;&gt;NotificationService: Emit sự kiện `user.created`
+  NotificationService-&gt;&gt;Queue: Queue xử lý gửi notif
+  Queue-&gt;&gt;NotificationService: Consume và render nội dung
+  NotificationService-&gt;&gt;ChannelProvider: Gửi thông báo đến người dùng
+  ChannelProvider--&gt;&gt;NotificationService: Kết quả gửi thành công/thất bại
+</code></pre>
+<blockquote>
+<ol>
+<li>Dịch vụ khác phát sự kiện (VD: user.created)</li>
+<li>Notification Service consume từ queue và render template</li>
+<li>Gửi đến kênh tương ứng (email/SMS/push)</li>
+<li>Log lại kết quả gửi</li>
+</ol>
+</blockquote>
+<hr/>
+<h2 id="5-cac-su-kien-pubsub-events">5. 📣 Các sự kiện Pub/Sub (Events)<a class="headerlink" href="#5-cac-su-kien-pubsub-events" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Sự kiện nhận/phát</th>
+<th>Nguồn phát / Đích nhận</th>
+<th>Hành động tại Service này</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user.created</code></td>
+<td>user-service.master</td>
+<td>Gửi welcome email dựa trên template cấu hình</td>
+</tr>
+<tr>
+<td><code>password.reset_requested</code></td>
+<td>auth-service.master</td>
+<td>Gửi email reset password</td>
+</tr>
+</tbody>
+</table>
+<h3 id="payload-mau-usercreated">📦 Payload mẫu <code>user.created</code><a class="headerlink" href="#payload-mau-usercreated" title="Permanent link">¶</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user.created"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"u123"</span><span class="p">,</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"newuser@vas.edu.vn"</span><span class="p">,</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="nt">"full_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nguyễn Văn A"</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">    </span><span class="nt">"event_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"evt-555"</span><span class="p">,</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-05T09:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">    </span><span class="nt">"source_service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-service.master"</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h2 id="6-bao-mat-phan-quyen-security-authorization">6. 🔐 Bảo mật &amp; Phân quyền (Security &amp; Authorization)<a class="headerlink" href="#6-bao-mat-phan-quyen-security-authorization" title="Permanent link">¶</a></h2>
+<ul>
+<li>Authentication: thông qua JWT được Gateway xác thực</li>
+<li>Authorization:</li>
+<li>enforce bởi API Gateway qua header <code>X-Permissions</code></li>
+<li>permission liên quan: <code>notif.read_template</code>, <code>notif.send_manual</code>, <code>notif.write_template</code></li>
+<li>các API public qua event không cần token</li>
+</ul>
+<hr/>
+<h2 id="7-cau-hinh-phu-thuoc">7. ⚙️ Cấu hình &amp; Phụ thuộc<a class="headerlink" href="#7-cau-hinh-phu-thuoc" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Mục đích</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NOTIF_DB_URL</code></td>
+<td>Kết nối CSDL</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td><code>KAFKA_BROKERS</code></td>
+<td>Consume sự kiện</td>
+<td>Tham khảo config chung</td>
+</tr>
+<tr>
+<td><code>SMTP_CONFIG</code></td>
+<td>Gửi email</td>
+<td>JSON hoặc secrets</td>
+</tr>
+<tr>
+<td><code>SMS_API_KEY</code></td>
+<td>Gửi SMS</td>
+<td>secrets</td>
+</tr>
+<tr>
+<td><code>PUSH_API_TOKEN</code></td>
+<td>Gửi push notification</td>
+<td>optional</td>
+</tr>
+<tr>
+<td><code>TOPIC_user.created</code></td>
+<td>Topic nhận event user</td>
+<td>Từ user-service.master</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="8-testing">8. 🧪 Testing<a class="headerlink" href="#8-testing" title="Permanent link">¶</a></h2>
+<ul>
+<li>Unit Test: TemplateRenderer, LogWriter</li>
+<li>Integration Test: Consume event <code>user.created</code>, assert log gửi email đúng</li>
+<li>Mock provider: gửi giả lập qua SMTP hoặc sandbox mode</li>
+</ul>
+<hr/>
+<h2 id="9-kha-nang-giam-sat-observability">9. 📈 Khả năng Giám sát (Observability)<a class="headerlink" href="#9-kha-nang-giam-sat-observability" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Mô tả</th>
+<th>Loại</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>notif_event_consumed_total</code></td>
+<td>Tổng event đã xử lý</td>
+<td>Counter</td>
+</tr>
+<tr>
+<td><code>notif_send_duration_seconds</code></td>
+<td>Thời gian gửi mỗi thông báo</td>
+<td>Histogram</td>
+</tr>
+<tr>
+<td><code>notif_send_failure_total</code></td>
+<td>Thống kê gửi lỗi</td>
+<td>Counter</td>
+</tr>
+<tr>
+<td><code>notif_template_used_total</code></td>
+<td>Thống kê template được dùng</td>
+<td>Counter</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="10-o-tin-cay-phuc-hoi">10. 🔁 Độ tin cậy &amp; Phục hồi<a class="headerlink" href="#10-o-tin-cay-phuc-hoi" title="Permanent link">¶</a></h2>
+<ul>
+<li>Retry 3 lần nếu gửi lỗi (SMTP timeout...)</li>
+<li>Có DLQ cho các event lỗi không xử lý được</li>
+<li>Idempotent theo <code>event_id</code></li>
+<li>Health check tại <code>/healthz</code></li>
+</ul>
+<hr/>
+<h2 id="11-hieu-nang-kha-nang-mo-rong">11. ⚡️ Hiệu năng &amp; Khả năng mở rộng<a class="headerlink" href="#11-hieu-nang-kha-nang-mo-rong" title="Permanent link">¶</a></h2>
+<ul>
+<li>Stateless → scale theo instance</li>
+<li>SLO: gửi 95% thông báo trong 1s</li>
+<li>Caching template: TTL 10 phút trong memory</li>
+</ul>
+<hr/>
+<h2 id="12-kien-truc-service">12. 🧩 Kiến trúc Service<a class="headerlink" href="#12-kien-truc-service" title="Permanent link">¶</a></h2>
+<p>Notification Service (Master) được chia thành các module logic rõ ràng, tách biệt trách nhiệm để đảm bảo dễ bảo trì, test, và mở rộng.</p>
+<h3 id="thanh-phan-chinh">🧱 Thành phần chính<a class="headerlink" href="#thanh-phan-chinh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Trách nhiệm chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TemplateManager</code></td>
+<td>Quản lý CRUD template, hỗ trợ render nội dung với placeholder &amp; multi-language</td>
+</tr>
+<tr>
+<td><code>EventConsumer</code></td>
+<td>Lắng nghe sự kiện từ Pub/Sub (Kafka), validate payload, và dispatch gửi notif</td>
+</tr>
+<tr>
+<td><code>NotificationDispatcher</code></td>
+<td>Xử lý gửi thông báo đến kênh phù hợp (email, sms, push), retry nếu lỗi tạm thời</td>
+</tr>
+<tr>
+<td><code>ChannelConfigManager</code></td>
+<td>Quản lý cấu hình SMTP, SMS provider, token cho các kênh gửi</td>
+</tr>
+<tr>
+<td><code>LogWriter</code></td>
+<td>Ghi log gửi thông báo (thành công/thất bại), phục vụ audit &amp; thống kê</td>
+</tr>
+<tr>
+<td><code>APIController</code></td>
+<td>Xử lý các API RESTful (template CRUD, gửi thủ công), enforce RBAC</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="so-o-kien-truc-noi-bo-mermaid">🧭 Sơ đồ kiến trúc nội bộ (Mermaid)<a class="headerlink" href="#so-o-kien-truc-noi-bo-mermaid" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TD
+  A[Pub/Sub Topic] --&gt; B(EventConsumer)
+  B --&gt; C[TemplateManager]
+  C --&gt; D[NotificationDispatcher]
+  D --&gt; E[ChannelConfigManager]
+  D --&gt; F[LogWriter]
+
+  subgraph REST API
+    G(APIController) --&gt; C
+    G --&gt; D
+    G --&gt; LogWriter
+  end
+</code></pre>
+<hr/>
+<h3 id="tuong-tac-chinh">🔗 Tương tác chính<a class="headerlink" href="#tuong-tac-chinh" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>EventConsumer</code> sử dụng <code>TemplateManager</code> để lấy nội dung template, gọi <code>NotificationDispatcher</code> để thực thi gửi.</li>
+<li><code>Dispatcher</code> truy cập <code>ChannelConfigManager</code> để lấy thông tin provider và gửi message.</li>
+<li>Mọi kết quả gửi được ghi lại bởi <code>LogWriter</code> kèm <code>trace_id</code>, <code>status</code>, <code>template_id</code>.</li>
+<li><code>APIController</code> cung cấp giao diện quản lý template, gửi thủ công, dùng chung module bên trong.</li>
+</ul>
+<hr/>
+<p>📚 <strong>Xem thêm:</strong>
+- Luồng sequence event gửi trong mục 4
+- Mô hình dữ liệu trong mục 3
+- Event schema và permission liên quan trong ADR-007, 030</p>
+<hr/>
+<h2 id="13-tai-lieu-lien-ket">13. 📚 Tài liệu liên kết<a class="headerlink" href="#13-tai-lieu-lien-ket" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../data-model/">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+<li>[ADR-028 – Reporting Architecture (liên quan việc tiêu chuẩn hóa template)]</li>
+<li>[ADR-030 – Event Schema Governance]</li>
+<li>[ADR-007 – RBAC phân tầng]</li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

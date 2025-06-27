@@ -1,0 +1,1036 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/api-gateway/data-model/" rel="canonical"/>
+<link href="../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>API Gateway - Data Model - DX VAS - Docs</title>
+<link href="../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#api-gateway-data-model">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              API Gateway - Data Model
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-gioi-thieu">
+<span class="md-ellipsis">
+      1. Giới thiệu
+    </span>
+</a>
+<nav aria-label="1. Giới thiệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-tieu-cua-mo-hinh-du-lieu">
+<span class="md-ellipsis">
+      🎯 Mục tiêu của mô hình dữ liệu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#phan-loai-state-chinh">
+<span class="md-ellipsis">
+      📦 Phân loại state chính
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-pham-vi-du-lieu-quan-ly-scope">
+<span class="md-ellipsis">
+      2. Phạm vi Dữ liệu Quản lý (Scope)
+    </span>
+</a>
+<nav aria-label="2. Phạm vi Dữ liệu Quản lý (Scope)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-redis-cache-phuc-vu-hieu-nang-thoi-gian-thuc">
+<span class="md-ellipsis">
+      2.1. 🔁 Redis Cache – phục vụ hiệu năng thời gian thực
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-postgresql-phuc-vu-tinh-ung-an-log-ky-thuat">
+<span class="md-ellipsis">
+      2.2. 🗃️ PostgreSQL – phục vụ tính đúng đắn &amp; log kỹ thuật
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-bang-tong-hop-redis-cache-cau-truc-vi-du">
+<span class="md-ellipsis">
+      2.3. Bảng Tổng Hợp Redis Cache – Cấu Trúc &amp; Ví Dụ
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-ngoai-pham-vi-out-of-scope">
+<span class="md-ellipsis">
+      3. Ngoài Phạm Vi (Out of Scope)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-muc-tieu-cua-tai-lieu-mo-hinh-du-lieu">
+<span class="md-ellipsis">
+      4. Mục tiêu của Tài liệu Mô hình Dữ liệu
+    </span>
+</a>
+<nav aria-label="4. Mục tiêu của Tài liệu Mô hình Dữ liệu" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-ich-chinh">
+<span class="md-ellipsis">
+      🎯 Mục đích chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-tieu-phu-tro">
+<span class="md-ellipsis">
+      📚 Mục tiêu phụ trợ
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-erd-entity-relationship-diagram">
+<span class="md-ellipsis">
+      5. ERD (Entity Relationship Diagram)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-chi-tiet-bang">
+<span class="md-ellipsis">
+      6. Chi tiết Bảng
+    </span>
+</a>
+<nav aria-label="6. Chi tiết Bảng" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-bang-route_config">
+<span class="md-ellipsis">
+      6.1. 📌 Bảng: route_config
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-bang-processed_events">
+<span class="md-ellipsis">
+      6.2. 🔄 Bảng: processed_events
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-phu-luc">
+<span class="md-ellipsis">
+      7. Phụ lục
+    </span>
+</a>
+<nav aria-label="7. Phụ lục" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-chien-luoc-cache">
+<span class="md-ellipsis">
+      7.1. 🔄 Chiến lược Cache
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-cau-hinh-redis-e-xuat">
+<span class="md-ellipsis">
+      7.2. 🧩 Cấu hình Redis đề xuất
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-tai-lieu-lien-ket">
+<span class="md-ellipsis">
+      7.3. 🔗 Tài liệu liên kết
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-ghi-chu-mo-rong">
+<span class="md-ellipsis">
+      7.4. 📝 Ghi chú mở rộng
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="api-gateway-data-model">📃 API Gateway - Data Model<a class="headerlink" href="#api-gateway-data-model" title="Permanent link">¶</a></h1>
+<h2 id="1-gioi-thieu">1. Giới thiệu<a class="headerlink" href="#1-gioi-thieu" title="Permanent link">¶</a></h2>
+<p>Tài liệu này mô tả mô hình dữ liệu của <strong>API Gateway</strong>, một core service trong hệ sinh thái DX-VAS đóng vai trò như một điểm vào tập trung cho tất cả các frontend apps. Gateway thực hiện proxy định tuyến đến backend service tương ứng, đồng thời enforce RBAC, xác thực JWT, ghi log và thu thập metrics phục vụ observability.</p>
+<hr/>
+<h3 id="muc-tieu-cua-mo-hinh-du-lieu">🎯 Mục tiêu của mô hình dữ liệu<a class="headerlink" href="#muc-tieu-cua-mo-hinh-du-lieu" title="Permanent link">¶</a></h3>
+<p>Khác với các service nghiệp vụ khác, API Gateway không duy trì cơ sở dữ liệu quan hệ phức tạp.<br/>
+Thay vào đó, kiến trúc của Gateway phụ thuộc gần như hoàn toàn vào <strong>các lớp cache thông minh</strong>, với thời gian truy xuất siêu nhanh và khả năng invalidate động. Mô hình dữ liệu của Gateway được thiết kế để:</p>
+<ul>
+<li><strong>Định tuyến chính xác</strong> request đến backend phù hợp qua <code>route_config</code></li>
+<li><strong>Thực thi phân quyền tốc độ cao</strong> qua <code>rbac</code> rule được cache</li>
+<li><strong>Ngăn chặn token bị thu hồi</strong> thông qua <code>revoked</code> token cache</li>
+<li><strong>Xác thực JWT hiệu quả</strong> bằng cách cache JWKS key từ <code>token-service</code></li>
+<li><strong>Tự động làm mới</strong> thông tin khi có thay đổi cấu hình nhờ vào TTL hoặc Pub/Sub</li>
+</ul>
+<hr/>
+<h3 id="phan-loai-state-chinh">📦 Phân loại state chính<a class="headerlink" href="#phan-loai-state-chinh" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại dữ liệu</th>
+<th>Lưu ở đâu?</th>
+<th>Mục đích chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Route config</td>
+<td>Redis (<code>routes:</code>)</td>
+<td>Tra cứu định tuyến → backend tương ứng</td>
+</tr>
+<tr>
+<td>Permission RBAC</td>
+<td>Redis (<code>rbac:</code>)</td>
+<td>Kiểm tra phân quyền theo user_id + tenant_id</td>
+</tr>
+<tr>
+<td>Token revoked</td>
+<td>Redis (<code>revoked:</code>)</td>
+<td>Xác minh token đã bị thu hồi chưa (JTI)</td>
+</tr>
+<tr>
+<td>JWKS Key</td>
+<td>Redis (<code>jwks:</code>)</td>
+<td>Cache public key verify JWT, giảm gọi <code>token-service</code></td>
+</tr>
+<tr>
+<td>Processed Events</td>
+<td>PostgreSQL</td>
+<td>Ghi nhận các event đã xử lý để đảm bảo idempotency</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<blockquote>
+<p>🔍 Gateway có thể hoạt động gần như toàn bộ trên RAM nếu Redis cache đủ hit-rate, giúp đạt hiệu năng tuyến đầu ~10.000 RPS.</p>
+</blockquote>
+<h2 id="2-pham-vi-du-lieu-quan-ly-scope">2. Phạm vi Dữ liệu Quản lý (Scope)<a class="headerlink" href="#2-pham-vi-du-lieu-quan-ly-scope" title="Permanent link">¶</a></h2>
+<p>Dữ liệu mà API Gateway quản lý được chia thành hai loại chính:</p>
+<ul>
+<li><strong>Stateful ngắn hạn (ephemeral cache):</strong> lưu trữ trong Redis, chủ yếu phục vụ hiệu năng thời gian thực, có TTL ngắn và có thể tái tạo từ hệ thống gốc (stateless sync).</li>
+<li><strong>Stateful dài hạn (persistence):</strong> lưu trữ trong PostgreSQL, chủ yếu phục vụ mục đích đảm bảo tính đúng đắn (idempotency, log) cho các kịch bản async hoặc Pub/Sub.</li>
+</ul>
+<hr/>
+<h3 id="21-redis-cache-phuc-vu-hieu-nang-thoi-gian-thuc">2.1. 🔁 Redis Cache – phục vụ hiệu năng thời gian thực<a class="headerlink" href="#21-redis-cache-phuc-vu-hieu-nang-thoi-gian-thuc" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key Pattern</th>
+<th>Mục đích</th>
+<th>TTL mặc định</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>routes:{path}:{method}</code></td>
+<td>Tra cứu định tuyến: route → backend service, timeout, retry</td>
+<td>300 giây</td>
+</tr>
+<tr>
+<td><code>rbac:{user_id}:{tenant}</code></td>
+<td>Danh sách permission đã resolved của user trong tenant</td>
+<td>300 giây</td>
+</tr>
+<tr>
+<td><code>revoked:{jti}</code></td>
+<td>Kiểm tra token đã bị thu hồi</td>
+<td>180 giây</td>
+</tr>
+<tr>
+<td><code>jwks:public_key</code></td>
+<td>Cache public JWKS key từ <code>token-service</code> để xác thực JWT</td>
+<td>600 giây</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Mọi cache đều có thể bị invalidated bởi TTL, hoặc chủ động qua Pub/Sub (ví dụ: <code>rbac.updated</code>).</li>
+<li>Gateway sẽ <strong>fallback tự động</strong> nếu cache miss (gọi <code>user-sub</code>, <code>token-service</code>...).</li>
+</ul>
+<blockquote>
+<p>📌 Một số field được trích xuất từ JWT (như <code>sub</code>, <code>tenant_id</code>, <code>login_method</code>) sẽ được forward qua header cho các backend service, nhưng <strong>không được cache riêng trong Redis</strong> tại Gateway.<br/>
+Chúng là kết quả của quá trình decode JWT (offline introspection) và chỉ được giữ tạm trong memory per-request.</p>
+</blockquote>
+<hr/>
+<h3 id="22-postgresql-phuc-vu-tinh-ung-an-log-ky-thuat">2.2. 🗃️ PostgreSQL – phục vụ tính đúng đắn &amp; log kỹ thuật<a class="headerlink" href="#22-postgresql-phuc-vu-tinh-ung-an-log-ky-thuat" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bảng dữ liệu</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>route_config</code></td>
+<td>Quản lý route rule, timeout, retry, RBAC yêu cầu cho mỗi endpoint</td>
+</tr>
+<tr>
+<td><code>processed_events</code></td>
+<td>Lưu dấu vết event đã xử lý để chống xử lý lại (idempotency)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<blockquote>
+<p>📌 Các cấu trúc dữ liệu trong cache luôn được đồng bộ hoặc tái tạo từ các hệ thống gốc (User Service, Token Service, Config Center…).<br/>
+Gateway không sở hữu quyền quyết định cuối cùng với dữ liệu nghiệp vụ – nó chỉ là <strong>cơ chế điều phối tốc độ cao và đáng tin cậy.</strong></p>
+</blockquote>
+<hr/>
+<h3 id="23-bang-tong-hop-redis-cache-cau-truc-vi-du">2.3. Bảng Tổng Hợp Redis Cache – Cấu Trúc &amp; Ví Dụ<a class="headerlink" href="#23-bang-tong-hop-redis-cache-cau-truc-vi-du" title="Permanent link">¶</a></h3>
+<p>Redis là nơi lưu trữ toàn bộ state ngắn hạn để tăng hiệu năng xử lý tuyến đầu của API Gateway. Dưới đây là mô tả chi tiết từng key pattern, cấu trúc dữ liệu và ví dụ minh họa.</p>
+<hr/>
+<h4 id="key-routespathmethod">🔑 Key: <code>routes:{path}:{method}</code><a class="headerlink" href="#key-routespathmethod" title="Permanent link">¶</a></h4>
+<p><strong>Mục đích:</strong><br/>
+Tra cứu cấu hình định tuyến của route (timeout, retry, backend, permission…)</p>
+<p><strong>Cấu trúc JSON:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"backend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-service.master"</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">"x-required-permission"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user.read"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">"x-condition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{X-User-ID}}"</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">"timeout"</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="nt">"retry"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>TTL mặc định:</strong> 300 giây
+<strong>Cơ chế cập nhật:</strong> Polling file <code>route_config.json</code> hoặc lắng nghe Pub/Sub <code>route_config.updated</code></p>
+<hr/>
+<h4 id="key-rbacuser_idtenant_id">🔑 Key: <code>rbac:{user_id}:{tenant_id}</code><a class="headerlink" href="#key-rbacuser_idtenant_id" title="Permanent link">¶</a></h4>
+<p><strong>Mục đích:</strong>
+Lưu danh sách permission của user theo tenant – được resolve từ <code>user-sub</code>.</p>
+<p><strong>Cấu trúc JSON:</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"u123"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"t456"</span><span class="p">,</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="s2">"user.read"</span><span class="p">,</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="s2">"user.update.self"</span><span class="p">,</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="s2">"report.view_summary"</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">  </span><span class="nt">"resolved_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-10T11:33:00Z"</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>TTL mặc định:</strong> 300 giây
+<strong>Cơ chế invalidate:</strong> TTL hoặc lắng nghe sự kiện <code>rbac.updated</code> (Pub/Sub)</p>
+<blockquote>
+<p>🔍 Trường <code>login_method</code> không nằm trong cache RBAC mà được lấy từ JWT payload và forward qua <code>X-Login-Method</code>.<br/>
+Backend có thể dùng field này để phân nhánh logic, nhưng Gateway không quản lý cache riêng cho nó.</p>
+</blockquote>
+<hr/>
+<h4 id="key-revokedjti">🔑 Key: <code>revoked:{jti}</code><a class="headerlink" href="#key-revokedjti" title="Permanent link">¶</a></h4>
+<p><strong>Mục đích:</strong>
+Kiểm tra xem token đã bị thu hồi chưa. Được set sau khi gọi <code>token/introspect</code> hoặc khi người dùng logout.</p>
+<p><strong>Giá trị:</strong> <code>"true"</code> hoặc <code>"false"</code></p>
+<p><strong>Ví dụ:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>Key: revoked:7a99e531-2aeb-4c4d-8440-33513f5fc123
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>Value: "true"
+</span></code></pre></div>
+<p><strong>TTL mặc định:</strong> 180 giây
+<strong>Cơ chế ghi:</strong> Ghi khi revoke hoặc sau khi introspect token</p>
+<hr/>
+<h4 id="key-jwkspublic_key">🔑 Key: <code>jwks:public_key</code><a class="headerlink" href="#key-jwkspublic_key" title="Permanent link">¶</a></h4>
+<p><strong>Mục đích:</strong>
+Cache JWKS từ <code>token-service</code> để xác thực chữ ký JWT offline.</p>
+<p><strong>Cấu trúc JSON (rút gọn):</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="nt">"keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">      </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RSA"</span><span class="p">,</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">      </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"key-001"</span><span class="p">,</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">      </span><span class="nt">"use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sig"</span><span class="p">,</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">      </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RS256"</span><span class="p">,</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">      </span><span class="nt">"n"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">      </span><span class="nt">"e"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AQAB"</span>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">  </span><span class="nt">"fetched_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-10T11:40:00Z"</span>
+</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>TTL mặc định:</strong> 600 giây
+<strong>Cơ chế refresh:</strong> TTL hết hạn hoặc trigger từ <code>jwt.jwks.rotated</code></p>
+<hr/>
+<blockquote>
+<p>✅ Tất cả các cache Redis đều có thể bị flush thủ công bằng CLI, hoặc tự động hóa bằng cron/task theo config TTL.
+✅ Mọi Redis key nên được monitor qua metrics: hit/miss ratio, TTL remaining, size.</p>
+</blockquote>
+<hr/>
+<h2 id="3-ngoai-pham-vi-out-of-scope">3. Ngoài Phạm Vi (Out of Scope)<a class="headerlink" href="#3-ngoai-pham-vi-out-of-scope" title="Permanent link">¶</a></h2>
+<p>API Gateway không sở hữu dữ liệu nghiệp vụ, không quyết định quyền truy cập cuối cùng, cũng không giữ bất kỳ thông tin người dùng hay session nào.<br/>
+Dưới đây là các loại dữ liệu hoặc logic <strong>không nằm trong phạm vi quản lý</strong> của mô hình dữ liệu Gateway:</p>
+<ul>
+<li>
+<p>✖️ Dữ liệu người dùng, xác thực danh tính</p>
+<ul>
+<li>Không lưu thông tin user (profile, role, trạng thái...)</li>
+<li>Không xử lý đăng nhập, cấp token, xác thực danh tính (do <code>auth-service</code> và <code>token-service</code> đảm nhiệm)</li>
+</ul>
+</li>
+<li>
+<p>✖️ Cơ sở dữ liệu nghiệp vụ</p>
+<ul>
+<li>Không lưu danh sách lớp, bài học, báo cáo, hợp đồng, học sinh...</li>
+<li>Gateway chỉ proxy request đến service có DB riêng</li>
+</ul>
+</li>
+<li>
+<p>✖️ Session, trạng thái người dùng</p>
+<ul>
+<li>Gateway không quản lý phiên làm việc (session) hay token store</li>
+<li>Không có bảng lưu session hoặc login state</li>
+</ul>
+</li>
+<li>
+<p>✖️ Event log chi tiết</p>
+<ul>
+<li>Gateway không lưu lại chi tiết log request/response vào DB</li>
+<li>Việc audit log và phân tích hành vi người dùng được chuyển giao cho <code>audit-logging-service</code></li>
+</ul>
+</li>
+<li>
+<p>✖️ Logic phân quyền tùy ngữ cảnh nghiệp vụ</p>
+<ul>
+<li>Gateway chỉ enforce permission + <code>x-condition</code> đã định nghĩa trong <code>route_config</code></li>
+<li>Các điều kiện nghiệp vụ nâng cao (ví dụ: “chỉ admin của tổ chức X mới được duyệt báo cáo Y”) sẽ do backend xử lý</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<blockquote>
+<p>✅ Điều này đảm bảo Gateway giữ được tính chất stateless và hiệu năng cao, không bị lệ thuộc vào state nghiệp vụ hoặc bị phình to không kiểm soát.</p>
+</blockquote>
+<hr/>
+<h2 id="4-muc-tieu-cua-tai-lieu-mo-hinh-du-lieu">4. Mục tiêu của Tài liệu Mô hình Dữ liệu<a class="headerlink" href="#4-muc-tieu-cua-tai-lieu-mo-hinh-du-lieu" title="Permanent link">¶</a></h2>
+<p>Tài liệu này được biên soạn nhằm mô tả đầy đủ, chính xác và dễ hiểu các cấu trúc dữ liệu được sử dụng bởi API Gateway — bao gồm cả phần được lưu trong Redis (cache ngắn hạn) và PostgreSQL (lưu trữ dài hạn, phục vụ idempotency).</p>
+<hr/>
+<h3 id="muc-ich-chinh">🎯 Mục đích chính<a class="headerlink" href="#muc-ich-chinh" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Chuẩn hoá kiến thức kỹ thuật</strong> cho toàn bộ đội ngũ (backend, SRE, QA) về cách Gateway sử dụng và tổ chức dữ liệu.</li>
+<li><strong>Định nghĩa rõ cấu trúc các Redis key</strong> và TTL tương ứng để phục vụ tuning hiệu năng, observability, và scaling.</li>
+<li><strong>Đảm bảo đồng bộ với thiết kế hệ thống</strong> (<code>design.md</code>, <code>interface-contract.md</code>, <code>openapi.yaml</code>) và các quyết định kiến trúc (<code>ADR-007</code>, <code>ADR-011</code>, <code>ADR-023</code>).</li>
+<li><strong>Làm tài liệu tham khảo chính thức</strong> cho việc xây dựng các script monitor, alerting, flush CLI, cũng như hướng dẫn SRE khi troubleshooting.</li>
+</ul>
+<hr/>
+<h3 id="muc-tieu-phu-tro">📚 Mục tiêu phụ trợ<a class="headerlink" href="#muc-tieu-phu-tro" title="Permanent link">¶</a></h3>
+<ul>
+<li>Là nền tảng để:</li>
+<li>Viết các test kiểm tra consistency của Redis cache</li>
+<li>Xây dựng dashboard Prometheus về cache hit/miss theo loại key</li>
+<li>Thiết kế hệ thống autoscaling dựa trên số lượng key active</li>
+</ul>
+<hr/>
+<blockquote>
+<p>📌 Đây không phải là tài liệu thiết kế schema DB truyền thống, mà là <strong>"Sơ đồ bộ nhớ phân tán"</strong> của một service tuyến đầu — nơi mà cache chính là trung tâm xử lý tốc độ cao.</p>
+</blockquote>
+<hr/>
+<h2 id="5-erd-entity-relationship-diagram">5. ERD (Entity Relationship Diagram)<a class="headerlink" href="#5-erd-entity-relationship-diagram" title="Permanent link">¶</a></h2>
+<p><pre class="mermaid"><code>erDiagram
+    ROUTE_CONFIG {
+        string id PK
+        string method
+        string path
+        string backend_service
+        string required_permission
+        int timeout_ms
+        int retry_count
+    }
+
+    PROCESSED_EVENTS {
+        UUID event_id PK
+        TEXT consumer_group_name
+        TIMESTAMPTZ processed_at
+    }
+</code></pre>
+<strong>📎 Ghi chú</strong></p>
+<ul>
+<li>
+<p><strong><code>ROUTE_CONFIG</code></strong> mô phỏng một bảng cấu hình định tuyến nội bộ.
+  Trên thực tế, cấu hình route được load từ file JSON (<code>route_config.json</code>) hoặc external source (GCS, Firestore…), sau đó được Gateway parse, cache vào Redis (key <code>routes:{path}:{method}</code>) và sử dụng tại runtime.</p>
+</li>
+<li>
+<p><strong><code>PROCESSED_EVENTS</code></strong> là bảng vật lý trong PostgreSQL.
+  Dùng để đảm bảo <strong>idempotency</strong> khi xử lý các sự kiện từ Pub/Sub, đặc biệt với các action bất đồng bộ (async). Việc lưu lại <code>event_id</code> theo từng <code>consumer_group</code> giúp tránh xử lý trùng khi retry.</p>
+</li>
+<li>
+<p>Gateway không có bảng dữ liệu nghiệp vụ, cũng không chứa foreign key hoặc relationship phức tạp — mục tiêu là <strong>truy cập nhanh, định tuyến đúng, không state dài hạn.</strong></p>
+</li>
+</ul>
+<hr/>
+<h2 id="6-chi-tiet-bang">6. Chi tiết Bảng<a class="headerlink" href="#6-chi-tiet-bang" title="Permanent link">¶</a></h2>
+<p>Phần này mô tả chi tiết cấu trúc và mục đích của hai bảng dữ liệu chính mà API Gateway sử dụng trong PostgreSQL: <code>route_config</code> và <code>processed_events</code>.</p>
+<hr/>
+<h3 id="61-bang-route_config">6.1. 📌 Bảng: <code>route_config</code><a class="headerlink" href="#61-bang-route_config" title="Permanent link">¶</a></h3>
+<h4 id="muc-ich">📏 Mục đích<a class="headerlink" href="#muc-ich" title="Permanent link">¶</a></h4>
+<p>Lưu trữ cấu hình định tuyến được Gateway tải về từ external config (JSON, GCS, Firestore…).<br/>
+Phục vụ cho <code>Routing Engine</code>, <code>RBAC Policy</code>, <code>Timeout Handler</code>, và <code>Retry Logic</code>.</p>
+<h4 id="inh-nghia-bang">🧾 Định nghĩa bảng<a class="headerlink" href="#inh-nghia-bang" title="Permanent link">¶</a></h4>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">route_config</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="k">method</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">    </span><span class="n">path</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="n">backend_service</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">    </span><span class="n">required_permission</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">    </span><span class="n">timeout_ms</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">    </span><span class="n">retry_count</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="p">);</span>
+</span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a>
+</span><span id="__span-4-13"><a href="#__codelineno-4-13" id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_route_path_method</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">route_config</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="p">);</span>
+</span></code></pre></div>
+<h4 id="giai-thich-cot">🧰 Giải thích cột<a class="headerlink" href="#giai-thich-cot" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu DL</th>
+<th>Ràng buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>TEXT</td>
+<td>PK</td>
+<td>Mã định danh duy nhất cho route (có thể dùng hash path+method)</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>HTTP method áp dụng: GET, POST, PUT...</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>Pattern URL, ví dụ: <code>/users/**</code> hoặc <code>/auth/login</code></td>
+</tr>
+<tr>
+<td><code>backend_service</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>Tên định danh backend service (theo định danh nội bộ)</td>
+</tr>
+<tr>
+<td><code>required_permission</code></td>
+<td>TEXT</td>
+<td>optional</td>
+<td>Mã permission yêu cầu (áp dụng RBAC)</td>
+</tr>
+<tr>
+<td><code>timeout_ms</code></td>
+<td>INTEGER</td>
+<td>DEFAULT</td>
+<td>Timeout (milliseconds) khi proxy đến backend</td>
+</tr>
+<tr>
+<td><code>retry_count</code></td>
+<td>INTEGER</td>
+<td>DEFAULT</td>
+<td>Số lần retry nếu backend không phản hồi</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>DEFAULT NOW()</td>
+<td>Timestamp tạo bản ghi</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>DEFAULT NOW()</td>
+<td>Timestamp cập nhật cuối cùng</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="62-bang-processed_events">6.2. 🔄 Bảng: <code>processed_events</code><a class="headerlink" href="#62-bang-processed_events" title="Permanent link">¶</a></h3>
+<h4 id="muc-ich_1">📏 Mục đích<a class="headerlink" href="#muc-ich_1" title="Permanent link">¶</a></h4>
+<p>Ghi nhận các sự kiện Pub/Sub đã được xử lý để <strong>đảm bảo idempotency</strong> – tránh xử lý lặp trong trường hợp message bị gửi lại (retry).</p>
+<h4 id="inh-nghia-bang_1">🧾 Định nghĩa bảng<a class="headerlink" href="#inh-nghia-bang_1" title="Permanent link">¶</a></h4>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">processed_events</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="n">event_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="n">consumer_group_name</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="n">processed_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="p">);</span>
+</span></code></pre></div>
+<h4 id="chinh-sach-ttl-don-dep">🧹 Chính sách TTL &amp; Dọn dẹp<a class="headerlink" href="#chinh-sach-ttl-don-dep" title="Permanent link">¶</a></h4>
+<ul>
+<li>Dữ liệu trong bảng <code>processed_events</code> được lưu tối đa <strong>30 ngày</strong>.</li>
+<li>Batch job (cron, Airflow, pg_cron...) sẽ xóa các bản ghi quá hạn để giữ bảng nhẹ, truy vấn nhanh.</li>
+</ul>
+<h4 id="giai-thich-cot_1">🧰 Giải thích cột<a class="headerlink" href="#giai-thich-cot_1" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Cột</th>
+<th>Kiểu DL</th>
+<th>Ràng buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event_id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>Mã duy nhất của sự kiện từ Pub/Sub hoặc queue</td>
+</tr>
+<tr>
+<td><code>consumer_group_name</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>Tên định danh consumer (theo tenant hoặc chức năng)</td>
+</tr>
+<tr>
+<td><code>processed_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>DEFAULT NOW()</td>
+<td>Thời điểm Gateway đánh dấu sự kiện đã xử lý</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<blockquote>
+<p>✅ Cả hai bảng đều được thiết kế để phục vụ mục tiêu tốc độ, đơn giản hóa kiểm soát và hỗ trợ các batch job vận hành (xóa TTL, reload config…).</p>
+</blockquote>
+<hr/>
+<h2 id="7-phu-luc">7. Phụ lục<a class="headerlink" href="#7-phu-luc" title="Permanent link">¶</a></h2>
+<p>Phần phụ lục này tổng hợp lại toàn bộ chiến lược cache, TTL, và liên kết đến các tài liệu kiến trúc có liên quan, giúp đội ngũ phát triển và vận hành dễ dàng tra cứu, đồng bộ và debug hệ thống Gateway.</p>
+<hr/>
+<h3 id="71-chien-luoc-cache">7.1. 🔄 Chiến lược Cache<a class="headerlink" href="#71-chien-luoc-cache" title="Permanent link">¶</a></h3>
+<p>API Gateway hoạt động theo nguyên tắc <strong>cache ưu tiên – fallback khi cần thiết</strong> để đảm bảo hiệu năng tuyến đầu. Dưới đây là chiến lược cụ thể cho từng loại dữ liệu:</p>
+<table>
+<thead>
+<tr>
+<th>Cache Key Pattern</th>
+<th>TTL</th>
+<th>Nguồn fallback</th>
+<th>Cơ chế invalidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>routes:{path}:{method}</code></td>
+<td>300s</td>
+<td>File <code>route_config.json</code> / GCS</td>
+<td>Reload định kỳ / PubSub <code>route.updated</code></td>
+</tr>
+<tr>
+<td><code>rbac:{uid}:{tid}</code></td>
+<td>300s</td>
+<td><code>user-sub</code> service</td>
+<td>PubSub <code>rbac.updated</code></td>
+</tr>
+<tr>
+<td><code>revoked:{jti}</code></td>
+<td>180s</td>
+<td><code>token-service/introspect</code></td>
+<td>Khi logout hoặc introspect fail</td>
+</tr>
+<tr>
+<td><code>jwks:public_key</code></td>
+<td>600s</td>
+<td>JWKS endpoint từ <code>token-service</code></td>
+<td>PubSub <code>jwt.jwks.rotated</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="72-cau-hinh-redis-e-xuat">7.2. 🧩 Cấu hình Redis đề xuất<a class="headerlink" href="#72-cau-hinh-redis-e-xuat" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Mode:</strong> Redis cluster hoặc Sentinel</li>
+<li><strong>Eviction Policy:</strong> <code>volatile-lru</code> (ưu tiên xóa key gần hết TTL)</li>
+<li><strong>Monitoring:</strong> Prometheus Redis Exporter: <code>cache_hit_rate</code>, <code>key_expired_total</code>, <code>memory_usage</code></li>
+<li><strong>Alert:</strong> TTL xuống thấp bất thường hoặc miss rate &gt; 5%</li>
+</ul>
+<hr/>
+<h3 id="73-tai-lieu-lien-ket">7.3. 🔗 Tài liệu liên kết<a class="headerlink" href="#73-tai-lieu-lien-ket" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Chủ đề</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thiết kế tổng thể hệ thống</td>
+<td><code>docs/README.md</code></td>
+</tr>
+<tr>
+<td>Thiết kế chi tiết Gateway</td>
+<td><code>docs/services/api-gateway/design.md</code></td>
+</tr>
+<tr>
+<td>Giao diện hợp đồng Gateway</td>
+<td><code>docs/services/api-gateway/interface-contract.md</code></td>
+</tr>
+<tr>
+<td>Chuẩn hóa lỗi &amp; phản hồi</td>
+<td><code>docs/ADR/adr-011-api-error-format.md</code>, <code>adr-012-response-structure.md</code></td>
+</tr>
+<tr>
+<td>Phân quyền động RBAC</td>
+<td><code>docs/architecture/rbac-deep-dive.md</code></td>
+</tr>
+<tr>
+<td>Chiến lược JWT &amp; revoked tokens</td>
+<td><code>docs/services/token-service/design.md</code></td>
+</tr>
+<tr>
+<td>Quản lý TTL &amp; event cache</td>
+<td><code>docs/ADR/adr-023-schema-migration-strategy.md</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="74-ghi-chu-mo-rong">7.4. 📝 Ghi chú mở rộng<a class="headerlink" href="#74-ghi-chu-mo-rong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Redis cache KHÔNG được xem là nguồn dữ liệu chính. Mọi dữ liệu có thể bị mất cache và sẽ được tự động tái tạo từ hệ thống gốc.</li>
+<li>TTL ngắn + kiểm soát thông minh giúp Gateway cân bằng giữa hiệu năng và tính đúng đắn.</li>
+<li>Mọi access tới Redis nên được wrap qua RedisClient có trace + metric Prometheus.</li>
+</ul>
+<blockquote>
+<p>📌 Tài liệu này sẽ được cập nhật tự động khi có thay đổi từ các ADR hoặc service phụ thuộc.</p>
+</blockquote>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

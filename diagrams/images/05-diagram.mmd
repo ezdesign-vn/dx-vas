@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant CRM as SuiteCRM
+  participant CRMA as CRM Adapter
+  participant Gateway as API Gateway
+  participant SISA as SIS Adapter
+  participant SIS as Gibbon SIS
+  participant LMSA as LMS Adapter
+  participant LMS as Moodle LMS
+
+  CRM->>CRMA: Gửi sự kiện Lead chuyển thành Học sinh
+  CRMA->>Gateway: POST /admissions
+  Gateway->>SISA: Forward request
+
+  SISA->>SIS: Tạo hồ sơ học sinh + gán lớp
+  SIS-->>SISA: Trả về mã học sinh (student_id)
+  SISA->>Gateway: POST /students/{id}/sync-to-lms
+  Gateway->>LMSA: Forward request
+  LMSA->>LMS: Tạo user Moodle + phân lớp
+
+  LMS-->>LMSA: OK
+  LMSA-->>Gateway: OK

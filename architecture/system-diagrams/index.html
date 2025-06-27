@@ -1,0 +1,2824 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/architecture/system-diagrams/" rel="canonical"/>
+<link href="../.." rel="prev"/>
+<link href="../rbac-deep-dive/" rel="next"/>
+<link href="../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Sơ đồ Hệ thống - DX VAS - Docs</title>
+<link href="../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#so-o-kien-truc-he-thong-dx-vas">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="DX VAS - Docs">
+<img alt="logo" src="../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Sơ đồ Hệ thống
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="./">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../services/">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="DX VAS - Docs">
+<img alt="logo" src="../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-luc-so-o-kien-truc-he-thong-dx-vas">
+<span class="md-ellipsis">
+      📚 Mục lục Sơ đồ Kiến trúc Hệ thống dx-vas
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-kien-truc-tong-quan-he-thong-multi-tenant">
+<span class="md-ellipsis">
+      1. Kiến trúc tổng quan hệ thống Multi-Tenant
+    </span>
+</a>
+<nav aria-label="1. Kiến trúc tổng quan hệ thống Multi-Tenant" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chu-thich-mui-ten-uong-net">
+<span class="md-ellipsis">
+      🗝️ Chú thích mũi tên &amp; đường nét
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-luong-anh-gia-rbac-tai-api-gateway">
+<span class="md-ellipsis">
+      2. Luồng đánh giá RBAC tại API Gateway
+    </span>
+</a>
+<nav aria-label="2. Luồng đánh giá RBAC tại API Gateway" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-sequence-diagram">
+<span class="md-ellipsis">
+      2.1 Sequence Diagram
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-buoc-xu-ly-chi-tiet">
+<span class="md-ellipsis">
+      2.2 Bước xử lý chi tiết
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-quy-tac-xu-ly">
+<span class="md-ellipsis">
+      2.3 Quy tắc xử lý
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#24-metrics-alert">
+<span class="md-ellipsis">
+      2.4 Metrics &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-luong-phat-hanh-jwt-a-tenant">
+<span class="md-ellipsis">
+      3. Luồng phát hành JWT đa-tenant
+    </span>
+</a>
+<nav aria-label="3. Luồng phát hành JWT đa-tenant" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-sequence-diagram">
+<span class="md-ellipsis">
+      3.1 Sequence Diagram
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-buoc-xu-ly-chi-tiet">
+<span class="md-ellipsis">
+      3.2 Bước xử lý chi tiết
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-cau-truc-jwt">
+<span class="md-ellipsis">
+      3.3 Cấu trúc JWT
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#34-kiem-soat-bao-mat">
+<span class="md-ellipsis">
+      3.4 Kiểm soát &amp; Bảo mật
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#35-metric-giam-sat">
+<span class="md-ellipsis">
+      3.5 Metric giám sát
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-luong-gui-notification-toan-he-thong-pubsub-fan-out">
+<span class="md-ellipsis">
+      4. Luồng gửi Notification toàn hệ thống (Pub/Sub fan-out)
+    </span>
+</a>
+<nav aria-label="4. Luồng gửi Notification toàn hệ thống (Pub/Sub fan-out)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-sequence-diagram">
+<span class="md-ellipsis">
+      4.1 Sequence Diagram
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-inh-tuyen-schema">
+<span class="md-ellipsis">
+      4.2 Định tuyến &amp; Schema
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-xu-ly-tai-notification-master">
+<span class="md-ellipsis">
+      4.3 Xử lý tại Notification Master
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#44-xu-ly-tai-notification-sub-per-tenant">
+<span class="md-ellipsis">
+      4.4 Xử lý tại Notification Sub (per tenant)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#45-kha-nang-mo-rong-sla">
+<span class="md-ellipsis">
+      4.5 Khả năng mở rộng &amp; SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#46-monitoring-alert">
+<span class="md-ellipsis">
+      4.6 Monitoring &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-so-o-trien-khai-ha-tang-deployment-diagram">
+<span class="md-ellipsis">
+      5. Sơ đồ triển khai hạ tầng (Deployment Diagram)
+    </span>
+</a>
+<nav aria-label="5. Sơ đồ triển khai hạ tầng (Deployment Diagram)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ghi-chu-chinh-sach">
+<span class="md-ellipsis">
+      🔑 Ghi chú &amp; Chính sách
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-vong-oi-tai-khoan-account-lifecycle">
+<span class="md-ellipsis">
+      6. Vòng đời Tài khoản (Account Lifecycle)
+    </span>
+</a>
+<nav aria-label="6. Vòng đời Tài khoản (Account Lifecycle)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-luong-khoi-tao-create-first-login">
+<span class="md-ellipsis">
+      6.1 Luồng khởi tạo (Create / First Login)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-kich-hoat-ngung-hoat-ong">
+<span class="md-ellipsis">
+      6.2 Kích hoạt / Ngưng hoạt động
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-cap-nhat-thong-tin-ho-so">
+<span class="md-ellipsis">
+      6.3 Cập nhật thông tin hồ sơ
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-vong-oi-phien-session-ttl">
+<span class="md-ellipsis">
+      6.4 Vòng đời phiên (Session TTL)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#65-an-danh-xoa-vinh-vien">
+<span class="md-ellipsis">
+      6.5 Ẩn danh &amp; Xoá vĩnh viễn
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#66-mapping-jwt-rbac-cache">
+<span class="md-ellipsis">
+      6.6 Mapping → JWT &amp; RBAC Cache
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#67-kpi-alert">
+<span class="md-ellipsis">
+      6.7 KPI &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-luong-ong-bo-rbac-tu-master-sub-user-services">
+<span class="md-ellipsis">
+      7. Luồng đồng bộ RBAC từ Master → Sub User Services
+    </span>
+</a>
+<nav aria-label="7. Luồng đồng bộ RBAC từ Master → Sub User Services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-sequence-diagram-event-driven">
+<span class="md-ellipsis">
+      7.1 Sequence Diagram (Event-driven)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-su-kien-schema-adr-030">
+<span class="md-ellipsis">
+      7.2 Sự kiện &amp; Schema (ADR-030)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-ong-bo-inh-ky-cron-sync">
+<span class="md-ellipsis">
+      7.3 Đồng bộ định kỳ (Cron Sync)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-xu-ly-conflict">
+<span class="md-ellipsis">
+      7.4 Xử lý conflict
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#75-cap-nhat-cache-gateway">
+<span class="md-ellipsis">
+      7.5 Cập nhật cache &amp; Gateway
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#76-kpi-alert">
+<span class="md-ellipsis">
+      7.6 KPI &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-phan-quyen-giao-dien-nguoi-dung-ui-role-mapping">
+<span class="md-ellipsis">
+      8. Phân quyền Giao diện Người Dùng (UI Role Mapping)
+    </span>
+</a>
+<nav aria-label="8. Phân quyền Giao diện Người Dùng (UI Role Mapping)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-ma-tran-portal-vai-tro-chuan">
+<span class="md-ellipsis">
+      8.1 Ma trận Portal → Vai trò Chuẩn
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-mapping-ui-permission">
+<span class="md-ellipsis">
+      8.2 Mapping UI → Permission
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-kiem-tra-quyen-frontend">
+<span class="md-ellipsis">
+      8.3 Kiểm tra quyền (Frontend)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-dynamic-condition">
+<span class="md-ellipsis">
+      8.4 Dynamic Condition
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-quy-trinh-them-tinh-nang-moi">
+<span class="md-ellipsis">
+      8.5 Quy trình thêm tính năng mới
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#86-kpi-ui-authorization">
+<span class="md-ellipsis">
+      8.6 KPI UI Authorization
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-he-thong-bao-cao-phan-tich-reporting-analytics-architecture">
+<span class="md-ellipsis">
+      9. Hệ thống Báo cáo &amp; Phân tích (Reporting &amp; Analytics Architecture)
+    </span>
+</a>
+<nav aria-label="9. Hệ thống Báo cáo &amp; Phân tích (Reporting &amp; Analytics Architecture)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-luong-du-lieu-tong-quat">
+<span class="md-ellipsis">
+      9.1 Luồng dữ liệu tổng quát
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-kien-truc-data-warehouse-bigquery">
+<span class="md-ellipsis">
+      9.2 Kiến trúc Data Warehouse (BigQuery)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-rbac-row-level-security">
+<span class="md-ellipsis">
+      9.3 RBAC &amp; Row-Level Security
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#94-template-export">
+<span class="md-ellipsis">
+      9.4 Template &amp; Export
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#95-giam-sat-chi-phi-hieu-suat">
+<span class="md-ellipsis">
+      9.5 Giám sát chi phí &amp; Hiệu suất
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#96-so-o-quyen-truy-cap-bao-cao">
+<span class="md-ellipsis">
+      9.6 Sơ đồ quyền truy cập báo cáo
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#97-roadmap-mo-rong">
+<span class="md-ellipsis">
+      9.7 Roadmap mở rộng
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-ai-integration-strategy">
+<span class="md-ellipsis">
+      10. AI Integration Strategy
+    </span>
+</a>
+<nav aria-label="10. AI Integration Strategy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-use-case-uu-tien-2025-2026">
+<span class="md-ellipsis">
+      10.1 Use-case Ưu tiên (2025-2026)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-kien-truc-trien-khai">
+<span class="md-ellipsis">
+      10.2 Kiến trúc triển khai
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-model-lifecycle">
+<span class="md-ellipsis">
+      10.3 Model Lifecycle
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-bao-mat-ao-uc">
+<span class="md-ellipsis">
+      10.4 Bảo mật &amp; Đạo đức
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#105-kpi-giam-sat">
+<span class="md-ellipsis">
+      10.5 KPI &amp; Giám sát
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#106-roadmap">
+<span class="md-ellipsis">
+      10.6 Roadmap
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../services/">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muc-luc-so-o-kien-truc-he-thong-dx-vas">
+<span class="md-ellipsis">
+      📚 Mục lục Sơ đồ Kiến trúc Hệ thống dx-vas
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-kien-truc-tong-quan-he-thong-multi-tenant">
+<span class="md-ellipsis">
+      1. Kiến trúc tổng quan hệ thống Multi-Tenant
+    </span>
+</a>
+<nav aria-label="1. Kiến trúc tổng quan hệ thống Multi-Tenant" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chu-thich-mui-ten-uong-net">
+<span class="md-ellipsis">
+      🗝️ Chú thích mũi tên &amp; đường nét
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-luong-anh-gia-rbac-tai-api-gateway">
+<span class="md-ellipsis">
+      2. Luồng đánh giá RBAC tại API Gateway
+    </span>
+</a>
+<nav aria-label="2. Luồng đánh giá RBAC tại API Gateway" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-sequence-diagram">
+<span class="md-ellipsis">
+      2.1 Sequence Diagram
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-buoc-xu-ly-chi-tiet">
+<span class="md-ellipsis">
+      2.2 Bước xử lý chi tiết
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-quy-tac-xu-ly">
+<span class="md-ellipsis">
+      2.3 Quy tắc xử lý
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#24-metrics-alert">
+<span class="md-ellipsis">
+      2.4 Metrics &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-luong-phat-hanh-jwt-a-tenant">
+<span class="md-ellipsis">
+      3. Luồng phát hành JWT đa-tenant
+    </span>
+</a>
+<nav aria-label="3. Luồng phát hành JWT đa-tenant" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-sequence-diagram">
+<span class="md-ellipsis">
+      3.1 Sequence Diagram
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-buoc-xu-ly-chi-tiet">
+<span class="md-ellipsis">
+      3.2 Bước xử lý chi tiết
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-cau-truc-jwt">
+<span class="md-ellipsis">
+      3.3 Cấu trúc JWT
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#34-kiem-soat-bao-mat">
+<span class="md-ellipsis">
+      3.4 Kiểm soát &amp; Bảo mật
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#35-metric-giam-sat">
+<span class="md-ellipsis">
+      3.5 Metric giám sát
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-luong-gui-notification-toan-he-thong-pubsub-fan-out">
+<span class="md-ellipsis">
+      4. Luồng gửi Notification toàn hệ thống (Pub/Sub fan-out)
+    </span>
+</a>
+<nav aria-label="4. Luồng gửi Notification toàn hệ thống (Pub/Sub fan-out)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-sequence-diagram">
+<span class="md-ellipsis">
+      4.1 Sequence Diagram
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-inh-tuyen-schema">
+<span class="md-ellipsis">
+      4.2 Định tuyến &amp; Schema
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-xu-ly-tai-notification-master">
+<span class="md-ellipsis">
+      4.3 Xử lý tại Notification Master
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#44-xu-ly-tai-notification-sub-per-tenant">
+<span class="md-ellipsis">
+      4.4 Xử lý tại Notification Sub (per tenant)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#45-kha-nang-mo-rong-sla">
+<span class="md-ellipsis">
+      4.5 Khả năng mở rộng &amp; SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#46-monitoring-alert">
+<span class="md-ellipsis">
+      4.6 Monitoring &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-so-o-trien-khai-ha-tang-deployment-diagram">
+<span class="md-ellipsis">
+      5. Sơ đồ triển khai hạ tầng (Deployment Diagram)
+    </span>
+</a>
+<nav aria-label="5. Sơ đồ triển khai hạ tầng (Deployment Diagram)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ghi-chu-chinh-sach">
+<span class="md-ellipsis">
+      🔑 Ghi chú &amp; Chính sách
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-vong-oi-tai-khoan-account-lifecycle">
+<span class="md-ellipsis">
+      6. Vòng đời Tài khoản (Account Lifecycle)
+    </span>
+</a>
+<nav aria-label="6. Vòng đời Tài khoản (Account Lifecycle)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-luong-khoi-tao-create-first-login">
+<span class="md-ellipsis">
+      6.1 Luồng khởi tạo (Create / First Login)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-kich-hoat-ngung-hoat-ong">
+<span class="md-ellipsis">
+      6.2 Kích hoạt / Ngưng hoạt động
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-cap-nhat-thong-tin-ho-so">
+<span class="md-ellipsis">
+      6.3 Cập nhật thông tin hồ sơ
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-vong-oi-phien-session-ttl">
+<span class="md-ellipsis">
+      6.4 Vòng đời phiên (Session TTL)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#65-an-danh-xoa-vinh-vien">
+<span class="md-ellipsis">
+      6.5 Ẩn danh &amp; Xoá vĩnh viễn
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#66-mapping-jwt-rbac-cache">
+<span class="md-ellipsis">
+      6.6 Mapping → JWT &amp; RBAC Cache
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#67-kpi-alert">
+<span class="md-ellipsis">
+      6.7 KPI &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-luong-ong-bo-rbac-tu-master-sub-user-services">
+<span class="md-ellipsis">
+      7. Luồng đồng bộ RBAC từ Master → Sub User Services
+    </span>
+</a>
+<nav aria-label="7. Luồng đồng bộ RBAC từ Master → Sub User Services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-sequence-diagram-event-driven">
+<span class="md-ellipsis">
+      7.1 Sequence Diagram (Event-driven)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-su-kien-schema-adr-030">
+<span class="md-ellipsis">
+      7.2 Sự kiện &amp; Schema (ADR-030)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-ong-bo-inh-ky-cron-sync">
+<span class="md-ellipsis">
+      7.3 Đồng bộ định kỳ (Cron Sync)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-xu-ly-conflict">
+<span class="md-ellipsis">
+      7.4 Xử lý conflict
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#75-cap-nhat-cache-gateway">
+<span class="md-ellipsis">
+      7.5 Cập nhật cache &amp; Gateway
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#76-kpi-alert">
+<span class="md-ellipsis">
+      7.6 KPI &amp; Alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-phan-quyen-giao-dien-nguoi-dung-ui-role-mapping">
+<span class="md-ellipsis">
+      8. Phân quyền Giao diện Người Dùng (UI Role Mapping)
+    </span>
+</a>
+<nav aria-label="8. Phân quyền Giao diện Người Dùng (UI Role Mapping)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-ma-tran-portal-vai-tro-chuan">
+<span class="md-ellipsis">
+      8.1 Ma trận Portal → Vai trò Chuẩn
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-mapping-ui-permission">
+<span class="md-ellipsis">
+      8.2 Mapping UI → Permission
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-kiem-tra-quyen-frontend">
+<span class="md-ellipsis">
+      8.3 Kiểm tra quyền (Frontend)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-dynamic-condition">
+<span class="md-ellipsis">
+      8.4 Dynamic Condition
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-quy-trinh-them-tinh-nang-moi">
+<span class="md-ellipsis">
+      8.5 Quy trình thêm tính năng mới
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#86-kpi-ui-authorization">
+<span class="md-ellipsis">
+      8.6 KPI UI Authorization
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-he-thong-bao-cao-phan-tich-reporting-analytics-architecture">
+<span class="md-ellipsis">
+      9. Hệ thống Báo cáo &amp; Phân tích (Reporting &amp; Analytics Architecture)
+    </span>
+</a>
+<nav aria-label="9. Hệ thống Báo cáo &amp; Phân tích (Reporting &amp; Analytics Architecture)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-luong-du-lieu-tong-quat">
+<span class="md-ellipsis">
+      9.1 Luồng dữ liệu tổng quát
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-kien-truc-data-warehouse-bigquery">
+<span class="md-ellipsis">
+      9.2 Kiến trúc Data Warehouse (BigQuery)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-rbac-row-level-security">
+<span class="md-ellipsis">
+      9.3 RBAC &amp; Row-Level Security
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#94-template-export">
+<span class="md-ellipsis">
+      9.4 Template &amp; Export
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#95-giam-sat-chi-phi-hieu-suat">
+<span class="md-ellipsis">
+      9.5 Giám sát chi phí &amp; Hiệu suất
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#96-so-o-quyen-truy-cap-bao-cao">
+<span class="md-ellipsis">
+      9.6 Sơ đồ quyền truy cập báo cáo
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#97-roadmap-mo-rong">
+<span class="md-ellipsis">
+      9.7 Roadmap mở rộng
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-ai-integration-strategy">
+<span class="md-ellipsis">
+      10. AI Integration Strategy
+    </span>
+</a>
+<nav aria-label="10. AI Integration Strategy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-use-case-uu-tien-2025-2026">
+<span class="md-ellipsis">
+      10.1 Use-case Ưu tiên (2025-2026)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-kien-truc-trien-khai">
+<span class="md-ellipsis">
+      10.2 Kiến trúc triển khai
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-model-lifecycle">
+<span class="md-ellipsis">
+      10.3 Model Lifecycle
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-bao-mat-ao-uc">
+<span class="md-ellipsis">
+      10.4 Bảo mật &amp; Đạo đức
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#105-kpi-giam-sat">
+<span class="md-ellipsis">
+      10.5 KPI &amp; Giám sát
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#106-roadmap">
+<span class="md-ellipsis">
+      10.6 Roadmap
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="so-o-kien-truc-he-thong-dx-vas">Sơ đồ Kiến trúc Hệ thống dx-vas<a class="headerlink" href="#so-o-kien-truc-he-thong-dx-vas" title="Permanent link">¶</a></h1>
+<p>Tài liệu này tập hợp tất cả các sơ đồ kiến trúc quan trọng của hệ thống chuyển đổi số dx-vas, bao gồm:</p>
+<ul>
+<li>Sơ đồ kiến trúc tổng thể</li>
+<li>Diễn giải các khối chức năng</li>
+<li>Các sơ đồ con chi tiết theo từng luồng nghiệp vụ (ví dụ: Tuyển sinh, Thông báo, Phân quyền RBAC...)</li>
+</ul>
+<h2 id="muc-luc-so-o-kien-truc-he-thong-dx-vas">📚 Mục lục Sơ đồ Kiến trúc Hệ thống dx-vas<a class="headerlink" href="#muc-luc-so-o-kien-truc-he-thong-dx-vas" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>STT</th>
+<th>Tên sơ đồ</th>
+<th>Mô tả ngắn</th>
+<th>Liên kết</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1️⃣</td>
+<td><strong>Kiến trúc tổng quan hệ thống Multi-Tenant</strong></td>
+<td>Tổng thể hệ thống gồm Shared Core và các Tenant Stack</td>
+<td><a href="#1-kiến-trúc-tổng-quan-hệ-thống-multi-tenant">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>2️⃣</td>
+<td><strong>Luồng đánh giá RBAC tại API Gateway</strong></td>
+<td>Cách Gateway đánh giá quyền động từ JWT + Redis + Sub Service</td>
+<td><a href="#2-luồng-đánh-giá-rbac-tại-api-gateway">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>3️⃣</td>
+<td><strong>Luồng phát hành JWT đa-tenant</strong></td>
+<td>Quá trình xác thực Google/OTP và phát token</td>
+<td><a href="#3-luồng-phát-hành-jwt-đa-tenant">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>4️⃣</td>
+<td><strong>Luồng gửi Notification toàn hệ thống (Option B)</strong></td>
+<td>Pub/Sub fan-out từ Master đến Sub Notification Services</td>
+<td><a href="#4-luồng-gửi-notification-toàn-hệ-thống-pubsub-fan-out">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>5️⃣</td>
+<td><strong>Sơ đồ triển khai hạ tầng (Deployment Diagram)</strong></td>
+<td>Tổ chức project GCP cho core/tenant/monitoring/data</td>
+<td><a href="#5-sơ-đồ-triển-khai-hạ-tầng-deployment-diagram">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>6️⃣</td>
+<td><strong>Vòng đời tài khoản (Account Lifecycle)</strong></td>
+<td>Từ tạo user → gán tenant → cấp quyền → vô hiệu hóa</td>
+<td><a href="#6-vòng-đời-tài-khoản-account-lifecycle">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>7️⃣</td>
+<td><strong>Luồng đồng bộ RBAC từ Master → Sub</strong></td>
+<td>Tự động hoặc thủ công sync role/permission template</td>
+<td><a href="#7-luồng-đồng-bộ-rbac-từ-master--sub-user-services">Xem sơ đồ</a></td>
+</tr>
+<tr>
+<td>8️⃣</td>
+<td><strong>Phân quyền giao diện người dùng (UI Role Mapping)</strong></td>
+<td>Vai trò được ánh xạ đến các frontend: Superadmin, Admin, GV, PH</td>
+<td><a href="#8-phân-quyền-giao-diện-người-dùng-ui-role-mapping">Xem sơ đồ</a></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="1-kien-truc-tong-quan-he-thong-multi-tenant">1. Kiến trúc tổng quan hệ thống Multi-Tenant<a class="headerlink" href="#1-kien-truc-tong-quan-he-thong-multi-tenant" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Cho thấy bức tranh cao nhất: <strong>Core Services</strong> dùng chung, <strong>Tenant Stack</strong> cô lập; JWT do <strong>Token Service</strong> ký, RBAC cache ở <strong>API Gateway</strong>, dữ liệu nghiệp vụ gói trong <strong>SMS</strong> (per tenant).</p>
+</blockquote>
+<pre class="mermaid"><code>flowchart TD
+  %% ======= EXTERNAL =======
+  subgraph ext ["🌐 External IdP &amp; Channels"]
+    GoogleOAuth(Google OAuth2)
+    OTPProv(OTP Provider)
+    EmailSvc(Email Gateway)
+    SMSSvc(SMS Gateway)
+  end
+
+  %% ======= FRONTEND =======
+  subgraph fe ["💻 Frontend Apps"]
+    AdminPortal(Admin Portal)
+    TeacherPortal(Teacher Portal)
+    StudentPortal(Student Portal)
+    ParentPortal(Parent Portal)
+  end
+
+  %% ======= CORE SERVICES =======
+  subgraph core ["🔧 Core Services (Shared)"]
+    APIGW(API Gateway)
+    TokenSvc(Token Service)
+    AuthM(Auth Master)
+    UserM(User Master)
+    NotifM(Notification Master)
+    RedisRev[Redis<br/>revoked_tokens cache]
+    ReportSvc(Reporting Service)
+    AuditLog(Audit Logging Service)
+    PubSub((Pub / Sub))
+  end
+
+  %% ======= DATA PLATFORM =======
+  subgraph db ["🔧 Data Platform"]
+    BQ(Data Warehouse)
+  end
+
+  %% ======= MONITORING STACK =======
+  subgraph mon ["📈 Monitoring Stack"]
+    CloudLog(Cloud Logging)
+    CloudMon(Cloud Monitoring)
+    AlertSys(Alerting Rules)
+  end
+
+  %% ======= CI / CONTRACT TESTING =======
+  subgraph test ["🧪 CI / Contract Testing"]
+    CIPipeline(CI/CD Pipeline)
+    ContractEngine(Contract Test Engine)
+    MockUser(Mock: User Service)
+    MockNotif(Mock: Notif Service)
+    MockAuth(Mock: Auth Service)
+  end
+
+  %% ======= TENANT STACK EXAMPLE =======
+  subgraph tenantA ["🏫 Tenant Stack · ABC School"]
+    subgraph smsgrp ["School Management System (SMS)"]
+      SMS(SMS Backend<br/>+ MariaDB)
+    end
+    AuthSub(Auth Sub)
+    UserSub(User Sub)
+    NotifSub(Notif Sub)
+  end
+
+  %% ======= FLOWS =======
+  %% Front-door
+  AdminPortal -. https .-&gt; APIGW
+  TeacherPortal -. https .-&gt; APIGW
+  StudentPortal -. https .-&gt; APIGW
+  ParentPortal  -. https .-&gt; APIGW
+
+  %% Auth &amp; Token
+  APIGW --&gt;|/login| AuthM
+  AuthM --&gt;|/token/issue| TokenSvc
+  AuthSub --&gt;|/token/issue| TokenSvc
+  TokenSvc -- JWKS --&gt; APIGW
+
+  %% Revoked-token check
+  APIGW --&gt;|check revoked| RedisRev
+  TokenSvc --&gt;|sync revoked| RedisRev
+
+  %% Core routing
+  APIGW ==&gt; UserM
+  APIGW ==&gt; NotifM
+  APIGW ==&gt; ReportSvc
+  APIGW ==&gt; AuditLog
+
+  %% Tenant routing
+  APIGW ==&gt; AuthSub
+  APIGW ==&gt; UserSub
+  APIGW ==&gt; NotifSub
+  APIGW ==&gt; SMS
+
+  %% Event fan-out
+  UserM -- "user.*" --&gt; PubSub
+  NotifM -- "notif.*" --&gt; PubSub
+  PubSub -- "user.*" --&gt; UserSub
+  PubSub -- "notif.*" --&gt; NotifSub
+
+  %% ELT (simplified)
+  SMS -- "ELT" --&gt; BQ
+
+  %% Audit Logging
+  AuthM --&gt;|log login| AuditLog
+  TokenSvc --&gt;|log issue/revoke| AuditLog
+  UserM --&gt;|log user change| AuditLog
+  NotifM --&gt;|log notif trigger| AuditLog
+  ReportSvc --&gt;|log report access| AuditLog
+  AuthSub --&gt;|log local login| AuditLog
+  UserSub --&gt;|log role update| AuditLog
+  NotifSub --&gt;|log delivery| AuditLog
+
+  %% Monitoring Stack
+  APIGW --&gt; CloudLog
+  AuthM --&gt; CloudLog
+  TokenSvc --&gt; CloudLog
+  UserM --&gt; CloudLog
+  ReportSvc --&gt; CloudLog
+  AuditLog --&gt; CloudLog
+  AuthSub --&gt; CloudLog
+  UserSub --&gt; CloudLog
+  SMS --&gt; CloudLog
+  NotifSub --&gt; CloudLog
+  CloudLog --&gt; CloudMon
+  CloudMon --&gt; AlertSys
+
+  %% CI/CD &amp; Contract Testing
+  CIPipeline --&gt; ContractEngine
+  ContractEngine --&gt; MockUser
+  ContractEngine --&gt; MockNotif
+  ContractEngine --&gt; MockAuth
+  MockUser --&gt;|simulate calls| APIGW
+  MockNotif --&gt;|simulate notif| APIGW
+  MockAuth --&gt;|simulate login| APIGW
+</code></pre>
+<h3 id="chu-thich-mui-ten-uong-net">🗝️ Chú thích mũi tên &amp; đường nét<a class="headerlink" href="#chu-thich-mui-ten-uong-net" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Ký hiệu</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-. https .-&gt;</code></td>
+<td>Gọi HTTPS từ frontend/browser</td>
+</tr>
+<tr>
+<td><code>--&gt;</code></td>
+<td>Gọi API đồng bộ nội bộ</td>
+</tr>
+<tr>
+<td><code>==&gt;</code></td>
+<td>Gọi API đồng bộ ưu tiên cao / routing chính</td>
+</tr>
+<tr>
+<td><code>..&gt;</code></td>
+<td>Luồng bất đồng bộ (Pub/Sub, ELT)</td>
+</tr>
+<tr>
+<td><code>-- JWKS --&gt;</code></td>
+<td>Gateway tải public key JWKS để xác thực JWT</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Token Service</strong> ký JWT (RS256); <strong>API Gateway</strong> xác thực offline qua <strong>JWKS</strong> cache 10 ′ và kiểm tra <code>revoked:{jti}</code> trong <strong>Redis</strong> trước khi đánh giá RBAC.</li>
+<li><strong>SMS</strong> thay thế hoàn toàn các adapter CRM/SIS/LMS cũ, trở thành nguồn dữ liệu nghiệp vụ duy nhất ở mỗi tenant.</li>
+<li>Mỗi tenant stack triển khai độc lập; autoscale không ảnh hưởng Core Services.</li>
+</ul>
+<blockquote>
+<p>Sơ đồ phản ánh đầy đủ hai Change Request gần nhất: <strong>Token Service centralization</strong> và <strong>Tenant Stack simplification với SMS</strong>.</p>
+</blockquote>
+<hr/>
+<h2 id="2-luong-anh-gia-rbac-tai-api-gateway">2. Luồng đánh giá RBAC tại API Gateway<a class="headerlink" href="#2-luong-anh-gia-rbac-tai-api-gateway" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Đảm bảo <strong>mỗi request</strong> được xác thực (JWT) và uỷ quyền (RBAC + Condition) <strong>&lt; 5 ms</strong> p95, đồng thời phản ứng tức thời khi token bị thu hồi hoặc quyền thay đổi.</p>
+</blockquote>
+<h3 id="21-sequence-diagram">2.1 Sequence Diagram<a class="headerlink" href="#21-sequence-diagram" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    participant FE      as 🌐 Frontend
+    participant APIGW   as 🛡️ API Gateway
+    participant RedisRev as 🔄 Redis revoked
+    participant RedisRBAC as 🔄 Redis RBAC
+    participant UserSub as 🧩 User Sub (tenant)
+    participant TokenSvc as 🗝️ Token Service
+
+    FE-&gt;&gt;APIGW: HTTP request + JWT
+    Note right of APIGW: ① Verify RS256 via<br/>JWKS (cache 10′)
+    APIGW-&gt;&gt;RedisRev: GET revoked:{jti}       %% check revoked
+    alt Token revoked
+        APIGW--&gt;&gt;FE: 403 token.revoked
+    else Not revoked
+        APIGW-&gt;&gt;RedisRBAC: GET rbac:{uid}:{tid}
+        alt Cache HIT
+            Note right of APIGW: ② RBAC cache hit
+        else Cache MISS
+            APIGW-&gt;&gt;UserSub: /rbac?uid={uid}
+            UserSub--&gt;&gt;APIGW: roles + perms
+            APIGW-&gt;&gt;RedisRBAC: SET rbac:{uid}:{tid} (TTL)
+        end
+        Note right of APIGW: ③ Evaluate<br/>Condition Engine
+        alt Permission pass
+            APIGW--&gt;&gt;FE: 2xx success
+        else Denied
+            APIGW--&gt;&gt;FE: 403 auth.permission_denied
+        end
+    end
+</code></pre>
+<h3 id="22-buoc-xu-ly-chi-tiet">2.2 Bước xử lý chi tiết<a class="headerlink" href="#22-buoc-xu-ly-chi-tiet" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Bước</th>
+<th>Thời gian mục tiêu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td>Xác thực chữ ký JWT bằng <strong>JWKS</strong> (cache 10 phút)</td>
+<td>&lt; 0.5 ms</td>
+</tr>
+<tr>
+<td>②</td>
+<td>Tra <strong>Redis</strong> cache RBAC (<code>rbac:{uid}:{tid}</code>)</td>
+<td>hit ≥ 98 %</td>
+</tr>
+<tr>
+<td>③</td>
+<td>Engine so sánh <code>condition</code> (<em>\$user</em>, <em>\$request</em>, <em>\$tenant</em>)</td>
+<td>&lt; 4 ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-quy-tac-xu-ly">2.3 Quy tắc xử lý<a class="headerlink" href="#23-quy-tac-xu-ly" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Token bị thu hồi</strong> → trả <code>403 token.revoked</code>, ghi metric <code>revoked_token_cache_hit_ratio</code>.</li>
+<li><strong>RBAC cache miss</strong> → tải từ <strong>User Sub</strong> rồi set TTL 5 – 15 phút (tuỳ tenant).</li>
+<li><strong>Permission có condition</strong> → nếu placeholder thiếu / type mismatch → <code>400 common.validation_failed</code>.</li>
+<li><strong>Mọi phản hồi lỗi</strong> dùng <code>ErrorEnvelope</code> (ADR-011).</li>
+</ol>
+<h3 id="24-metrics-alert">2.4 Metrics &amp; Alert<a class="headerlink" href="#24-metrics-alert" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Mục tiêu</th>
+<th>Alert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rbac_cache_hit_ratio</code></td>
+<td>≥ 98 %</td>
+<td>&lt; 95 % 10′</td>
+</tr>
+<tr>
+<td><code>revoked_token_cache_hit_ratio</code></td>
+<td>≥ 95 %</td>
+<td>&lt; 90 % 10′</td>
+</tr>
+<tr>
+<td><code>rbac_cond_latency_p95</code></td>
+<td>&lt; 5 ms</td>
+<td>&gt; 10 ms 5′</td>
+</tr>
+<tr>
+<td><code>rbac_eval_error_rate</code></td>
+<td>= 0</td>
+<td>bất kỳ &gt; 0.1 %</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Kết quả:</strong> Với cache hai tầng (RBAC &amp; Revoked) và Engine điều kiện chạy tại Gateway, dx-vas uỷ quyền gần-real-time mà không đánh đổi hiệu năng.</p>
+</blockquote>
+<hr/>
+<h2 id="3-luong-phat-hanh-jwt-a-tenant">3. Luồng phát hành JWT đa-tenant<a class="headerlink" href="#3-luong-phat-hanh-jwt-a-tenant" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Tạo <strong>JWT RS256</strong> chứa đầy đủ claim (<code>sub</code>, <code>tid</code>, <code>roles</code>, <code>permissions</code>, <code>jti</code>, <code>sid</code>, <code>exp</code>) cho <strong>mọi phương thức đăng nhập</strong> (Google OAuth2 &amp; Local / OTP) và mọi tenant.</p>
+</blockquote>
+<h3 id="31-sequence-diagram">3.1 Sequence Diagram<a class="headerlink" href="#31-sequence-diagram" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    participant FE as 🌐 Frontend
+    participant APIGW as 🛡️ API Gateway
+    participant AuthM as 🔐 Auth Master
+    participant AuthT as 🔐 Auth Sub
+    participant Captcha as 🛡️ reCAPTCHA
+    participant UserSub as 🧩 User Sub (tenant)
+    participant TokenSvc as 🗝️ Token Service
+
+    %% JWKS cache line (dashed for offline verify)
+    TokenSvc--&gt;&gt;APIGW: JWKS (cache 10′)
+
+    rect rgba(220,220,220,0.05)
+        FE-&gt;&gt;APIGW: /login/google
+        APIGW-&gt;&gt;AuthM: forward
+        AuthM-&gt;&gt;Google OAuth2: auth code flow
+        Google OAuth2--&gt;&gt;AuthM: id_token
+        AuthM-&gt;&gt;UserSub: GET roles/permissions
+        AuthM-&gt;&gt;TokenSvc: POST /token/issue
+        TokenSvc--&gt;&gt;AuthM: JWT (access + refresh)
+        AuthM--&gt;&gt;APIGW: 200 JWT
+        APIGW--&gt;&gt;FE: 200 JWT
+    end
+
+    rect rgba(220,220,220,0.05)
+        FE-&gt;&gt;APIGW: /login/otp
+        APIGW-&gt;&gt;AuthT: forward
+        AuthT--&gt;&gt;Captcha: verify CAPTCHA
+        Captcha--&gt;&gt;AuthT: OK / Fail
+        AuthT-&gt;&gt;AuthT: verify OTP / password
+        AuthT-&gt;&gt;UserSub: GET RBAC
+        AuthT-&gt;&gt;TokenSvc: POST /token/issue
+        TokenSvc--&gt;&gt;AuthT: JWT (access + refresh)
+        AuthT--&gt;&gt;APIGW: 200 JWT
+        APIGW--&gt;&gt;FE: 200 JWT
+    end
+</code></pre>
+<h3 id="32-buoc-xu-ly-chi-tiet">3.2 Bước xử lý chi tiết<a class="headerlink" href="#32-buoc-xu-ly-chi-tiet" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bước</th>
+<th>Mô tả</th>
+<th>Thành phần</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Frontend gửi yêu cầu đăng nhập (Google hoặc OTP).</td>
+<td>FE → API Gateway</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Auth Master</strong> (Google) hoặc <strong>Auth Sub</strong> (OTP) xác thực người dùng.</td>
+<td>AuthM / AuthT</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Gọi <strong>User Sub</strong> lấy <code>roles</code>, <code>permissions</code> trong tenant đã chọn.</td>
+<td>AuthM / AuthT</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Gọi <strong>Token Service</strong> <code>POST /token/issue</code> → nhận cặp token đã ký <strong>RS256</strong>.</td>
+<td>AuthM / AuthT → TokenSvc</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Trả JWT cho Frontend qua <strong>API Gateway</strong>.</td>
+<td>AuthM / AuthT → APIGW → FE</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-cau-truc-jwt">3.3 Cấu trúc JWT<a class="headerlink" href="#33-cau-truc-jwt" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sub</code></td>
+<td><code>user_id_global</code></td>
+</tr>
+<tr>
+<td><code>tid</code></td>
+<td><code>tenant_id</code></td>
+</tr>
+<tr>
+<td><code>roles</code>, <code>permissions</code></td>
+<td>Danh sách vai trò &amp; quyền (RBAC)</td>
+</tr>
+<tr>
+<td><code>auth_provider</code></td>
+<td><code>google</code> / <code>local</code> / <code>otp</code></td>
+</tr>
+<tr>
+<td><code>jti</code></td>
+<td>UUID duy nhất – dùng thu hồi token</td>
+</tr>
+<tr>
+<td><code>sid</code></td>
+<td>Session ID tham chiếu <code>auth_sessions</code></td>
+</tr>
+<tr>
+<td><code>exp</code></td>
+<td>Hết hạn ≤ 15 phút (access token)</td>
+</tr>
+</tbody>
+</table>
+<p>Refresh token TTL 14 ngày; lưu <code>auth_sessions</code>.</p>
+<h3 id="34-kiem-soat-bao-mat">3.4 Kiểm soát &amp; Bảo mật<a class="headerlink" href="#34-kiem-soat-bao-mat" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>CAPTCHA</strong> bắt buộc trước bước OTP để tránh brute-force.</li>
+<li><strong>JWKS</strong> công khai cache 10 phút – Gateway xác thực chữ ký offline.</li>
+<li><strong>Token revocation</strong>: <code>/token/revoke</code> thêm <code>jti</code> vào Redis (<code>revoked:{jti}</code>) → Gateway chặn ngay.</li>
+</ul>
+<h3 id="35-metric-giam-sat">3.5 Metric giám sát<a class="headerlink" href="#35-metric-giam-sat" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token_issue_latency_p95</code></td>
+<td>&lt; 100 ms</td>
+</tr>
+<tr>
+<td><code>login_success_rate</code></td>
+<td>&gt; 98 %</td>
+</tr>
+<tr>
+<td><code>captcha_failure_rate</code></td>
+<td>&lt; 2 %</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Kết quả:</strong> Người dùng nhận JWT trong một vòng request, còn API Gateway sở hữu đủ thông tin (<code>tid</code>, RBAC, jti) để xác thực &amp; uỷ quyền siêu nhanh cho từng tenant.</p>
+</blockquote>
+<hr/>
+<h2 id="4-luong-gui-notification-toan-he-thong-pubsub-fan-out">4. Luồng gửi Notification toàn hệ thống (Pub/Sub fan-out)<a class="headerlink" href="#4-luong-gui-notification-toan-he-thong-pubsub-fan-out" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Tách rời <strong>orchestration</strong> (Notification Master) khỏi <strong>delivery</strong> (Notification Sub per tenant), bảo đảm:<br/>
+• Thống nhất template &amp; tracking ở Core.<br/>
+• Fan-out sự kiện <strong>&lt; 1 s</strong> tới mọi tenant.<br/>
+• Không ràng buộc tenant vào hạ tầng SMTP/SMS chung.  </p>
+</blockquote>
+<h3 id="41-sequence-diagram">4.1 Sequence Diagram<a class="headerlink" href="#41-sequence-diagram" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    participant ServiceX as 📝 Any Core / SMS
+    participant NotifM   as 📣 Notification Master
+    participant PubSub   as ☁️ Pub/Sub<br/>topic **notification.v1**
+    participant NotifSub as 📩 Notification Sub (tenant)
+    participant EmailSvc as ✉️ Email Gateway
+    participant SMSSvc   as 📱 SMS Gateway
+
+    ServiceX-&gt;&gt;NotifM: POST /notifications (payload, tenant_id)
+    NotifM-&gt;&gt;NotifM: Validate + resolve template
+    NotifM-&gt;&gt;PubSub: 🔔 **notif.email_requested.v1**
+    NotifM-&gt;&gt;PubSub: 🔔 **notif.sms_requested.v1**
+    PubSub--&gt;&gt;NotifSub: Fan-out event (filter tenant_id)
+    NotifSub-&gt;&gt;EmailSvc: Send email
+    NotifSub-&gt;&gt;SMSSvc: Send SMS
+    NotifSub-&gt;&gt;PubSub: 🔔 **notif.sent.v1** (status, message_id)
+    PubSub--&gt;&gt;NotifM: Ack status
+</code></pre>
+<h3 id="42-inh-tuyen-schema">4.2 Định tuyến &amp; Schema<a class="headerlink" href="#42-inh-tuyen-schema" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Chủ đề / Event</th>
+<th>Mô tả</th>
+<th>Schema ID (ADR-030)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>notification.v1</code></td>
+<td>Topic chung cho mọi sự kiện notificaton</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>notif.email_requested.v1</code></td>
+<td>Master yêu cầu gửi Email</td>
+<td><code>notif_email_req_v1</code></td>
+</tr>
+<tr>
+<td><code>notif.sms_requested.v1</code></td>
+<td>Master yêu cầu gửi SMS</td>
+<td><code>notif_sms_req_v1</code></td>
+</tr>
+<tr>
+<td><code>notif.sent.v1</code></td>
+<td>Sub báo cáo kết quả (OK/FAIL)</td>
+<td><code>notif_sent_v1</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>Tenant Sub</em> subscribe với filter <code>attributes.tenant_id == "&lt;tenant&gt;"</code> → tách biệt luồng.</p>
+<h3 id="43-xu-ly-tai-notification-master">4.3 Xử lý tại Notification Master<a class="headerlink" href="#43-xu-ly-tai-notification-master" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Validate</strong> payload &amp; tenant quota.</li>
+<li><strong>Merge Template</strong> ↔ data; log <code>audit_log.notifications</code>.</li>
+<li><strong>Publish</strong> sự kiện <code>*.requested.v1</code> kèm <code>schema_version</code>.</li>
+<li><strong>Track</strong> status qua <code>notif.sent.v1</code>; retry nếu kết quả <code>FAIL</code>.</li>
+</ol>
+<h3 id="44-xu-ly-tai-notification-sub-per-tenant">4.4 Xử lý tại Notification Sub (per tenant)<a class="headerlink" href="#44-xu-ly-tai-notification-sub-per-tenant" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bước</th>
+<th>Hành động</th>
+<th>Idempotency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Nhận event; kiểm tra <code>dedup_id</code></td>
+<td>Redis SETNX 15 m</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Render template (locale)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Gửi Email / SMS</td>
+<td>3 lần retry back-off</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Publish <code>notif.sent.v1</code> (status, message_id)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-kha-nang-mo-rong-sla">4.5 Khả năng mở rộng &amp; SLA<a class="headerlink" href="#45-kha-nang-mo-rong-sla" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Autoscale</th>
+<th>SLA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pub/Sub topic <code>notification.v1</code></td>
+<td>100k msg/s</td>
+<td>≥ 99.9 %</td>
+</tr>
+<tr>
+<td>Notification Sub</td>
+<td>HPA (RPS &amp; queue lag)</td>
+<td>email &lt; 30 s, sms &lt; 10 s</td>
+</tr>
+<tr>
+<td>Email/SMS Gateway</td>
+<td>Ngoài phạm vi (3rd-party)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46-monitoring-alert">4.6 Monitoring &amp; Alert<a class="headerlink" href="#46-monitoring-alert" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Metric</strong> <code>notif_sent_success_rate</code> ≥ 97 % (per channel).</li>
+<li><strong>Lag</strong> Pub/Sub <code>subscription/oldest_unacked_age</code> &lt; 5 s.</li>
+<li><strong>Dashboard</strong> số lượng gửi Email/SMS theo tenant, bounce rate, cost.</li>
+<li><strong>Alert</strong> nếu <code>notif.sent.v1</code> FAIL &gt; 2 % trong 5 ′.</li>
+</ul>
+<blockquote>
+<p>Nhờ Pub/Sub fan-out, DX-VAS gửi thông báo <strong>một lần</strong> ở Core nhưng bảo đảm <strong>mỗi tenant</strong> xử lý &amp; tuỳ biến riêng, đồng thời Master vẫn nắm đầy đủ log &amp; KPI.</p>
+</blockquote>
+<hr/>
+<h2 id="5-so-o-trien-khai-ha-tang-deployment-diagram">5. Sơ đồ triển khai hạ tầng (Deployment Diagram)<a class="headerlink" href="#5-so-o-trien-khai-ha-tang-deployment-diagram" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Phân tách</strong> rõ hai biên:<br/>
+<strong>Core Project</strong> – chạy duy nhất, chia sẻ cho mọi tenant;<br/>
+<strong>Tenant Project</strong> – nhân bản cho từng trường, độc lập compute/giao thức mạng, chỉ kết nối qua API Gateway &amp; Pub/Sub.</p>
+</blockquote>
+<pre class="mermaid"><code>flowchart TD
+%% ========= CORE PROJECT =========
+  subgraph Core[🏢 GCP Project **dx-vas-core**]
+    direction TB
+    subgraph CoreVPC["🔐 VPC core (GKE)"]
+      APIGW[🛡️ API Gateway<br/>Envoy]
+      TokenSvc[🗝️ Token Service]
+      AuthM[🔐 Auth Master]
+      UserM[👥 User Master]
+      NotifM[📣 Notification Master]
+      ReportSvc[📊 Reporting Service]
+    end
+    RedisRev[(🔄 Redis Cluster<br/>revoked_tokens)]
+    CloudSQL[(🐘 PostgreSQL\nusers_global + audit)]
+    PubSubCore((☁️ Pub/Sub))
+    BQ[(📦 BigQuery<br/>Data Warehouse)]
+    SecretMgr[[🔑 Secret Manager]]
+  end
+
+%% ========= TENANT PROJECT (EXAMPLE) =========
+  subgraph TenantA[🏫 GCP Project **dx-vas-tenant-abc**]
+    direction TB
+    subgraph TenantVPC["🔐 VPC tenant (GKE)"]
+      AuthSub[🔐 Auth Sub]
+      UserSub[👤 User Sub]
+      NotifSub[📥 Notif Sub]
+      SMS[🏫 SMS<br/>Backend]
+    end
+    SMSDB[(🍃 MariaDB<br/>Galera Cluster)]
+    RedisTenant[(🔄 Redis Local)]
+    PubSubTenant((☁️ Pub/Sub<br/>sub-only))
+  end
+
+%% ========= TRAFFIC =========
+  %% Front-end
+  FE[🌐 Portals / Mobile]
+  FE -. https .-&gt; APIGW
+
+  %% Token flow
+  APIGW --&gt; TokenSvc
+  TokenSvc -- JWKS --&gt; APIGW
+  TokenSvc --&gt; RedisRev
+
+  %% Core services
+  APIGW ==&gt; AuthM
+  APIGW ==&gt; UserM
+  APIGW ==&gt; NotifM
+  APIGW ==&gt; ReportSvc
+
+  %% Pub/Sub fan-out
+  NotifM --"notif.*"--&gt; PubSubCore
+  UserM --"user.*"--&gt; PubSubCore
+  PubSubCore --"filtered by tenant_id"--&gt; PubSubTenant
+  PubSubTenant --"events"--&gt; NotifSub
+  PubSubTenant --"events"--&gt; UserSub
+
+  %% Tenant internal
+  APIGW ==&gt; AuthSub
+  APIGW ==&gt; UserSub
+  APIGW ==&gt; SMS
+  NotifSub --&gt; EmailSvc[[✉️ Email\nGateway]]
+  NotifSub --&gt; SMSSvc[[📱 SMS\nGateway]]
+
+  %% Data / ELT
+  SMS --&gt;|ELT| BQ
+
+  %% Secrets &amp; KV
+  TokenSvc --&gt; SecretMgr
+  AuthM --&gt; SecretMgr
+
+  %% VPC Peering
+  CoreVPC --- TenantVPC
+
+  %% Legend – External gateway node
+  ExtGW[[✉️/📱 External Gateway]]
+
+  %% Legend
+  classDef edgeHttps stroke-dasharray: 5 3;
+  class FE edgeHttps;
+</code></pre>
+<blockquote>
+<p>Node ExtGW[[✉️/📱 External Gateway]] hiển thị biểu tượng ✉️/📱, tượng trưng cho cả Email Gateway và SMS Gateway.
+Đặt trong phần “Legend” giúp người đọc hiểu nhanh ý nghĩa của các nút EmailSvc và SMSSvc đã dùng ở Tenant stack.</p>
+</blockquote>
+<h3 id="ghi-chu-chinh-sach">🔑 Ghi chú &amp; Chính sách<a class="headerlink" href="#ghi-chu-chinh-sach" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>SLA / SLO</th>
+<th>Autoscale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API Gateway</strong></td>
+<td>p95 &lt; 20 ms</td>
+<td>HPA RPS + CPU</td>
+</tr>
+<tr>
+<td><strong>Token Service</strong></td>
+<td>p95 &lt; 50 ms; availability 99.95 %</td>
+<td>HPA CPU</td>
+</tr>
+<tr>
+<td><strong>Redis Cluster (core)</strong></td>
+<td>hit ≥ 95 %; failover multi-AZ</td>
+<td>Manged Memorystore</td>
+</tr>
+<tr>
+<td><strong>Pub/Sub fan-out</strong></td>
+<td>latency &lt; 1 s</td>
+<td>Serverless</td>
+</tr>
+<tr>
+<td><strong>Tenant GKE</strong></td>
+<td>cô lập VPC; node-pool riêng</td>
+<td>HPA per tenant</td>
+</tr>
+<tr>
+<td><strong>MariaDB Galera</strong></td>
+<td>RPO = 0; RTO &lt; 5 min</td>
+<td>CloudSQL HA</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>CI/CD: <strong>Argo CD</strong> sync <code>core</code> &amp; <code>tenant</code> chart; <strong>Terraform Cloud</strong> dựng VPC, DB, Secret.</li>
+<li>VPC peering + firewall chỉ mở cổng 443/mTLS; traffic giữa tenant ↔ core đi qua <strong>API Gateway</strong>.</li>
+<li><strong>Secret Manager</strong> lưu RSA key (<code>kid current|next</code>) &amp; SMTP creds; rotation ≤ 90 ngày.</li>
+</ul>
+<blockquote>
+<p><strong>Kết quả</strong> – Kiến trúc tách bạch giúp mở rộng tenant mới bằng một cụm GKE + MariaDB, không tác động Core, đồng thời Core duy trì single-pane quan sát &amp; bảo mật.</p>
+</blockquote>
+<hr/>
+<h2 id="6-vong-oi-tai-khoan-account-lifecycle">6. Vòng đời Tài khoản (Account Lifecycle)<a class="headerlink" href="#6-vong-oi-tai-khoan-account-lifecycle" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Định nghĩa</strong><br/>
+<em>Tài khoản</em> = bản ghi <strong>users_global</strong> (User Service Master) + (0…n) bản ghi <strong>users_in_tenant</strong>.<br/>
+Tài khoản có thể <strong>sống</strong> ở nhiều tenant, <strong>đóng băng</strong> (inactive) cục bộ hoặc toàn cục, <strong>được ẩn danh</strong> hoặc <strong>xoá vĩnh viễn</strong> theo ADR-024 &amp; ADR-026.</p>
+</blockquote>
+<h3 id="61-luong-khoi-tao-create-first-login">6.1 Luồng khởi tạo (Create / First Login)<a class="headerlink" href="#61-luong-khoi-tao-create-first-login" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    participant FE       as 🌐 Frontend
+    participant AuthM    as 🔐 Auth Master
+    participant UserM    as 👥 User Master
+    participant UserSub  as 🧩 User Sub
+    participant PubSub   as ☁️ Pub/Sub
+
+    FE-&gt;&gt;AuthM: Login Google
+    AuthM-&gt;&gt;UserM: GET /users?email=&lt;&gt;
+    alt New user
+        UserM--&gt;&gt;AuthM: 404
+        AuthM-&gt;&gt;UserM: POST /users (create\, provider)
+    else Exists
+        UserM--&gt;&gt;AuthM: user_id_global
+    end
+    AuthM-&gt;&gt;UserM: PUT /assign tenant_id
+    UserM--&gt;&gt;AuthM: 200 OK
+    UserM--&gt;&gt;PubSub: 🔔 **user.created.v1** / **user.tenant_assigned.v1**
+    PubSub--&gt;&gt;UserSub: fan-out
+    UserSub-&gt;&gt;UserSub: UPSERT users_in_tenant
+</code></pre>
+<ul>
+<li><strong>Provider</strong>: <code>google</code> / <code>local</code> / <code>otp</code> (lưu trong <code>auth_provider</code>).</li>
+<li><strong>Event</strong> <code>user.created.v1</code> chứa <code>schema_version</code>, dùng để seed tenant DB.</li>
+</ul>
+<h3 id="62-kich-hoat-ngung-hoat-ong">6.2 Kích hoạt / Ngưng hoạt động<a class="headerlink" href="#62-kich-hoat-ngung-hoat-ong" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phạm vi</th>
+<th>API</th>
+<th>Trạng thái</th>
+<th>Event</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Toàn cục</strong></td>
+<td><code>PATCH /users/{id} is_active=false</code></td>
+<td>Khóa đăng nhập mọi tenant</td>
+<td><code>user_status_changed.v1</code></td>
+</tr>
+<tr>
+<td><strong>Cục bộ (tenant)</strong></td>
+<td><code>PATCH /users/{id}?tenant_id=... is_active_in_tenant=false</code></td>
+<td>Khóa trong tenant hiện tại</td>
+<td><code>user_status_changed.v1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Gateway cache <strong>RBAC</strong> bị xoá khi nhận event \&amp;nbsps token cũ sẽ bị chặn nếu user_inactive.</p>
+<h3 id="63-cap-nhat-thong-tin-ho-so">6.3 Cập nhật thông tin hồ sơ<a class="headerlink" href="#63-cap-nhat-thong-tin-ho-so" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Toàn cục</strong>: <code>PUT /users/{id}</code> → bảng <code>users_global</code>.</li>
+<li><strong>Cục bộ</strong> : <code>PUT /users/{id}</code> + header <code>X-Tenant-ID</code> → bảng <code>users_in_tenant</code>.</li>
+<li>Phát event <code>user.profile_updated.v1</code>; ETL đồng bộ sang BigQuery.</li>
+</ul>
+<h3 id="64-vong-oi-phien-session-ttl">6.4 Vòng đời phiên (Session TTL)<a class="headerlink" href="#64-vong-oi-phien-session-ttl" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại</th>
+<th>TTL</th>
+<th>Lưu ở</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Access token</strong></td>
+<td>≤ 15 ′</td>
+<td>JWT claim <code>exp</code></td>
+</tr>
+<tr>
+<td><strong>Refresh token</strong></td>
+<td>14 ngày</td>
+<td>bảng <code>auth_sessions</code></td>
+</tr>
+<tr>
+<td><strong>Force logout</strong></td>
+<td><code>/token/revoke sid=*</code></td>
+<td>Xoá Redis <code>revoked:{jti}</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="65-an-danh-xoa-vinh-vien">6.5 Ẩn danh &amp; Xoá vĩnh viễn<a class="headerlink" href="#65-an-danh-xoa-vinh-vien" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pha</th>
+<th>Thao tác</th>
+<th>Timeout</th>
+<th>ADR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Soft Delete</strong></td>
+<td>User self-delete → <code>is_active = false</code>, flag <code>delete_after = now+30d</code></td>
+<td>30 ngày</td>
+<td>026</td>
+</tr>
+<tr>
+<td><strong>Hard Delete</strong></td>
+<td>Job <code>user_purge</code> xoá bản ghi, đổi dữ liệu PII → hash</td>
+<td>—</td>
+<td>024 &amp; 026</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Audit log</strong> ghi “user purged” kèm <code>gdpr_request_id</code>.</li>
+<li><code>user.deleted.v1</code> event bắn lên Pub/Sub → Tenant Sub nhận &amp; purge bản ghi local.</li>
+</ul>
+<h3 id="66-mapping-jwt-rbac-cache">6.6 Mapping → JWT &amp; RBAC Cache<a class="headerlink" href="#66-mapping-jwt-rbac-cache" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thuộc tính</th>
+<th>Nguồn</th>
+<th>Claim / Cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>users_global.user_id</td>
+<td><code>sub</code></td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>header chọn tenant</td>
+<td><code>tid</code></td>
+</tr>
+<tr>
+<td><code>roles / perms</code></td>
+<td>JOIN UserSub</td>
+<td>Cache <code>rbac:{uid}:{tid}</code> 5-15 ′</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>users_global</td>
+<td>Gateway chặn nếu false</td>
+</tr>
+<tr>
+<td><code>is_active_in_tenant</code></td>
+<td>users_in_tenant</td>
+<td>Gateway chặn nếu false</td>
+</tr>
+</tbody>
+</table>
+<h3 id="67-kpi-alert">6.7 KPI &amp; Alert<a class="headerlink" href="#67-kpi-alert" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Mục tiêu</th>
+<th>Alert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_login_success_rate</code></td>
+<td>&gt; 98 % tenant-avg</td>
+<td>&lt; 95 % 15′</td>
+</tr>
+<tr>
+<td><code>user_purge_backlog</code></td>
+<td>= 0</td>
+<td>&gt; 0 ghi Jira</td>
+</tr>
+<tr>
+<td><code>profile_update_latency_p95</code></td>
+<td>&lt; 100 ms</td>
+<td>&gt; 200 ms</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Tóm tắt</strong> – Vòng đời tài khoản được quản trị trung tâm nhưng cho phép tenant tự do tuỳ chỉnh RBAC, đồng thời tuân thủ GDPR về xoá và ẩn danh dữ liệu.</p>
+</blockquote>
+<hr/>
+<h2 id="7-luong-ong-bo-rbac-tu-master-sub-user-services">7. Luồng đồng bộ RBAC từ Master → Sub User Services<a class="headerlink" href="#7-luong-ong-bo-rbac-tu-master-sub-user-services" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Bảo đảm <strong>Role / Permission</strong> luôn đồng nhất giữa <strong>User Master</strong> và <strong>User Sub</strong> mà vẫn cho phép tenant <strong>tùy chỉnh</strong> khi cần.<br/>
+Cơ chế đồng bộ kết hợp <strong>sự kiện (event-driven)</strong> &amp; <strong>đồng bộ định kỳ (cron sync)</strong>, có kiểm soát <em>schema_version</em> (ADR-030).</p>
+</blockquote>
+<h3 id="71-sequence-diagram-event-driven">7.1 Sequence Diagram (Event-driven)<a class="headerlink" href="#71-sequence-diagram-event-driven" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    participant Admin as 🎛️ Admin Portal (Core)
+    participant UserM as 👥 User Master
+    participant PubSub as ☁️ Pub/Sub topic **rbac.v1**
+    participant UserSub as 🧩 User Sub (tenant)
+    participant RedisRBAC as 🔄 Redis rbac cache
+    participant APIGW as 🛡️ API Gateway
+
+    Admin-&gt;&gt;UserM: POST /roles (create) 🔖schema_version=2
+    UserM--&gt;&gt;PubSub: 🔔 rbac_updated.v1 { tenant_id="*", ... }
+    PubSub--&gt;&gt;UserSub: fan-out event (filter tenant_id)
+    UserSub-&gt;&gt;UserSub: UPSERT role / permission
+    UserSub--&gt;&gt;PubSub: 🔔 rbac_updated_ack.v1
+    PubSub--&gt;&gt;UserM: ack
+
+    Note over APIGW,RedisRBAC: Gateway nhận event<br/>xóa cache rbac:{uid}:{tid}
+</code></pre>
+<h3 id="72-su-kien-schema-adr-030">7.2 Sự kiện &amp; Schema (ADR-030)<a class="headerlink" href="#72-su-kien-schema-adr-030" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Khi nào phát</th>
+<th>Payload chính</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rbac_updated.v1</code></td>
+<td>Master thay đổi / tạo mới role, permission</td>
+<td><code>tenant_id</code> (<code>*</code> = all), <code>schema_version</code>, <code>diff[]</code></td>
+<td>Fan-out tới tenant Sub</td>
+</tr>
+<tr>
+<td><code>rbac_updated_ack.v1</code></td>
+<td>Sub xử lý xong diff</td>
+<td><code>tenant_id</code>, <code>applied_version</code></td>
+<td>Cho Master tracking</td>
+</tr>
+<tr>
+<td><code>rbac_template_synced.v1</code></td>
+<td>Job sync định kỳ</td>
+<td><code>tenant_id</code>, <code>from_version</code>, <code>to_version</code></td>
+<td>Chỉ khi tenant dùng template “inherit”</td>
+</tr>
+</tbody>
+</table>
+<p>JSON Schema ID lưu trong <strong>Schema Registry</strong>, backward-compat ≥ 6 tháng.</p>
+<h3 id="73-ong-bo-inh-ky-cron-sync">7.3 Đồng bộ định kỳ (Cron Sync)<a class="headerlink" href="#73-ong-bo-inh-ky-cron-sync" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Chu kỳ</th>
+<th>Trigger</th>
+<th>Điều kiện chạy</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weekly</code> (default)</td>
+<td>Cloud Scheduler → Cloud Run <code>sync-job</code></td>
+<td>Tenant có <code>sync_mode=inherit</code></td>
+<td>So sánh <code>schema_version</code>; publish <code>rbac_template_synced.v1</code> nếu khác</td>
+</tr>
+<tr>
+<td><code>manual</code></td>
+<td>Tenant Admin → “Sync Now”</td>
+<td>—</td>
+<td>Gọi thẳng User Master <code>POST /templates/sync</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>Nếu tenant đã </em><em>clone</em><em> template, job ghi log <code>status=forked</code> – </em><em>không ghi đè</em><em>.</em></p>
+<h3 id="74-xu-ly-conflict">7.4 Xử lý conflict<a class="headerlink" href="#74-xu-ly-conflict" title="Permanent link">¶</a></h3>
+<blockquote>
+<p><strong>Conflict</strong> = <code>permission_code</code> trùng nhưng <code>schema_version</code> khác.</p>
+</blockquote>
+<ol>
+<li>Job <code>sync-job</code> phát hiện → flag <code>conflict=true</code>, publish <code>rbac_conflict_detected.v1</code>.</li>
+<li>Tenant nhận sự kiện, hiển thị banner “<strong>RBAC template out-of-date</strong>”.</li>
+<li>Admin tenant có 30 ngày để merge / bump version, nếu không hệ thống sẽ tự động <em>lock</em> quyền mới (deny by default).</li>
+</ol>
+<h3 id="75-cap-nhat-cache-gateway">7.5 Cập nhật cache &amp; Gateway<a class="headerlink" href="#75-cap-nhat-cache-gateway" title="Permanent link">¶</a></h3>
+<ul>
+<li>Gateway subscribe <code>rbac_updated.v1</code>, <code>rbac_template_synced.v1</code>, <code>rbac_conflict_detected.v1</code>.</li>
+<li>Khi sự kiện tới: <strong>xoá</strong> <code>rbac:{user_id}:{tenant_id}</code> &amp; <code>revoked:{jti}</code> (nếu cần).</li>
+<li>Metric <code>rbac_cache_invalidate_count</code> tăng; latency invalidate mục tiêu &lt; 1 s.</li>
+</ul>
+<h3 id="76-kpi-alert">7.6 KPI &amp; Alert<a class="headerlink" href="#76-kpi-alert" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+<th>Alert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rbac_sync_success_rate</code></td>
+<td>100 %</td>
+<td>bất kỳ lỗi</td>
+</tr>
+<tr>
+<td><code>rbac_template_age_days</code></td>
+<td>&lt; 30 d (inherit)</td>
+<td>&gt; 45 d</td>
+</tr>
+<tr>
+<td><code>rbac_conflict_count</code></td>
+<td>0</td>
+<td>&gt; 0 tạo Jira</td>
+</tr>
+<tr>
+<td><code>sync_job_duration_p95</code></td>
+<td>&lt; 60 s</td>
+<td>&gt; 120 s</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Kết quả</strong> – Tenant luôn có RBAC mới trong vòng <strong>1 giây</strong> sau khi Master thay đổi, trong khi vẫn có <strong>quyền tự chủ</strong> với template đã clone.</p>
+</blockquote>
+<hr/>
+<h2 id="8-phan-quyen-giao-dien-nguoi-dung-ui-role-mapping">8. Phân quyền Giao diện Người Dùng (UI Role Mapping)<a class="headerlink" href="#8-phan-quyen-giao-dien-nguoi-dung-ui-role-mapping" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Liên kết <strong>Role / Permission</strong> (RBAC) với <strong>tính năng cụ thể</strong> trên bốn cổng <strong>Admin · Teacher · Student · Parent</strong>, giúp đội frontend hiển thị/ẩn nút và kiểm tra quyền thống nhất giữa UI &amp; Gateway.</p>
+</blockquote>
+<h3 id="81-ma-tran-portal-vai-tro-chuan">8.1 Ma trận Portal → Vai trò Chuẩn<a class="headerlink" href="#81-ma-tran-portal-vai-tro-chuan" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Portal</th>
+<th>Role mặc định (<code>role_code</code>)</th>
+<th>Đối tượng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Admin Portal</strong></td>
+<td><code>admin.super</code>, <code>admin.finance</code>, <code>admin.academic</code></td>
+<td>Quản trị trường</td>
+</tr>
+<tr>
+<td><strong>Teacher Portal</strong></td>
+<td><code>teacher.homeroom</code>, <code>teacher.subject</code></td>
+<td>Giáo viên</td>
+</tr>
+<tr>
+<td><strong>Student Portal</strong></td>
+<td><code>student.default</code></td>
+<td>Học sinh</td>
+</tr>
+<tr>
+<td><strong>Parent Portal</strong></td>
+<td><code>parent.default</code></td>
+<td>Phụ huynh</td>
+</tr>
+</tbody>
+</table>
+<p><em>Tenant có thể </em><em>clone</em><em> và đổi tên role; <code>schema_version</code> tăng lên khi sửa.</em></p>
+<h3 id="82-mapping-ui-permission">8.2 Mapping UI → Permission<a class="headerlink" href="#82-mapping-ui-permission" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Khu vực UI</th>
+<th>Hành động</th>
+<th>Permission yêu cầu (<code>permission_code</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dashboard</strong></td>
+<td>Xem báo cáo đăng nhập</td>
+<td><code>report.view_login_by_tenant</code></td>
+</tr>
+<tr>
+<td><strong>Finance</strong></td>
+<td>Xem báo cáo tài chính</td>
+<td><code>report.view_financial_summary</code></td>
+</tr>
+<tr>
+<td><strong>Gradebook</strong></td>
+<td>Sửa điểm</td>
+<td><code>grade.edit_assignment</code> (teacher)</td>
+</tr>
+<tr>
+<td><strong>Attendance</strong></td>
+<td>Điểm danh</td>
+<td><code>attendance.mark</code></td>
+</tr>
+<tr>
+<td><strong>User Management</strong></td>
+<td>Gán role</td>
+<td><code>rbac.manage_role</code></td>
+</tr>
+<tr>
+<td><strong>Settings</strong></td>
+<td>Đồng bộ RBAC template</td>
+<td><code>rbac.sync_template</code></td>
+</tr>
+<tr>
+<td><strong>SMS Broadcast</strong></td>
+<td>Gửi SMS hàng loạt</td>
+<td><code>notif.broadcast_sms</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>UI component đọc <strong>JWT claim <code>permissions</code></strong> (đã tối ưu bởi Gateway cache), ẩn nút nếu không đủ quyền.</p>
+</blockquote>
+<h3 id="83-kiem-tra-quyen-frontend">8.3 Kiểm tra quyền (Frontend)<a class="headerlink" href="#83-kiem-tra-quyen-frontend" title="Permanent link">¶</a></h3>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1">// React helper</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAuth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@/hooks/useAuth"</span><span class="p">;</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Can</span><span class="p">({</span><span class="w"> </span><span class="nx">perm</span><span class="p">,</span><span class="w"> </span><span class="nx">children</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">permissions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAuth</span><span class="p">();</span><span class="w">          </span><span class="c1">// lấy từ JWT decode</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">permissions</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">perm</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">children</span><span class="p">;</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">                                </span><span class="c1">// ẩn UI nếu thiếu quyền</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><em>Áp dụng pattern này cho button/menu từng portal; tránh “hard-code” role.</em></p>
+<h3 id="84-dynamic-condition">8.4 Dynamic Condition<a class="headerlink" href="#84-dynamic-condition" title="Permanent link">¶</a></h3>
+<ul>
+<li>Với permission có <code>condition</code>, FE gởi <code>input_parameters</code> đúng schema:</li>
+</ul>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"class_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10A1"</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li>Gateway sẽ so sánh <code>$request.class_id</code> vs <code>$user.class_id</code>; FE <strong>không</strong> cần logic phụ.</li>
+</ul>
+<h3 id="85-quy-trinh-them-tinh-nang-moi">8.5 Quy trình thêm tính năng mới<a class="headerlink" href="#85-quy-trinh-them-tinh-nang-moi" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>FE</strong> mở PR tạo UI + flag <code>TODO_PERMISSION</code>.</li>
+<li><strong>BE</strong> thêm permission vào <code>global_permissions_templates</code> (<code>schema_version+1</code>).</li>
+<li><strong>RBAC Sync Job</strong> fan-out <code>rbac_updated.v1</code>; FE lấy JWT mới → chức năng hiển thị.</li>
+<li>Thêm entry mới vào <strong>bảng 8.2</strong> trong tài liệu này.</li>
+</ol>
+<h3 id="86-kpi-ui-authorization">8.6 KPI UI Authorization<a class="headerlink" href="#86-kpi-ui-authorization" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ui_unauthorized_click_rate</code></td>
+<td>&lt; 0.1 %</td>
+</tr>
+<tr>
+<td><code>jwt_permissions_payload_size</code></td>
+<td>≤ 4 KB</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Kết quả</strong> – Phân quyền UI lệ thuộc đúng vào <strong>Permission</strong> (không phải Role cứng), cho phép tenant thay đổi Role mà không phải sửa Frontend.</p>
+</blockquote>
+<hr/>
+<h2 id="9-he-thong-bao-cao-phan-tich-reporting-analytics-architecture">9. Hệ thống Báo cáo &amp; Phân tích (Reporting &amp; Analytics Architecture)<a class="headerlink" href="#9-he-thong-bao-cao-phan-tich-reporting-analytics-architecture" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Cung cấp báo cáo <strong>gần real-time</strong>, tách biệt dữ liệu đa-tenant, cho phép <strong>phân quyền chi tiết</strong> (row-level) dựa trên RBAC và <code>condition</code> của permission. Kiến trúc tuân thủ <code>ADR-028 – Reporting Architecture</code>, <code>ADR-029 – Report Template Schema</code>, <code>ADR-030 – Event Schema Governance</code>.</p>
+</blockquote>
+<h3 id="91-luong-du-lieu-tong-quat">9.1 Luồng dữ liệu tổng quát<a class="headerlink" href="#91-luong-du-lieu-tong-quat" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart LR
+  SMS((📚 SMS<br/>MariaDB))
+  Debezium([⚙️ Debezium CDC])
+  DataLake[(💾 GCS Parquet Staging)]
+  DataFlow([🛠️ Dataflow<br/>ELT Transform])
+  BQ[📦 BigQuery<br/>Data Warehouse]
+  ReportSvc([📊 Reporting Service])
+  APIGW(🛡️ API Gateway)
+  FE[🌐 Superadmin Portal]
+
+  SMS --&gt; Debezium --&gt; DataLake --&gt; DataFlow --&gt; BQ
+  ReportSvc ==&gt; BQ
+  FE -. https .-&gt; APIGW ==&gt; ReportSvc
+</code></pre>
+<ul>
+<li><strong>CDC</strong> Debezium stream → GCS (parquet) &lt; 1 min lag.</li>
+<li><strong>Dataflow</strong> load &amp; transform ➜ BQ <strong>Raw → Staging → Mart</strong> (Kimball).</li>
+<li><strong>Reporting Service</strong> chạy query tham số hoá, thêm <code>tenant_id</code> &amp; RBAC filters.</li>
+<li><strong>Superadmin Portal</strong> tải báo cáo qua Gateway (JWT + permission kiểm tra).</li>
+</ul>
+<h3 id="92-kien-truc-data-warehouse-bigquery">9.2 Kiến trúc Data Warehouse (BigQuery)<a class="headerlink" href="#92-kien-truc-data-warehouse-bigquery" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Ví dụ bảng</th>
+<th>Partition / Cluster</th>
+<th>Bảo mật</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Raw</strong></td>
+<td><code>abc_sms_enrolment_raw</code></td>
+<td><code>_PARTITIONDATE</code></td>
+<td>IAM: read-only</td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>abc_sms_enrolment_stg</code></td>
+<td><code>_PARTITIONDATE</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Mart</strong></td>
+<td><code>fct_enrolment</code> · <code>dim_student</code></td>
+<td>cluster <code>tenant_id</code></td>
+<td>Row ACL by <code>tenant_id</code></td>
+</tr>
+<tr>
+<td><strong>Reporting View</strong></td>
+<td><code>vw_financial_summary</code></td>
+<td>—</td>
+<td>Authorized View per tenant</td>
+</tr>
+</tbody>
+</table>
+<p><em>Retention</em>: Raw 30 ngày, Mart 5 năm (ẩn danh PII theo ADR-024).</p>
+<h3 id="93-rbac-row-level-security">9.3 RBAC &amp; Row-Level Security<a class="headerlink" href="#93-rbac-row-level-security" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Cấp truy cập</th>
+<th>Điều kiện SQL</th>
+<th>Permission yêu cầu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tenant</strong></td>
+<td><code>WHERE tenant_id = $tid</code></td>
+<td><code>report.view_financial_summary</code></td>
+</tr>
+<tr>
+<td><strong>Class</strong></td>
+<td><code>WHERE class_id = $user.class_id</code></td>
+<td><code>report.view_login_by_tenant</code> + condition</td>
+</tr>
+<tr>
+<td><strong>Global</strong></td>
+<td>Không filter</td>
+<td><code>report.view_financial_summary</code> + role <code>admin.super</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>Gateway</em> gắn <code>tenant_id</code>, <code>roles</code>, <code>permissions</code> vào header; Reporting Service dựng câu lệnh SQL với <strong>parameterized filters</strong> → tránh SQL-Injection.</p>
+<h3 id="94-template-export">9.4 Template &amp; Export<a class="headerlink" href="#94-template-export" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tất cả template JSON schema lưu <code>report_templates</code> (version-controlled).</li>
+<li>
+<p>API:</p>
+</li>
+<li>
+<p><code>GET /reports/{id}</code> – metadata &amp; required params.</p>
+</li>
+<li><code>POST /reports/{id}/export</code> – CSV / Parquet; header <code>Content-Disposition</code>.</li>
+<li>Quyền <code>report.manage_report_templates</code> cho phép admin tenant sửa template clone.</li>
+</ul>
+<h3 id="95-giam-sat-chi-phi-hieu-suat">9.5 Giám sát chi phí &amp; Hiệu suất<a class="headerlink" href="#95-giam-sat-chi-phi-hieu-suat" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Mục tiêu</th>
+<th>Alert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bq_query_latency_p95</code></td>
+<td>&lt; 5 s</td>
+<td>&gt; 10 s 5′</td>
+</tr>
+<tr>
+<td><code>bq_cost_per_tenant_day</code></td>
+<td>+≤ 15 % 30 d-avg</td>
+<td>Slack FinOps</td>
+</tr>
+<tr>
+<td><code>elt_lag_minutes_p95</code></td>
+<td>&lt; 10′</td>
+<td>&gt; 20′ 15′</td>
+</tr>
+</tbody>
+</table>
+<h3 id="96-so-o-quyen-truy-cap-bao-cao">9.6 Sơ đồ quyền truy cập báo cáo<a class="headerlink" href="#96-so-o-quyen-truy-cap-bao-cao" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>stateDiagram-v2
+  [*] --&gt; RequestAPI
+  RequestAPI --&gt;|JWT valid + permission| BuildQuery
+  BuildQuery --&gt; ExecuteBQ
+  ExecuteBQ --&gt; ExportFile
+  ExportFile --&gt; [*]
+  RequestAPI --&gt;|No permission| Forbidden
+  Forbidden --&gt; [*]
+</code></pre>
+<h3 id="97-roadmap-mo-rong">9.7 Roadmap mở rộng<a class="headerlink" href="#97-roadmap-mo-rong" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Materialized View</strong> cho báo cáo thời gian thực attendance (latency &lt; 30 s).</li>
+<li><strong>Pre-computed cube</strong> (BigQuery BI Engine) cho dashboard hiệu năng cao.</li>
+<li><strong>Tenant self-service chart builder</strong> – drag-and-drop, dùng row ACL đã sẵn.</li>
+</ol>
+<blockquote>
+<p><strong>Kết quả</strong> – Báo cáo phân tách theo tenant, có thể tuỳ biến điều kiện truy cập (row-level), trong khi chi phí và độ trễ được kiểm soát chặt chẽ.</p>
+</blockquote>
+<hr/>
+<h2 id="10-ai-integration-strategy">10. AI Integration Strategy<a class="headerlink" href="#10-ai-integration-strategy" title="Permanent link">¶</a></h2>
+<blockquote>
+<p><strong>Mục tiêu</strong> – Ứng dụng AI để <strong>nâng cao trải nghiệm</strong> (chat-support, gợi ý học tập), <strong>tối ưu vận hành</strong> (dự báo lỗi, chi phí) và <strong>mở rộng sản phẩm</strong> (phân tích dữ liệu học tập).<br/>
+Chiến lược bám theo 4 trụ: <strong>(1) Use-case rõ ràng → (2) Data foundation sạch → (3) Model lifecycle có kiểm soát → (4) Tuân thủ bảo mật/đạo đức</strong>.</p>
+</blockquote>
+<h3 id="101-use-case-uu-tien-2025-2026">10.1 Use-case Ưu tiên (2025-2026)<a class="headerlink" href="#101-use-case-uu-tien-2025-2026" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Use-case</th>
+<th>Mô tả</th>
+<th>Mô hình / API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI Chat Support</strong></td>
+<td>Chatbot hỗ trợ giáo viên &amp; phụ huynh (FAQ, hướng dẫn)</td>
+<td>LLM (Vertex AI PaLM 2-Text, context Knowledge-Graph)</td>
+</tr>
+<tr>
+<td><strong>Homework Feedback</strong></td>
+<td>Gợi ý sửa câu / giải chi tiết cho học sinh</td>
+<td>LLM + Prompt-engineering + Guardrails</td>
+</tr>
+<tr>
+<td><strong>Attendance Anomaly</strong></td>
+<td>Dự báo vắng mặt bất thường</td>
+<td>LSTM tim-series (BigQuery ML)</td>
+</tr>
+<tr>
+<td><strong>Cost Forecast</strong></td>
+<td>Dự đoán chi phí GCP/tenant tháng tới</td>
+<td>Prophet ARIMA</td>
+</tr>
+<tr>
+<td><strong>Incident Triage</strong></td>
+<td>Phân loại log lỗi → gợi ý fix</td>
+<td>Embedding + kNN (Vector Search)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-kien-truc-trien-khai">10.2 Kiến trúc triển khai<a class="headerlink" href="#102-kien-truc-trien-khai" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart LR
+  subgraph Core_AI ["🤖 AI Core Services"]
+    AIAPI[(AI Inference API<br/>Cloud Run)]
+    VectorDB[(Vertex AI Vector<br/>Store)]
+    FeatureStore[(Feature Store)]
+  end
+
+  subgraph DataPlane
+    BQ[(BigQuery DW)]
+    PubSub((Pub/Sub events))
+  end
+
+  FE[🌐 Frontend / Portal] -. gRPC/REST .-&gt; AIAPI
+  BQ -- batch --&gt; FeatureStore
+  PubSub -- stream --&gt; FeatureStore
+  AIAPI -- embed --&gt; VectorDB
+  AIAPI -- fetch feature --&gt; FeatureStore
+  AIAPI -. call .-&gt; VertexLLM[[Vertex AI<br/>PaLM 2]]
+</code></pre>
+<h3 id="103-model-lifecycle">10.3 Model Lifecycle<a class="headerlink" href="#103-model-lifecycle" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Giai đoạn</th>
+<th>Công cụ</th>
+<th>Quy trình</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Experiment</strong></td>
+<td>Vertex AI Workbench + AutoML</td>
+<td>Data Scientist chạy notebook; metadata log ML Metadata</td>
+</tr>
+<tr>
+<td><strong>Train</strong></td>
+<td>Vertex AI Training</td>
+<td>Output <code>model-artifact:hash</code> kèm <code>schema_version</code></td>
+</tr>
+<tr>
+<td><strong>Validate</strong></td>
+<td>CI job <code>ml-test</code></td>
+<td>Accuracy ≥ KPI; bias test; security scan prompt-injection</td>
+</tr>
+<tr>
+<td><strong>Deploy</strong></td>
+<td>Cloud Run (CPU) / GPU endpoint</td>
+<td>Blue-Green 5→50→100 %</td>
+</tr>
+<tr>
+<td><strong>Monitor</strong></td>
+<td>Vertex AI Model Monitoring + Prometheus</td>
+<td>Drift, latency, cost, PII leakage alert</td>
+</tr>
+</tbody>
+</table>
+<p><em>Governance</em>: PR phải kèm <strong>Model Card</strong> (YAML) → review <strong>AI Guild</strong>.</p>
+<h3 id="104-bao-mat-ao-uc">10.4 Bảo mật &amp; Đạo đức<a class="headerlink" href="#104-bao-mat-ao-uc" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>PII Masking</strong> trước khi gửi prompt tới LLM (<code>email</code>, <code>phone</code>, <code>student_name</code>).</li>
+<li><strong>Prompt Firewall</strong> – regex + model-guard không trả lời nội dung cấm (Cheating, PII).</li>
+<li><strong>Opt-in</strong>: Học sinh &lt; 16 tuổi yêu cầu phụ huynh đồng ý.</li>
+<li><strong>Data Residency</strong>: Chỉ lưu embedding ở <code>us-central1</code> (GDPR SCC).</li>
+</ul>
+<h3 id="105-kpi-giam-sat">10.5 KPI &amp; Giám sát<a class="headerlink" href="#105-kpi-giam-sat" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+<th>Alert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ai_inference_latency_p95</code></td>
+<td>&lt; 800 ms</td>
+<td>&gt; 1200 ms 5′</td>
+</tr>
+<tr>
+<td><code>chatbot_answer_helpful_rate</code> (thumb-up)</td>
+<td>&gt; 85 %</td>
+<td>&lt; 70 % ngày</td>
+</tr>
+<tr>
+<td><code>model_drift_score</code></td>
+<td>&lt; 0.1</td>
+<td>&gt; 0.2 tuần</td>
+</tr>
+<tr>
+<td><code>cost_ai_per_1000req</code></td>
+<td>≤ 0.02 USD</td>
+<td>&gt; 0.03 USD ngày</td>
+</tr>
+</tbody>
+</table>
+<h3 id="106-roadmap">10.6 Roadmap<a class="headerlink" href="#106-roadmap" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Q3-2025</strong> – Chat Support Alpha (English → Vietnamese).</li>
+<li><strong>Q4-2025</strong> – Homework Feedback Pilot ở 2 tenant Premium.</li>
+<li><strong>Q1-2026</strong> – Full Cost Forecast + Incident Triage.</li>
+<li><strong>Q2-2026</strong> – Fine-tune mini-LLM on-prem (5-7 B params) nếu ROI đạt.</li>
+</ol>
+<blockquote>
+<p><strong>Thông điệp chủ đạo:</strong> AI chỉ hữu ích khi <em>tích hợp mượt</em> vào luồng dữ liệu &amp; bảo mật sẵn có; DX-VAS lấy <strong>data quality + governance</strong> làm trọng tâm trước khi “bơm” mô hình vào sản phẩm.</p>
+</blockquote>
+<hr/>
+<p>📌 <strong>Ghi chú:</strong></p>
+<ul>
+<li><code>DataAccessAPI</code> là lớp trừu tượng (có thể dùng để chuẩn bị dữ liệu cho training hoặc inference)</li>
+<li><code>MetadataRegistry</code> tương ứng với quản trị schema theo <code>ADR-030</code></li>
+<li>Mỗi AI Agent có mục tiêu riêng (hỗ trợ, tổng hợp, dự đoán) và có thể tái sử dụng query/template từ Reporting Service</li>
+</ul>
+<hr/>
+<p>📘 <strong>Ghi chú:</strong></p>
+<ul>
+<li>UI không nên hard-code role, mà nên kiểm tra theo permission cụ thể (VD: <code>can_assign_role</code>, <code>can_view_tuition</code>)</li>
+<li>Các permission này được Gateway trả về trong JWT hoặc refresh qua API <code>GET /me/permissions</code></li>
+<li>Việc kiểm tra quyền có thể dùng Hook/Vuex/Redux trung tâm tại frontend để gắn cờ <code>canAccess[X]</code></li>
+</ul>
+<p>📎 Liên quan:</p>
+<ul>
+<li><a href="../rbac-deep-dive/#11-best-practices-cho-quản-trị-rbac">RBAC Deep Dive</a></li>
+<li><a href="../../">README</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

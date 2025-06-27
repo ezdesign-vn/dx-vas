@@ -1,0 +1,25 @@
+flowchart LR
+  Create[User được tạo\nPOST /users]
+  Pending[Xác minh OTP hoặc nhận OAuth2]
+  Active[is_active = true\nUser có thể đăng nhập]
+  Inactive[is_active = false\nTài khoản bị vô hiệu hóa]
+  Deleted[Tài khoản bị xóa - is_deleted = true]
+
+  Create --> Pending
+  Pending --> Active
+  Active --> Inactive
+  Inactive --> Active
+  Active --> Deleted
+  Inactive --> Deleted
+
+  subgraph Events & Side Effects
+    RBAC[Emit: rbac_updated]
+    STATUS[Emit: user_status_changed]
+    Cache[Invalidate RBAC cache]
+  end
+
+  Active --> RBAC
+  Inactive --> STATUS
+  Deleted --> STATUS
+  RBAC --> Cache
+  STATUS --> Cache

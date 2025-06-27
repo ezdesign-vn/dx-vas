@@ -1,0 +1,25 @@
+flowchart TD
+  A[Public Webform] --> B[CRM Adapter]
+  B --> C[SuiteCRM]
+
+  C -->|Pipeline chuyển đổi Lead → Học sinh| D[SIS Adapter]
+  D --> E[Gibbon SIS]
+
+  E -->|Tạo user học sinh + lớp học| F[LMS Adapter]
+  F --> G[Moodle LMS]
+
+  subgraph Frontend
+    A
+  end
+
+  subgraph Business Systems
+    C
+    E
+    G
+  end
+
+  subgraph Adapters
+    B
+    D
+    F
+  end

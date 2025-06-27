@@ -1,0 +1,582 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Platform Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/ADR/adr-028-reporting-architecture/" rel="canonical"/>
+<link href="../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>ADR-028 - Kiến trúc hệ thống báo cáo và phân tích đa tenant - DX VAS - Docs</title>
+<link href="../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#adr-028-kien-truc-he-thong-bao-cao-va-phan-tich-a-tenant">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="DX VAS - Docs">
+<img alt="logo" src="../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              ADR-028 - Kiến trúc hệ thống báo cáo và phân tích đa tenant
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../services/">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="DX VAS - Docs">
+<img alt="logo" src="../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../services/">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-boi-canh-context">
+<span class="md-ellipsis">
+      1. 📌 Bối cảnh (Context)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-quyet-inh-decision">
+<span class="md-ellipsis">
+      2. 🧠 Quyết định (Decision)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-chi-tiet-thiet-ke-giai-phap-design-solution-details">
+<span class="md-ellipsis">
+      3. 🧱 Chi tiết Thiết kế / Giải pháp (Design / Solution Details)
+    </span>
+</a>
+<nav aria-label="3. 🧱 Chi tiết Thiết kế / Giải pháp (Design / Solution Details)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-thanh-phan-moi-va-so-o-kien-truc">
+<span class="md-ellipsis">
+      3.1. Thành phần mới và sơ đồ kiến trúc
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-kien-truc-phan-quyen-va-bao-mat">
+<span class="md-ellipsis">
+      3.2. Kiến trúc phân quyền và bảo mật
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-adr-va-he-thong-quan-ly-schema">
+<span class="md-ellipsis">
+      3.3. ADR và hệ thống quản lý schema
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-he-qua-consequences">
+<span class="md-ellipsis">
+      4. ✅ Hệ quả (Consequences)
+    </span>
+</a>
+<nav aria-label="4. ✅ Hệ quả (Consequences)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#41-uu-iem">
+<span class="md-ellipsis">
+      4.1. Ưu điểm
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#42-nhuoc-iem-rui-ro-luu-y">
+<span class="md-ellipsis">
+      4.2. Nhược điểm / Rủi ro / Lưu ý
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#43-tac-ong-en-cac-thanh-phan-khac">
+<span class="md-ellipsis">
+      4.3. Tác động đến các thành phần khác
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-cac-phuong-an-khac-a-can-nhac">
+<span class="md-ellipsis">
+      5. 🔄 Các Phương án Khác đã Cân nhắc
+    </span>
+</a>
+<nav aria-label="5. 🔄 Các Phương án Khác đã Cân nhắc" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-phuong-an-a-goi-truc-tiep-vao-oltp-e-tao-bao-cao">
+<span class="md-ellipsis">
+      5.1. Phương án A: Gọi trực tiếp vào OLTP để tạo báo cáo
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-phuong-an-b-su-dung-cong-cu-bi-ben-ngoai-metabase-powerbi">
+<span class="md-ellipsis">
+      5.2. Phương án B: Sử dụng công cụ BI bên ngoài (Metabase, PowerBI)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-tai-lieu-lien-quan">
+<span class="md-ellipsis">
+      6. 👎 Tài liệu liên quan
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="adr-028-kien-truc-he-thong-bao-cao-va-phan-tich-a-tenant">ADR-028: Kiến trúc hệ thống báo cáo và phân tích đa tenant<a class="headerlink" href="#adr-028-kien-truc-he-thong-bao-cao-va-phan-tich-a-tenant" title="Permanent link">¶</a></h1>
+<h2 id="1-boi-canh-context">1. 📌 Bối cảnh (Context)<a class="headerlink" href="#1-boi-canh-context" title="Permanent link">¶</a></h2>
+<p>Hệ thống DX-VAS hiện tại chưa có nền tảng báo cáo tập trung phục vụ cho các yêu cầu vận hành từ Ban Giám đốc (BoD), đặc biệt là báo cáo có tính tổng hợp, đa tenant và khả năng tùy biến linh hoạt. Việc chạy truy vấn phân tích trên hệ thống transactional (OLTP) hiện tại không đảm bảo hiệu năng, bảo mật và khả năng mở rộng.</p>
+<p>Trong khi đó, các hệ thống hiện tại như User Service, Auth, CRM/SIS/LMS đều phát sinh nhiều dữ liệu quan trọng cần được tổng hợp, phân tích và trực quan hóa. Đồng thời, lộ trình tích hợp AI Agent hỗ trợ BoD trong tương lai yêu cầu dữ liệu phải được chuẩn hóa, có phiên bản và dễ truy xuất.</p>
+<p>Nếu không đưa ra quyết định sớm, toàn hệ thống sẽ đối mặt với nguy cơ:
+- Truy vấn báo cáo chậm và ảnh hưởng đến hệ thống chính.
+- Không thể tổng hợp và chuẩn hóa thông tin giữa các tenant.
+- Không thể mở rộng khả năng tự động hóa / tích hợp AI dashboard.</p>
+<hr/>
+<h2 id="2-quyet-inh-decision">2. 🧠 Quyết định (Decision)<a class="headerlink" href="#2-quyet-inh-decision" title="Permanent link">¶</a></h2>
+<p>Chúng tôi quyết định thiết kế và triển khai một nền tảng báo cáo mới bao gồm:</p>
+<ul>
+<li>Một <strong>Reporting Service</strong> chuyên biệt (microservice mới).</li>
+<li>Một <strong>Data Warehouse</strong> với schema chuẩn hóa, hỗ trợ truy vấn OLAP.</li>
+<li><strong>Data Pipeline</strong> gồm cả Pub/Sub (streaming) và Batch ETL.</li>
+<li><strong>Superadmin Webapp</strong> sẽ tích hợp hai module mới: trình xem báo cáo và trình quản lý report template.</li>
+<li>Báo cáo được kiểm soát chặt chẽ qua RBAC, có audit log và xuất hiện trong hệ thống permission toàn cục.</li>
+</ul>
+<hr/>
+<h2 id="3-chi-tiet-thiet-ke-giai-phap-design-solution-details">3. 🧱 Chi tiết Thiết kế / Giải pháp (Design / Solution Details)<a class="headerlink" href="#3-chi-tiet-thiet-ke-giai-phap-design-solution-details" title="Permanent link">¶</a></h2>
+<h3 id="31-thanh-phan-moi-va-so-o-kien-truc">3.1. Thành phần mới và sơ đồ kiến trúc<a class="headerlink" href="#31-thanh-phan-moi-va-so-o-kien-truc" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TD
+  subgraph Sources
+    US(User Service)
+    AS(Auth Service)
+    AD(Adapters: CRM/SIS/LMS)
+  end
+
+  subgraph Ingestion
+    PS(Pub/Sub CDC)
+    ETL(Batch ETL Jobs)
+  end
+
+  subgraph Storage
+    DW(Data Warehouse)
+  end
+
+  subgraph Reporting Layer
+    RS(Reporting Service)
+  end
+
+  subgraph Frontend
+    WEB(Superadmin Webapp)
+  end
+
+  US --&gt; PS
+  AS --&gt; PS
+  AD --&gt; ETL
+  PS --&gt; DW
+  ETL --&gt; DW
+  DW --&gt; RS
+  RS --&gt; WEB
+</code></pre>
+<ul>
+<li><code>Reporting Service</code>:</li>
+<li>API: <code>/reports</code>, <code>/report-templates</code>, <code>/saved-reports</code></li>
+<li>Truy vấn trên predefined views hoặc <strong>validated query templates</strong>: là những cấu trúc truy vấn được định nghĩa trước, cho phép truyền tham số đầu vào nhưng không cho phép thay đổi logic lõi. Các template này được lưu trữ như một phần của Report Template (chi tiết tại ADR-029).</li>
+<li>Trả dữ liệu theo <code>ReportEnvelope</code> chuẩn <code>ADR-012</code></li>
+<li>
+<p>Ghi log truy cập theo <code>ADR-008</code></p>
+</li>
+<li>
+<p><code>Data Warehouse</code>:</p>
+</li>
+<li>Fact tables: <code>fact_login</code>, <code>fact_user</code>, <code>fact_permission</code></li>
+<li>Dim tables: <code>dim_tenant</code>, <code>dim_time</code>, <code>dim_role</code></li>
+<li>Partition theo thời gian + tenant</li>
+<li>
+<p>Hỗ trợ <strong>schema versioning</strong> và <strong>schema evolution</strong> để đảm bảo khả năng mở rộng và bảo trì khi các service nguồn thay đổi dữ liệu.</p>
+</li>
+<li>
+<p><code>Data Pipeline</code>:</p>
+</li>
+<li>CDC từ Pub/Sub: <code>vas.auth.login.v1</code>, <code>vas.user.created.v1</code>, <code>vas.lms.activity.v1</code></li>
+<li>Batch extract từ APIs nếu adapter không hỗ trợ Pub/Sub</li>
+<li>
+<p>Cần tích hợp các bước kiểm tra chất lượng dữ liệu (Data Quality checks) trong quá trình ETL/ELT để đảm bảo tính đúng đắn và đáng tin cậy của dữ liệu đầu vào.</p>
+</li>
+<li>
+<p><code>UI Webapp</code>:</p>
+</li>
+<li>Module 1: Báo cáo (viewer, filter, chart)</li>
+<li>Module 2: Quản lý mẫu (define, test, assign permission)</li>
+</ul>
+<h3 id="32-kien-truc-phan-quyen-va-bao-mat">3.2. Kiến trúc phân quyền và bảo mật<a class="headerlink" href="#32-kien-truc-phan-quyen-va-bao-mat" title="Permanent link">¶</a></h3>
+<ul>
+<li>RBAC áp dụng trên từng API: ví dụ <code>report.view_usage</code>, <code>report.manage_templates</code></li>
+<li>Mỗi báo cáo có metadata <code>required_permission</code>, <code>scope</code>, <code>tenant_mode</code> → được lưu như một phần của cấu trúc Report Template (định nghĩa chi tiết tại ADR-029).</li>
+<li>Truy vấn cá nhân hóa cho người dùng (qua <code>saved-config</code>)</li>
+<li>Audit log ghi: user, report_id, params, duration</li>
+</ul>
+<h3 id="33-adr-va-he-thong-quan-ly-schema">3.3. ADR và hệ thống quản lý schema<a class="headerlink" href="#33-adr-va-he-thong-quan-ly-schema" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tạo <code>adr-029-report-template-schema.md</code> để mô tả chuẩn template</li>
+<li>Tạo <code>adr-030-event-schema-governance.md</code> để quản lý versioning Pub/Sub schema</li>
+<li>Chuẩn hóa các sự kiện gửi từ các service hiện tại</li>
+</ul>
+<hr/>
+<h2 id="4-he-qua-consequences">4. ✅ Hệ quả (Consequences)<a class="headerlink" href="#4-he-qua-consequences" title="Permanent link">¶</a></h2>
+<h3 id="41-uu-iem">4.1. Ưu điểm<a class="headerlink" href="#41-uu-iem" title="Permanent link">¶</a></h3>
+<ul>
+<li>✅ Cho phép tổng hợp dữ liệu xuyên tenant mà vẫn đảm bảo phân quyền.</li>
+<li>✅ Tối ưu hóa hiệu năng truy vấn bằng cách tách biệt OLAP/OLTP.</li>
+<li>✅ Đặt nền móng cho dashboard AI-ready và automation.</li>
+<li>✅ Cải thiện tính minh bạch và giám sát qua audit logging.</li>
+</ul>
+<h3 id="42-nhuoc-iem-rui-ro-luu-y">4.2. Nhược điểm / Rủi ro / Lưu ý<a class="headerlink" href="#42-nhuoc-iem-rui-ro-luu-y" title="Permanent link">¶</a></h3>
+<ul>
+<li>⚠️ Phức tạp hơn trong triển khai: thêm nhiều thành phần mới</li>
+<li><em>Giải pháp:</em> Áp dụng roadmap 8 tuần, chia nhỏ module theo milestone</li>
+<li>⚠️ Chi phí sử dụng warehouse (BigQuery, etc)</li>
+<li><em>Giải pháp:</em> Theo dõi và tối ưu chi phí qua <code>ADR-020</code>, dùng tier cold/hot</li>
+<li>⚠️ Yêu cầu schema đồng nhất từ các adapter cũ</li>
+<li><em>Giải pháp:</em> Tạo wrapper services hoặc schema mapping adapters</li>
+</ul>
+<h3 id="43-tac-ong-en-cac-thanh-phan-khac">4.3. Tác động đến các thành phần khác<a class="headerlink" href="#43-tac-ong-en-cac-thanh-phan-khac" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>User Service Master:</strong> cần expose thêm permission <code>report.*</code></li>
+<li><strong>Auth Service:</strong> cần phát sự kiện login thành công có dạng chuẩn</li>
+<li><strong>Superadmin Webapp:</strong> thêm 2 module mới</li>
+<li><strong>ADR-020:</strong> cần bổ sung phần quản lý cost cho query OLAP</li>
+</ul>
+<hr/>
+<h2 id="5-cac-phuong-an-khac-a-can-nhac">5. 🔄 Các Phương án Khác đã Cân nhắc<a class="headerlink" href="#5-cac-phuong-an-khac-a-can-nhac" title="Permanent link">¶</a></h2>
+<h3 id="51-phuong-an-a-goi-truc-tiep-vao-oltp-e-tao-bao-cao">5.1. Phương án A: Gọi trực tiếp vào OLTP để tạo báo cáo<a class="headerlink" href="#51-phuong-an-a-goi-truc-tiep-vao-oltp-e-tao-bao-cao" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Lý do không chọn:</strong> Ảnh hưởng hiệu năng hệ thống, khó mở rộng</li>
+</ul>
+<h3 id="52-phuong-an-b-su-dung-cong-cu-bi-ben-ngoai-metabase-powerbi">5.2. Phương án B: Sử dụng công cụ BI bên ngoài (Metabase, PowerBI)<a class="headerlink" href="#52-phuong-an-b-su-dung-cong-cu-bi-ben-ngoai-metabase-powerbi" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Lý do không chọn:</strong> Không kiểm soát được RBAC tích hợp, không phù hợp với đặc thù đa tenant và workflow tinh chỉnh</li>
+</ul>
+<hr/>
+<h2 id="6-tai-lieu-lien-quan">6. 👎 Tài liệu liên quan<a class="headerlink" href="#6-tai-lieu-lien-quan" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../adr-012-response-structure/">ADR-012 - Cấu trúc response chuẩn</a></li>
+<li><a href="../adr-007-rbac/">ADR-007 - RBAC và phân quyền động</a></li>
+<li><a href="../adr-008-audit-logging/">ADR-008 - Audit Logging</a></li>
+<li><a href="../adr-020-cost-observability/">ADR-020 - Chiến lược Cost Observability</a></li>
+<li><a href="../adr-027-data-management-strategy/">ADR-027 - Chiến lược quản lý dữ liệu</a></li>
+<li><a href="../adr-029-report-template-schema/">ADR-029 - Report Template Schema</a></li>
+<li><a href="../adr-030-event-schema-governance/">ADR-030 - Event Schema Governance</a></li>
+<li><a href="../../">README.md hệ thống DX VAS</a></li>
+<li><a href="../../architecture/system-diagrams/">system-diagrams.md</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

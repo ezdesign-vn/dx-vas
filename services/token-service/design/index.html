@@ -1,0 +1,2929 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh." name="description"/>
+<meta content="DX VAS Team" name="author"/>
+<link href="https://ezdesign-vn.github.io/dx-vas/services/token-service/design/" rel="canonical"/>
+<link href="../../../assets/images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Thiết kế chi tiết Token Service - DX VAS - Docs</title>
+<link href="../../../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="pink" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#token-service-thiet-ke-kien-truc-chi-tiet">
+          Bỏ qua
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Đầu trang" class="md-header__inner md-grid">
+<a aria-label="DX VAS - Docs" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Thiết kế chi tiết Token Service
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="pink" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="lime" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="blue" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Tìm kiếm" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Tìm kiếm" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Tìm kiếm" class="md-search__options">
+<button aria-label="Xoá" class="md-search__icon md-icon" tabindex="-1" title="Xoá" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../architecture/system-diagrams/">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../dev-guide/">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../ADR/">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Thanh điều hướng" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DX VAS - Docs" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="DX VAS - Docs">
+<img alt="logo" src="../../../assets/images/logo.png"/>
+</a>
+    DX VAS - Docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/system-diagrams/">
+<span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../architecture/rbac-deep-dive/">
+<span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../dev-guide/">
+<span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../ADR/">
+<span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Mục lục" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-muc-tieu-pham-vi">
+<span class="md-ellipsis">
+      1. 🎯 Mục tiêu &amp; Phạm vi
+    </span>
+</a>
+<nav aria-label="1. 🎯 Mục tiêu &amp; Phạm vi" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-muc-ich">
+<span class="md-ellipsis">
+      1.1. Mục đích
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-chuc-nang-chinh">
+<span class="md-ellipsis">
+      1.2. Chức năng chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-ngoai-pham-vi">
+<span class="md-ellipsis">
+      1.3. Ngoài phạm vi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#14-nguoi-su-dung-chinh">
+<span class="md-ellipsis">
+      1.4. Người sử dụng chính
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-thiet-ke-api">
+<span class="md-ellipsis">
+      2. 🌐 Thiết kế API
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-mo-hinh-du-lieu-chi-tiet">
+<span class="md-ellipsis">
+      3. 🗃️ Mô hình dữ liệu chi tiết
+    </span>
+</a>
+<nav aria-label="3. 🗃️ Mô hình dữ liệu chi tiết" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-redis-key-structure">
+<span class="md-ellipsis">
+      3.1. 🧱 Redis Key Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-cau-truc-payload-metadata">
+<span class="md-ellipsis">
+      3.2. 📦 Cấu trúc Payload &amp; Metadata
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-luong-xu-ly-nghiep-vu-chinh">
+<span class="md-ellipsis">
+      4. 🔄 Luồng xử lý nghiệp vụ chính
+    </span>
+</a>
+<nav aria-label="4. 🔄 Luồng xử lý nghiệp vụ chính" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-1-sinh-token-sau-ang-nhap-thanh-cong">
+<span class="md-ellipsis">
+      🔐 Luồng 1: Sinh Token sau đăng nhập thành công
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-2-lam-moi-access_token-bang-refresh_token">
+<span class="md-ellipsis">
+      🔁 Luồng 2: Làm mới access_token bằng refresh_token
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-3-thu-hoi-token-khi-logout">
+<span class="md-ellipsis">
+      🔒 Luồng 3: Thu hồi token khi logout
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-4-introspect-token-vi-du-tu-api-gateway">
+<span class="md-ellipsis">
+      🧪 Luồng 4: Introspect token (ví dụ từ API Gateway)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-5-fallback-khi-introspect-token-that-bai">
+<span class="md-ellipsis">
+      🔁 Luồng 5: Fallback khi introspect token thất bại
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#luong-6-multi-key-rotation-rs256-hoac-es256">
+<span class="md-ellipsis">
+      🔑 Luồng 6: Multi-key Rotation (RS256 hoặc ES256)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-tuong-tac-voi-cac-service-khac-luong-su-kien">
+<span class="md-ellipsis">
+      5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện
+    </span>
+</a>
+<nav aria-label="5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-giao-tiep-chinh-giua-cac-service">
+<span class="md-ellipsis">
+      5.1. Giao tiếp chính giữa các Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-giao-tiep-voi-he-thong-pubsub">
+<span class="md-ellipsis">
+      5.2. Giao tiếp với hệ thống Pub/Sub
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-kien-truc-trien-khai-pubsub">
+<span class="md-ellipsis">
+      5.3. Kiến trúc triển khai Pub/Sub
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-luu-vet-trong-audit-logs">
+<span class="md-ellipsis">
+      5.4. Lưu vết trong Audit Logs
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-bao-mat-phan-quyen">
+<span class="md-ellipsis">
+      6. 🔐 Bảo mật &amp; Phân quyền
+    </span>
+</a>
+<nav aria-label="6. 🔐 Bảo mật &amp; Phân quyền" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-co-che-bao-ve-endpoint">
+<span class="md-ellipsis">
+      6.1. Cơ chế bảo vệ endpoint
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-kiem-tra-phong-chong-lam-dung-token">
+<span class="md-ellipsis">
+      6.2. Kiểm tra &amp; phòng chống lạm dụng token
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#63-phan-quyen-theo-hanh-vi-rbac">
+<span class="md-ellipsis">
+      6.3. Phân quyền theo hành vi (RBAC)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#64-gioi-han-kiem-soat-hanh-vi">
+<span class="md-ellipsis">
+      6.4. Giới hạn &amp; kiểm soát hành vi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#65-bao-ve-cau-hinh-khoa-bi-mat-theo-adr-003-secrets-management">
+<span class="md-ellipsis">
+      6.5 Bảo vệ cấu hình &amp; khóa bí mật (theo ADR-003 – Secrets Management)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#66-test-kiem-chung-bao-mat">
+<span class="md-ellipsis">
+      6.6. Test &amp; kiểm chứng bảo mật
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cau-hinh-phu-thuoc">
+<span class="md-ellipsis">
+      7. ⚙️ Cấu hình &amp; Phụ thuộc
+    </span>
+</a>
+<nav aria-label="7. ⚙️ Cấu hình &amp; Phụ thuộc" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#71-bien-moi-truong-quan-trong-env">
+<span class="md-ellipsis">
+      7.1. Biến môi trường quan trọng (.env)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#72-phu-thuoc-dich-vu-external-dependencies">
+<span class="md-ellipsis">
+      7.2. Phụ thuộc dịch vụ (External Dependencies)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#73-khoa-bi-mat-va-private-keys">
+<span class="md-ellipsis">
+      7.3. Khóa bí mật và private keys
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#74-cau-hinh-cache-introspection">
+<span class="md-ellipsis">
+      7.4. Cấu hình cache &amp; introspection
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#75-cau-hinh-quan-sat-alert">
+<span class="md-ellipsis">
+      7.5. Cấu hình quan sát &amp; alert
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-chien-luoc-kiem-thu">
+<span class="md-ellipsis">
+      8. 🧪 Chiến lược kiểm thử
+    </span>
+</a>
+<nav aria-label="8. 🧪 Chiến lược kiểm thử" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#81-unit-test-kiem-thu-on-vi">
+<span class="md-ellipsis">
+      8.1. Unit Test (Kiểm thử đơn vị)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#82-integration-test-kiem-thu-tich-hop">
+<span class="md-ellipsis">
+      8.2. Integration Test (Kiểm thử tích hợp)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#83-contract-test-openapi-based">
+<span class="md-ellipsis">
+      8.3. Contract Test (OpenAPI-based)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#84-security-negative-test">
+<span class="md-ellipsis">
+      8.4. Security &amp; Negative Test
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#85-performance-test-optional">
+<span class="md-ellipsis">
+      8.5. Performance Test (Optional)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#86-cicd-integration">
+<span class="md-ellipsis">
+      8.6. CI/CD Integration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#87-tu-ong-sinh-test-tu-openapi">
+<span class="md-ellipsis">
+      8.7. Tự động sinh test từ OpenAPI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-quan-sat-giam-sat">
+<span class="md-ellipsis">
+      9. 📈 Quan sát &amp; Giám sát
+    </span>
+</a>
+<nav aria-label="9. 📈 Quan sát &amp; Giám sát" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#91-logging">
+<span class="md-ellipsis">
+      9.1. Logging
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#92-metrics-prometheus">
+<span class="md-ellipsis">
+      9.2. Metrics (Prometheus)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#93-tracing">
+<span class="md-ellipsis">
+      9.3. Tracing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#94-alerting-slo-monitoring">
+<span class="md-ellipsis">
+      9.4. Alerting &amp; SLO Monitoring
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#95-audit-logging">
+<span class="md-ellipsis">
+      9.5. Audit Logging
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#96-healthcheck">
+<span class="md-ellipsis">
+      9.6. Healthcheck
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-o-tin-cay-phuc-hoi">
+<span class="md-ellipsis">
+      10. 🚀 Độ tin cậy &amp; Phục hồi
+    </span>
+</a>
+<nav aria-label="10. 🚀 Độ tin cậy &amp; Phục hồi" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#101-zero-downtime-deployment">
+<span class="md-ellipsis">
+      10.1. Zero Downtime Deployment
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#102-auto-scaling-load-balancing">
+<span class="md-ellipsis">
+      10.2. Auto-Scaling &amp; Load Balancing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#103-graceful-fallback">
+<span class="md-ellipsis">
+      10.3. Graceful Fallback
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#104-high-availability-architecture">
+<span class="md-ellipsis">
+      10.4. High Availability Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#105-retry-circuit-breaker">
+<span class="md-ellipsis">
+      10.5. Retry &amp; Circuit Breaker
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#106-disaster-recovery">
+<span class="md-ellipsis">
+      10.6. Disaster Recovery
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#107-am-bao-backward-compatibility">
+<span class="md-ellipsis">
+      10.7. Đảm bảo backward compatibility
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#108-kiem-thu-truoc-khi-release">
+<span class="md-ellipsis">
+      10.8. Kiểm thử trước khi release
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-hieu-nang-kha-nang-mo-rong">
+<span class="md-ellipsis">
+      11. ⚡️ Hiệu năng &amp; Khả năng mở rộng
+    </span>
+</a>
+<nav aria-label="11. ⚡️ Hiệu năng &amp; Khả năng mở rộng" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#111-hieu-nang-tung-loai-endpoint">
+<span class="md-ellipsis">
+      11.1. Hiệu năng từng loại endpoint
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#112-ky-thuat-toi-uu">
+<span class="md-ellipsis">
+      11.2. Kỹ thuật tối ưu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#113-horizontal-scaling">
+<span class="md-ellipsis">
+      11.3. Horizontal Scaling
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#114-connection-pooling">
+<span class="md-ellipsis">
+      11.4. Connection pooling
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#115-thu-tai-load-testing">
+<span class="md-ellipsis">
+      11.5. Thử tải (Load Testing)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#116-cdn-edge-cache">
+<span class="md-ellipsis">
+      11.6. CDN &amp; Edge Cache
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#117-graceful-degradation">
+<span class="md-ellipsis">
+      11.7. Graceful degradation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-ke-hoach-trien-khai">
+<span class="md-ellipsis">
+      12. 🛠 Kế hoạch Triển khai
+    </span>
+</a>
+<nav aria-label="12. 🛠 Kế hoạch Triển khai" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#121-phan-ky-trien-khai">
+<span class="md-ellipsis">
+      12.1. Phân kỳ triển khai
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#122-cong-cu-trien-khai">
+<span class="md-ellipsis">
+      12.2. Công cụ triển khai
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#123-zero-downtime">
+<span class="md-ellipsis">
+      12.3. Zero Downtime
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#124-seed-du-lieu-ban-au">
+<span class="md-ellipsis">
+      12.4. Seed dữ liệu ban đầu
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#125-migration-data-schema-safe-migration-adr-023">
+<span class="md-ellipsis">
+      12.5. Migration &amp; Data Schema (Safe-Migration – ADR-023)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-prepare-shadow-write">
+<span class="md-ellipsis">
+      🔹 1. Prepare (Shadow Write)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-transition-read-switch">
+<span class="md-ellipsis">
+      🔹 2. Transition (Read Switch)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-cleanup-decommission">
+<span class="md-ellipsis">
+      🔹 3. Cleanup (Decommission)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollback-plan">
+<span class="md-ellipsis">
+      🔹 Rollback Plan
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#126-quan-ly-cau-hinh-moi-truong">
+<span class="md-ellipsis">
+      12.6. Quản lý cấu hình &amp; môi trường
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#127-rollback-nhanh">
+<span class="md-ellipsis">
+      12.7. Rollback nhanh
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#128-quan-ly-phat-hanh">
+<span class="md-ellipsis">
+      12.8. Quản lý phát hành
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#129-sau-trien-khai">
+<span class="md-ellipsis">
+      12.9. Sau triển khai
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-kien-truc-service">
+<span class="md-ellipsis">
+      13. 🧩 Kiến trúc Service
+    </span>
+</a>
+<nav aria-label="13. 🧩 Kiến trúc Service" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#131-thanh-phan-chinh-modules">
+<span class="md-ellipsis">
+      13.1. Thành phần chính (Modules)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#132-luong-tuong-tac-chinh">
+<span class="md-ellipsis">
+      13.2. Luồng tương tác chính
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#133-trien-khai-ha-tang">
+<span class="md-ellipsis">
+      13.3. Triển khai &amp; Hạ tầng
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#134-quan-he-voi-cac-service-khac">
+<span class="md-ellipsis">
+      13.4. Quan hệ với các service khác
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#135-phan-tach-nhiem-vu-responsibility-split">
+<span class="md-ellipsis">
+      13.5. Phân tách nhiệm vụ (Responsibility Split)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#136-high-level-diagram">
+<span class="md-ellipsis">
+      13.6. High-level Diagram
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#14-tai-lieu-lien-quan">
+<span class="md-ellipsis">
+      14. 📚 Tài liệu liên quan
+    </span>
+</a>
+<nav aria-label="14. 📚 Tài liệu liên quan" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cac-quyet-inh-kien-truc-adr">
+<span class="md-ellipsis">
+      🔖 Các Quyết định Kiến trúc (ADR)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dich-vu-lien-quan">
+<span class="md-ellipsis">
+      🧩 Dịch vụ liên quan
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#file-trong-token-service">
+<span class="md-ellipsis">
+      📂 File trong Token Service
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="token-service-thiet-ke-kien-truc-chi-tiet">📦 Token Service – Thiết kế Kiến trúc chi tiết<a class="headerlink" href="#token-service-thiet-ke-kien-truc-chi-tiet" title="Permanent link">¶</a></h1>
+<!-- toc -->
+<hr/>
+<h2 id="1-muc-tieu-pham-vi">1. 🎯 Mục tiêu &amp; Phạm vi<a class="headerlink" href="#1-muc-tieu-pham-vi" title="Permanent link">¶</a></h2>
+<h3 id="11-muc-ich">1.1. Mục đích<a class="headerlink" href="#11-muc-ich" title="Permanent link">¶</a></h3>
+<p><code>TokenService</code> được xây dựng để trở thành thành phần chuyên trách quản lý toàn bộ vòng đời của token trong hệ sinh thái DX-VAS, nhằm đảm bảo bảo mật, khả năng mở rộng, tính nhất quán và khả năng introspect token.</p>
+<h3 id="12-chuc-nang-chinh">1.2. Chức năng chính<a class="headerlink" href="#12-chuc-nang-chinh" title="Permanent link">¶</a></h3>
+<ul>
+<li>Sinh JWT token (access + refresh) sau khi xác thực thành công từ <code>auth-service</code>.</li>
+<li>Là nơi kiểm tra và xác minh token (<code>introspect</code>).</li>
+<li>Hỗ trợ thu hồi token (<code>revoke</code>) theo <code>jti</code>.</li>
+<li>Cung cấp metadata chi tiết cho mỗi phiên đăng nhập.</li>
+</ul>
+<h3 id="13-ngoai-pham-vi">1.3. Ngoài phạm vi<a class="headerlink" href="#13-ngoai-pham-vi" title="Permanent link">¶</a></h3>
+<ul>
+<li>Không chịu trách nhiệm xác thực danh tính người dùng (được thực hiện bởi <code>auth-service</code>).</li>
+<li>Không phát hành token dạng OTP, Magic Link.</li>
+</ul>
+<h3 id="14-nguoi-su-dung-chinh">1.4. Người sử dụng chính<a class="headerlink" href="#14-nguoi-su-dung-chinh" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>auth-service/master</code>, <code>auth-service/sub</code></li>
+<li><code>API Gateway</code></li>
+<li>Frontend client (gián tiếp qua introspect/token-info)</li>
+</ul>
+<hr/>
+<h2 id="2-thiet-ke-api">2. 🌐 Thiết kế API<a class="headerlink" href="#2-thiet-ke-api" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Mô tả ngắn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/v1/token</code></td>
+<td>Sinh mới access &amp; refresh token</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/v1/token/refresh</code></td>
+<td>Làm mới access token từ refresh</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/v1/token/introspect</code></td>
+<td>Kiểm tra hợp lệ của JWT</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/v1/token/revoke</code></td>
+<td>Thu hồi token theo jti</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/jwks.json</code></td>
+<td>JWKS public keys cho Gateway</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/v1/token/info</code></td>
+<td>Lấy metadata của access token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>HTTP Status ↔ Error-code matrix</strong></p>
+<table>
+<thead>
+<tr>
+<th>HTTP</th>
+<th>error.code</th>
+<th>Khi nào xảy ra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td><code>common.validation_failed</code></td>
+<td>Body schema sai</td>
+</tr>
+<tr>
+<td>401</td>
+<td><code>auth.invalid_credentials</code></td>
+<td>Refresh token sai</td>
+</tr>
+<tr>
+<td>403</td>
+<td><code>token.revoked</code></td>
+<td>Token bị thu hồi</td>
+</tr>
+<tr>
+<td>409</td>
+<td><code>token.rotation_in_progress</code></td>
+<td>Key đang rollover</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>common.validation_error</code></td>
+<td>JSON hợp lệ nhưng không thoả điều kiện nghiệp vụ</td>
+</tr>
+<tr>
+<td>429</td>
+<td><code>common.rate_limited</code></td>
+<td>Vượt ngưỡng RPS/burst (theo ADR-022)</td>
+</tr>
+<tr>
+<td>500</td>
+<td><code>common.internal_error</code></td>
+<td>Không mong đợi</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Quy ước path versioning</strong><br/>
+Mọi endpoint của Token Service tuân định dạng <strong><code>/v{major}/…</code></strong> – ví dụ<br/>
+<code>/v1/token</code>, <code>/v1/token/refresh</code>. Quy tắc này lấy từ <strong>ADR-009 (API Governance)</strong><br/>
+và <strong>ADR-013 (Path Naming Convention)</strong> để đảm bảo khả năng thay đổi phiên bản mà<br/>
+không phá vỡ client.</p>
+<p><strong>Chi tiết:</strong> <a href="../interface-contract/">Interface Contract</a> &amp; <a href="../openapi.yaml">OpenAPI</a></p>
+</blockquote>
+<hr/>
+<h2 id="3-mo-hinh-du-lieu-chi-tiet">3. 🗃️ Mô hình dữ liệu chi tiết<a class="headerlink" href="#3-mo-hinh-du-lieu-chi-tiet" title="Permanent link">¶</a></h2>
+<p><code>token-service</code> không sử dụng cơ sở dữ liệu quan hệ. Toàn bộ trạng thái xác thực (sessions, revoked tokens, JWKS keys) được lưu trữ dưới dạng Redis Key-Value với TTL phù hợp, để đảm bảo tốc độ và khả năng thu hồi.</p>
+<hr/>
+<h3 id="31-redis-key-structure">3.1. 🧱 Redis Key Structure<a class="headerlink" href="#31-redis-key-structure" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Redis Key</th>
+<th>Kiểu dữ liệu</th>
+<th>TTL</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session:{jti}</code></td>
+<td>Hash/Object</td>
+<td>= <code>access_token.exp</code></td>
+<td>Thông tin phiên xác thực đang hoạt động</td>
+</tr>
+<tr>
+<td><code>revoked:{jti}</code></td>
+<td>Flag (string: <code>"revoked"</code>)</td>
+<td>Tuỳ chỉnh (thường = access_token TTL)</td>
+<td>Dùng để đánh dấu token đã bị thu hồi</td>
+</tr>
+<tr>
+<td><code>jwks</code></td>
+<td>JSON String</td>
+<td>Không TTL</td>
+<td>Danh sách public keys (JWKS) để verify JWT</td>
+</tr>
+<tr>
+<td><code>jwk_kid:&lt;kid&gt;</code></td>
+<td>String</td>
+<td>Tuỳ chọn</td>
+<td>Public key theo từng <code>kid</code>, dùng để rotate key dần dần</td>
+</tr>
+</tbody>
+</table>
+<h4 id="vi-du-session2fd2b01e-83b1-4ff1-96bc-a076d42dc3cc">🔍 Ví dụ: <code>session:2fd2b01e-83b1-4ff1-96bc-a076d42dc3cc</code><a class="headerlink" href="#vi-du-session2fd2b01e-83b1-4ff1-96bc-a076d42dc3cc" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_abc123"</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-primary"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">"login_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otp"</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="nt">"issued_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-10T15:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-10T16:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nt">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"113.23.45.12"</span><span class="p">,</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">    </span><span class="nt">"ua"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0 (Macintosh...)"</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>📌 <strong>Redis được xem là nguồn dữ liệu tạm thời (ephemeral)</strong>. Nếu key bị mất (do TTL hoặc crash), token tương ứng sẽ trở nên không thể introspect hoặc revoke.</p>
+<hr/>
+<h3 id="32-cau-truc-payload-metadata">3.2. 📦 Cấu trúc Payload &amp; Metadata<a class="headerlink" href="#32-cau-truc-payload-metadata" title="Permanent link">¶</a></h3>
+<h4 id="321-tokenissuerequest-payload-gui-en-post-v1token">3.2.1 🔐 TokenIssueRequest – Payload gửi đến POST /v1/token<a class="headerlink" href="#321-tokenissuerequest-payload-gui-en-post-v1token" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>ID người dùng duy nhất trong hệ thống</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>Mã tenant hiện hành</td>
+</tr>
+<tr>
+<td><code>login_method</code></td>
+<td>string (<code>google</code>, <code>otp</code>, <code>local</code>)</td>
+<td>✅</td>
+<td>Phương thức xác thực mà người dùng đã sử dụng</td>
+</tr>
+<tr>
+<td><code>session_metadata</code></td>
+<td>object</td>
+<td>❌</td>
+<td>Dữ liệu phụ trợ bổ sung cho phiên đăng nhập</td>
+</tr>
+<tr>
+<td><code>exp_seconds</code></td>
+<td>integer</td>
+<td>❌</td>
+<td>Thời gian sống của access_token (tính bằng giây)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Field <code>login_method</code> do <code>auth-service</code> xác định. <code>token-service</code> không xác minh giá trị này mà chỉ sử dụng để nhúng vào token hoặc ghi log.</p>
+</blockquote>
+<hr/>
+<h4 id="322-jwt-claims-uoc-sinh-ra">3.2.2 🧾 JWT Claims được sinh ra<a class="headerlink" href="#322-jwt-claims-uoc-sinh-ra" title="Permanent link">¶</a></h4>
+<p>Access token (JWT) sẽ bao gồm các claims sau:</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Kiểu</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sub</code></td>
+<td>string</td>
+<td>Mã người dùng (<code>user_id</code>)</td>
+</tr>
+<tr>
+<td><code>tenant</code></td>
+<td>string</td>
+<td>Mã tenant</td>
+</tr>
+<tr>
+<td><code>login_method</code></td>
+<td>string</td>
+<td>Phương thức xác thực</td>
+</tr>
+<tr>
+<td><code>jti</code></td>
+<td>string</td>
+<td>Mã định danh phiên duy nhất</td>
+</tr>
+<tr>
+<td><code>iat</code></td>
+<td>timestamp</td>
+<td>Thời điểm phát hành</td>
+</tr>
+<tr>
+<td><code>exp</code></td>
+<td>timestamp</td>
+<td>Thời điểm hết hạn</td>
+</tr>
+<tr>
+<td><code>iss</code></td>
+<td>string</td>
+<td><code>"token-service"</code></td>
+</tr>
+<tr>
+<td><code>aud</code></td>
+<td>string</td>
+<td><code>"dx_vas"</code> hoặc tên service sử dụng</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h4 id="323-redis-session-key-session">3.2.3 💾 Redis Session (Key: session:<jti>)<a class="headerlink" href="#323-redis-session-key-session" title="Permanent link">¶</a></jti></h4>
+<p>(Chi tiết đã được mô tả ở <code>3.1</code>, không lặp lại ở đây.)</p>
+<hr/>
+<h4 id="324-audit-log-trace">3.2.4 📝 Audit Log &amp; Trace<a class="headerlink" href="#324-audit-log-trace" title="Permanent link">¶</a></h4>
+<ul>
+<li>Khi phát hành token thành công, <code>token-service</code> gửi event:</li>
+</ul>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auth.token.issued"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="nt">"actor_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc123"</span><span class="p">,</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas-primary"</span><span class="p">,</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="nt">"login_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otp"</span><span class="p">,</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="nt">"exp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-10T16:00:00Z"</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li>
+<p>Trường <code>login_method</code> giúp:</p>
+</li>
+<li>
+<p>Phân tích hành vi login (OTP vs Google)</p>
+</li>
+<li>Ghi nhận tỷ lệ chuyển đổi</li>
+<li>Truy tìm các luồng đăng nhập không hợp lệ</li>
+</ul>
+<hr/>
+<p>📌 <strong>Lưu ý kiến trúc</strong>:</p>
+<ul>
+<li>Mọi trường <code>login_method</code> và <code>metadata</code> đều do <code>auth-service</code> truyền sang.</li>
+<li><code>token-service</code> không thực hiện xác thực, chỉ ghi nhận và phản ánh trạng thái.</li>
+</ul>
+<p>👉 <strong>Chi tiết sơ đồ ERD, định nghĩa bảng và chiến lược kiểm thử dữ liệu được trình bày tại</strong>:<br/>
+📂 <a href="../data-model/">Data Model</a></p>
+<hr/>
+<h2 id="4-luong-xu-ly-nghiep-vu-chinh">4. 🔄 Luồng xử lý nghiệp vụ chính<a class="headerlink" href="#4-luong-xu-ly-nghiep-vu-chinh" title="Permanent link">¶</a></h2>
+<p><code>TokenService</code> là trung tâm phát hành và xác thực token JWT trong toàn bộ hệ thống. Dưới đây là các luồng nghiệp vụ chính:</p>
+<hr/>
+<h3 id="luong-1-sinh-token-sau-ang-nhap-thanh-cong">🔐 Luồng 1: Sinh Token sau đăng nhập thành công<a class="headerlink" href="#luong-1-sinh-token-sau-ang-nhap-thanh-cong" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant AuthService as Auth Service (Sub)
+    participant TokenService
+    participant Redis
+    participant Client
+
+    AuthService-&gt;&gt;TokenService: POST /token (user_id, session_id, scope,…)
+    TokenService-&gt;&gt;TokenService: Sinh access_token + refresh_token (JWT)
+    TokenService-&gt;&gt;Redis: Lưu jti của refresh_token (TTL ~30d)
+    TokenService--&gt;&gt;AuthService: Trả access_token, refresh_token
+    AuthService--&gt;&gt;Client: Trả token cho frontend
+</code></pre>
+<hr/>
+<h3 id="luong-2-lam-moi-access_token-bang-refresh_token">🔁 Luồng 2: Làm mới access_token bằng refresh_token<a class="headerlink" href="#luong-2-lam-moi-access_token-bang-refresh_token" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Client
+    participant AuthService
+    participant TokenService
+    participant Redis
+
+    Client-&gt;&gt;AuthService: Gửi refresh_token
+    AuthService-&gt;&gt;TokenService: POST /token/refresh
+    TokenService-&gt;&gt;Redis: Kiểm tra jti có bị revoke không
+    TokenService-&gt;&gt;TokenService: Giải mã, validate claims
+    TokenService-&gt;&gt;TokenService: Sinh access_token mới
+    TokenService--&gt;&gt;AuthService: Trả token mới
+    AuthService--&gt;&gt;Client: Trả access_token mới
+</code></pre>
+<hr/>
+<h3 id="luong-3-thu-hoi-token-khi-logout">🔒 Luồng 3: Thu hồi token khi logout<a class="headerlink" href="#luong-3-thu-hoi-token-khi-logout" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Client
+    participant AuthService
+    participant TokenService
+    participant Redis
+    participant DB
+
+    Client-&gt;&gt;AuthService: Logout
+    AuthService-&gt;&gt;TokenService: POST /token/revoke (jti, reason)
+    TokenService-&gt;&gt;Redis: Ghi jti vào cache revoked
+    TokenService-&gt;&gt;DB: Ghi jti + reason vào bảng revoked_tokens
+    TokenService--&gt;&gt;AuthService: Ghi nhận thành công
+</code></pre>
+<hr/>
+<h3 id="luong-4-introspect-token-vi-du-tu-api-gateway">🧪 Luồng 4: Introspect token (ví dụ từ API Gateway)<a class="headerlink" href="#luong-4-introspect-token-vi-du-tu-api-gateway" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant APIGateway
+    participant TokenService
+    participant Redis
+
+    APIGateway-&gt;&gt;TokenService: POST /token/introspect
+    TokenService-&gt;&gt;Redis: Kiểm tra jti có bị revoke không
+    TokenService-&gt;&gt;TokenService: Giải mã JWT, kiểm tra exp, scope, session_id
+    TokenService--&gt;&gt;APIGateway: Trả metadata của token
+</code></pre>
+<hr/>
+<h3 id="luong-5-fallback-khi-introspect-token-that-bai">🔁 Luồng 5: Fallback khi introspect token thất bại<a class="headerlink" href="#luong-5-fallback-khi-introspect-token-that-bai" title="Permanent link">¶</a></h3>
+<p>Trong một số trường hợp (ví dụ: API Gateway không verify được token hoặc cache lỗi), có thể fallback sang introspect trực tiếp.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant APIGateway
+    participant TokenService
+    participant Redis
+
+    APIGateway-&gt;&gt;TokenService: POST /token/introspect
+    TokenService-&gt;&gt;Redis: Không truy cập được cache (timeout)
+    TokenService-&gt;&gt;TokenService: Giải mã JWT bằng JWKS
+    TokenService-&gt;&gt;DB: Kiểm tra jti trong bảng revoked_tokens
+    TokenService--&gt;&gt;APIGateway: Trả kết quả introspect
+</code></pre>
+<ul>
+<li>✅ <strong>Fallback logic</strong> đảm bảo hệ thống không bị "fail closed" một cách vô lý.</li>
+<li>Cơ chế <em>caching resilience</em> được khuyến nghị tại [ADR-012] &amp; [ADR-004].</li>
+</ul>
+<hr/>
+<h3 id="luong-6-multi-key-rotation-rs256-hoac-es256">🔑 Luồng 6: Multi-key Rotation (RS256 hoặc ES256)<a class="headerlink" href="#luong-6-multi-key-rotation-rs256-hoac-es256" title="Permanent link">¶</a></h3>
+<p>Để tăng tính bảo mật, <code>TokenService</code> hỗ trợ xoay key định kỳ thông qua <code>kid</code>.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Operator
+    participant TokenService
+    participant Client
+    participant APIGateway
+
+    Operator-&gt;&gt;TokenService: Cập nhật key mới (priv + pub) với kid="key-202506"
+    TokenService-&gt;&gt;JWKS: Cập nhật public key mới
+    Client-&gt;&gt;TokenService: Đăng nhập nhận token (kid = key-202506)
+    TokenService--&gt;&gt;Client: JWT signed bằng key mới
+
+    APIGateway-&gt;&gt;JWKS: Tự động cập nhật keys định kỳ (cache TTL = 1 ngày)
+    APIGateway-&gt;&gt;Client: Verify token theo kid
+</code></pre>
+<p>📌 <em>Lưu ý</em>:</p>
+<ul>
+<li>Public keys được công bố qua <code>/jwks.json</code> và cache bởi các consumer (gateway, frontend, v.v.).</li>
+<li>Khi deploy key mới, cần giữ key cũ thêm một khoảng thời gian (<code>grace period</code>) để đảm bảo token cũ còn hiệu lực vẫn được verify thành công.</li>
+</ul>
+<hr/>
+<p>🎯 Những kịch bản này giúp đảm bảo <code>TokenService</code>:</p>
+<ul>
+<li>Tăng độ sẵn sàng (high availability) với fallback thông minh.</li>
+<li>Dễ mở rộng và bảo mật hơn nhờ hỗ trợ đa key và rotation định kỳ.</li>
+</ul>
+<p>📌 <em>Ghi chú bổ sung</em>:</p>
+<ul>
+<li>Mọi token đều có trường <code>jti</code> duy nhất giúp dễ dàng revoke hoặc introspect.</li>
+<li>Việc lưu <code>jti</code> vào Redis giúp <code>TokenService</code> truy xuất nhanh (O(1)) để kiểm tra revoked token.</li>
+<li>Refresh token <strong>chỉ được cấp 1 lần</strong>. Rotation logic sẽ cập nhật jti mới mỗi lần refresh.</li>
+</ul>
+<hr/>
+<p>Dưới đây là nội dung đã cập nhật <strong>mục <code>## 5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện</code></strong> cho file <code>token-service/design.md</code>, theo yêu cầu mới:</p>
+<ul>
+<li>✅ <strong>PUB/SUB được nâng cấp thành thành phần chính thức</strong>.</li>
+<li>✅ Bổ sung thêm thông điệp chuẩn, mô tả định dạng payload.</li>
+<li>✅ Đảm bảo phù hợp với kiến trúc đa tenant, tuân thủ ADR-008 (Audit Logging), ADR-012 (Response Structure), ADR-018 (Release Policy), ADR-021 (External Observability).</li>
+</ul>
+<hr/>
+<h2 id="5-tuong-tac-voi-cac-service-khac-luong-su-kien">5. 📣 Tương tác với các Service khác &amp; Luồng sự kiện<a class="headerlink" href="#5-tuong-tac-voi-cac-service-khac-luong-su-kien" title="Permanent link">¶</a></h2>
+<p>Token Service không chỉ là thành phần phục vụ Auth Service Sub trong việc cấp phát và xác thực token, mà còn đóng vai trò <strong>cung cấp tín hiệu bảo mật chủ động</strong> qua kênh Pub/Sub để phục vụ auditing, observability, và bảo mật chủ động.</p>
+<hr/>
+<h3 id="51-giao-tiep-chinh-giua-cac-service">5.1. Giao tiếp chính giữa các Service<a class="headerlink" href="#51-giao-tiep-chinh-giua-cac-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Endpoint</th>
+<th>Mục đích</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth-service/sub</code></td>
+<td><code>POST /token</code></td>
+<td>Tạo token mới cho phiên đã xác thực.</td>
+</tr>
+<tr>
+<td><code>auth-service/sub</code></td>
+<td><code>POST /token/refresh</code></td>
+<td>Cấp token mới từ refresh token.</td>
+</tr>
+<tr>
+<td><code>auth-service/sub</code></td>
+<td><code>POST /token/revoke</code></td>
+<td>Thu hồi token theo JTI.</td>
+</tr>
+<tr>
+<td><code>auth-service/sub</code></td>
+<td><code>POST /token/introspect</code></td>
+<td>Xác thực tính hợp lệ của token và trích xuất metadata.</td>
+</tr>
+<tr>
+<td><code>api-gateway</code></td>
+<td><code>GET /.well-known/jwks.json</code></td>
+<td>Lấy public key để xác minh chữ ký token JWT.</td>
+</tr>
+<tr>
+<td><code>audit-logging-service</code></td>
+<td><code>Pub/Sub subscriber</code></td>
+<td>Ghi log các sự kiện liên quan đến token (revoked, issued).</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="52-giao-tiep-voi-he-thong-pubsub">5.2. Giao tiếp với hệ thống Pub/Sub<a class="headerlink" href="#52-giao-tiep-voi-he-thong-pubsub" title="Permanent link">¶</a></h3>
+<p>Token Service <strong>bắt buộc phát hành các sự kiện chuẩn lên Pub/Sub</strong> để các thành phần như Audit Logging, Security Analytics, hoặc các hệ thống Realtime Alert có thể xử lý tiếp.</p>
+<table>
+<thead>
+<tr>
+<th>Event Name</th>
+<th>Trigger</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token.issued.v1</code></td>
+<td>Khi cấp token mới</td>
+<td>Thông tin metadata của access token và session</td>
+</tr>
+<tr>
+<td><code>token.revoked.v1</code></td>
+<td>Khi một token bị thu hồi</td>
+<td>Truy dấu sự kiện bảo mật</td>
+</tr>
+<tr>
+<td><code>token.introspect_fail.v1</code></td>
+<td>Khi kiểm tra token thất bại</td>
+<td>Phát hiện token giả mạo hoặc sai lệch cấu trúc</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cau-truc-payload-mau-tokenrevoked">🔶 Cấu trúc payload mẫu <code>token.revoked</code><a class="headerlink" href="#cau-truc-payload-mau-tokenrevoked" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.revoked.v1"</span><span class="p">,</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-07T12:34:56Z"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas001"</span><span class="p">,</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-123"</span><span class="p">,</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">  </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc123-token-id"</span><span class="p">,</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">  </span><span class="nt">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sess-xyz"</span><span class="p">,</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">  </span><span class="nt">"revoked_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span><span class="p">,</span><span class="w">  </span><span class="c1">// hoặc "user"</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">  </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"logout"</span><span class="p">,</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"203.0.113.42"</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="cau-truc-payload-mau-tokenissued">🔷 Cấu trúc payload mẫu <code>token.issued</code><a class="headerlink" href="#cau-truc-payload-mau-tokenissued" title="Permanent link">¶</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.issued.v1"</span><span class="p">,</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-07T12:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vas001"</span><span class="p">,</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-123"</span><span class="p">,</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">  </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xyz-token-001"</span><span class="p">,</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">  </span><span class="nt">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sess-abc-789"</span><span class="p">,</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.1.5"</span><span class="p">,</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">  </span><span class="nt">"device"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="nt">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0"</span><span class="p">,</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="nt">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0.3"</span>
+</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="53-kien-truc-trien-khai-pubsub">5.3. Kiến trúc triển khai Pub/Sub<a class="headerlink" href="#53-kien-truc-trien-khai-pubsub" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>graph TD
+  A[TokenService] -- issue/revoke --&gt; B[Pub/Sub: token.*]
+  B --&gt; C[AuditLogging Service]
+  B --&gt; D[Security Alerting]
+  B --&gt; E[Real-time Dashboard]
+</code></pre>
+<ul>
+<li><strong>Đảm bảo tiêu chuẩn schema sự kiện:</strong> tuân theo <code>adr-030-event-schema-governance.md</code></li>
+<li><strong>Dễ dàng tích hợp mở rộng:</strong> các adapter mới (EDR, SIEM, ML Threat Detection) có thể dễ dàng subscribe.</li>
+</ul>
+<hr/>
+<h3 id="54-luu-vet-trong-audit-logs">5.4. Lưu vết trong Audit Logs<a class="headerlink" href="#54-luu-vet-trong-audit-logs" title="Permanent link">¶</a></h3>
+<p>Ngoài việc phát Pub/Sub, Token Service <strong>cũng sẽ gửi bản sao log nội bộ đến <code>audit-logging-service</code></strong> qua cơ chế chuẩn của toàn hệ thống.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Service Consumer</th>
+<th>Audit Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token Issued</td>
+<td><code>auth-service/sub</code></td>
+<td><code>audit-logging-service</code></td>
+</tr>
+<tr>
+<td>Token Revoked</td>
+<td><code>auth-service/sub</code></td>
+<td><code>audit-logging-service</code></td>
+</tr>
+<tr>
+<td>Token Introspect</td>
+<td><code>api-gateway</code> hoặc <code>admin</code></td>
+<td><code>audit-logging-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p>✅ <strong>Tóm lại:</strong></p>
+<ul>
+<li>Token Service <strong>bắt buộc phát hành sự kiện lên Pub/Sub</strong> với schema chuẩn.</li>
+<li>
+<p>Mọi sự kiện có thể dùng để:</p>
+</li>
+<li>
+<p>Theo dõi tình trạng bảo mật theo thời gian thực.</p>
+</li>
+<li>Audit hành vi đăng nhập/đăng xuất.</li>
+<li>Phát hiện tấn công brute-force hoặc replay.</li>
+<li>Hiển thị trạng thái phiên hoạt động trên frontend của user.</li>
+</ul>
+<hr/>
+<h2 id="6-bao-mat-phan-quyen">6. 🔐 Bảo mật &amp; Phân quyền<a class="headerlink" href="#6-bao-mat-phan-quyen" title="Permanent link">¶</a></h2>
+<p>TokenService là tuyến phòng thủ đầu tiên và đóng vai trò trung tâm trong cơ chế xác thực, do đó các chính sách bảo mật được áp dụng cực kỳ nghiêm ngặt, bao gồm:</p>
+<hr/>
+<h3 id="61-co-che-bao-ve-endpoint">6.1. Cơ chế bảo vệ endpoint<a class="headerlink" href="#61-co-che-bao-ve-endpoint" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Cơ chế bảo vệ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /v1/token</code></td>
+<td>Yêu cầu chứng thực thành công từ <code>auth-service/sub</code></td>
+</tr>
+<tr>
+<td><code>POST /v1/token/refresh</code></td>
+<td>Kiểm tra refresh token hợp lệ, không bị thu hồi</td>
+</tr>
+<tr>
+<td><code>POST /v1/token/revoke</code></td>
+<td>Xác thực token hoặc JTI; kiểm tra session ownership</td>
+</tr>
+<tr>
+<td><code>POST /v1/token/introspect</code></td>
+<td>Yêu cầu xác thực và phân quyền (dành cho nội bộ)</td>
+</tr>
+<tr>
+<td><code>GET /.well-known/jwks.json</code></td>
+<td>Public, tuy nhiên được kiểm soát cache và audit</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="62-kiem-tra-phong-chong-lam-dung-token">6.2. Kiểm tra &amp; phòng chống lạm dụng token<a class="headerlink" href="#62-kiem-tra-phong-chong-lam-dung-token" title="Permanent link">¶</a></h3>
+<ul>
+<li>✅ <strong>Replay Protection</strong>:</li>
+<li>Mỗi token có một <code>jti</code> (JWT ID) duy nhất, được lưu vào Redis khi bị revoke.</li>
+<li>
+<p>Luồng kiểm tra sẽ đối chiếu <code>jti</code> với danh sách đã thu hồi (blacklist).</p>
+</li>
+<li>
+<p>✅ <strong>Token Rotation Policy</strong>:</p>
+</li>
+<li>Refresh token có thể bị thu hồi sau mỗi lần sử dụng (token rotation).</li>
+<li>
+<p>Hạn chế các cuộc tấn công khi refresh token bị rò rỉ.</p>
+</li>
+<li>
+<p>✅ <strong>Signature Verification</strong>:</p>
+</li>
+<li>Sử dụng thuật toán <code>RS256</code> với public/private key khác nhau cho từng môi trường.</li>
+<li>
+<p>Endpoint <code>/jwks.json</code> luôn cung cấp <code>kid</code> hợp lệ, tuân theo cache policy ngắn.</p>
+</li>
+<li>
+<p>✅ <strong>Xác thực ứng dụng nội bộ</strong>:</p>
+</li>
+<li>Endpoint <code>introspect</code> được thiết kế chỉ cho <strong>service nội bộ</strong>, yêu cầu mTLS hoặc API key giới hạn IP.</li>
+</ul>
+<hr/>
+<h3 id="63-phan-quyen-theo-hanh-vi-rbac">6.3. Phân quyền theo hành vi (RBAC)<a class="headerlink" href="#63-phan-quyen-theo-hanh-vi-rbac" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hành vi</th>
+<th>Yêu cầu permission (gợi ý)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thu hồi token (admin)</td>
+<td><code>token.revoke.any</code></td>
+</tr>
+<tr>
+<td>Thu hồi token (user tự làm)</td>
+<td><code>token.revoke.self</code></td>
+</tr>
+<tr>
+<td>Introspect token (gateway)</td>
+<td><code>token.introspect</code></td>
+</tr>
+<tr>
+<td>Xoay khóa JWKS</td>
+<td><code>token.key.rotate</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Sử dụng <code>x-required-permission</code> trong OpenAPI để thể hiện rõ yêu cầu permission cho mỗi operation.</p>
+</blockquote>
+<hr/>
+<h3 id="64-gioi-han-kiem-soat-hanh-vi">6.4. Giới hạn &amp; kiểm soát hành vi<a class="headerlink" href="#64-gioi-han-kiem-soat-hanh-vi" title="Permanent link">¶</a></h3>
+<ul>
+<li>🔐 <strong>Rate Limiting</strong>:</li>
+<li>Giới hạn số lần gọi <code>/token</code> và <code>/refresh</code> trên mỗi IP hoặc user ID.</li>
+<li>
+<p>Tích hợp Cloud Armor hoặc reCAPTCHA ở lớp frontend nếu vượt ngưỡng.</p>
+</li>
+<li>
+<p>🔍 <strong>Audit đầy đủ</strong>:</p>
+</li>
+<li>
+<p>Mỗi hành vi tạo, revoke, introspect token đều được ghi vào <code>audit-logging-service</code>.</p>
+</li>
+<li>
+<p>🧯 <strong>Tự động hóa phản ứng bảo mật</strong>:</p>
+</li>
+<li>Nếu có nhiều <code>token.introspect.fail</code> trong thời gian ngắn từ một IP → kích hoạt cảnh báo hoặc chặn IP tạm thời.</li>
+</ul>
+<hr/>
+<h3 id="65-bao-ve-cau-hinh-khoa-bi-mat-theo-adr-003-secrets-management">6.5 Bảo vệ cấu hình &amp; khóa bí mật  <em>(theo ADR-003 – Secrets Management)</em><a class="headerlink" href="#65-bao-ve-cau-hinh-khoa-bi-mat-theo-adr-003-secrets-management" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Cơ chế</th>
+<th>Chi tiết</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RSA private key</strong></td>
+<td><strong>GCP Secret Manager – versioned</strong></td>
+<td>• Lưu mỗi key dưới <code>projects/&lt;proj&gt;/secrets/jwt_key/versions/*</code>.<br/>• Alias <strong><code>active</code></strong> ↔ version đang dùng; alias <strong><code>next</code></strong> ↔ version mới sinh ra.</td>
+</tr>
+<tr>
+<td><strong>Xoay khóa (rotation job <code>rotate_key</code>)</strong></td>
+<td>IaC · Cloud Build</td>
+<td>1. Sinh version mới, gán alias <code>next</code>.<br/>2. Cập nhật <code>kid</code> &amp; redeploy <strong>TokenSvc</strong> (song song 2 key).<br/>3. <strong>Grace-period 24 h</strong> cho client refresh JWT.<br/>4. Chuyển alias <code>active</code> → version mới, xóa version cũ.</td>
+</tr>
+<tr>
+<td><strong>IAM &amp; Workload Identity</strong></td>
+<td>Principle of least privilege</td>
+<td><code>svc-token-signer@dx-vas-core.iam.gserviceaccount.com</code> chỉ có <code>roles/secretmanager.secretAccessor</code>.</td>
+</tr>
+<tr>
+<td><strong>Audit &amp; Event</strong></td>
+<td>Immutable log + Pub/Sub</td>
+<td>• Ghi bản ghi <code>audit_log.key_rotation</code> (schema v1: <code>who</code>, <code>when</code>, <code>reason</code>, <code>old_kid</code>, <code>new_kid</code>).<br/>• Phát sự kiện <strong><code>key.rotated.v1</code></strong> lên topic <code>security.v1</code>.</td>
+</tr>
+<tr>
+<td><strong>Env-Config bí mật khác</strong></td>
+<td>Secret Manager + ADR-005 mapping</td>
+<td>Biến env tuân format <code>SERVICE__SECTION__KEY</code>, ví dụ:<br/><code>TOKEN_SERVICE__RUNTIME__REDIS_URI</code>, <code>TOKEN_SERVICE__SECRET__KMS_KEY_ID</code>.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Lưu ý vận hành</strong><br>
+• Nếu JWKS fetch lỗi &gt; 3 lần / 5 phút, API Gateway <strong>fail-closed</strong> tất cả request.<br>
+• Rotation job chạy <strong>90 ngày/lần</strong> (theo SLA Security), có thể trigger khẩn cấp qua <code>POST /admin/rotate-key</code> (RBAC <code>security.rotate_key</code>).<br>
+• Thông tin key <strong>không bao giờ</strong> ghi vào log thông thường; chỉ lưu HASH đầu mẩu để đối chiếu.</br></br></br></p>
+</blockquote>
+<hr/>
+<h3 id="66-test-kiem-chung-bao-mat">6.6. Test &amp; kiểm chứng bảo mật<a class="headerlink" href="#66-test-kiem-chung-bao-mat" title="Permanent link">¶</a></h3>
+<ul>
+<li>✅ Các test bắt buộc:</li>
+<li>Token tampering (sửa payload)</li>
+<li>Replay token cũ</li>
+<li>Expired token</li>
+<li>Invalid signature</li>
+<li>✅ Áp dụng tool như <code>jwt.io debugger</code>, <code>burpsuite</code>, và <code>OWASP ZAP</code> để kiểm thử định kỳ.</li>
+</ul>
+<hr/>
+<h2 id="7-cau-hinh-phu-thuoc">7. ⚙️ Cấu hình &amp; Phụ thuộc<a class="headerlink" href="#7-cau-hinh-phu-thuoc" title="Permanent link">¶</a></h2>
+<p>Token Service yêu cầu một số cấu hình động (qua <code>.env</code>) và phụ thuộc vào các dịch vụ hạ tầng cụ thể để vận hành ổn định, bảo mật và có khả năng mở rộng.</p>
+<hr/>
+<h3 id="71-bien-moi-truong-quan-trong-env">7.1. Biến môi trường quan trọng (<code>.env</code>)<a class="headerlink" href="#71-bien-moi-truong-quan-trong-env" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Biến</th>
+<th>Mô tả</th>
+<th>Bắt buộc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENVIRONMENT</code></td>
+<td><code>local</code>, <code>staging</code>, <code>production</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td>Cổng chạy service</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>TOKEN_SERVICE__SECRET__JWT_KEY_PATH</code></td>
+<td>Đường dẫn tới private key để ký JWT (PEM)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>JWT_PUBLIC_KEY_PATH</code></td>
+<td>Đường dẫn tới public key phục vụ <code>/jwks.json</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>JWT_EXP_SECONDS</code></td>
+<td>Thời gian sống của access token (giây), ví dụ <code>900</code> (15 phút)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>JWT_REFRESH_EXP_SECONDS</code></td>
+<td>TTL của refresh token (giây), ví dụ <code>604800</code> (7 ngày)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>JWT_ISSUER</code></td>
+<td>Issuer của token (<code>vas.dx-auth</code>)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>TOKEN_SERVICE__RUNTIME__REDIS_URI</code></td>
+<td>Kết nối Redis để lưu revoked tokens và introspect cache</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>DB_URL</code></td>
+<td>Kết nối PostgreSQL (nếu ghi lại key rotation hoặc log)</td>
+<td>⛔️ (Optional)</td>
+</tr>
+<tr>
+<td><code>PUBSUB_TOPIC_ISSUED</code></td>
+<td>Tên topic Pub/Sub phát sự kiện <code>token.issued</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>PUBSUB_TOPIC_REVOKED</code></td>
+<td>Tên topic Pub/Sub phát sự kiện <code>token.revoked</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>JWKS_ROTATION_CRON</code></td>
+<td>Lịch quay vòng key (CRON format), ví dụ <code>"0 0 * * *"</code></td>
+<td>⛔️ (Optional)</td>
+</tr>
+<tr>
+<td><code>CACHE_CONTROL_HEADER</code></td>
+<td>TTL cho header <code>/jwks.json</code>, ví dụ <code>public, max-age=300</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>TOKEN_SERVICE__SECRET__JWT_KEY_ID</td>
+<td>Secret Manager <strong>resource ID</strong> của RSA private key (<code>projects/…/secrets/jwt_key/versions/active</code>)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>KMS_KEY_ID</td>
+<td>ID Cloud KMS key (nếu dùng ký qua KMS)</td>
+<td>⛔️ (Optional)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="env-config-mapping-adr-005">Env-Config mapping (ADR-005)<a class="headerlink" href="#env-config-mapping-adr-005" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>ENV var</th>
+<th>Config-Center key</th>
+<th>Sample value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TOKEN_SERVICE__RUNTIME__REDIS_URI</code></td>
+<td><code>token-service/runtime/redis_uri</code></td>
+<td><code>redis://redis:6379/0</code></td>
+</tr>
+<tr>
+<td><code>KMS_KEY_ID</code></td>
+<td><code>token-service/secret/kms_key_id</code></td>
+<td><code>projects/…/cryptoKeys/jwt-key</code></td>
+</tr>
+<tr>
+<td><code>TOKEN_SERVICE__SECRET__JWT_KEY_ID</code></td>
+<td><code>token-service/secret/jwt_key_id</code></td>
+<td><code>projects/…/secrets/jwt_key/versions/active</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>📘 <strong>Lưu ý</strong>: File <code>.env.example</code> phải luôn đồng bộ với tất cả các biến môi trường.</p>
+</blockquote>
+<hr/>
+<h3 id="72-phu-thuoc-dich-vu-external-dependencies">7.2. Phụ thuộc dịch vụ (External Dependencies)<a class="headerlink" href="#72-phu-thuoc-dich-vu-external-dependencies" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Mục đích sử dụng</th>
+<th>Phương án backup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redis</strong></td>
+<td>Lưu revoked tokens (JTI blacklist), cache introspect</td>
+<td>Redis Sentinel hoặc GCP Memorystore</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>Lưu thông tin audit key rotation, request logs</td>
+<td>GCP Cloud SQL + Automated Backups</td>
+</tr>
+<tr>
+<td><strong>Pub/Sub (GCP)</strong></td>
+<td>Phát thông điệp <code>token.*</code> để các service khác subscribe</td>
+<td>Dead Letter Topics + retry</td>
+</tr>
+<tr>
+<td><strong>Audit Logging Service</strong></td>
+<td>Nhận log sự kiện <code>token.issued</code>, <code>token.revoked</code></td>
+<td>Fallback lưu local nếu lỗi</td>
+</tr>
+<tr>
+<td><strong>Auth Service Sub</strong></td>
+<td>Giao tiếp 2 chiều khi xác thực phiên</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="73-khoa-bi-mat-va-private-keys">7.3. Khóa bí mật và private keys<a class="headerlink" href="#73-khoa-bi-mat-va-private-keys" title="Permanent link">¶</a></h3>
+<ul>
+<li>Toàn bộ private keys được lưu tại:</li>
+<li><code>GCP Secret Manager</code> (Production)</li>
+<li><code>.secrets/</code> folder mã hóa (Local)</li>
+<li>Private key versioning có định danh <code>kid</code>, gắn vào JWT header.</li>
+</ul>
+<blockquote>
+<p>🔐 Quy trình quay vòng key tuân theo ADR-006: <strong>tạo bản mới</strong>, cập nhật JWKS, giữ song song trong <code>grace_period</code>.</p>
+</blockquote>
+<hr/>
+<h3 id="74-cau-hinh-cache-introspection">7.4. Cấu hình cache &amp; introspection<a class="headerlink" href="#74-cau-hinh-cache-introspection" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Introspect Cache</strong>:</li>
+<li>Redis lưu kết quả introspect (valid, expired, revoked).</li>
+<li>
+<p>TTL khuyến nghị: 5 phút.</p>
+</li>
+<li>
+<p><strong>JWKS Endpoint Cache</strong>:</p>
+</li>
+<li>Header HTTP: <code>Cache-Control: public, max-age=300</code></li>
+<li>Frontend/API Gateway cần tôn trọng TTL này.</li>
+</ul>
+<hr/>
+<h3 id="75-cau-hinh-quan-sat-alert">7.5. Cấu hình quan sát &amp; alert<a class="headerlink" href="#75-cau-hinh-quan-sat-alert" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Loại cảnh báo</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Số lượng <code>token.revoked</code> tăng đột biến</td>
+<td>Có thể do brute-force hoặc lỗi session</td>
+</tr>
+<tr>
+<td>Số lần introspect thất bại</td>
+<td>Có thể do token sai, giả mạo, hoặc lỗi system</td>
+</tr>
+<tr>
+<td>Thiếu khóa JWKS hợp lệ</td>
+<td>Gây lỗi verify token từ phía client</td>
+</tr>
+<tr>
+<td>Lỗi không gửi được sự kiện Pub/Sub</td>
+<td>Nguy cơ mất tín hiệu bảo mật cho downstream system</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<pre class="mermaid"><code>graph TD
+  A(Token Service)
+  A --&gt;|Redis URL| B[Redis]
+  A --&gt;|DB_URL| C[PostgreSQL]
+  A --&gt;|Pub/Sub Topic| D[Audit Logging Service]
+  A --&gt;|JWKS| E[API Gateway]
+</code></pre>
+<hr/>
+<h2 id="8-chien-luoc-kiem-thu">8. 🧪 Chiến lược kiểm thử<a class="headerlink" href="#8-chien-luoc-kiem-thu" title="Permanent link">¶</a></h2>
+<p>Token Service đảm nhiệm vai trò bảo mật quan trọng, do đó kiểm thử không chỉ là một bước trong phát triển, mà là một yêu cầu <strong>bắt buộc</strong> để đảm bảo tính đúng đắn, an toàn và khả năng mở rộng.</p>
+<hr/>
+<h3 id="81-unit-test-kiem-thu-on-vi">8.1. Unit Test (Kiểm thử đơn vị)<a class="headerlink" href="#81-unit-test-kiem-thu-on-vi" title="Permanent link">¶</a></h3>
+<p>✅ Bắt buộc đạt ≥ 90% coverage trên các module logic chính:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Phạm vi kiểm thử</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TokenIssuer</code></td>
+<td>- Sinh JWT đúng cấu hình<br/>- Gắn đúng claims, kid</td>
+</tr>
+<tr>
+<td><code>TokenValidator</code></td>
+<td>- Kiểm tra token hợp lệ, sai chữ ký, hết hạn</td>
+</tr>
+<tr>
+<td><code>RefreshHandler</code></td>
+<td>- Luồng cấp mới token từ refresh token, kiểm tra TTL</td>
+</tr>
+<tr>
+<td><code>RevocationRegistry</code></td>
+<td>- Ghi nhận token bị thu hồi, kiểm tra JTI</td>
+</tr>
+<tr>
+<td><code>JWKSProvider</code></td>
+<td>- Trả về danh sách public key hợp lệ</td>
+</tr>
+<tr>
+<td><code>KeyRotationJob</code></td>
+<td>- Sinh key mới, cập nhật JWKS, kiểm tra TTL/grace period</td>
+</tr>
+</tbody>
+</table>
+<p>Test tools:
+- Python: <code>pytest</code>, <code>pytest-cov</code>, <code>freezegun</code>
+- Node.js: <code>jest</code>, <code>supertest</code></p>
+<hr/>
+<h3 id="82-integration-test-kiem-thu-tich-hop">8.2. Integration Test (Kiểm thử tích hợp)<a class="headerlink" href="#82-integration-test-kiem-thu-tich-hop" title="Permanent link">¶</a></h3>
+<p>✅ Mô phỏng hành vi giữa các thành phần:</p>
+<table>
+<thead>
+<tr>
+<th>Kịch bản kiểm thử</th>
+<th>Mục tiêu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Đăng nhập và lấy JWT</td>
+<td>Check claims, expiry</td>
+</tr>
+<tr>
+<td>Refresh token còn hạn → sinh access token mới</td>
+<td>TTL, valid session</td>
+</tr>
+<tr>
+<td>Refresh token hết hạn → bị từ chối</td>
+<td>401 Unauthorized</td>
+</tr>
+<tr>
+<td>Thu hồi token → introspect thất bại</td>
+<td>Đảm bảo revoked có hiệu lực</td>
+</tr>
+<tr>
+<td><code>.well-known/jwks.json</code> → luôn trả đúng keys</td>
+<td>Verify key rotation</td>
+</tr>
+<tr>
+<td>Các service khác introspect token</td>
+<td>Simulate API Gateway/RBAC</td>
+</tr>
+<tr>
+<td>Audit log được gửi tới <code>audit-logging-service</code> đúng định dạng</td>
+<td>Quan sát hệ thống</td>
+</tr>
+</tbody>
+</table>
+<p>Test tools:
+- Docker Compose: khởi động full-stack mock (Redis, PostgreSQL)
+- Kịch bản Postman/Newman/Playwright API</p>
+<hr/>
+<h3 id="83-contract-test-openapi-based">8.3. Contract Test (OpenAPI-based)<a class="headerlink" href="#83-contract-test-openapi-based" title="Permanent link">¶</a></h3>
+<p>✅ Áp dụng <code>ADR-010</code> và <code>adr-012-response-structure.md</code></p>
+<ul>
+<li>Sử dụng <code>openapi.yaml</code> để:</li>
+<li>Kiểm tra mọi response phải đúng schema</li>
+<li>Đảm bảo <code>ErrorEnvelope</code>, <code>ResponseMeta</code>, headers như <code>X-Request-ID</code> luôn có mặt</li>
+<li>Tools đề xuất:</li>
+<li><code>schemathesis</code>, <code>dredd</code>, <code>openapi-tester</code>, <code>resolv</code></li>
+</ul>
+<hr/>
+<h3 id="84-security-negative-test">8.4. Security &amp; Negative Test<a class="headerlink" href="#84-security-negative-test" title="Permanent link">¶</a></h3>
+<p>✅ Phải có các test cho:</p>
+<table>
+<thead>
+<tr>
+<th>Tình huống bất thường</th>
+<th>Kết quả kỳ vọng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token bị sửa payload</td>
+<td>401 Unauthorized</td>
+</tr>
+<tr>
+<td>Token sai chữ ký</td>
+<td>401</td>
+</tr>
+<tr>
+<td>Token hết hạn</td>
+<td>401</td>
+</tr>
+<tr>
+<td>Token bị revoke nhưng vẫn introspect</td>
+<td>403 hoặc 401</td>
+</tr>
+<tr>
+<td>Replay refresh token</td>
+<td>403</td>
+</tr>
+<tr>
+<td>JTI bị block → không chấp nhận nữa</td>
+<td>403</td>
+</tr>
+</tbody>
+</table>
+<p>Tool gợi ý:
+- <code>OWASP ZAP</code> (quét API)
+- <code>jwt.io</code> debugger
+- Custom script test với nhiều loại token giả mạo</p>
+<hr/>
+<h3 id="85-performance-test-optional">8.5. Performance Test (Optional)<a class="headerlink" href="#85-performance-test-optional" title="Permanent link">¶</a></h3>
+<p>✅ Đề xuất nếu triển khai production:</p>
+<ul>
+<li><strong>Kịch bản</strong>:</li>
+<li>Sinh 10,000 token trong vòng 1 phút → đảm bảo &lt; 50ms/token</li>
+<li>1000 lượt introspect/s (qua Redis cache)</li>
+<li>Đánh giá khả năng phục vụ JWKS từ CDN / API Gateway</li>
+</ul>
+<hr/>
+<h3 id="86-cicd-integration">8.6. CI/CD Integration<a class="headerlink" href="#86-cicd-integration" title="Permanent link">¶</a></h3>
+<ul>
+<li>Test được tích hợp vào pipeline GitHub Actions/GitLab CI:</li>
+<li>✅ <code>pre-commit</code>: format + lint</li>
+<li>✅ <code>pytest/jest</code> unit + integration</li>
+<li>✅ <code>contract-test</code> (dựa trên OpenAPI)</li>
+<li>✅ <code>security scan</code>: dùng <code>bandit</code>, <code>semgrep</code>, <code>npm audit</code></li>
+</ul>
+<hr/>
+<h3 id="87-tu-ong-sinh-test-tu-openapi">8.7. Tự động sinh test từ OpenAPI<a class="headerlink" href="#87-tu-ong-sinh-test-tu-openapi" title="Permanent link">¶</a></h3>
+<ul>
+<li>Có thể dùng:</li>
+<li><code>schemathesis</code> để tự sinh các request bất thường từ spec</li>
+<li><code>openapi-enforcer</code> + <code>chai</code> (Node.js)</li>
+<li>Kết hợp với <code>Postman</code> để xác thực <code>examples</code> trong <code>openapi.yaml</code></li>
+</ul>
+<hr/>
+<blockquote>
+<p>📌 Tất cả các test đều được tổ chức theo tree <code>tests/unit</code>, <code>tests/integration</code>, <code>tests/security</code> và chạy tự động trong CI trước khi PR được merge.</p>
+</blockquote>
+<hr/>
+<p>Dưới đây là nội dung <strong>chi tiết và đầy đủ cho mục <code>## 9. 📈 Quan sát &amp; Giám sát</code></strong> của <code>token-service/design.md</code>, tuân thủ chuẩn 5★ observability và các ADR liên quan (đặc biệt là <code>adr-004-security</code>, <code>adr-008-audit-logging</code>, <code>adr-022-sla-slo-monitoring</code>):</p>
+<hr/>
+<h2 id="9-quan-sat-giam-sat">9. 📈 Quan sát &amp; Giám sát<a class="headerlink" href="#9-quan-sat-giam-sat" title="Permanent link">¶</a></h2>
+<p>Token Service đóng vai trò trung tâm trong xác thực &amp; bảo mật của hệ thống DX-VAS. Do đó, cần được quan sát kỹ lưỡng về mặt:
+- <strong>Sức khỏe (health)</strong>
+- <strong>Tính khả dụng (availability)</strong>
+- <strong>Tấn công &amp; hành vi bất thường</strong></p>
+<hr/>
+<h3 id="91-logging">9.1. Logging<a class="headerlink" href="#91-logging" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Chuẩn định dạng</strong>: theo <code>adr-012-response-structure.md</code></li>
+<li><strong>Mọi request phải có <code>X-Request-ID</code></strong>, log theo trace-id</li>
+<li><strong>Log security-critical</strong>:</li>
+<li>Token được phát hành</li>
+<li>Token bị thu hồi</li>
+<li>Lỗi xác thực (token hết hạn, sai chữ ký, giả mạo)</li>
+<li>Log được gửi về:</li>
+<li><code>stdout</code> (local/dev)</li>
+<li>Google Cloud Logging (production)</li>
+</ul>
+<p><strong>Ví dụ log JSON:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-07T09:42:00Z"</span><span class="p">,</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="nt">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INFO"</span><span class="p">,</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">  </span><span class="nt">"trace_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b83f3f98-2d2f-4110-a7f2-b7d7dfc9f3c2"</span><span class="p">,</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token issued"</span><span class="p">,</span>
+</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_123"</span><span class="p">,</span>
+</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">  </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc123"</span><span class="p">,</span>
+</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123.45.67.89"</span>
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<hr/>
+<h3 id="92-metrics-prometheus">9.2. Metrics (Prometheus)<a class="headerlink" href="#92-metrics-prometheus" title="Permanent link">¶</a></h3>
+<h4 id="a-metrics-chinh">a. Metrics chính<a class="headerlink" href="#a-metrics-chinh" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Tên Metric</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token_issued_total</code></td>
+<td>Tổng số token được phát hành</td>
+</tr>
+<tr>
+<td><code>token_revoked_total</code></td>
+<td>Tổng số token bị thu hồi</td>
+</tr>
+<tr>
+<td><code>token_verify_failed_total</code></td>
+<td>Token invalid (hết hạn, sai chữ ký...)</td>
+</tr>
+<tr>
+<td><code>jwks_rotation_count</code></td>
+<td>Số lần quay vòng JWKS</td>
+</tr>
+<tr>
+<td><code>jwks_cache_hit_ratio</code></td>
+<td>Phần trăm JWKS truy xuất từ cache (1-H)*</td>
+</tr>
+<tr>
+<td><code>token_request_duration_seconds</code></td>
+<td>Histogram thời gian xử lý 1 request</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><code>jwks_cache_hit_ratio = hits / (hits + miss)</code> – Mục tiêu ≥ 98 %, cảnh báo nếu &lt; 90 % 10′.</p>
+</blockquote>
+<h4 id="b-vi-du-bieu-o-tren-grafana">b. Ví dụ biểu đồ trên Grafana<a class="headerlink" href="#b-vi-du-bieu-o-tren-grafana" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Dashboard: Token Service Overview</strong></p>
+</li>
+<li>
+<p>Panel 1: <code>token_issued_total</code> theo tenant</p>
+</li>
+<li>Panel 2: Thời gian xử lý trung bình <code>/token</code> trong 5 phút</li>
+<li>Panel 3: Error rate từ <code>token_verify_failed_total</code></li>
+<li>Panel 4: Tỉ lệ revoked tokens bị truy cập lại (attack detection)</li>
+</ul>
+<hr/>
+<h3 id="93-tracing">9.3. Tracing<a class="headerlink" href="#93-tracing" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Tích hợp với OpenTelemetry</strong>:</p>
+</li>
+<li>
+<p><code>api-gateway</code> → <code>auth-service/sub</code> → <code>token-service</code></p>
+</li>
+<li>Mỗi request được gắn trace-id</li>
+<li>Có thể xem flow call token issuance, introspection</li>
+<li>Hỗ trợ GCP Trace hoặc Jaeger (trong dev)</li>
+</ul>
+<hr/>
+<h3 id="94-alerting-slo-monitoring">9.4. Alerting &amp; SLO Monitoring<a class="headerlink" href="#94-alerting-slo-monitoring" title="Permanent link">¶</a></h3>
+<p>Tuân thủ theo <code>adr-022-sla-slo-monitoring.md</code></p>
+<h4 id="a-canh-bao-khan-cap">a. Cảnh báo khẩn cấp<a class="headerlink" href="#a-canh-bao-khan-cap" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Điều kiện</th>
+<th>Mức độ</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token_verify_failed_total &gt; 50</code>/5 phút</td>
+<td>⚠️ Warning</td>
+<td>Kiểm tra tấn công token giả mạo</td>
+</tr>
+<tr>
+<td>Không có <code>jwks_rotation_count</code> &gt; 24h</td>
+<td>🔥 Critical</td>
+<td>Có thể gây verify failure toàn hệ thống</td>
+</tr>
+<tr>
+<td><code>token_issued_total</code> giảm bất thường</td>
+<td>⚠️ Warning</td>
+<td>Kiểm tra luồng login hoặc refresh</td>
+</tr>
+<tr>
+<td><code>jwks_cache_hit_ratio</code> &lt; 0.90 trong 10′</td>
+<td>🔥 Critical</td>
+<td>Kiểm tra Redis cache, JWKS endpoint; nếu Redis down → chuyển chế độ <code>introspect</code> tạm</td>
+</tr>
+</tbody>
+</table>
+<h4 id="b-service-level-objectives-slo">b. Service-Level Objectives (SLO)<a class="headerlink" href="#b-service-level-objectives-slo" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Mục tiêu</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uptime <code>/token</code>, <code>/jwks.json</code></td>
+<td>≥ 99.95%</td>
+</tr>
+<tr>
+<td>Token issuance latency (p95)</td>
+<td>&lt; 100ms</td>
+</tr>
+<tr>
+<td>JWKS cache <strong>hit</strong> ratio</td>
+<td>≥ 98%</td>
+</tr>
+<tr>
+<td>Rate of revoked-token re-use</td>
+<td>&lt; 1%</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="95-audit-logging">9.5. Audit Logging<a class="headerlink" href="#95-audit-logging" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Sự kiện <code>token.issued</code>, <code>token.revoked</code> phải được:</p>
+</li>
+<li>
+<p>Gửi qua Pub/Sub topic (tuân thủ <code>adr-008</code>)</p>
+</li>
+<li>Ghi lại dạng chuẩn audit log (dùng <code>audit-logging-service</code>)</li>
+</ul>
+<blockquote>
+<p>Ví dụ message:</p>
+</blockquote>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token.revoked"</span><span class="p">,</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="nt">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc123"</span><span class="p">,</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_456"</span><span class="p">,</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">  </span><span class="nt">"revoked_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-06-07T10:00:00Z"</span><span class="p">,</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"logout"</span>
+</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr/>
+<h3 id="96-healthcheck">9.6. Healthcheck<a class="headerlink" href="#96-healthcheck" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>/healthz</code>: kiểm tra Redis, JWKS keys, background jobs</li>
+<li><code>/readyz</code>: kiểm tra nếu JWKS đã sẵn sàng phục vụ client</li>
+</ul>
+<blockquote>
+<p>Dùng để tích hợp vào load balancer hoặc CI/CD gate.</p>
+</blockquote>
+<hr/>
+<h2 id="10-o-tin-cay-phuc-hoi">10. 🚀 Độ tin cậy &amp; Phục hồi<a class="headerlink" href="#10-o-tin-cay-phuc-hoi" title="Permanent link">¶</a></h2>
+<p>Token Service là một <strong>dịch vụ nền tảng bảo mật</strong>, yêu cầu tính sẵn sàng cực cao. Bất kỳ sự cố nào đều có thể ảnh hưởng toàn hệ thống. Dưới đây là các chiến lược đảm bảo độ tin cậy và khả năng phục hồi:</p>
+<hr/>
+<h3 id="101-zero-downtime-deployment">10.1. Zero Downtime Deployment<a class="headerlink" href="#101-zero-downtime-deployment" title="Permanent link">¶</a></h3>
+<p>✅ Tuân thủ <code>adr-014-zero-downtime.md</code> và <code>adr-015-deployment-strategy.md</code>:</p>
+<ul>
+<li>Triển khai theo chiến lược <strong>Rolling Update</strong> hoặc <strong>Blue-Green Deployment</strong></li>
+<li>Dùng <strong>readinessProbe</strong> và <strong>livenessProbe</strong> để đảm bảo chỉ nhận traffic khi service sẵn sàng</li>
+<li>Dùng <strong>feature flags</strong> để tách biệt release và rollout</li>
+</ul>
+<hr/>
+<h3 id="102-auto-scaling-load-balancing">10.2. Auto-Scaling &amp; Load Balancing<a class="headerlink" href="#102-auto-scaling-load-balancing" title="Permanent link">¶</a></h3>
+<p>✅ Tuân thủ <code>adr-016-auto-scaling.md</code></p>
+<ul>
+<li><strong>Horizontal Pod Autoscaler (HPA)</strong> theo:</li>
+<li>CPU ≥ 70%</li>
+<li>request latency ≥ 200ms</li>
+<li>Cân bằng tải qua GCP Load Balancer hoặc Istio Ingress</li>
+<li>JWKS endpoint (<code>/.well-known/jwks.json</code>) nên được <strong>cache CDN</strong> hoặc Cloudflare để giảm tải</li>
+</ul>
+<hr/>
+<h3 id="103-graceful-fallback">10.3. Graceful Fallback<a class="headerlink" href="#103-graceful-fallback" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tình huống sự cố</th>
+<th>Hành động Gateway</th>
+<th>Hành động Token Service</th>
+<th>Lưu ý SRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redis Cluster (revoked_tokens) Mất kết nối</strong></td>
+<td>1. Vẫn xác thực chữ ký bằng <strong>JWKS</strong> (offline).<br/>2. Bật <em>degrade-mode</em>: Gateway chuyển sang gọi <strong><code>POST /v1/token/introspect</code></strong> cho <strong>mọi</strong> request (có throttle 200 RPS).</td>
+<td>Giữ bảng <code>revoked_tokens</code> <strong>in-memory LRU (size 50 k)</strong>; song song retry kết nối Redis.</td>
+<td>Alert <code>revoked_cache_down</code> 🔥; SRE kiểm tra Memorystore, VPC-SC.</td>
+</tr>
+<tr>
+<td><strong>Token Service Unavailable</strong></td>
+<td>Gateway <strong>fail-closed</strong> (HTTP 503).</td>
+<td>—</td>
+<td>Alert <code>token_service_down</code> 🔥; auto-rollback qua Argo Rollouts.</td>
+</tr>
+<tr>
+<td><strong>JWKS fetch lỗi &gt; 3 lần / 5 phút</strong></td>
+<td>Gateway <strong>reject</strong> mọi request (<code>502 jwks.unavailable</code>).</td>
+<td>—</td>
+<td>Hết sự cố → hit ratio JWKS ≥ 98 % tự clear.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Lưu ý:</strong> Thiết kế mới <strong>không còn fallback qua DB</strong>; Token Service chỉ phụ thuộc Redis và bộ nhớ RAM cho mode khẩn cấp</p>
+</blockquote>
+<hr/>
+<h3 id="104-high-availability-architecture">10.4. High Availability Architecture<a class="headerlink" href="#104-high-availability-architecture" title="Permanent link">¶</a></h3>
+<ul>
+<li>Redis:</li>
+<li>Redis Sentinel hoặc Redis Cluster với 3 node (quorum)</li>
+<li>PostgreSQL:</li>
+<li>CloudSQL HA hoặc Patroni Cluster</li>
+<li>TokenService:</li>
+<li>Triển khai &gt;= 3 replicas</li>
+<li>Tự động restart khi gặp lỗi không phục hồi</li>
+</ul>
+<hr/>
+<h3 id="105-retry-circuit-breaker">10.5. Retry &amp; Circuit Breaker<a class="headerlink" href="#105-retry-circuit-breaker" title="Permanent link">¶</a></h3>
+<ul>
+<li>Retry với exponential backoff cho:</li>
+<li>Gọi DB (max 3 lần)</li>
+<li>Gửi log đến Pub/Sub</li>
+<li>Circuit breaker:</li>
+<li>Dừng phát token nếu Redis unavailable &gt; 30s liên tiếp</li>
+</ul>
+<hr/>
+<h3 id="106-disaster-recovery">10.6. Disaster Recovery<a class="headerlink" href="#106-disaster-recovery" title="Permanent link">¶</a></h3>
+<ul>
+<li>Toàn bộ JWKS keys được backup hàng giờ vào Cloud Storage</li>
+<li>Audit logs lưu vào Pub/Sub → không mất dữ liệu dù service down</li>
+<li>Có thể deploy lại toàn bộ service trong 15 phút từ config IaC (Terraform)</li>
+</ul>
+<hr/>
+<h3 id="107-am-bao-backward-compatibility">10.7. Đảm bảo backward compatibility<a class="headerlink" href="#107-am-bao-backward-compatibility" title="Permanent link">¶</a></h3>
+<ul>
+<li>JWKS rotation đảm bảo:</li>
+<li>Key mới phát hành → JWKS thêm trước 5 phút</li>
+<li>Key cũ giữ lại ít nhất 15 phút (grace period)</li>
+<li>Token không bị revoke vẫn tiếp tục dùng được → tránh mất session</li>
+</ul>
+<hr/>
+<h3 id="108-kiem-thu-truoc-khi-release">10.8. Kiểm thử trước khi release<a class="headerlink" href="#108-kiem-thu-truoc-khi-release" title="Permanent link">¶</a></h3>
+<ul>
+<li>✅ <code>contract testing</code> đảm bảo backward compatibility</li>
+<li>✅ <code>load testing</code> trước release lớn: simulate 1,000 TPS</li>
+<li>✅ <code>chaos testing</code>: shutdown Redis, đổi key bất ngờ → đảm bảo service phản ứng đúng</li>
+</ul>
+<hr/>
+<p>📌 <strong>Tóm tắt:</strong> Token Service được thiết kế với nhiều lớp dự phòng, fallback, autoscaling và circuit breaking để đạt độ tin cậy &gt;99.95%, ngay cả trong tình huống mất Redis hoặc key rotation trục trặc.</p>
+<hr/>
+<h2 id="11-hieu-nang-kha-nang-mo-rong">11. ⚡️ Hiệu năng &amp; Khả năng mở rộng<a class="headerlink" href="#11-hieu-nang-kha-nang-mo-rong" title="Permanent link">¶</a></h2>
+<p>Token Service là một service có <strong>tần suất truy cập cực cao</strong>, đặc biệt tại các luồng login, refresh token và introspect. Thiết kế cần tối ưu cả về latency lẫn khả năng scale ngang.</p>
+<hr/>
+<h3 id="111-hieu-nang-tung-loai-endpoint">11.1. Hiệu năng từng loại endpoint<a class="headerlink" href="#111-hieu-nang-tung-loai-endpoint" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Tần suất</th>
+<th>Mục tiêu latency (p95)</th>
+<th>Tối ưu hóa chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /token</code></td>
+<td>Cao</td>
+<td>&lt; 100ms</td>
+<td>Truy vấn DB nhanh, sinh JWT chuẩn</td>
+</tr>
+<tr>
+<td><code>POST /refresh</code></td>
+<td>Rất cao</td>
+<td>&lt; 80ms</td>
+<td>Cache session + Redis pipelining</td>
+</tr>
+<tr>
+<td><code>POST /introspect</code></td>
+<td>Rất cao</td>
+<td>&lt; 50ms</td>
+<td>Cache JWT payload, short-circuit</td>
+</tr>
+<tr>
+<td><code>GET /.well-known/jwks.json</code></td>
+<td>Trung bình</td>
+<td>&lt; 20ms</td>
+<td>Static cache CDN hoặc Redis local</td>
+</tr>
+<tr>
+<td><code>POST /revoke</code></td>
+<td>Trung bình</td>
+<td>&lt; 120ms</td>
+<td>Ghi Pub/Sub và Redis TTL hiệu quả</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="112-ky-thuat-toi-uu">11.2. Kỹ thuật tối ưu<a class="headerlink" href="#112-ky-thuat-toi-uu" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Caching tích cực</strong>:</li>
+<li>JWKS: cache tại CDN + Redis local theo <code>kid</code></li>
+<li>Introspection: cache JWT decoded payload TTL ngắn</li>
+<li><strong>Batching &amp; pipelining</strong> Redis để xử lý hàng loạt revoke token</li>
+<li><strong>Gói <code>jti</code> và <code>user_id</code> trong claim</strong> để introspect nhanh hơn</li>
+<li><strong>Slim JWT</strong>: chỉ giữ dữ liệu cần thiết (sub, exp, jti, scope)</li>
+</ul>
+<hr/>
+<h3 id="113-horizontal-scaling">11.3. Horizontal Scaling<a class="headerlink" href="#113-horizontal-scaling" title="Permanent link">¶</a></h3>
+<ul>
+<li>Triển khai tối thiểu 3 replicas</li>
+<li>Scale out theo CPU + latency (<code>token_request_duration_seconds</code>)</li>
+<li>Redis cluster được scale riêng (dạng managed hoặc Kubernetes operator)</li>
+</ul>
+<hr/>
+<h3 id="114-connection-pooling">11.4. Connection pooling<a class="headerlink" href="#114-connection-pooling" title="Permanent link">¶</a></h3>
+<ul>
+<li>DB (PostgreSQL): dùng <code>asyncpg</code> pool với 50 connections</li>
+<li>Redis: dùng pool với size động theo lượng request</li>
+<li>HTTP clients: re-use session, keep-alive enabled</li>
+</ul>
+<hr/>
+<h3 id="115-thu-tai-load-testing">11.5. Thử tải (Load Testing)<a class="headerlink" href="#115-thu-tai-load-testing" title="Permanent link">¶</a></h3>
+<ul>
+<li>Đã benchmark với <code>Locust</code> và <code>k6</code>:</li>
+<li>1000 TPS / 3 replica =&gt; p95 latency ~65ms (token), ~40ms (introspect)</li>
+<li>Tốc độ revocation (Redis write): 3000/s</li>
+<li>Tự động chạy lại load test mỗi lần deploy staging (CI job <code>performance-benchmark</code>)</li>
+</ul>
+<hr/>
+<h3 id="116-cdn-edge-cache">11.6. CDN &amp; Edge Cache<a class="headerlink" href="#116-cdn-edge-cache" title="Permanent link">¶</a></h3>
+<ul>
+<li>JWKS endpoint (<code>/.well-known/jwks.json</code>) được:</li>
+<li>Cache tại CDN (Cloudflare, GCP CDN)</li>
+<li>Cache tại Redis trong 5 phút TTL</li>
+<li>Trả kèm <code>Cache-Control: public, max-age=300</code> header</li>
+</ul>
+<hr/>
+<h3 id="117-graceful-degradation">11.7. Graceful degradation<a class="headerlink" href="#117-graceful-degradation" title="Permanent link">¶</a></h3>
+<ul>
+<li>fallback kiểm tra JWKS + in-memory LRU</li>
+<li>Nếu Pub/Sub full → ghi audit log vào file + retry job</li>
+<li>Nếu key rotation thất bại → giữ lại <code>last-valid-kid</code> trong 15 phút</li>
+</ul>
+<hr/>
+<p>📌 <strong>Tóm tắt</strong>: Token Service đạt hiệu năng cao thông qua:
+- cache hiệu quả (JWKS, introspect, session)
+- design đơn giản, stateless
+- scale ngang tốt nhờ Redis và PostgreSQL tách biệt
+- bảo vệ hệ thống với fallback &amp; circuit breaker</p>
+<hr/>
+<h2 id="12-ke-hoach-trien-khai">12. 🛠 Kế hoạch Triển khai<a class="headerlink" href="#12-ke-hoach-trien-khai" title="Permanent link">¶</a></h2>
+<p>Token Service là một thành phần bảo mật trọng yếu, nên quá trình triển khai cần được thực hiện từng bước, có giám sát và khả năng rollback nhanh nếu xảy ra sự cố.</p>
+<hr/>
+<h3 id="121-phan-ky-trien-khai">12.1. Phân kỳ triển khai<a class="headerlink" href="#121-phan-ky-trien-khai" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Giai đoạn</th>
+<th>Mục tiêu chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⏳ Giai đoạn 1</td>
+<td>Triển khai tại môi trường Staging, test contract + load</td>
+</tr>
+<tr>
+<td>🚀 Giai đoạn 2</td>
+<td>Triển khai Production dưới cờ feature (<code>enable_token_service</code>)</td>
+</tr>
+<tr>
+<td>🔁 Giai đoạn 3</td>
+<td>Bật toàn bộ tính năng, monitor sát, rollback nếu cần</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="122-cong-cu-trien-khai">12.2. Công cụ triển khai<a class="headerlink" href="#122-cong-cu-trien-khai" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>CI/CD</strong>: GitHub Actions + ArgoCD hoặc Cloud Build</li>
+<li><strong>Infrastructure</strong>: GCP (Cloud Run hoặc GKE), Terraform</li>
+<li><strong>Monitoring &amp; Alerting</strong>: Cloud Monitoring + Prometheus + Grafana + Alertmanager</li>
+</ul>
+<hr/>
+<h3 id="123-zero-downtime">12.3. Zero Downtime<a class="headerlink" href="#123-zero-downtime" title="Permanent link">¶</a></h3>
+<p>✅ Theo <code>adr-014-zero-downtime.md</code>, các bước sau được áp dụng:</p>
+<ul>
+<li>Dùng <code>readinessProbe</code> để đảm bảo pod chỉ nhận traffic sau khi warm-up.</li>
+<li>Hỗ trợ hot-reload public key JWKS để không làm gián đoạn các service khác.</li>
+<li>Blue-Green deployment (nếu Cloud Run) hoặc rolling update (nếu GKE).</li>
+</ul>
+<hr/>
+<h3 id="124-seed-du-lieu-ban-au">12.4. Seed dữ liệu ban đầu<a class="headerlink" href="#124-seed-du-lieu-ban-au" title="Permanent link">¶</a></h3>
+<ul>
+<li>Sinh JWKS ban đầu với key <code>kid=initial-1</code>, lưu vào secret và JWKS DB table.</li>
+<li>Tạo service account đầu tiên (internal) có quyền introspect.</li>
+<li>Tạo policy phát token cho <code>auth-service/sub</code>.</li>
+</ul>
+<hr/>
+<h3 id="125-migration-data-schema-safe-migration-adr-023">12.5. Migration &amp; Data Schema <em>(Safe-Migration – ADR-023)</em><a class="headerlink" href="#125-migration-data-schema-safe-migration-adr-023" title="Permanent link">¶</a></h3>
+<p>Đối với mọi thay đổi <strong>schema</strong> hoặc <strong>lifecycle dữ liệu</strong> của Token Service, áp dụng <strong>quy trình 3 pha</strong> sau để bảo đảm <strong>không downtime</strong> và <strong>an toàn rollback</strong>.</p>
+<h3 id="1-prepare-shadow-write">🔹 1. Prepare (Shadow Write)<a class="headerlink" href="#1-prepare-shadow-write" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bước</th>
+<th>Thao tác</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.1</td>
+<td>Tạo table/bucket <strong>song song</strong> – vd. <code>revoked_tokens_v2</code></td>
+<td>Flyway script <code>V20250615__create_revoked_tokens_v2.sql</code></td>
+</tr>
+<tr>
+<td>1.2</td>
+<td><strong>Dual-write</strong>: mã nguồn TokenSvc ghi cả bảng cũ &amp; v2 (<code>FeatureFlag: dual_write=true</code>)</td>
+<td>Version <code>v1.2.0</code></td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>Cập nhật <strong>schema_version</strong> (<code>migration_stage=prepare</code>) – publish event <code>schema.prepare.v1</code></td>
+<td>payload <code>{resource: "revoked_tokens", stage:"prepare"}</code></td>
+</tr>
+<tr>
+<td>1.4</td>
+<td>Chạy backfill nếu cần (COPY ... FROM ...)</td>
+<td>Job <code>backfill_revoked_v2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-transition-read-switch">🔹 2. Transition (Read Switch)<a class="headerlink" href="#2-transition-read-switch" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bước</th>
+<th>Thao tác</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1</td>
+<td>Redeploy TokenSvc <code>v1.3.0</code> – <strong>Option flag <code>read_v2=true</code></strong>, vẫn dual-write</td>
+<td>Canary 10 % ➜ 100 % trong 30′</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Theo dõi metric <code>revoked_sync_lag_ms</code> &amp; compare count(c1) vs c2</td>
+<td>SLO lag &lt; 500 ms</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Khi ổn định (&gt; 24 h), tắt dual-write (<code>dual_write=false</code>)</td>
+<td>Promote stage <code>transition</code></td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>Publish event <code>schema.transitioned.v1</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-cleanup-decommission">🔹 3. Cleanup (Decommission)<a class="headerlink" href="#3-cleanup-decommission" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bước</th>
+<th>Thao tác</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1</td>
+<td>Chạy cron <code>verify_no_read_old</code> (24 h) – nếu 0 query vào bảng cũ</td>
+<td></td>
+</tr>
+<tr>
+<td>3.2</td>
+<td><strong>DROP</strong> bảng cũ <code>revoked_tokens</code> (Flyway <strong><code>V20250617__drop_revoked_tokens.sql</code></strong>)</td>
+<td></td>
+</tr>
+<tr>
+<td>3.3</td>
+<td><strong>Prepare undo script</strong>: Flyway <strong><code>U20250617__recreate_revoked_tokens.sql</code></strong> để khôi phục bảng cũ nếu rollback</td>
+<td></td>
+</tr>
+<tr>
+<td>3.4</td>
+<td>Cập nhật alias - secret (nếu migration liên quan key)</td>
+<td></td>
+</tr>
+<tr>
+<td>3.5</td>
+<td>Publish <code>schema.cleanup.v1</code> &amp; ghi <code>audit_log.schema_migration</code></td>
+<td>field <code>who/when/stage="cleanup"</code></td>
+</tr>
+<tr>
+<td>3.6</td>
+<td>Bump <code>schema_version</code> global (<code>revoked_tokens</code> ⇒ 2)</td>
+<td>README + OpenAPI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rollback-plan">🔹 Rollback Plan<a class="headerlink" href="#rollback-plan" title="Permanent link">¶</a></h3>
+<ul>
+<li>Nếu trong <strong>Transition</strong> metric lỗi &gt; threshold → gắn flag <code>read_v2=false</code>, rollback canary.  </li>
+<li>Phần <strong>Prepare</strong> luôn an toàn: bảng cũ chưa xoá.  </li>
+<li>Sau <strong>Cleanup</strong> không rollback; cần migration mới <code>v3</code>.</li>
+</ul>
+<blockquote>
+<p><strong>Nhắc lại</strong>: Luôn commit Flyway script + nâng <code>schema_version</code> trong cùng PR với code dual-write để đảm bảo khả năng khôi phục.</p>
+</blockquote>
+<hr/>
+<h3 id="126-quan-ly-cau-hinh-moi-truong">12.6. Quản lý cấu hình &amp; môi trường<a class="headerlink" href="#126-quan-ly-cau-hinh-moi-truong" title="Permanent link">¶</a></h3>
+<ul>
+<li>Tất cả secrets lưu tại GCP Secret Manager:</li>
+<li><code>TOKEN_PRIVATE_KEY</code></li>
+<li><code>REDIS_URI</code>, <code>DB_URI</code></li>
+<li>Biến môi trường:</li>
+<li><code>ENABLE_TOKEN_SERVICE=true</code></li>
+<li><code>JWT_TTL=3600</code>, <code>REFRESH_TTL=604800</code></li>
+<li><code>.env</code> chuẩn hóa theo <code>adr-005-env-config.md</code></li>
+</ul>
+<hr/>
+<h3 id="127-rollback-nhanh">12.7. Rollback nhanh<a class="headerlink" href="#127-rollback-nhanh" title="Permanent link">¶</a></h3>
+<ul>
+<li>Duy trì <code>feature flag</code> để rollback soft (không cần redeploy)</li>
+<li>Nếu rollback toàn bộ:</li>
+<li>Cloud Run → <code>revert revision</code></li>
+<li>GKE → <code>kubectl rollout undo deployment token-service</code></li>
+</ul>
+<hr/>
+<h3 id="128-quan-ly-phat-hanh">12.8. Quản lý phát hành<a class="headerlink" href="#128-quan-ly-phat-hanh" title="Permanent link">¶</a></h3>
+<p>✅ Tuân thủ <code>adr-018-release-approval-policy.md</code>:</p>
+<ul>
+<li>PR được merge vào <code>main</code> cần 2 approvers.</li>
+<li>Checklist CI: ✅ Test | ✅ Contract Valid | ✅ Load Test | ✅ Security Scan</li>
+<li>Production release cần manual approval từ kiến trúc sư bảo mật.</li>
+</ul>
+<hr/>
+<h3 id="129-sau-trien-khai">12.9. Sau triển khai<a class="headerlink" href="#129-sau-trien-khai" title="Permanent link">¶</a></h3>
+<ul>
+<li>Theo dõi:</li>
+<li>JWKS fetch rate</li>
+<li>Latency <code>/token</code>, <code>/refresh</code></li>
+<li>Số lượng revoke fail</li>
+<li>Định kỳ kiểm tra audit log &amp; key expiry</li>
+<li>Áp dụng <code>chaos testing</code> theo quý để kiểm tra resilience.</li>
+</ul>
+<hr/>
+<p>📌 <strong>Tóm tắt</strong>: Triển khai Token Service yêu cầu quy trình kiểm soát chặt chẽ về key management, rollback, seed dữ liệu và giám sát chéo toàn hệ thống. Phân kỳ rõ ràng giúp hạn chế rủi ro và tăng độ tin cậy trong Production.</p>
+<hr/>
+<h2 id="13-kien-truc-service">13. 🧩 Kiến trúc Service<a class="headerlink" href="#13-kien-truc-service" title="Permanent link">¶</a></h2>
+<p>Token Service được thiết kế dưới dạng <strong>stateless microservice</strong>, đóng vai trò trung tâm trong việc phát hành, xác thực và thu hồi token trên toàn hệ thống. Kiến trúc được tối ưu hoá cho hiệu năng, bảo mật và khả năng mở rộng.</p>
+<hr/>
+<h3 id="131-thanh-phan-chinh-modules">13.1. Thành phần chính (Modules)<a class="headerlink" href="#131-thanh-phan-chinh-modules" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Mô tả chức năng chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TokenIssuer</code></td>
+<td>Sinh access token và refresh token theo cấu hình</td>
+</tr>
+<tr>
+<td><code>JWKSManager</code></td>
+<td>Quản lý keypair, phục vụ JWKS endpoint (<code>/.well-known/jwks.json</code>)</td>
+</tr>
+<tr>
+<td><code>TokenIntrospector</code></td>
+<td>Kiểm tra tính hợp lệ của token (bao gồm revoked)</td>
+</tr>
+<tr>
+<td><code>TokenRevoker</code></td>
+<td>Thu hồi token bằng cách ghi <code>jti</code> hoặc <code>sub</code> vào Redis</td>
+</tr>
+<tr>
+<td><code>KeyRotationJob</code></td>
+<td>Tự động xoay vòng khóa định kỳ (configurable)</td>
+</tr>
+<tr>
+<td><code>AuditPublisher</code></td>
+<td>Gửi bản ghi audit (login, logout, revoke) lên Pub/Sub</td>
+</tr>
+<tr>
+<td><code>SessionTracker</code></td>
+<td>Ghi lại các phiên đăng nhập nếu cấu hình <code>track_sessions=true</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="132-luong-tuong-tac-chinh">13.2. Luồng tương tác chính<a class="headerlink" href="#132-luong-tuong-tac-chinh" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    actor FE as Frontend
+    participant AuthSub as Auth Service Sub
+    participant Token as Token Service
+    participant Redis as Redis
+    participant PubSub as Pub/Sub
+
+    FE-&gt;&gt;AuthSub: Đăng nhập (/auth/login)
+    AuthSub-&gt;&gt;Token: POST /token (sub, scope)
+    Token-&gt;&gt;Token: Sinh access_token + refresh_token
+    Token-&gt;&gt;Redis: Lưu session (optional)
+    Token-&gt;&gt;PubSub: Gửi event audit.login
+    Token--&gt;&gt;AuthSub: Trả token
+</code></pre>
+<hr/>
+<h3 id="133-trien-khai-ha-tang">13.3. Triển khai &amp; Hạ tầng<a class="headerlink" href="#133-trien-khai-ha-tang" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Containerized</strong> trên GKE hoặc Cloud Run</li>
+<li>Dùng <strong>Redis</strong> làm bộ nhớ trung gian để revoke token</li>
+<li>Dữ liệu JWKS và revoked token được <strong>persist</strong> trong PostgreSQL</li>
+<li>Expose qua API Gateway với <code>x-required-permission</code> để audit introspect</li>
+</ul>
+<hr/>
+<h3 id="134-quan-he-voi-cac-service-khac">13.4. Quan hệ với các service khác<a class="headerlink" href="#134-quan-he-voi-cac-service-khac" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Tương tác chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth-service/sub</code></td>
+<td>Gọi <code>/token</code>, <code>/refresh</code>, <code>/revoke</code></td>
+</tr>
+<tr>
+<td><code>api-gateway</code></td>
+<td>Gọi <code>/introspect</code> (ở chế độ bảo vệ)</td>
+</tr>
+<tr>
+<td><code>user-service</code></td>
+<td>Được tham chiếu <code>sub</code> từ JWT claim</td>
+</tr>
+<tr>
+<td><code>audit-logging</code></td>
+<td>Ghi audit login/logout nếu audit.enable=true</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="135-phan-tach-nhiem-vu-responsibility-split">13.5. Phân tách nhiệm vụ (Responsibility Split)<a class="headerlink" href="#135-phan-tach-nhiem-vu-responsibility-split" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trách nhiệm</th>
+<th>Service đảm nhiệm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phát hành token</td>
+<td><code>token-service</code></td>
+</tr>
+<tr>
+<td>Quản lý người dùng, phân quyền</td>
+<td><code>auth-service/sub</code></td>
+</tr>
+<tr>
+<td>Lưu trữ token session</td>
+<td>Redis (tạm thời)</td>
+</tr>
+<tr>
+<td>Kiểm tra token trong mỗi request</td>
+<td><code>api-gateway</code></td>
+</tr>
+<tr>
+<td>Lưu log hoạt động</td>
+<td><code>audit-logging-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="136-high-level-diagram">13.6. High-level Diagram<a class="headerlink" href="#136-high-level-diagram" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    A[auth-service/sub] --&gt;|/token| T(Token Service)
+    T --&gt; R[Redis (jti, session)]
+    T --&gt; K[PostgreSQL - jwks_keys]
+    T --&gt; P[Pub/Sub - audit.*]
+    G[API Gateway] --&gt;|/introspect| T
+</code></pre>
+<hr/>
+<p>📌 <strong>Tóm tắt:</strong> Token Service hoạt động như một <strong>service độc lập</strong>, xử lý toàn bộ vòng đời của JWT và refresh token, đảm bảo stateless, chịu tải lớn, an toàn và có thể tích hợp sâu với hệ thống giám sát, audit và key rotation tự động.</p>
+<hr/>
+<h2 id="14-tai-lieu-lien-quan">14. 📚 Tài liệu liên quan<a class="headerlink" href="#14-tai-lieu-lien-quan" title="Permanent link">¶</a></h2>
+<h3 id="cac-quyet-inh-kien-truc-adr">🔖 Các Quyết định Kiến trúc (ADR)<a class="headerlink" href="#cac-quyet-inh-kien-truc-adr" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="../../../ADR/adr-003-secrets/">ADR-003 Secrets Management</a>: Quy trình lưu trữ &amp; xoay khóa bí mật an toàn.  </li>
+<li><a href="../../../ADR/adr-004-security/">ADR-004 Security Policy</a>: Chính sách bảo mật tổng thể.  </li>
+<li><a href="../../../ADR/adr-005-env-config/">ADR-005 Environment Configuration Strategy</a>: Chuẩn tách cấu hình – <code>SERVICE__SECTION__KEY</code>.  </li>
+<li><a href="../../../ADR/adr-006-auth-strategy/">ADR-006 Auth Strategy</a>: Chiến lược xác thực người dùng và cấp phát token.  </li>
+<li><a href="../../../ADR/adr-009-api-governance/">ADR-009 API Governance</a>: Quy tắc versioning, naming và style REST.  </li>
+<li><a href="../../../ADR/adr-011-api-error-format/">ADR-011 API Error Format</a>: Quy ước mã lỗi &amp; thông điệp lỗi (<code>namespace.snake_case</code>).  </li>
+<li><a href="../../../ADR/adr-012-response-structure/">ADR-012 Response Structure</a>: Chuẩn hóa cấu trúc JSON response cho API.</li>
+<li><a href="../../../ADR/adr-018-release-approval-policy/">ADR-018 Release Approval Policy</a>: Quy trình phê duyệt phát hành.</li>
+<li><a href="../../../ADR/adr-022-sla-slo-monitoring/">ADR-022 SLA &amp; SLO Monitoring</a>: Khung giám sát &amp; định nghĩa SLO.</li>
+<li><a href="../../../ADR/adr-023-schema-migration-strategy/">ADR-023 Schema Migration Strategy</a>: 3-phase migration (Prepare → Transition → Cleanup).  </li>
+<li><a href="../../../ADR/adr-024-data-anonymization-retention/">ADR-024 Data Anonymization &amp; Retention</a>: Ẩn danh PII và TTL dữ liệu.  </li>
+<li><a href="../../../ADR/adr-026-hard-delete-policy/">ADR-026 Hard-Delete Policy</a>: Quy trình xoá vĩnh viễn &amp; purge log.  </li>
+<li><a href="../../../ADR/adr-030-event-schema-governance/">ADR-030 Event Schema Governance</a>: Đặt tên &amp; version sự kiện <code>*.v{n}</code>.</li>
+</ul>
+<h3 id="dich-vu-lien-quan">🧩 Dịch vụ liên quan<a class="headerlink" href="#dich-vu-lien-quan" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="../../auth-service/sub/design/">auth-service/sub</a>: Service gọi tới <code>/token</code>, <code>/refresh</code>.</li>
+<li><a href="../../api-gateway/design/">api-gateway</a>: Service sử dụng <code>/introspect</code> để xác thực JWT.</li>
+<li><a href="../../audit-logging-service/design/">audit-logging-service</a>: Ghi lại các sự kiện login, logout từ Token Service.</li>
+<li><a href="../../user-service/master/design/">user-service/master</a>: Nơi chứa thông tin người dùng được liên kết bởi <code>sub</code> trong token.</li>
+</ul>
+<h3 id="file-trong-token-service">📂 File trong Token Service<a class="headerlink" href="#file-trong-token-service" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="../interface-contract/">Interface Contract</a></li>
+<li><a href="../data-model/">Data Model</a></li>
+<li><a href="../openapi.yaml">OpenAPI Spec</a></li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Trở lại mục lục
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

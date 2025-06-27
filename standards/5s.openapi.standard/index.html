@@ -1,0 +1,895 @@
+
+<!doctype html>
+<html lang="vi" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh.">
+      
+      
+        <meta name="author" content="DX VAS Team">
+      
+      
+        <link rel="canonical" href="https://ezdesign-vn.github.io/dx-vas/standards/5s.openapi.standard/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>5s.openapi.standard - DX VAS - Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#checklist-tieu-chuan-5-toan-dien-cho-file-openapi-service" class="md-skip">
+          Bỏ qua
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Đầu trang">
+    <a href="../.." title="DX VAS - Docs" class="md-header__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              5s.openapi.standard
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Tìm kiếm" placeholder="Tìm kiếm" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Tìm kiếm">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Xoá" aria-label="Xoá" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/system-diagrams/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../dev-guide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../services/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ADR/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Thanh điều hướng" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DX VAS - Docs" class="md-nav__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../assets/images/logo.png" alt="logo">
+
+    </a>
+    DX VAS - Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system-diagrams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/rbac-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ADR/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#checklist-tieu-chuan-5-toan-dien-cho-file-openapi-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Checklist Tiêu Chuẩn 5★ Toàn Diện cho File openapi Service
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Checklist Tiêu Chuẩn 5★ Toàn Diện cho File openapi Service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#x-extensions-chuan-hoa-cho-toan-he-thong-dx-vas" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 x-extensions chuẩn hóa cho toàn hệ thống dx-vas
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>5s.openapi.standard</h1>
+
+<h2 id="checklist-tieu-chuan-5-toan-dien-cho-file-openapi-service">✅ Checklist Tiêu Chuẩn 5★ Toàn Diện cho File <code>openapi</code> Service<a class="headerlink" href="#checklist-tieu-chuan-5-toan-dien-cho-file-openapi-service" title="Permanent link">¶</a></h2>
+<p>Một file <code>openapi</code> (ví dụ: <code>openapi.yaml</code> hoặc <code>openapi.json</code>) được đánh giá 5 sao cần đảm bảo các yếu tố sau, giúp định nghĩa hợp đồng API một cách rõ ràng, chính xác, dễ sử dụng và dễ quản lý:</p>
+<p><strong>1. 📜 Đặc Tả API Hoàn Chỉnh và Chính Xác (Completeness &amp; Accuracy of API Specification):</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Thông tin chung (Info Object):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>title</code>: Tên của API/Service, rõ ràng và mang tính mô tả.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>version</code>: Phiên bản của API đang được đặc tả (ví dụ: <code>1.0.0</code>, <code>1.1-beta</code>).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>description</code>: Mô tả chi tiết về API, mục đích, các nhóm chức năng chính, và các lưu ý quan trọng cho người dùng.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>contact</code> (tùy chọn): Thông tin liên hệ của đội ngũ phát triển/chủ sở hữu API.</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Thông tin Server &amp; Base Path:</strong> Khai báo rõ ràng các URL cơ sở (<code>servers</code>) cho các môi trường khác nhau (dev, staging, production).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Endpoints (Paths &amp; Operations):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Liệt kê đầy đủ tất cả các API endpoints.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sử dụng đúng HTTP methods (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) cho từng operation, tuân thủ ngữ nghĩa RESTful.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Mỗi endpoint và operation có <code>summary</code> (ngắn gọn) và <code>description</code> (chi tiết) rõ ràng về mục đích và hành vi.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Tuân thủ quy ước đặt tên đường dẫn (ví dụ theo ADR-013).</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Tham số (Parameters):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Định nghĩa chi tiết tất cả tham số: path parameters, query parameters, header parameters.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Cho mỗi tham số: <code>name</code>, vị trí (<code>in</code>), <code>description</code>, <code>required</code> (có bắt buộc hay không), <code>schema</code> (kiểu dữ liệu, format, enum, default value), và <code>example</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Hỗ trợ Pagination &amp; Filtering cho API GET danh sách:</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Thêm các query parameters chuẩn như <code>page</code>, <code>limit</code> (cho pagination).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Cân nhắc <code>search</code> (cho tìm kiếm tự do), <code>sort_by</code> (tên trường), <code>order</code> (<code>asc</code>/<code>desc</code>) (cho sắp xếp).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Nội dung Request (Request Body):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Mô tả rõ cấu trúc request body (sử dụng JSON Schema) cho các method như <code>POST</code>, <code>PUT</code>, <code>PATCH</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Chỉ rõ <code>content type</code> (ví dụ: <code>application/json</code>).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Có <code>description</code> và <code>required</code> cho request body.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Schema của request body mô tả chi tiết từng trường: tên, kiểu dữ liệu, ràng buộc, <code>description</code>, <code>example</code>, <code>readOnly</code>/<code>writeOnly</code> (nếu phù hợp).</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Nội dung Response (Responses):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Đặc tả cấu trúc response body chi tiết (sử dụng JSON Schema) cho từng HTTP status code có thể trả về (cả thành công và lỗi).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Tuân thủ cấu trúc response chuẩn của hệ thống (ví dụ: <code>{ data, error, meta }</code> theo ADR-012).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Schema của response body mô tả chi tiết từng trường.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Chỉ rõ <code>content type</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Hỗ trợ Pagination cho API GET danh sách:</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sử dụng schema <code>Paginated[T]</code> (hoặc tương đương) với các trường metadata như <code>meta.total_items</code>, <code>meta.page</code>, <code>meta.per_page</code>, <code>meta.total_pages</code> trong response.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>HTTP Status Codes &amp; Mã lỗi Ứng dụng:</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Liệt kê đầy đủ các HTTP status codes và ý nghĩa của chúng trong context của từng API.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sử dụng schema <code>ErrorResponse</code> chuẩn hóa (ví dụ: <code>{ error: { code, message, details }, meta: { ... } }</code>) cho các response lỗi, tuân thủ ADR-011, ADR-012.</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Headers:</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Khai báo các request headers quan trọng (ví dụ: <code>Authorization</code>, <code>X-Tenant-ID</code>, <code>Idempotency-Key</code>).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Mô tả các response headers đặc biệt (ví dụ: <code>X-Request-ID</code>, <code>ETag</code>, <code>RateLimit-Remaining</code>).</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Tags:</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sử dụng <code>tags</code> để nhóm các API một cách logic (ví dụ: <code>users-global</code>, <code>tenants</code>, <code>rbac-templates</code>).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Khai báo mô tả cho từng tag ở phần đầu file (<code>tags:</code> object array).</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 🧩 Định nghĩa Schema và Tái sử dụng (Schema Definitions &amp; Reusability - <code>components/schemas</code>):</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Tối ưu Schema với <code>$ref</code>:</strong> Đảm bảo toàn bộ request/response body và các phần lặp lại của schema sử dụng tham chiếu <code>$ref</code> đến các định nghĩa trong <code>components/schemas</code>, tránh định nghĩa inline lặp đi lặp lại.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Mô tả Schema Chi tiết:</strong> Mỗi schema trong <code>components/schemas</code> phải có <code>description</code>, <code>type</code>, và <code>example</code> (nếu phù hợp). Các thuộc tính (properties) của schema cũng cần <code>description</code> và <code>example</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Sử dụng <code>readOnly</code>/<code>writeOnly</code>:</strong> Đánh dấu các trường chỉ đọc hoặc chỉ ghi một cách chính xác.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Định nghĩa ENUM tập trung:</strong> Tất cả các ENUM nên được định nghĩa là các schema riêng biệt trong <code>components/schemas</code> và được tham chiếu, thay vì hardcode giá trị trực tiếp trong đặc tả endpoint.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Sử dụng <code>nullable: true</code> (cho OpenAPI 3.0) hoặc <code>nullable</code> trong <code>type</code> array (cho OpenAPI 3.1+):</strong> Cho các trường tùy chọn có thể nhận giá trị <code>null</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Sử dụng <code>oneOf</code>, <code>allOf</code>, <code>anyOf</code> (nếu cần):</strong> Cho các schema phức tạp có nhiều biến thể hoặc cần kết hợp từ các schema khác.</li>
+</ul>
+<p><strong>3. 🔐 Bảo Mật và Phân Quyền Rõ Ràng (Clear Security &amp; Authorization Definition):</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Cơ chế xác thực (Authentication):</strong> Định nghĩa rõ ràng các <code>securitySchemes</code> được sử dụng trong <code>components/securitySchemes</code> (ví dụ: <code>bearerAuth</code> cho JWT). Áp dụng security scheme cho toàn bộ API hoặc từng operation cụ thể.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Yêu cầu quyền (Permissions/RBAC):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sử dụng custom extension như <code>x-required-permission</code> để chỉ định permission cần thiết cho từng operation quan trọng.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Permission code nên nhất quán và dễ hiểu, lý tưởng nhất là trùng với ENUM hoặc hằng số từ hệ thống RBAC template.</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. ✨ Ví dụ Minh Họa Thực Tế (Practical Examples):</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Cung cấp các ví dụ (<code>example</code> hoặc <code>examples</code>) phong phú cho request parameters, request body, và response body trong đặc tả.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Ví dụ nên bao gồm cả kịch bản thành công và một số lỗi thường gặp (nếu có thể, đặc biệt cho các API phức tạp).</li>
+</ul>
+<p><strong>5. 🛠️ Tuân Thủ Chuẩn và Công Cụ (Adherence to Standards &amp; Tooling):</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Chuẩn OpenAPI:</strong> Tuân thủ chặt chẽ phiên bản OpenAPI đã chọn (ví dụ: 3.0.3, 3.1.0).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Tính hợp lệ (Validation):</strong> File đặc tả phải hợp lệ và vượt qua kiểm tra của các công cụ linter/validator (ví dụ: Spectral).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Khả năng Sinh Code/Docs:</strong> Viết theo cách dễ dàng cho việc tự động sinh client SDKs, server stubs, và tài liệu API tương tác (ví dụ: Swagger UI, Redoc).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Nhất quán với ADRs hệ thống:</strong> Phản ánh đúng các quyết định kiến trúc liên quan đến API (ví dụ: ADR-009 API Governance, ADR-011 API Error Format, ADR-012 Response Structure, ADR-013 Path Naming Convention).</li>
+</ul>
+<p><strong>6. 📄 Thông Tin Bổ Sung và Quản Trị (Supplementary Information &amp; Governance):</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Chính sách Versioning &amp; Deprecation:</strong> Mô tả cách API được version hóa và chính sách loại bỏ phiên bản cũ (có thể tham chiếu đến ADR liên quan).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Thông tin Rate Limiting (nếu có):</strong> Mô tả giới hạn số lần gọi API.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Metadata quản trị tài liệu:</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Ghi chú ngày tạo/cập nhật, phiên bản của chính file OpenAPI (có thể qua version control của Git).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Thông tin tác giả, người review (có thể quản lý ngoài file spec, ví dụ trong commit history hoặc tài liệu đi kèm).</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Liên kết đến tài liệu liên quan:</strong> Trong phần <code>description</code> của API hoặc của Info Object, có thể cung cấp link đến file design chi tiết, data model, hoặc các ADRs liên quan.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Custom Extensions (<code>x-...</code>):</strong><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Nếu sử dụng các extension tùy chỉnh (ví dụ: <code>x-required-permission</code>, <code>x-audit-action</code>, <code>x-emits-event</code>), chúng cần được giải thích rõ ràng mục đích và cách sử dụng (có thể trong phần mô tả chung hoặc trong một tài liệu hướng dẫn riêng).</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="x-extensions-chuan-hoa-cho-toan-he-thong-dx-vas">🎯 <code>x-extensions</code> chuẩn hóa cho toàn hệ thống <code>dx-vas</code><a class="headerlink" href="#x-extensions-chuan-hoa-cho-toan-he-thong-dx-vas" title="Permanent link">¶</a></h3>
+<p>Các <code>x-extensions</code> dưới đây được sử dụng để mô tả các đặc điểm logic nội bộ (RBAC, điều kiện runtime, trace, v.v.) và sẽ được <strong>chuẩn hóa trên toàn bộ các OpenAPI spec</strong> của hệ thống <code>dx-vas</code>. Những extension này được API Gateway sử dụng để thực hiện phân quyền, định tuyến và quan sát (observability) trong runtime.</p>
+<h4 id="quy-tac-su-dung">✅ Quy tắc sử dụng:<a class="headerlink" href="#quy-tac-su-dung" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Chỉ dùng trong các field hợp lệ</strong> theo OpenAPI 3.x: <code>paths</code>, <code>operation</code>, <code>tags</code>, <code>info</code>, v.v.</li>
+<li><strong>Không được khai báo dưới block <code>components:</code></strong></li>
+<li><strong>Không dùng như schema để <code>$ref</code></strong></li>
+<li>Cần có ví dụ, mô tả rõ ràng, và thống nhất toàn hệ thống</li>
+</ul>
+<hr />
+<h4 id="x-required-permission">🔒 <code>x-required-permission</code><a class="headerlink" href="#x-required-permission" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">x-required-permission</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user.read&quot;</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Mô tả</strong>: Mã permission yêu cầu mà người dùng phải có để truy cập route này.</li>
+<li><strong>Xử lý</strong>: Gateway sẽ kiểm tra permission có nằm trong Redis key <code>rbac:{user_id}:{tenant_id}</code> không.</li>
+<li><strong>Áp dụng tại</strong>: <code>paths</code>, <code>paths.[path].[method]</code></li>
+</ul>
+<hr />
+<h4 id="x-condition">🧩 <code>x-condition</code><a class="headerlink" href="#x-condition" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">x-condition</span><span class="p">:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">user_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{X-User-ID}}&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">tenant_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{X-Tenant-ID}}&quot;</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Mô tả</strong>: Điều kiện logic ngữ cảnh runtime. Có thể dùng placeholder dạng <code>{{HEADER_NAME}}</code>.</li>
+<li><strong>Xử lý</strong>: Gateway sẽ so sánh giá trị thực tế với điều kiện này để cho phép/deny truy cập.</li>
+<li><strong>Áp dụng tại</strong>: <code>paths</code>, <code>paths.[path].[method]</code></li>
+</ul>
+<hr />
+<h4 id="x-gateway-enforced">✅ <code>x-gateway-enforced</code><a class="headerlink" href="#x-gateway-enforced" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">x-gateway-enforced</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Mô tả</strong>: Đánh dấu route này có được kiểm soát bởi Gateway (RBAC, trace, condition) hay không.</li>
+<li><strong>Xử lý</strong>: Nếu <code>false</code>, route sẽ được forward raw, không kiểm soát.</li>
+<li><strong>Áp dụng tại</strong>: <code>paths</code>, <code>paths.[path].[method]</code></li>
+</ul>
+<hr />
+<h4 id="x-route-evaluation">📊 <code>x-route-evaluation</code><a class="headerlink" href="#x-route-evaluation" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">x-route-evaluation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;check-permission</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">forward&quot;</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Mô tả</strong>: Ghi chú logic xử lý của route – phục vụ testing, observability, analytics.</li>
+<li><strong>Giá trị gợi ý</strong>: <code>check-permission</code>, <code>check-condition</code>, <code>introspect-token</code>, <code>forward-only</code>, ...</li>
+<li><strong>Áp dụng tại</strong>: <code>paths</code>, <code>paths.[path].[method]</code></li>
+</ul>
+<hr />
+<h4 id="x-internal-a-dung-trong-tags">🔐 <code>x-internal</code> (đã dùng trong tags)<a class="headerlink" href="#x-internal-a-dung-trong-tags" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">x-internal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Mô tả</strong>: Gắn nhãn nhóm API chỉ dành cho nội bộ, không xuất hiện trong public docs.</li>
+<li><strong>Áp dụng tại</strong>: <code>tags[]</code></li>
+</ul>
+<hr />
+<p>📌 <strong>Mọi service khi sử dụng các <code>x-extensions</code> này cần tuân thủ chính tả, format và ngữ nghĩa chuẩn như trên.</strong>
+<strong>Gateway và hệ thống kiểm thử CI sẽ reject nếu không đạt chuẩn.</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Trở lại mục lục
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

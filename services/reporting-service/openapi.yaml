@@ -1,0 +1,1242 @@
+openapi: 3.0.3
+info:
+  title: Reporting Service – OpenAPI Spec
+  version: "1.3"
+  description: |
+    Reporting Service cung cấp các API phục vụ việc truy vấn báo cáo, quản lý mẫu báo cáo (report templates), và cấu hình dashboard lưu sẵn cho Superadmin Webapp. Dữ liệu được lấy từ Data Warehouse, thông qua cơ chế Template-driven hoặc truy vấn động có kiểm soát.
+  contact:
+    name: DX VAS Team
+    email: dx-team@truongvietanh.edu.vn
+
+  x-api-version: "v1"
+  x-last-updated: "2025-06-13"  
+  x-maintainer: dx@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+    - adr-026-hard-delete-policy
+    - adr-027-data-management-strategy
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/reporting/v1
+    description: Production
+  - url: https://staging-api.truongvietanh.edu.vn/reporting/v1
+    description: Staging
+
+tags:
+  - name: Reports
+    description: Truy vấn dữ liệu báo cáo tổng hợp
+  - name: Report Templates
+    description: API quản lý các mẫu báo cáo, dùng để cấu hình truy vấn động
+  - name: Saved Report Configs
+    description: API cho phép lưu và quản lý cấu hình báo cáo tùy biến của người dùng
+  - name: Query Logs
+    description: Tra cứu log lịch sử truy vấn báo cáo của hệ thống
+
+components:
+  headers:
+    X-Request-ID:
+      description: Mã định danh duy nhất cho mỗi request, dùng để truy vết và phân tích log.
+      required: false
+      schema:
+        type: string
+        example: "req-20240612-001"
+
+    X-Tenant-ID:
+      description: Mã định danh tenant đang thực hiện request. Bắt buộc ở tất cả các request qua Gateway.
+      required: true
+      schema:
+        type: string
+        example: "vas_campus_01"
+
+    X-User-ID:
+      description: Mã định danh người dùng đang thực hiện hành động. Được trích xuất từ token.
+      required: true
+      schema:
+        type: string
+        example: "superadmin_001"
+
+    X-Required-Permission:
+      description: Mã quyền tương ứng được yêu cầu để truy cập route hiện tại. Do Gateway thêm vào để service kiểm tra nội bộ (RBAC phụ trợ nếu cần).
+      required: false
+      schema:
+        type: string
+        example: "report.view_student_scores"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    tenantId:
+      name: x-tenant-id
+      in: header
+      required: true
+      description: Mã định danh tenant hiện tại.
+      schema:
+        type: string
+        example: "vas_campus_01"
+
+    userId:
+      name: x-user-id
+      in: header
+      required: true
+      description: Mã định danh người dùng đang thực hiện request.
+      schema:
+        type: string
+        example: "admin_123"
+
+    requestId:
+      name: x-request-id
+      in: header
+      required: false
+      description: ID định danh request, nếu không có sẽ được sinh ngẫu nhiên ở API Gateway.
+      schema:
+        type: string
+        example: "req-20240612-001"
+
+    requiredPermission:
+      name: x-required-permission
+      in: header
+      required: true
+      description: |
+        Mã quyền yêu cầu để thực hiện hành động này. Header này do API Gateway thêm vào 
+        và Reporting Service dùng để kiểm tra nếu cần.
+      schema:
+        type: string
+        example: "report.view_financial_summary"
+
+    limit:
+      name: limit
+      in: query
+      required: false
+      description: "Số lượng kết quả tối đa trả về (default: 20)"
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    offset:
+      name: offset
+      in: query
+      required: false
+      description: "Số lượng kết quả bỏ qua (default: 0)"
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    sort_by:
+      name: sort_by
+      in: query
+      required: false
+      description: Trường dữ liệu dùng để sắp xếp
+      schema:
+        type: string
+
+    order:
+      name: order
+      in: query
+      required: false
+      description: Thứ tự sắp xếp (asc hoặc desc)
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: asc
+
+  responses:
+    SuccessResponse:
+      description: Thành công
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/components/schemas/ResponseMeta'
+              data:
+                type: object
+                description: Payload dữ liệu cụ thể tùy theo API
+            required: [meta, data]
+          examples:
+            default:
+              $ref: '#/components/examples/successReportQuery'
+
+    ErrorResponse:
+      description: Yêu cầu không thành công
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_param:
+              $ref: '#/components/examples/MissingParamError'
+            permission_denied:
+              $ref: '#/components/examples/ForbiddenError'
+
+    NotFoundResponse:
+      description: Không tìm thấy tài nguyên yêu cầu
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            template_not_found:
+              $ref: '#/components/examples/NotFoundTemplateError'
+
+  schemas:
+    InputParameterType:
+      type: string
+      enum: [string, number, date, boolean]
+      description: Kiểu dữ liệu cho một tham số đầu vào của báo cáo
+
+    ResponseMeta:
+      type: object
+      required: [request_id, timestamp]
+      properties:
+        request_id:
+          type: string
+          description: Mã định danh duy nhất cho mỗi request (được sinh bởi Gateway nếu không có).
+          readOnly: true
+          example: "req-20240612-001"
+        timestamp:
+          type: string
+          format: date-time
+          description: Thời gian phản hồi (ISO 8601).
+          readOnly: true
+          example: "2025-06-12T10:15:30Z"
+
+    ErrorResponse:
+      type: object
+      required: [meta, error]
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: "auth.permission_denied"
+              description: Mã lỗi HTTP tương ứng
+            message:
+              type: string
+              example: "Permission denied: report.view_student_scores"
+              description: Mô tả lỗi chi tiết
+            details: 
+              type: object 
+              nullable: true
+              description: "Thông tin chi tiết bổ sung cho lỗi"
+              example: { "field": "email", "issue": "Địa chỉ email không đúng định dạng." }
+
+    ReportTemplateListEnvelope:
+      type: object
+      description: Kết quả trả về danh sách report templates
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportTemplateEnvelope'
+      example:
+        meta:
+          timestamp: "2025-06-04T10:00:00Z"
+          request_id: "req_abc123"
+        data:
+          - template_id: "template-financial"
+            name: "Financial Summary"
+            version: 1
+            description: "Báo cáo tổng hợp tài chính theo quý"
+            created_at: "2025-06-01T09:00:00Z"
+            updated_at: "2025-06-03T10:00:00Z"
+          - template_id: "template-admission"
+            name: "Admission Funnel"
+            version: 2
+            description: "Báo cáo chuyển đổi ứng viên"
+            created_at: "2025-05-20T08:30:00Z"
+            updated_at: "2025-06-02T15:45:00Z"
+
+
+    ReportTemplateEnvelope:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: object
+          properties:
+            template_id:
+              type: string
+              readOnly: true
+              example: "finance_summary"
+            name:
+              type: string
+              example: "Tổng kết tài chính"
+            data_view:
+              type: string
+              example: "finance_fact_view"
+            input_parameters_schema:
+              type: object
+              description: JSON Schema định nghĩa input
+            created_by:
+              type: string
+              readOnly: true
+              example: "superadmin_01"
+            created_at:
+              type: string
+              format: date-time
+              readOnly: true
+              example: "2025-05-30T09:00:00Z"
+
+    ReportTemplateInput:
+      type: object
+      required:
+        - template_id
+        - name
+        - query_template
+      properties:
+        template_id:
+          type: string
+          description: ID duy nhất của template báo cáo (do người dùng đặt, không thay đổi sau khi tạo)
+          example: "financial_summary"
+        name:
+          type: string
+          description: Tên hiển thị của template
+          example: "Báo cáo tài chính theo quý"
+        description:
+          type: string
+          description: Mô tả mục đích sử dụng template
+          example: "Tổng hợp doanh thu, chi phí và lợi nhuận theo quý"
+        data_view:
+          type: string
+          description: Tên bảng hoặc view trong Data Warehouse mà template này truy vấn
+          example: "vw_financial_summary_by_quarter"
+        input_parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReportInputParameter"
+          description: Danh sách tham số đầu vào của báo cáo
+        query_template:
+          type: string
+          description: "Câu truy vấn có định dạng template (ví dụ: dùng {{param}} để binding)"
+          example: >
+            SELECT * FROM vw_financial_summary_by_quarter
+            WHERE quarter >= @start_quarter AND quarter <= @end_quarter
+        required_permission:
+          type: string
+          description: Mã quyền tối thiểu để truy cập template này
+          example: "report.view_financial_summary"
+
+    ReportTemplateUpdate:
+      type: object
+      description: Dữ liệu cập nhật cho report template
+      properties:
+        name:
+          type: string
+          description: Tên mới của template
+          example: "Báo cáo Tài chính Quý"
+        description:
+          type: string
+          description: Mô tả cập nhật cho template
+          example: "Bổ sung dữ liệu chi phí marketing"
+        data_view:
+          type: string
+          description: View mới trong Data Warehouse nếu thay đổi
+          example: "vw_financial_q_summary_v2"
+        input_parameters:
+          type: array
+          description: Danh sách tham số mới, nếu cập nhật
+          items:
+            $ref: "#/components/schemas/ReportInputParameter"
+        query_template:
+          type: string
+          description: Truy vấn mới dưới dạng template (nếu thay đổi)
+          example: >
+            SELECT * FROM vw_financial_q_summary_v2
+            WHERE year = @year AND cost_center = @cost_center
+        required_permission:
+          type: string
+          description: Cập nhật permission yêu cầu
+          example: "report.view_finance_v2"
+
+    ReportInputParameter:
+      type: object
+      description: Tham số đầu vào cho template báo cáo
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          description: Tên kỹ thuật của tham số (dùng trong query_template)
+          example: start_date
+        label:
+          type: string
+          description: Nhãn hiển thị cho người dùng cuối
+          example: "Từ ngày"
+        type:
+          $ref: '#/components/schemas/InputParameterType'
+        required:
+          type: boolean
+          description: Tham số này có bắt buộc nhập hay không
+          default: true
+        default_value:
+          description: Giá trị mặc định nếu có
+          example: "2024-01-01"
+        description:
+          type: string
+          description: Mô tả tham số để hỗ trợ người dùng nhập đúng
+          example: "Ngày bắt đầu của báo cáo"
+        validation_rules:
+          type: object
+          description: Quy tắc kiểm tra dữ liệu (nếu có)
+          properties:
+            pattern:
+              type: string
+              description: Regex để kiểm tra định dạng dữ liệu
+              example: "^\\d{4}-\\d{2}-\\d{2}$"
+            min:
+              type: number
+              description: Giá trị nhỏ nhất (nếu kiểu là number)
+              example: 1
+            max:
+              type: number
+              description: Giá trị lớn nhất (nếu kiểu là number)
+              example: 12
+            enum:
+              type: array
+              items:
+                type: string
+              description: Danh sách giá trị cho phép nếu tham số có kiểu enum-like
+              example: ["pending", "approved", "rejected"]
+
+    SavedReportConfigListEnvelope:
+      type: object
+      description: Kết quả trả về danh sách các cấu hình báo cáo đã lưu
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SavedReportConfigEnvelope'
+      example:
+        meta:
+          timestamp: "2025-06-04T10:20:00Z"
+          request_id: "req_xyz789"
+        data:
+          - config_id: "cfg-2025-Q1"
+            config_name: "Báo cáo quý 1"
+            template_id: "financial_summary"
+            created_at: "2025-04-01T09:00:00Z"
+            updated_at: "2025-04-15T10:00:00Z"
+            input_values:
+              start_date: "2025-01-01"
+              end_date: "2025-03-31"
+            is_public: false
+          - config_id: "cfg-2025-Q2"
+            config_name: "Báo cáo quý 2"
+            template_id: "financial_summary"
+            created_at: "2025-06-01T08:45:00Z"
+            updated_at: "2025-06-01T08:45:00Z"
+            input_values:
+              start_date: "2025-04-01"
+              end_date: "2025-06-30"
+            is_public: true
+
+    SavedReportConfigInput:
+      type: object
+      required:
+        - template_id
+        - config_name
+        - input_values
+      properties:
+        template_id:
+          type: string
+          description: ID của report template mà cấu hình này tham chiếu tới
+          example: financial_summary
+        config_name:
+          type: string
+          description: Tên hiển thị của cấu hình đã lưu
+          example: "Báo cáo tài chính quý gần nhất"
+        input_values:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+              - type: boolean
+          description: >
+            Tập giá trị các tham số đầu vào tương ứng với `ReportInputParameter` của template.
+            Dạng key-value, nơi key là `name` của input parameter.
+          example:
+            start_date: "2024-01-01"
+            end_date: "2024-03-31"
+        is_public:
+          type: boolean
+          default: false
+          description: Cấu hình này có hiển thị công khai trong tenant không (chỉ dành cho user có quyền)
+
+    SavedReportConfigUpdate:
+      type: object
+      description: Dữ liệu cập nhật cho cấu hình báo cáo đã lưu
+      properties:
+        config_name:
+          type: string
+          description: Tên hiển thị mới của cấu hình
+          example: "Báo cáo quý đã điều chỉnh"
+        input_values:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+              - type: boolean
+          description: Tập giá trị tham số mới (nếu cần cập nhật)
+          example:
+            start_date: "2024-04-01"
+            end_date: "2024-06-30"
+        is_public:
+          type: boolean
+          description: Có công khai cấu hình này không
+          example: true
+
+    SavedReportConfigEnvelope:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: object
+          properties:
+            config_id:
+              type: string
+              readOnly: true
+              example: "dashboard_01_finance"
+            template_id:
+              type: string
+              readOnly: true
+              example: "finance_summary"
+            name:
+              type: string
+              example: "Tổng kết Q1 - Bộ phận tài chính"
+            description:
+              type: string
+              example: "Báo cáo được tùy chỉnh bởi chị Lan"
+            input_parameters:
+              type: object
+              example:
+                from_date: "2025-01-01"
+                to_date: "2025-03-31"
+                department: "finance"
+            created_by:
+              type: string
+              readOnly: true
+              example: "lan_admin"
+            created_at:
+              type: string
+              format: date-time
+              readOnly: true
+              example: "2025-04-01T08:00:00Z"
+
+    QueryLogEnvelope:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        data:
+          type: object
+          properties:
+            log_id:
+              type: string
+              readOnly: true
+              example: "ql_001"
+            user_id:
+              type: string
+              readOnly: true
+              example: "superadmin_001"
+            template_id:
+              type: string
+              readOnly: true
+              example: "student_progress"
+            input_parameters:
+              type: object
+              example:
+                semester: "2024-2025-HK2"
+                grade: "5"
+            status:
+              type: string
+              enum: [success, error, unauthorized, timeout]
+              example: "success"
+            execution_time_ms:
+              type: integer
+              example: 823
+            queried_at:
+              type: string
+              format: date-time
+              readOnly: true
+              example: "2025-06-12T10:15:30Z"
+
+  examples:
+    successReportQuery:
+      summary: Kết quả truy vấn báo cáo thành công
+      value:
+        meta:
+          request_id: "req-20240612-001"
+          timestamp: "2025-06-12T10:15:30Z"
+        data:
+          result: [ ... ]
+
+    MissingParamError:
+      summary: Lỗi do dữ liệu đầu vào
+      value:
+        meta:
+          request_id: "req-20240612-002"
+          timestamp: "2025-06-12T10:16:00Z"
+        error:
+          code: "common.missing_param"
+          message: "Missing required field: template_id"
+
+    ForbiddenError:
+      summary: Lỗi do thiếu quyền truy cập
+      value:
+        meta:
+          request_id: "req-20240612-003"
+          timestamp: "2025-06-12T10:17:00Z"
+        error:
+          code: "auth.permission_denied"
+          message: "Permission denied: report.view_student_scores"
+
+    NotFoundTemplateError:
+      summary: Không tìm thấy report template
+      value:
+        meta:
+          request_id: "req-20240612-004"
+          timestamp: "2025-06-12T10:18:00Z"
+        error:
+          code: "template.not_found"
+          message: "Template ID 'finance_summary_2024' not found"
+
+paths:
+  /reports/query:
+    post:
+      summary: Truy vấn dữ liệu báo cáo theo report template
+      operationId: queryReport
+      x-audit-action: report_query_executed
+      x-required-permission: report.query
+      x-emits-event: report.query.issued
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + execute-report-query"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+      tags:
+        - Reports
+      description: |
+        Truy vấn một report template đã được định nghĩa trước với các input parameters cụ thể.
+        Trả về dữ liệu dạng bảng hoặc chuỗi thời gian để hiển thị biểu đồ.
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [template_id, input_parameters]
+              properties:
+                template_id:
+                  type: string
+                  example: "student_progress"
+                input_parameters:
+                  type: object
+                  description: Các tham số đầu vào cho report template
+                  example:
+                    semester: "2024-2025-HK2"
+                    grade: "5"
+      responses:
+        '200':
+          description: Thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/ResponseMeta'
+                  data:
+                    type: object
+                    example:
+                      columns: ["student_name", "score"]
+                      rows:
+                        - ["Nguyen Van A", 9.5]
+                        - ["Tran Thi B", 8.75]
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+  /report-templates:
+    get:
+      summary: Lấy danh sách report templates
+      operationId: listReportTemplates
+      x-audit-action: report_template_created
+      x-emits-event: report.template.created.v1
+      x-required-permission: report.template.read
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + list-templates"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"      
+      tags:
+        - Report Templates
+      description: Trả về danh sách các template báo cáo có thể sử dụng để truy vấn.
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sort_by'
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      responses:
+        '200':
+          description: Danh sách report templates
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportTemplateListEnvelope'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+    post:
+      summary: Tạo mới report template
+      operationId: createReportTemplate
+      x-audit-action: report_template_created
+      x-required-permission: report.template.create
+      x-emits-event: report.template.created.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + create-template"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"          
+      tags:
+        - Report Templates
+      description: Tạo một template mới dùng cho việc truy vấn báo cáo tùy biến.
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportTemplateInput'
+      responses:
+        '201':
+          description: Template đã được tạo thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportTemplateEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+  /report-templates/{template_id}:
+    patch:
+      summary: Cập nhật report template
+      operationId: updateReportTemplate
+      x-audit-action: report_template_updated
+      x-required-permission: report.template.update
+      x-emits-event: report.template.updated.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + update-template"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+        template_id: path 
+      tags:
+        - Report Templates
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportTemplateUpdate'
+      responses:
+        '200':
+          description: Template đã được cập nhật
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportTemplateEnvelope'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/NotFoundResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+    delete:
+      summary: Xóa report template
+      operationId: deleteReportTemplate
+      x-audit-action: report_template_deleted
+      x-required-permission: report.template.delete
+      x-emits-event: report.template.deleted.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + delete-template"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+        template_id: path
+      tags:
+        - Report Templates
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      responses:
+        '204':
+          description: Template đã được xóa thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/NotFoundResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+  /saved-configs:
+    get:
+      summary: Lấy danh sách cấu hình báo cáo đã lưu
+      operationId: listSavedConfigs
+      x-required-permission: report.config.read
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + list-configs"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+      tags:
+        - Saved Report Configs
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      responses:
+        '200':
+          description: Danh sách cấu hình báo cáo
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReportConfigListEnvelope'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+    post:
+      summary: Lưu cấu hình báo cáo mới
+      operationId: createSavedConfig
+      x-audit-action: saved_config_created
+      x-required-permission: report.config.create
+      x-emits-event: report.saved_config.created.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + save-config"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}" 
+      tags:
+        - Saved Report Configs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedReportConfigInput'
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      responses:
+        '201':
+          description: Lưu thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReportConfigEnvelope'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+  /saved-configs/{config_id}:
+    patch:
+      summary: Cập nhật cấu hình báo cáo
+      operationId: updateSavedConfig
+      x-audit-action: saved_config_updated
+      x-required-permission: report.config.update
+      x-emits-event: report.saved_config.updated.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + update-config"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+        config_id: path   
+      tags:
+        - Saved Report Configs
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedReportConfigUpdate'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReportConfigEnvelope'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/NotFoundResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+    delete:
+      summary: Xóa cấu hình báo cáo đã lưu
+      operationId: deleteSavedConfig
+      x-audit-action: saved_config_deleted
+      x-required-permission: report.config.delete
+      x-emits-event: report.saved_config.deleted.v1
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + delete-config"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+        config_id: path   
+      tags:
+        - Saved Report Configs
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+      responses:
+        '204':
+          description: Xóa thành công
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/NotFoundResponse'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+
+  /reports/query-log:
+    get:
+      summary: Tra cứu lịch sử truy vấn báo cáo
+      operationId: getQueryLogs
+      x-required-permission: report.querylog.read
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + query-logs"
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+        user_id: "{{X-User-ID}}"
+      tags:
+        - Query Logs
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sort_by'
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requiredPermission'
+        - name: template_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Lọc theo mã template báo cáo
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Mốc thời gian bắt đầu
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Mốc thời gian kết thúc
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [success, error]
+          description: Trạng thái truy vấn
+      responses:
+        '200':
+          description: Danh sách log truy vấn
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryLogEnvelope'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Tenant-ID:
+              $ref: '#/components/headers/X-Tenant-ID'
+            X-User-ID:
+              $ref: '#/components/headers/X-User-ID'
+          $ref: '#/components/responses/ErrorResponse'

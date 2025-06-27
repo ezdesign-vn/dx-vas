@@ -1,0 +1,42 @@
+flowchart TD
+  subgraph Client_Apps
+    Webform[Public Webform]
+    Parent[PWA - Customer Portal]
+    Staff[SPA - Admin Webapp]
+  end
+
+  subgraph Core_Services
+    Gateway[API Gateway]
+    Auth[Auth Service]
+    User[User Service]
+    Noti[Notification Service]
+  end
+
+  subgraph Business_Adapters
+    CRM[CRM Adapter]
+    SIS[SIS Adapter]
+    LMS[LMS Adapter]
+  end
+
+  subgraph External_Services
+    GSuite[Google OAuth2]
+    Zalo[Zalo OA API]
+    Gmail[Gmail API]
+    Chat[Google Chat API]
+  end
+
+  Webform -->|lead| CRM
+  Parent --> Gateway
+  Staff --> Gateway
+
+  Gateway -->|OAuth2 / OTP| Auth
+  Gateway -->|RBAC check| User
+  Gateway -->|Notify| Noti
+  Gateway --> CRM
+  Gateway --> SIS
+  Gateway --> LMS
+
+  Noti --> Zalo
+  Noti --> Gmail
+  Noti --> Chat
+  Auth --> GSuite

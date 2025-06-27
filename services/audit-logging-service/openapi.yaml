@@ -1,0 +1,620 @@
+openapi: 3.0.3
+info:
+  title: Audit Logging Service API
+  version: "2.2.0"
+  description: |
+    API của Audit Logging Service phục vụ việc ghi nhận và truy vấn các hành vi hệ thống.
+    Dữ liệu log có tính phân tầng theo tenant và hỗ trợ chuẩn hóa theo ADR-004 (Security), ADR-007 (RBAC), ADR-011 (API Error Format), ADR-012 (Response Structure), ADR-013 (Path Naming), ADR-024 (Data Retention), ADR-026 (Hard Delete Policy).
+
+    📎 Tài liệu liên quan:
+    - [Design](./design.md)
+    - [Interface Contract](./interface-contract.md)
+    - [Data Model](./data-model.md)
+    - [ADR-007](../../ADR/adr-007-rbac.md), [ADR-011](../../ADR/adr-011-api-error-format.md)
+
+  x-api-version: "v1"
+  x-last-updated: "2025-06-07"
+  x-author: "DX VAS Team"
+  x-reviewed-by: "Stephen Le"
+  x-maintainer: "dx@truongvietanh.edu.vn"
+  x-purpose: |
+    API của Audit Logging Service phục vụ việc ghi nhận và truy vấn các hành vi hệ thống.
+  x-adr-compliance:
+    - adr-007-rbac.md
+    - adr-011-api-error-format.md
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/audit/v1
+    description: Production
+  - url: https://staging-api.truongvietanh.edu.vn/audit/v1
+    description: Staging
+
+tags:
+  - name: Audit Logging
+    description: |
+      Nhóm các API phục vụ việc ghi nhận, truy vấn và kiểm tra lịch sử hành động (audit trail) trong hệ thống DX-VAS.
+      Bao gồm các API cho phép service nội bộ ghi log hành vi, và admin truy vấn thông tin này theo điều kiện đa dạng.
+    x-domain: audit
+    x-feature-group: logging
+    x-visibility: tenant-restricted
+    x-owner: dx-vas
+    x-lifecycle: stable
+
+components:
+    #___Headers___
+  headers:
+    X-Request-ID:
+      description: |
+        Mã định danh yêu cầu duy nhất, được tạo bởi Gateway để trace toàn hệ thống.  
+        Được phản hồi lại ở mọi response để phục vụ debug, audit, và correlate logs.
+      schema:
+        type: string
+        example: "req-34b2fc83-12b8-4efb-9d01-abc123456def"
+      required: true
+
+  parameters:
+    XTenantID:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant hiện tại của người dùng, dùng để kiểm tra phân quyền
+      schema:
+        type: string
+      example: "vas-sch-01"
+
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      required: true
+      description: JWT token cho xác thực
+      schema:
+        type: string
+        example: "Bearer eyJhbGciOiJIUzI1NiIsInR..."
+
+    ActorUserID:
+      name: actor_user_id
+      in: query
+      required: false
+      description: Lọc theo ID người thực hiện hành động
+      schema:
+        type: string
+      example: "user_abc123"
+
+    TraceID:
+      name: trace_id
+      in: query
+      required: false
+      description: Lọc theo trace ID để gom nhóm các hành động
+      schema:
+        type: string
+      example: "trace_456"
+
+    Action:
+      name: action
+      in: query
+      required: false
+      description: "Lọc theo loại hành động (vd: user.created)"
+      schema:
+        type: string
+      example: "user.deleted"
+
+    SourceService:
+      name: resource_id
+      in: query
+      required: true
+      description: Tên service phát sinh source
+      schema:
+        type: string
+      example: "user-service"
+
+    ResourceID:
+      name: resource_id
+      in: query
+      required: false
+      description: ID tài nguyên bị tác động
+      schema:
+        type: string
+      example: "u_456"
+
+    ResourceType:
+      name: resource_type
+      in: query
+      required: false
+      description: Loại tài nguyên bị tác động
+      schema:
+        $ref: '#/components/schemas/ResourceTypeEnum'
+
+    Status:
+      name: status
+      in: query
+      required: false
+      description: Trạng thái kết quả hành động
+      schema:
+        $ref: '#/components/schemas/StatusEnum'
+
+    FromTime:
+      name: from_time
+      in: query
+      required: false
+      description: Ngày bắt đầu (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+      example: "2025-06-01T00:00:00Z"
+
+    ToTime:
+      name: to_time
+      in: query
+      required: false
+      description: Ngày kết thúc (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+      example: "2025-06-14T23:59:59Z"
+
+    Page:
+      name: page
+      in: query
+      required: false
+      description: "Trang hiện tại (default: 1)"
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      example: 1
+
+    PageSize:
+      name: page_size
+      in: query
+      required: false
+      description: "Số lượng kết quả mỗi trang (default: 20)"
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+      example: 20
+
+  schemas:
+    #===Enums===
+    StatusEnum:
+      type: string
+      description: Trạng thái kết quả hành động
+      enum: [success, failure, warning]
+      example: "success"
+
+    ResourceTypeEnum:
+      type: string
+      description: Loại tài nguyên liên quan đến hành động audit
+      enum:
+        - user
+        - tenant
+        - role
+        - permission
+        - token
+        - report
+        - notification
+        - system
+      example: "user"
+
+    ActorTypeEnum:
+      type: string
+      description: Loại đối tượng thực hiện hành động
+      enum:
+        - user
+        - system
+        - service
+      example: "user"
+
+    #===Envelope===
+    ErrorEnvelope:
+      type: object
+      required: [error, meta]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: "common.validation_failed"
+            message:
+              type: string
+              example: "Payload không hợp lệ"
+            details:
+              type: array
+              nullable: true
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  issue:
+                    type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ResponseMeta:
+      type: object
+      required: [request_id, timestamp]
+      properties:
+        pagination:
+          type: object
+          nullable: true
+          description: Thông tin phân trang (chỉ xuất hiện nếu kết quả hỗ trợ phân trang)
+          properties:
+            page:
+              type: integer
+              example: 1
+              description: Số trang hiện tại
+            page_size:
+              type: integer
+              example: 20
+              description: Số phần tử trên mỗi trang
+            total:
+              type: integer
+              example: 125
+              description: Tổng số phần tử phù hợp với điều kiện truy vấn
+        request_id:
+          type: string
+          format: uuid
+          example: "req-xyz-123"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-06-14T12:00:00Z"
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorEnvelope'
+
+    AuditLog:
+      type: object
+      description: Bản ghi hành vi đã được lưu trữ trong hệ thống.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: ID định danh duy nhất của bản ghi log
+          example: "log-abc123"
+        tenant_id:
+          type: string
+          readOnly: true
+          description: Mã tenant sở hữu bản ghi
+          example: "vas-sch-01"
+        trace_id:
+          type: string
+          description: Mã trace dùng để liên kết xuyên suốt hành động
+          example: "trace-xyz"
+        actor_user_id:
+          type: string
+          description: ID người dùng thực hiện hành động (nếu có)
+          example: "user-01"
+        action:
+          type: string
+          description: Hành động được thực hiện (action type)
+          example: "user.login.success"
+        source_service:
+          type: string
+          description: Tên service phát sinh source
+          example: "user-service"
+        resource_type:
+          $ref: '#/components/schemas/ResourceTypeEnum'
+        resource_id:
+          type: string
+          description: ID tài nguyên bị tác động
+          example: "u_456"
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        input_parameters:
+          type: object
+          nullable: true
+          description: "Thông tin đầu vào (có thể bị che tùy quyền) - Lưu trữ các tham số đầu vào của hành động, được xử lý từ trường data trong request ghi log"
+          example:
+            email: "masked"
+            phone: "masked"
+        ip_address:
+          type: string
+          description: Địa chỉ IP người thực hiện (nếu có)
+          example: "masked"
+        user_agent:
+          type: string
+          description: Chuỗi User-Agent từ trình duyệt
+          example: "masked"
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Thời điểm ghi log
+          example: "2025-06-14T12:00:00Z"
+
+    AuditLogRequest:
+      type: object
+      description: Dữ liệu cần gửi để ghi nhận một hành động audit
+      required:
+        - action
+        - source_service
+        - actor_user_id
+        - actor_type
+        - resource_id
+        - resource_type
+        - timestamp
+      properties:
+        action:
+          type: string
+          description: Tên hành động được thực hiện (theo chuẩn namespace)
+          example: "user.created"
+        source_service:
+          type: string
+          description: Tên service phát hành hành động
+          example: "user-service"
+        actor_user_id:
+          type: string
+          format: uuid
+          writeOnly: true
+          description: ID tác nhân thực hiện (user/system)
+          example: "user-01"
+        actor_type:
+          $ref: '#/components/schemas/ActorTypeEnum'
+        resource_id:
+          type: string
+          format: uuid
+          description: ID tài nguyên bị tác động
+          example: "user-99"
+        resource_type:
+          $ref: '#/components/schemas/ResourceTypeEnum'
+        data:
+          type: object
+          nullable: true
+          description: Dữ liệu chi tiết bổ sung liên quan đến hành động
+          example:
+            before:
+              name: "Alice"
+            after:
+              name: "Bob"
+        timestamp:
+          type: string
+          format: date-time
+          description: Thời điểm thực hiện hành động
+          example: "2025-06-14T10:32:00Z"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    400BadRequest:
+      description: "400 Bad Request – Payload không hợp lệ hoặc thiếu thông tin bắt buộc."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              request_id: "req-badreq-123"
+              timestamp: "2025-06-14T12:01:00Z"
+            error:
+              code: "common.validation_failed"
+              message: "Dữ liệu đầu vào không hợp lệ."
+              details:
+                - field: "action"
+                  issue: "Trường này là bắt buộc."
+
+    401Unauthorized:
+      description: "401 Unauthorized – Thiếu hoặc sai JWT."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              request_id: "req-unauth-456"
+              timestamp: "2025-06-14T12:01:05Z"
+            error:
+              code: "auth.unauthorized"
+              message: "Token không hợp lệ hoặc đã hết hạn."
+
+    403Forbidden:
+      description: "403 Forbidden – Không có quyền truy cập tài nguyên này."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              request_id: "req-forbid-789"
+              timestamp: "2025-06-14T12:01:10Z"
+            error:
+              code: "auth.permission_denied"
+              message: "Bạn không có quyền truy cập vào tài nguyên này."
+
+    404NotFound:
+      description: "404 Not Found – Tài nguyên không tồn tại hoặc không thuộc quyền xem."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              request_id: "req-notfound-321"
+              timestamp: "2025-06-14T12:01:15Z"
+            error:
+              code: "log.log_not_found"
+              message: "Tài nguyên không tồn tại hoặc không thể truy cập."
+
+    500InternalError:
+      description: "500 Internal Server Error – Lỗi hệ thống không xác định."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              request_id: "req-internal-999"
+              timestamp: "2025-06-14T12:01:20Z"
+            error:
+              code: "common.internal_error"
+              message: "Đã xảy ra lỗi hệ thống."
+
+security:
+  - BearerAuth: []
+
+paths:
+  /audit-log:
+    post:
+      tags: [Audit Logging]
+      summary: Ghi nhận một sự kiện audit từ service khác
+      description: |
+        Endpoint cho phép các core service ghi lại log audit một cách chuẩn hóa.
+        Chỉ sử dụng nội bộ, không dành cho frontend.
+      operationId: createAuditLog
+      x-required-permission: audit.write
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      x-emits-event: []
+      x-gateway-enforced:
+        auth_required: true
+        tenant_header: true
+        permission_checked: true
+      x-route-evaluation: internal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLogRequest'
+      responses:
+        '204':
+          description: Ghi log thành công, không có nội dung trả về.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/400BadRequest'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/500InternalError'
+
+    get:
+      tags: [Audit Logging]
+      summary: Truy vấn danh sách bản ghi audit log
+      operationId: listAuditLogs
+      x-required-permission: audit.read.log
+      x-emits-event: []
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      x-gateway-enforced:
+        auth_required: true
+        tenant_header: true
+        permission_checked: true
+      x-route-evaluation: internal
+      parameters:
+        - $ref: '#/components/parameters/ActorUserID'
+        - $ref: '#/components/parameters/TraceID'
+        - $ref: '#/components/parameters/Action'
+        - $ref: '#/components/parameters/SourceService'
+        - $ref: '#/components/parameters/ResourceID'
+        - $ref: '#/components/parameters/ResourceType'
+        - $ref: '#/components/parameters/Status'
+        - $ref: '#/components/parameters/FromTime'
+        - $ref: '#/components/parameters/ToTime'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Danh sách log theo tiêu chí
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  meta:
+                    $ref: '#/components/schemas/ResponseMeta'
+                  error:
+                    type: object
+        '400':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/400BadRequest'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/500InternalError'
+
+  /audit-log/{id}:
+    get:
+      tags: [Audit Logging]
+      summary: Truy vấn chi tiết một bản ghi log
+      operationId: getAuditLogById
+      x-required-permission: audit.read.log
+      x-emits-event: []
+      x-condition:
+        tenant_id: "{{X-Tenant-ID}}"
+      x-gateway-enforced:
+        auth_required: true
+        tenant_header: true
+        permission_checked: true
+      x-route-evaluation: internal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/XTenantID'
+      responses:
+        '200':
+          description: Trả về chi tiết log
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+        '403':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          description: Log không tồn tại
+        '500':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          $ref: '#/components/responses/500InternalError'

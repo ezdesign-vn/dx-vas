@@ -1,0 +1,1079 @@
+
+<!doctype html>
+<html lang="vi" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tài liệu kiến trúc và phát triển cho dự án Chuyển đổi số Trường Việt Anh.">
+      
+      
+        <meta name="author" content="DX VAS Team">
+      
+      
+        <link rel="canonical" href="https://ezdesign-vn.github.io/dx-vas/dev-guide/quality-and-operations/15-troubleshooting/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>🧯 15. Troubleshooting Guide – Xử lý Sự cố Nhanh - DX VAS - Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#15-troubleshooting-guide-xu-ly-su-co-nhanh" class="md-skip">
+          Bỏ qua
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Đầu trang">
+    <a href="../../.." title="DX VAS - Docs" class="md-header__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DX VAS - Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              🧯 15. Troubleshooting Guide – Xử lý Sự cố Nhanh
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Tìm kiếm" placeholder="Tìm kiếm" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Tìm kiếm">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Xoá" aria-label="Xoá" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../architecture/system-diagrams/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Kiến trúc Hệ thống
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Hướng dẫn Phát triển
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../services/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Thiết kế Services
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../ADR/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Quyết định Kiến trúc (ADRs)
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Thanh điều hướng" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DX VAS - Docs" class="md-nav__button md-logo" aria-label="DX VAS - Docs" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    DX VAS - Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ezdesign-vn/dx-vas.git" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ezdesign.vn/dx-vas
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Kiến trúc Hệ thống
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Kiến trúc Hệ thống
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/system-diagrams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sơ đồ Hệ thống
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/rbac-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RBAC Chi tiết
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hướng dẫn Phát triển
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Thiết kế Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../ADR/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Quyết định Kiến trúc (ADRs)
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Quyết định Kiến trúc (ADRs)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-local-development-loi-thuong-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 🧪 Local Development – Lỗi thường gặp
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 🧪 Local Development – Lỗi thường gặp">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#khong-chay-uoc-service-local" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Không chạy được service local
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#goi-api-tra-ve-401-unauthorized" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Gọi API trả về 401 Unauthorized
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-api-gateway-routing-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 🛰️ API Gateway / Routing lỗi
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 🛰️ API Gateway / Routing lỗi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goi-api-gateway-nhung-bao-404" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Gọi API Gateway nhưng báo 404
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loi-cors-khi-goi-tu-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Lỗi CORS khi gọi từ Frontend
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-pubsub-event-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 📦 Pub/Sub &amp; Event Processing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 📦 Pub/Sub &amp; Event Processing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sub-service-khong-nhan-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Sub Service không nhận event
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-bao-mat-quyen-han" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 🔐 Bảo mật &amp; Quyền hạn
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 🔐 Bảo mật &amp; Quyền hạn">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tra-ve-403-forbidden" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Trả về 403 Forbidden
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-google-cloud-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ☁️ Google Cloud Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. ☁️ Google Cloud Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#khong-thay-log-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Không thấy log service
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-ky-nang-xu-ly-su-co-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. 🧠 Kỹ năng xử lý sự cố (Mindset)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-nguon-tham-khao-nhanh" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. 📌 Nguồn tham khảo nhanh
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="15-troubleshooting-guide-xu-ly-su-co-nhanh">🧯 15. Troubleshooting Guide – Xử lý Sự cố Nhanh<a class="headerlink" href="#15-troubleshooting-guide-xu-ly-su-co-nhanh" title="Permanent link">¶</a></h1>
+<p>Tài liệu này tổng hợp các sự cố thường gặp trong quá trình phát triển và vận hành hệ thống DX-VAS, kèm hướng dẫn xử lý nhanh. Mục tiêu là giúp dev không hoảng loạn khi gặp lỗi, và biết tra ở đâu, làm gì trước tiên.</p>
+<hr />
+<h2 id="1-local-development-loi-thuong-gap">1. 🧪 Local Development – Lỗi thường gặp<a class="headerlink" href="#1-local-development-loi-thuong-gap" title="Permanent link">¶</a></h2>
+<h3 id="khong-chay-uoc-service-local">❌ Không chạy được service local<a class="headerlink" href="#khong-chay-uoc-service-local" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker chưa khởi động hoặc sai port</td>
+<td><code>docker-compose up -d postgres redis</code></td>
+</tr>
+<tr>
+<td>File <code>.env</code> chưa tồn tại hoặc sai</td>
+<td>Copy từ <code>.env.example</code> và kiểm tra từng biến</td>
+</tr>
+<tr>
+<td>Migration chưa chạy</td>
+<td><code>make migrate</code> hoặc <code>alembic upgrade head</code></td>
+</tr>
+<tr>
+<td>Poetry chưa cài / sai virtualenv</td>
+<td><code>poetry install</code> và <code>poetry shell</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="goi-api-tra-ve-401-unauthorized">❌ Gọi API trả về 401 Unauthorized<a class="headerlink" href="#goi-api-tra-ve-401-unauthorized" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thiếu token hoặc token sai</td>
+<td>Đăng nhập lại bằng Postman hoặc <code>make token</code></td>
+</tr>
+<tr>
+<td>Token hết hạn / decode sai</td>
+<td>Dán token vào <a href="https://jwt.io">jwt.io</a> để kiểm tra</td>
+</tr>
+<tr>
+<td>Backend quên check token?</td>
+<td>Kiểm tra middleware Auth đã bật chưa</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-api-gateway-routing-loi">2. 🛰️ API Gateway / Routing lỗi<a class="headerlink" href="#2-api-gateway-routing-loi" title="Permanent link">¶</a></h2>
+<h3 id="goi-api-gateway-nhung-bao-404">❌ Gọi API Gateway nhưng báo 404<a class="headerlink" href="#goi-api-gateway-nhung-bao-404" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Route chưa được định nghĩa trong <code>proxy_config.yaml</code></td>
+<td>Thêm lại route và restart service</td>
+</tr>
+<tr>
+<td>Sai path hoặc method</td>
+<td>So lại với OpenAPI contract</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="loi-cors-khi-goi-tu-frontend">❌ Lỗi CORS khi gọi từ Frontend<a class="headerlink" href="#loi-cors-khi-goi-tu-frontend" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header <code>Origin</code> bị chặn</td>
+<td>Kiểm tra config CORS trong service</td>
+</tr>
+<tr>
+<td>Không trả về header <code>Access-Control-Allow-Origin</code></td>
+<td>Thêm middleware CORS đúng trong FastAPI hoặc Express</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-pubsub-event-processing">3. 📦 Pub/Sub &amp; Event Processing<a class="headerlink" href="#3-pubsub-event-processing" title="Permanent link">¶</a></h2>
+<h3 id="sub-service-khong-nhan-event">❌ Sub Service không nhận event<a class="headerlink" href="#sub-service-khong-nhan-event" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sai <code>topic</code> hoặc không có <code>subscription</code></td>
+<td>Kiểm tra GCP Pub/Sub hoặc config local</td>
+</tr>
+<tr>
+<td>Event không hợp lệ schema</td>
+<td>Bật <code>schema validation</code> trong consumer &amp; kiểm tra logs</td>
+</tr>
+<tr>
+<td>Event bị swallow do lỗi</td>
+<td>Bật log <code>ERROR</code>, đảm bảo không <code>try/except</code> quá rộng</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-bao-mat-quyen-han">4. 🔐 Bảo mật &amp; Quyền hạn<a class="headerlink" href="#4-bao-mat-quyen-han" title="Permanent link">¶</a></h2>
+<h3 id="tra-ve-403-forbidden">❌ Trả về 403 Forbidden<a class="headerlink" href="#tra-ve-403-forbidden" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User không có permission cần thiết</td>
+<td>So lại <code>x-required-permission</code> trong OpenAPI</td>
+</tr>
+<tr>
+<td>Token không chứa đủ role/claims</td>
+<td>Decode token và kiểm tra payload</td>
+</tr>
+<tr>
+<td>Config role mapping sai</td>
+<td>Kiểm tra DB bảng <code>user_roles</code> và <code>role_permissions</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-google-cloud-issues">5. ☁️ Google Cloud Issues<a class="headerlink" href="#5-google-cloud-issues" title="Permanent link">¶</a></h2>
+<h3 id="khong-thay-log-service">❌ Không thấy log service<a class="headerlink" href="#khong-thay-log-service" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nguyên nhân</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sai project GCP</td>
+<td>Kiểm tra tên project trong filter</td>
+</tr>
+<tr>
+<td>Không log đúng <code>trace_id</code></td>
+<td>Kiểm tra middleware có gắn <code>X-Request-ID</code> chưa</td>
+</tr>
+<tr>
+<td>Service chưa deploy đúng revision</td>
+<td>Vào Cloud Run → tab <strong>Revisions</strong> để rollback nếu cần</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-ky-nang-xu-ly-su-co-mindset">6. 🧠 Kỹ năng xử lý sự cố (Mindset)<a class="headerlink" href="#6-ky-nang-xu-ly-su-co-mindset" title="Permanent link">¶</a></h2>
+<ul>
+<li><strong>Luôn bắt đầu từ <code>X-Request-ID</code></strong> → giúp trace toàn flow qua log.</li>
+<li><strong>Luôn dùng lại <code>curl</code> hoặc Postman</strong> để tái hiện vấn đề từng bước.</li>
+<li><strong>Tách biệt lỗi logic và lỗi hạ tầng</strong> (logic: exception, hạ tầng: 502/504).</li>
+<li><strong>Ghi lại các sự cố nghiêm trọng</strong> vào Wiki nội bộ để rút kinh nghiệm.</li>
+</ul>
+<hr />
+<h2 id="7-nguon-tham-khao-nhanh">7. 📌 Nguồn tham khảo nhanh<a class="headerlink" href="#7-nguon-tham-khao-nhanh" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mục tiêu</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Theo dõi Log</td>
+<td>https://console.cloud.google.com/logs</td>
+</tr>
+<tr>
+<td>Theo dõi Pub/Sub</td>
+<td>https://console.cloud.google.com/cloudpubsub</td>
+</tr>
+<tr>
+<td>Theo dõi Cloud Run</td>
+<td>https://console.cloud.google.com/run</td>
+</tr>
+<tr>
+<td>Monitoring &amp; Alert</td>
+<td>https://console.cloud.google.com/monitoring</td>
+</tr>
+<tr>
+<td>Decode JWT</td>
+<td>https://jwt.io</td>
+</tr>
+<tr>
+<td>Thử API (local)</td>
+<td>Postman / Insomnia / REST Client</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p>📌 Ghi nhớ: Dev giỏi không phải là dev không gặp lỗi, mà là người biết tìm đúng log, đúng flow, và fix lỗi <strong>có trách nhiệm</strong>.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Trở lại mục lục
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant Service as Hệ thống phát sinh sự kiện (CRM/SIS/LMS)
+  participant Gateway as API Gateway
+  participant Noti as Notification Service
+  participant Zalo as Zalo OA
+  participant Gmail as Gmail API
+  participant Chat as Google Chat
+
+  Service->>Gateway: Gửi yêu cầu gửi thông báo (POST /notifications)
+  Gateway->>Noti: Forward request + X-User-ID + RBAC check
+
+  Noti->>Noti: Kiểm tra phân quyền + Tra cấu hình kênh ưa thích
+  alt Gửi qua Zalo OA
+    Noti->>Zalo: ZNS API
+  end
+  alt Gửi qua Gmail
+    Noti->>Gmail: Gmail API
+  end
+  alt Gửi qua Google Chat
+    Noti->>Chat: Chat webhook
+  end

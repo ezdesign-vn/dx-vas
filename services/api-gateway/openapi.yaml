@@ -1,0 +1,433 @@
+openapi: 3.0.3
+info:
+  title: API Gateway - dx-vas
+  version: "2.3"
+  description: |
+    API Gateway của hệ thống chuyển đổi số VAS (dx_vas), đóng vai trò điều phối, phân quyền, xác thực và định tuyến các request đến các service backend trong hệ sinh thái.
+    
+    Gateway hỗ trợ:
+    - Xác thực JWT token qua JWKS cache
+    - RBAC phân quyền động theo tenant
+    - Định tuyến thông minh qua `route_config.json`
+    - Forward trace_id, user_id, tenant_id đến backend
+    - Chuẩn hóa lỗi và phản hồi theo `ADR-011` và `ADR-012`
+    
+    Tài liệu này mô tả endpoint duy nhất `ALL /{wildcard}` cùng các headers, response chuẩn và cấu trúc dữ liệu đi kèm.
+
+  contact:
+    name: DX VAS Team
+
+  x-api-version: v1
+  x-maintainer: dx@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-011-api-error-format
+    - adr-012-response-structure
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/
+    description: Production
+  - url: https://staging.truongvietanh.edu.vn/
+    description: Staging
+    
+tags:
+  - name: proxy
+    description: |
+      Nhóm API định tuyến động – tiếp nhận tất cả request từ client và forward đến backend dựa trên cấu hình `route_config`.
+
+  - name: system
+    description: |
+      Nhóm API kiểm tra trạng thái của Gateway, như healthcheck, version, status…  
+      Có thể thêm các API như `/status`, `/metrics`, `/healthz`.
+
+  - name: meta
+    description: |
+      Nhóm API phục vụ frontend khai thác metadata từ Gateway, ví dụ:  
+      - Xem cấu hình phân quyền của route
+      - Lấy JWKS công khai
+      - Tra cứu trace_id từ hệ thống log
+
+  - name: debug (internal)
+    description: |
+      Nhóm API dành riêng cho nội bộ phát triển / SRE, có thể được expose conditionally theo môi trường (staging, local dev).
+
+    x-internal: true
+
+security:
+  - bearerAuth: []
+
+components:
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: |
+        Chuỗi JWT token hợp lệ theo chuẩn Bearer Token.  
+        Ví dụ: `Authorization: Bearer eyJhbGciOi...`
+      required: true
+      schema:
+        type: string
+        example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI..."
+
+    X-Tenant-ID:
+      name: X-Tenant-ID
+      in: header
+      description: |
+        Mã định danh tenant mà người dùng đang hoạt động trong context.  
+        Gateway dùng để enforce RBAC phân tầng.
+      required: true
+      schema:
+        type: string
+        example: "vas-primary"
+
+    X-User-ID:
+      name: X-User-ID
+      in: header
+      description: |
+        Mã người dùng, được trích xuất từ JWT token sau khi xác thực thành công.  
+        Header này được Gateway tự động chèn khi forward request.
+      required: false
+      schema:
+        type: string
+        example: "u123"
+
+    X-Trace-ID:
+      name: X-Trace-ID
+      in: header
+      description: |
+        Mã định danh truy vết (trace_id) theo chuẩn OpenTelemetry.  
+        Nếu client không gửi, Gateway sẽ tự sinh và propagate xuyên suốt.
+      required: false
+      schema:
+        type: string
+        example: "f79efb12-d0ff-43af-b59e-23b093db377c"
+
+    X-Service:
+      name: X-Service
+      in: header
+      description: |
+        Định danh backend service đích (được resolve từ `route_config`).  
+        Header này được Gateway tự động chèn để giúp backend biết nguồn gốc route.
+      required: false
+      schema:
+        type: string
+        example: "user-service.master"
+
+    X-Permissions:
+      name: X-Permissions
+      in: header
+      description: |
+        Danh sách các permission đã resolve từ cache `rbac:{user_id}:{tenant_id}`.  
+        Gateway sẽ chèn vào nếu route có `x-required-permission` để backend có thể kiểm tra tùy ý.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "user.read"
+          - "report.view"
+ 
+    X-Login-Method:
+      name: X-Login-Method
+      in: header
+      description: |
+        Phương thức đăng nhập ban đầu được dùng để tạo token.
+        Giá trị này được decode từ JWT và forwarded bởi API Gateway đến backend để phục vụ logging/phân tích.
+      required: false
+      schema:
+        type: string
+        enum: [oauth2, otp, password]
+        example: otp
+
+  schemas:
+    SuccessEnvelope:
+      description: |
+        Cấu trúc phản hồi thành công chuẩn của hệ thống.  
+        Tất cả phản hồi thành công sẽ bọc trong object này, bao gồm:
+        - `data`: payload nghiệp vụ
+        - `meta`: metadata kèm theo (trace_id, timestamp, pagination...)
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          description: Payload dữ liệu chính của phản hồi
+          type: object
+          additionalProperties: true
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ErrorEnvelope:
+      description: |
+        Cấu trúc phản hồi lỗi chuẩn hóa, theo định dạng `ADR-011`.  
+        Bao gồm thông tin lỗi (`error`) và metadata (`meta`) như `trace_id`.
+      type: object
+      required: [error, meta]
+      properties:
+        error:
+          $ref: '#/components/schemas/Error'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ResponseMeta:
+      type: object
+      required: [trace_id, timestamp]
+      properties:
+        trace_id:
+          type: string
+          format: uuid
+          example: "f79efb12-d0ff-43af-b59e-23b093db377c"
+          description: Mã định danh trace duy nhất cho mỗi request
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-06-10T12:45:00Z"
+          description: Thời điểm tạo phản hồi (UTC ISO 8601)
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        additional:
+          type: object
+          additionalProperties: true
+          description: Thông tin phụ tùy trường hợp (version, flags…)
+          example:
+            login_method: otp
+            version: "v1.2"
+
+    Pagination:
+      description: |
+        Cấu trúc phân trang áp dụng cho các API trả danh sách.  
+        Dùng trong `meta.pagination`.
+      type: object
+      required: [page, page_size, total]
+      properties:
+        page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 120
+
+    Error:
+      description: |
+        Thông tin lỗi chi tiết, dùng cho các phản hồi 4xx/5xx.  
+        Bắt buộc có `code` dạng namespace (vd: `auth.invalid_token`, `rbac.permission_denied`).
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: "rbac.permission_denied"
+          description: |
+            Mã lỗi có định danh theo namespace (vd: `auth.invalid_token`, `rbac.permission_denied`)
+        message:
+          type: string
+          example: "Bạn không có quyền truy cập tài nguyên này"
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: Thông tin chi tiết hỗ trợ debug (nếu có)
+
+  responses:
+    200Success:
+      description: Thành công
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessEnvelope'
+          examples:
+            default:
+              summary: Phản hồi thành công cơ bản
+              value:
+                data:
+                  id: "u123"
+                  name: "Nguyễn Văn A"
+                meta:
+                  trace_id: "123e4567-e89b-12d3-a456-426614174000"
+                  timestamp: "2025-06-10T12:00:00Z"
+
+    401Unauthorized:
+      description: Không có token hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            invalid_token:
+              value:
+                error:
+                  code: "auth.invalid_token"
+                  message: "Token không hợp lệ hoặc đã hết hạn"
+                meta:
+                  trace_id: "abc123"
+
+    403Forbidden:
+      description: Không đủ quyền truy cập (RBAC)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            rbac_error:
+              value:
+                error:
+                  code: "rbac.permission_denied"
+                  message: "Bạn không có quyền truy cập tài nguyên này"
+                meta:
+                  trace_id: "abc456"
+
+    404NotFound:
+      description: Không tìm thấy cấu hình định tuyến
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            route_not_found:
+              value:
+                error:
+                  code: "gateway.route_not_found"
+                  message: "Không tìm thấy route tương ứng"
+                meta:
+                  trace_id: "abc789"
+
+    422Unprocessable:
+      description: Dữ liệu gửi lên không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            invalid_payload:
+              value:
+                error:
+                  code: "request.invalid_payload"
+                  message: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại"
+                  details:
+                    - field: "email"
+                      message: "Email không đúng định dạng"
+                meta:
+                  trace_id: "abc000"
+
+    500InternalError:
+      description: Lỗi hệ thống hoặc backend không phản hồi
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            system_error:
+              value:
+                error:
+                  code: "gateway.internal_error"
+                  message: "Lỗi không xác định. Vui lòng thử lại sau."
+                meta:
+                  trace_id: "xyz999"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /{wildcard}:
+    x-required-permission: "report.export"
+    x-condition:
+      user_id: "{{X-User-ID}}"
+    x-gateway-enforced: true
+    x-route-evaluation: "check-permission + check-condition + forward"
+    parameters:
+      - name: wildcard
+        in: path
+        required: true
+        schema:
+          type: string
+        description: |
+          Đường dẫn tương đối cần proxy (ví dụ: `users/123`, `reports/export`)
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/X-Tenant-ID'
+      - $ref: '#/components/parameters/X-User-ID'
+      - $ref: '#/components/parameters/X-Trace-ID'
+      - $ref: '#/components/parameters/X-Service'
+      - $ref: '#/components/parameters/X-Permissions'
+      - $ref: '#/components/parameters/X-Login-Method'
+
+    get:
+      summary: Proxy GET request
+      description: Xử lý GET – kiểm tra token, permission, và forward đến backend.
+      responses:
+        '200': { $ref: '#/components/responses/200Success' }
+        '401': { $ref: '#/components/responses/401Unauthorized' }
+        '403': { $ref: '#/components/responses/403Forbidden' }
+        '404': { $ref: '#/components/responses/404NotFound' }
+        '422': { $ref: '#/components/responses/422Unprocessable' }
+        '500': { $ref: '#/components/responses/500InternalError' }
+
+    post:
+      summary: Proxy POST request
+      description: Xử lý POST – forward toàn bộ payload đến backend.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200': { $ref: '#/components/responses/200Success' }
+        '401': { $ref: '#/components/responses/401Unauthorized' }
+        '403': { $ref: '#/components/responses/403Forbidden' }
+        '404': { $ref: '#/components/responses/404NotFound' }
+        '422': { $ref: '#/components/responses/422Unprocessable' }
+        '500': { $ref: '#/components/responses/500InternalError' }
+
+    put:
+      summary: Proxy PUT request
+      description: Xử lý PUT – forward toàn bộ payload đến backend.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200': { $ref: '#/components/responses/200Success' }
+        '401': { $ref: '#/components/responses/401Unauthorized' }
+        '403': { $ref: '#/components/responses/403Forbidden' }
+        '404': { $ref: '#/components/responses/404NotFound' }
+        '422': { $ref: '#/components/responses/422Unprocessable' }
+        '500': { $ref: '#/components/responses/500InternalError' }
+
+    patch:
+      summary: Proxy PATCH request
+      description: Xử lý PATCH – forward toàn bộ payload đến backend.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200': { $ref: '#/components/responses/200Success' }
+        '401': { $ref: '#/components/responses/401Unauthorized' }
+        '403': { $ref: '#/components/responses/403Forbidden' }
+        '404': { $ref: '#/components/responses/404NotFound' }
+        '422': { $ref: '#/components/responses/422Unprocessable' }
+        '500': { $ref: '#/components/responses/500InternalError' }
+
+    delete:
+      summary: Proxy DELETE request
+      description: Xử lý DELETE – forward trực tiếp đến backend service.
+      responses:
+        '200': { $ref: '#/components/responses/200Success' }
+        '401': { $ref: '#/components/responses/401Unauthorized' }
+        '403': { $ref: '#/components/responses/403Forbidden' }
+        '404': { $ref: '#/components/responses/404NotFound' }
+        '422': { $ref: '#/components/responses/422Unprocessable' }
+        '500': { $ref: '#/components/responses/500InternalError' }

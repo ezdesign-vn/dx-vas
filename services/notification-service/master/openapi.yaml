@@ -1,0 +1,484 @@
+openapi: 3.0.3
+info:
+  title: Notification Service (Master)
+  version: "1.1"
+  description: |
+    Notification Service (Master) chịu trách nhiệm xử lý và gửi các thông báo đa kênh (email, sms, push) 
+    dựa trên template được cấu hình trước, cho toàn hệ thống VAS DX. Service này thực hiện:
+    
+    - Quản lý các template thông báo theo sự kiện, ngôn ngữ và kênh gửi
+    - Cung cấp API nội bộ để gọi gửi thông báo thủ công
+    - Tiêu thụ sự kiện từ các service khác, ánh xạ tới template tương ứng và phát hành sự kiện chuẩn hóa
+      (`global_notification_requested`) xuống các Notification Sub theo cơ chế multi-tenant
+
+    Tài liệu này mô tả chi tiết các API công khai của Notification Master, đảm bảo tuân thủ các nguyên tắc thiết kế
+    và chuẩn hóa dữ liệu hệ thống như sau:
+
+    - [ADR-007: Dynamic RBAC Strategy](../../../ADR/adr-007-rbac.md)
+    - [ADR-011: API Error Format](../../../ADR/adr-011-api-error-format.md)
+    - [ADR-012: API Response Envelope Structure](../../../ADR/adr-012-response-structure.md)
+    - [ADR-027: Data Management Strategy](../../../ADR/adr-027-data-management-strategy.md)
+    - [ADR-030: Event Schema Governance](../../../ADR/adr-030-event-schema-governance.md)
+
+    Mọi API đều yêu cầu JWT theo chuẩn OAuth2 (bearer token), phân quyền động theo permission_code.
+  contact:
+    name: DX VAS Team
+    url: https://dx.truongvietanh.edu.vn/platform
+    email: dx@truongvietanh.edu.vn
+
+  x-api-version: v1
+  x-maintainer: dx@truongvietanh.edu.vn
+  x-adr-compliance:
+    - adr-007-rbac.md
+    - adr-011-api-error-format.md
+    - adr-012-response-structure.md
+    - adr-027-data-management-strategy.md
+    - adr-030-event-schema-governance.md
+
+servers:
+  - url: https://api.truongvietanh.edu.vn/notification-master/v1
+    description: Production Server
+  - url: https://staging-api.truongvietanh.edu.vn/notification-master/v1
+    description: Staging
+
+tags:
+  - name: NotificationTemplate
+    description: Quản lý template gửi thông báo
+  - name: ManualSend
+    description: Gửi thông báo thủ công
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  headers:
+    X-Request-ID:
+      description: Mã định danh duy nhất của request, phục vụ trace và debug.
+      schema:
+        type: string
+        example: "req-vas-20240601-abc123"
+    X-Tenant-ID:
+      description: Tenant ID của người dùng hiện tại, do API Gateway inject.
+      schema:
+        type: string
+        example: "tenant-001"
+    X-User-ID:
+      description: ID người dùng hiện tại (nếu có).
+      schema:
+        type: string
+        example: "user-xyz"
+    X-User-Role:
+      description: Role của người dùng hiện tại (admin, teacher, parent, etc.)
+      schema:
+        type: string
+        example: "admin"
+
+  schemas:
+    ResponseMeta:
+      type: object
+      description: Thông tin meta đi kèm mỗi phản hồi, dùng cho trace và timestamp hoá.
+      required: [request_id, timestamp]
+      properties:
+        request_id:
+          type: string
+          description: Mã định danh duy nhất của request.
+          example: "req-vas-20240601-xyz789"
+        timestamp:
+          type: string
+          format: date-time
+          description: Thời điểm server phản hồi.
+          example: "2025-06-05T09:00:00Z"
+
+    ErrorEnvelope:
+      type: object
+      description: Cấu trúc chuẩn của phản hồi lỗi theo ADR-011.
+      required: [meta, error]
+      properties:
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Mã lỗi định danh
+              example: "template.template_not_found"
+            message:
+              type: string
+              description: Mô tả lỗi cho người dùng
+              example: "Template không tồn tại hoặc đã bị xóa"
+            details:
+              type: object
+              additionalProperties: true
+              description: Thông tin kỹ thuật chi tiết (nếu có)
+
+    TemplateResponse:
+      type: object
+      description: Thông tin một template gửi thông báo.
+      example:
+        id: "tpl-001"
+        name: "welcome_email"
+        type: "email"
+        language: "vi"
+        trigger_event: "user.created.v1"
+      properties:
+        id:
+          type: string
+          description: ID template
+          readOnly: true
+        name:
+          type: string
+          description: Tên định danh nội bộ cho template
+        type:
+          type: string
+          enum: [email, sms, push]
+          description: Loại kênh gửi
+        language:
+          type: string
+          description: Ngôn ngữ nội dung template (vi, en, ...)
+        trigger_event:
+          type: string
+          description: Tên sự kiện dùng để ánh xạ tự động
+
+    TemplateCreateRequest:
+      type: object
+      description: Payload tạo mới template gửi thông báo
+      required: [name, type, language, trigger_event, content]
+      example:
+        name: "reset_sms"
+        type: "sms"
+        language: "vi"
+        trigger_event: "password.reset_requested.v1"
+        content: "Mã xác thực của bạn là: {{code}}"
+      properties:
+        name:
+          type: string
+          description: Tên định danh nội bộ cho template
+          writeOnly: true
+        type:
+          type: string
+          enum: [email, sms, push]
+          description: Loại kênh gửi
+          writeOnly: true
+        language:
+          type: string
+          description: Ngôn ngữ
+          writeOnly: true
+        trigger_event:
+          type: string
+          description: Tên sự kiện để tự động ánh xạ
+          writeOnly: true
+        content:
+          type: string
+          description: Nội dung có chứa placeholder như `{{name}}`
+          writeOnly: true
+
+    TemplateUpdateRequest:
+      type: object
+      description: Payload cập nhật nội dung template
+      required: [content]
+      example:
+        content: "Xin chào {{name}}, đây là hướng dẫn đăng nhập."
+      properties:
+        content:
+          type: string
+          description: Nội dung mới của template
+
+    ManualSendRequest:
+      type: object
+      description: Payload gửi thông báo thủ công
+      required: [template_id, recipient, channel, params]
+      example:
+        template_id: "tpl-001"
+        recipient: "student@vas.edu.vn"
+        channel: "email"
+        params:
+          name: "Nguyễn Văn A"
+      properties:
+        template_id:
+          type: string
+          description: ID của template sẽ được dùng để gửi
+        recipient:
+          type: string
+          description: Email, số điện thoại hoặc push token
+        channel:
+          type: string
+          enum: [email, sms, push]
+          description: Kênh gửi thông báo
+        params:
+          type: object
+          description: Dữ liệu động dùng để render nội dung
+          additionalProperties: true
+
+    ManualSendResponse:
+      type: object
+      description: Phản hồi khi gửi thông báo thủ công thành công (queued hoặc sent).
+      example:
+        status: "queued"
+        notification_id: "notif-abc123"
+      properties:
+        status:
+          type: string
+          enum: [queued, sent, failed]
+          description: Trạng thái gửi thông báo
+          readOnly: true
+        notification_id:
+          type: string
+          description: Mã định danh thông báo đã gửi
+          readOnly: true
+
+paths:
+  /templates:
+    get:
+      tags: [NotificationTemplate]
+      summary: Lấy danh sách template
+      operationId: listNotificationTemplates
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + list-templates"      
+      x-required-permission: notification.template.read
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Số trang (bắt đầu từ 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          example: 2
+        - name: limit
+          in: query
+          required: false
+          description: Số lượng bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          example: 10
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                data:
+                  - id: "tpl-001"
+                    name: "welcome_email"
+                    type: "email"
+                    language: "vi"
+                    trigger_event: "user.created.v1"
+                meta:
+                  request_id: "req-gettpl-001"
+                  timestamp: "2025-06-05T10:30:00Z"
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TemplateResponse"
+                  meta:
+                    $ref: "#/components/schemas/ResponseMeta"
+        default:
+          description: Lỗi xử lý – cấu trúc lỗi chuẩn hóa theo ADR-011.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                meta:
+                  request_id: "req-err-999"
+                  timestamp: "2025-06-05T10:15:00Z"
+                error:
+                  code: "template.template_not_found"
+                  message: "Không tìm thấy template yêu cầu"
+                  details:
+                    id: "tpl-999"
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"     
+
+
+    post:
+      tags: [NotificationTemplate]
+      summary: Tạo template mới
+      operationId: createNotificationTemplate
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + validate + create-template"
+      x-condition:
+        name: required
+        type: required
+        language: required      
+      x-required-permission: notification.template.create
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemplateCreateRequest"    
+      responses:
+        '201':
+          description: Tạo template thành công.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                data:
+                  id: "tpl-001"
+                  name: "reset_sms"
+                  type: "sms"
+                  language: "vi"
+                  trigger_event: "password.reset_requested.v1"
+                meta:
+                  request_id: "req-tpl-create-abc"
+                  timestamp: "2025-06-05T10:00:00Z"
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TemplateResponse"
+                  meta:
+                    $ref: "#/components/schemas/ResponseMeta"
+        default:
+          description: Lỗi xử lý – cấu trúc lỗi chuẩn hóa theo ADR-011.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                meta:
+                  request_id: "req-err-999"
+                  timestamp: "2025-06-05T10:15:00Z"
+                error:
+                  code: "template.template_not_found"
+                  message: "Không tìm thấy template yêu cầu"
+                  details:
+                    id: "tpl-999"
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"                      
+
+  /templates/{id}:
+    put:
+      tags: [NotificationTemplate]
+      summary: Cập nhật template
+      operationId: updateNotificationTemplate
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + validate + update-template"
+      x-condition:
+        id: required
+      x-required-permission: notification.template.update
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemplateUpdateRequest"   
+      responses:
+        '204':
+          description: Cập nhật template thành công, không trả về nội dung.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+        default:
+          description: Lỗi xử lý – cấu trúc lỗi chuẩn hóa theo ADR-011.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                meta:
+                  request_id: "req-err-999"
+                  timestamp: "2025-06-05T10:15:00Z"
+                error:
+                  code: "template.template_not_found"
+                  message: "Không tìm thấy template yêu cầu"
+                  details:
+                    id: "tpl-999"
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"                
+
+  /send:
+    post:
+      tags: [ManualSend]
+      summary: Gửi thông báo thủ công
+      operationId: sendNotificationManually
+      x-gateway-enforced: true
+      x-route-evaluation: "check-permission + validate + enqueue-manual-notification"
+      x-emits-event: notification.requested.manual.v1
+      x-condition:
+        template_id: required
+        receiver: required
+        channel: required
+      x-required-permission: notification.send.manual
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManualSendRequest"
+      responses:
+        '202':
+          description: Yêu cầu gửi thông báo được ghi nhận và đưa vào hàng đợi.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                data:
+                  status: "queued"
+                  notification_id: "notif-abc123"
+                meta:
+                  request_id: "req-xyz789"
+                  timestamp: "2025-06-05T09:01:00Z"
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ManualSendResponse"
+                  meta:
+                    $ref: "#/components/schemas/ResponseMeta"
+        default:
+          description: Lỗi xử lý – cấu trúc lỗi chuẩn hóa theo ADR-011.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              example:
+                meta:
+                  request_id: "req-err-999"
+                  timestamp: "2025-06-05T10:15:00Z"
+                error:
+                  code: "template.template_not_found"
+                  message: "Không tìm thấy template yêu cầu"
+                  details:
+                    id: "tpl-999"
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"  
